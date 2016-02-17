@@ -28,8 +28,10 @@ use Application\Database\Database;
 use Application\Util\{Config, Session};
 use Application\Service\{ServiceAdapter, ServiceInterface};
 use Application\Util\Traits\{SingleTrait as Single, GetterTrait as Getter};
-use Application\Http\{Request, Response, Response\Status, Response\ContentType, Response\ContentCharset};
-use Application\Handler\{Error as ErrorHandler, Exception as ExceptionHandler, Shutdown as ShutdownHandler};
+use Application\Http\{Request, Response, Response\Status,
+   Response\ContentType, Response\ContentCharset};
+use Application\Handler\{Error as ErrorHandler, Exception as ExceptionHandler,
+   Shutdown as ShutdownHandler};
 
 /**
  * @package Application
@@ -222,8 +224,8 @@ final class Application
    /**
     * Set application environment.
     *
-    * @param   string $env
-    * @return  self
+    * @param  string $env
+    * @return self
     */
    final public function setEnv(string $env): self
    {
@@ -235,8 +237,8 @@ final class Application
    /**
     * Set application root.
     *
-    * @param   string $root
-    * @return  self
+    * @param  string $root
+    * @return self
     */
    final public function setRoot(string $root): self
    {
@@ -248,8 +250,8 @@ final class Application
    /**
     * Set application config.
     *
-    * @param   string $config
-    * @return  self
+    * @param  string $config
+    * @return self
     */
    final public function setConfig(array $config): self
    {
@@ -270,9 +272,9 @@ final class Application
    /**
     * Set a handler.
     *
-    * @param   string   $name
-    * @param   callable $handler
-    * @return  self
+    * @param  string   $name
+    * @param  callable $handler
+    * @return self
     */
    final public function setHandler($name, callable $handler): self
    {
@@ -298,8 +300,10 @@ final class Application
 
       // multibyte
       mb_internal_encoding($cfg['encoding']);
+
       // timezone
       date_default_timezone_set($cfg['timezone']);
+
       // default charset
       ini_set('default_charset', $cfg['encoding']);
 
@@ -464,6 +468,11 @@ final class Application
       exit(1);
    }
 
+   /**
+    * Halt check for security & safety.
+    *
+    * @return string
+    */
    final private function haltCheck(): string
    {
       // check request count
