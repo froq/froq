@@ -1,0 +1,19 @@
+{
+   "name": "froq/froq",
+   "homepage": "https://github.com/froq/froq",
+   "description": "froq/froq",
+   "keywords": ["froq", "rest", "restful", "service"],
+   "license": "GNU General Public License v3.0",
+   "authors": [{
+      "name": "Kerem Güneş",
+      "email": "k-gun@mail.com"
+   }],
+   "require": {
+     "php": "^7.0"
+   },
+   "autoload": {
+      "classmap": [
+         "src/library/class/"
+      ]
+   }
+}
