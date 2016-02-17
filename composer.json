@@ -9,13 +9,11 @@
       "email": "k-gun@mail.com"
    }],
    "require": {
-     "php": "^7.0",
-     "k-gun/oppa": "dev-master"
+     "php": "^7.0"
    },
    "autoload": {
       "classmap": [
          "src/library/class/"
       ]
-   },
-   "minimum-stability": "stable"
+   }
 }
