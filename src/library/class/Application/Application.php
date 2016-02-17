@@ -26,10 +26,9 @@ namespace Application;
 use Application\Logger\Logger;
 use Application\Database\Database;
 use Application\Util\{Config, Session};
+use Application\Http\{Request, Response};
 use Application\Service\{ServiceAdapter, ServiceInterface};
 use Application\Util\Traits\{SingleTrait as Single, GetterTrait as Getter};
-use Application\Http\{Request, Response, Response\Status,
-   Response\ContentType, Response\ContentCharset};
 use Application\Handler\{Error as ErrorHandler, Exception as ExceptionHandler,
    Shutdown as ShutdownHandler};
 
@@ -208,11 +207,11 @@ final class Application
          $this->session = Session::init($this->config['app.session.cookie']);
       }
 
+      $output = '';
       if (!$this->service->isAllowedRequestMethod($this->request->method)) {
-         // set fail stuff
-         $this->response->setStatus(Status::METHOD_NOT_ALLOWED);
-         $this->response->setContentType(ContentType::NONE);
-         $output = '';
+         // set fail stuff (bad request)
+         $this->response->setStatus(405);
+         $this->response->setContentType('none');
       } else {
          $output = $this->service->run();
       }
