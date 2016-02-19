@@ -180,6 +180,7 @@ final class Application
     * Run!
     *
     * @return void
+    * @throws \RuntimeException
     */
    final public function run()
    {
