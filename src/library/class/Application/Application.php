@@ -176,6 +176,11 @@ final class Application
       restore_exception_handler();
    }
 
+   /**
+    * Run!
+    *
+    * @return void
+    */
    final public function run()
    {
       if (!$this->config) {
