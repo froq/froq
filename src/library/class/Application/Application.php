@@ -377,7 +377,7 @@ final class Application
          $this->response->setBody($output);
       }
 
-      // send response body, headers and cookies
+      // send response cookies, headers and body
       $this->response->sendCookieAll();
       $this->response->sendHeaderAll();
       $this->response->send();
