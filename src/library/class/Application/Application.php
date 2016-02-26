@@ -292,6 +292,17 @@ final class Application
    }
 
    /**
+    * Get a handler.
+    *
+    * @param  string $name
+    * @return callable|null
+    */
+   public function getHandler(string $name)
+   {
+      return isset($this->handlers[$name]) ? $this->handlers[$name] : null;
+   }
+
+   /**
     * Set application defaults.
     *
     * @return self
