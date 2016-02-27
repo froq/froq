@@ -283,10 +283,6 @@ final class Application
     */
    final public function setHandler(string $name, callable $handler): self
    {
-      if (!is_callable($handler)) {
-         throw new \RuntimeException('Handler must be a valid callable!');
-      }
-
       $this->handlers[strtolower($name)] = $handler;
 
       return $this;
