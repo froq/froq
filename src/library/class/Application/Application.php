@@ -380,8 +380,9 @@ final class Application
          }
 
          // use user output handler if provided
-         if (isset($this->handlers['output'])) {
-            $output = $this->handlers['output']($output);
+         $outputHandler = $this->getHandler('output');
+         if ($outputHandler) {
+            $output = $outputHandler($output);
          }
 
          // set response body
