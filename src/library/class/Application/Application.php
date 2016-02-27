@@ -286,6 +286,8 @@ final class Application
       if (!is_callable($handler)) {
          throw new \RuntimeException('Handler must be a valid callable!');
       }
+
+      $name = strtolower($name);
       $this->handlers[$name] = $handler;
 
       return $this;
@@ -299,7 +301,9 @@ final class Application
     */
    public function getHandler(string $name)
    {
-      return isset($this->handlers[$name]) ? $this->handlers[$name] : null;
+      $name = strtolower($name);
+      return isset($this->handlers[$name])
+         ? $this->handlers[$name] : null;
    }
 
    /**
