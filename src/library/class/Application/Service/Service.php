@@ -190,6 +190,15 @@ abstract class Service
          $this->{ServiceInterface::METHOD_INIT}();
       }
 
+      // handlers
+      $appOnBefore = $this->app->getHandler('onBefore');
+      $appOnAfter  = $this->app->getHandler('onAfter');
+
+      // call app's onbefore
+      if ($appOnBefore) {
+         $appOnBefore($this);
+      }
+
       // onbefore method
       if (method_exists($this, ServiceInterface::METHOD_ONBEFORE)) {
          $this->{ServiceInterface::METHOD_ONBEFORE}();
@@ -221,6 +230,11 @@ abstract class Service
       // onafter method
       if (method_exists($this, ServiceInterface::METHOD_ONAFTER)) {
          $this->{ServiceInterface::METHOD_ONAFTER}();
+      }
+
+      // call app's onafter
+      if ($appOnAfter) {
+         $appOnAfter($this);
       }
 
       return $output;
