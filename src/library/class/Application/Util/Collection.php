@@ -37,7 +37,7 @@ class Collection
     *
     * @var array
     */
-   protected $data = array();
+   protected $data = [];
 
    /**
     * Constructor.

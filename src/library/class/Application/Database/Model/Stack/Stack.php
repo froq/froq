@@ -69,7 +69,7 @@ abstract class Stack implements StackInterface
     * Stack data.
     * @var array
     */
-   protected $data = array();
+   protected $data = [];
 
    /**
     * Set a field value.
