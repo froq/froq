@@ -136,18 +136,18 @@ final class Request
       $this->uri = new Uri($this->scheme .'://'.
          $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
 
+      // fix dotted param keys
+      $_GET = $this->fixDottedParamKeys(dig($_SERVER, 'QUERY_STRING'));
+      $_COOKIE = $this->fixDottedParamKeys(dig($_SERVER, 'HTTP_COOKIE'));
+
       // set/parse body for overwrite methods
       switch ($this->method) {
-         case self::METHOD_POST:
-            $this->body = $_POST;
-            break;
          case self::METHOD_PUT:
+         case self::METHOD_POST:
          case self::METHOD_PATCH:
-            $bodyRaw = file_get_contents('php://input');
-            parse_str($bodyRaw, $body);
-            $this->body = $body;
-            // act as post param
-            $_POST = $body;
+            // act as post
+            $_POST = $this->fixDottedParamKeys(file_get_contents('php://input'));
+            $this->body = $_POST;
             break;
       }
 
@@ -221,5 +221,50 @@ final class Request
    final public function isDelete(): bool
    {
       return ($this->method == self::METHOD_DELETE);
+   }
+
+   /**
+    * Fix dotted param keys.
+    *
+    * SORRY RASMUS, SORRY ZEEV..
+    * @see https://github.com/php/php-src/blob/master/main/php_variables.c#L93
+    *
+    * @param  string $source
+    * @return array
+    */
+   final private function fixDottedParamKeys(string $source = null): array
+   {
+      // auto-create
+      $target = [];
+
+      if (empty($source)) {
+         return $target;
+      }
+
+      // hex keys
+      $source = preg_replace_callback('~(^|(?<=&))[^=[&]+~', function($m) {
+         return bin2hex(urldecode($m[0]));
+      }, $source);
+
+      // parse
+      parse_str($source, $source);
+
+      foreach($source as $key => $value) {
+         // prevent strict_types error
+         $key = hex2bin("{$key}");
+
+         // not array
+         if (strpos($key, '[') === false) {
+            $target[$key] = $value;
+            continue;
+         }
+
+         // handle arrays
+         parse_str("{$key}={$value}", $value);
+
+         $target = array_merge_recursive($target, $value);
+      }
+
+      return $target;
    }
 }
