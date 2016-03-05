@@ -64,7 +64,7 @@ final class View
    }
 
    /**
-    * Display/render view file.
+    * Render view file.
     *
     * @param  string $file
     * @param  array  $data
