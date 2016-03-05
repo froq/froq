@@ -38,7 +38,7 @@ final class View
     * @const string
     */
    const PARTIAL_HEAD = 'partial/head',
-        	PARTIAL_FOOT = 'partial/foot';
+         PARTIAL_FOOT = 'partial/foot';
 
    /**
     * Application object.
@@ -127,7 +127,7 @@ final class View
     * @param  bool   $fileCheck
     * @return string
     */
-   final public function prepareFile(string $file, bool $fileCheck = true)
+   final public function prepareFile(string $file, bool $fileCheck = true): string
    {
       // default file given
       if ($file[0] == '.') {
@@ -151,7 +151,7 @@ final class View
     * @param  bool   $fileCheck
     * @return string
     */
-   final public function prepareFileGlobal(string $file, bool $fileCheck = true)
+   final public function prepareFileGlobal(string $file, bool $fileCheck = true): string
    {
       $file = sprintf('./app/service/view/%s.php', $file);
       if ($fileCheck && !is_file($file)) {
