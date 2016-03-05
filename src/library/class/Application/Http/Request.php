@@ -138,7 +138,7 @@ final class Request
          $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
 
       // fix dotted get keys
-      $_GET = $this->loadGlobalVars('GET');
+      $_GET = $this->loadGlobalVar('GET');
 
       // set/parse body for overwrite methods
       switch ($this->method) {
@@ -146,13 +146,13 @@ final class Request
          case self::METHOD_POST:
          case self::METHOD_PATCH:
             // act as post
-            $_POST = $this->loadGlobalVars('POST');
+            $_POST = $this->loadGlobalVar('POST');
             $this->body = $_POST;
             break;
       }
 
       // fix dotted cookie keys
-      $_COOKIE = $this->loadGlobalVars('COOKIE');
+      $_COOKIE = $this->loadGlobalVar('COOKIE');
 
       // set times
       $this->time = (int) $_SERVER['REQUEST_TIME'];
@@ -232,15 +232,15 @@ final class Request
     * SORRY RASMUS, SORRY ZEEV..
     * @see https://github.com/php/php-src/blob/master/main/php_variables.c#L93
     *
-    * @param  string $varName
+    * @param  string $name
     * @return array
     */
-   final private function loadGlobalVars(string $varName): array
+   final private function loadGlobalVar(string $name): array
    {
       $source = '';
       $return = [];
 
-      switch ($varName) {
+      switch ($name) {
          case 'GET':
             $source = dig($_SERVER, 'QUERY_STRING');
             break;
