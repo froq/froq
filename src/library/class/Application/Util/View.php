@@ -193,8 +193,9 @@ final class View
    /**
     * Add inline style tag.
     *
-    * @param string $style
-    * @param string $dir
+    * @param  string $style
+    * @param  string $dir
+    * @return self
     */
    final public function addStyle(string $style, string $dir = self::ASSET_DIR_PRE): self
    {
@@ -206,7 +207,8 @@ final class View
    /**
     * Add inline style tag after body.
     *
-    * @param string $style
+    * @param  string $style
+    * @return self
     */
    final public function addStylePre(string $style): self
    {
@@ -216,7 +218,8 @@ final class View
    /**
     * Add inline style tag before body.
     *
-    * @param string $style
+    * @param  string $style
+    * @return self
     */
    final public function addStylePost(string $style): self
    {
