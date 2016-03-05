@@ -470,9 +470,11 @@ final class Response
          case ContentType::HTML:
             // check for page title
             if ($pageTitle = get_global('page.title')) {
+               $pageTitlePre = get_global('page.title.pre');
+               $pageTitlePost = get_global('page.title.post');
                $body = preg_replace(
                   '~<title>(.*?)</title>~s',
-                   '<title>'. html_encode($pageTitle) .'</title>',
+                   '<title>'. html_encode($pageTitlePre . $pageTitle . $pageTitlePost) .'</title>',
                      $body, 1 // only once
                );
             }

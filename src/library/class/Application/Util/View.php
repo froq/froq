@@ -54,6 +54,14 @@ final class View
    private $app;
 
    /**
+    * View metas.
+    *    Available names to replace while sending HTML output are;
+    *    page.title, page.title.pre, page.title.post, page.description
+    * @var array
+    */
+   private $metas = [];
+
+   /**
     * Inline pre/post styles.
     * @var array
     */
@@ -86,11 +94,18 @@ final class View
    {
       $this->includeFile($this->prepareFile($file), $data);
 
+      // make global metas
+      if (!empty($this->metas)) {
+         foreach ($this->metas as $name => $value) {
+            set_global($name, $value);
+         }
+      }
+
       // short-ref
       $dirPre = self::ASSET_DIR_PRE;
       $dirPost = self::ASSET_DIR_POST;
 
-      // add pre styles
+      // make global pre styles
       if (isset($this->assetStyles[$dirPre])) {
          $stylePrepend = '';
          foreach ($this->assetStyles[$dirPre] as $style) {
@@ -99,7 +114,7 @@ final class View
          set_global('style.prepend', trim($stylePrepend));
       }
 
-      // add post styles
+      // make global post styles
       if (isset($this->assetStyles[$dirPost])) {
          $styleAppend = '';
          foreach ($this->assetStyles[$dirPost] as $style) {
@@ -108,7 +123,7 @@ final class View
          set_global('style.append', trim($styleAppend));
       }
 
-      // add pre scripts
+      // make global pre scripts
       if (isset($this->assetScripts[$dirPre])) {
          $scriptPrepend = '';
          foreach ($this->assetScripts[$dirPre] as $script) {
@@ -117,7 +132,7 @@ final class View
          set_global('script.prepend', trim($scriptPrepend));
       }
 
-      // add post scripts
+      // make global post scripts
       if (isset($this->assetScripts[$dirPost])) {
          $scriptAppend = '';
          foreach ($this->assetScripts[$dirPost] as $script) {
@@ -218,6 +233,31 @@ final class View
       }
 
       return $file;
+   }
+
+   /**
+    * Add meta.
+    *
+    * @param string $name
+    * @param string $value
+    */
+   final public function setMeta(string $name, string $value): self
+   {
+      $this->metas[$name] = $value;
+
+      return $this;
+   }
+
+   /**
+    * Get meta.
+    *
+    * @param  string $name
+    * @param  string $valueDefault
+    * @return string
+    */
+   final public function getMeta(string $name, string $valueDefault = ''): string
+   {
+      return $this->metas[$name] ?? $valueDefault;
    }
 
    /**
