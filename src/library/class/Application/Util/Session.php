@@ -470,13 +470,16 @@ final class Session
    {
       // get flash message
       if ($message === null) {
-         $message = $this->get('@@@flash@@@');
-         $this->remove('@@@flash@@@');
+         $message = $this->get('@flash');
+
+         // remove
+         $this->remove('@flash');
 
          return $message;
       }
 
-      return $this->set('@@@flash@@@', $message);
+      // set message
+      $this->set('@flash', $message);
    }
 
    /**
