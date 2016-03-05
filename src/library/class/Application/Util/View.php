@@ -76,7 +76,7 @@ final class View
    }
 
    /**
-    * Display/render partial/header file.
+    * Render partial/header file.
     *
     * @param  array $data
     * @return void
@@ -94,7 +94,7 @@ final class View
    }
 
    /**
-    * Display/render partial/footer file.
+    * Render partial/footer file.
     *
     * @param  array $data
     * @return void
