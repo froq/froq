@@ -232,7 +232,6 @@ function html_selected($a, $b, bool $strict = false): string
 
 /**
  * Compress HTML content.
- * @todo   This is corrupting input fields \n's @fixed
  * @param  string $input
  * @return string
  */
