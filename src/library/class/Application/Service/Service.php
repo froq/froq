@@ -132,7 +132,7 @@ abstract class Service
       // autoloads
       $this->loadConfig();
       $this->loadModel();
-      $this->view = new View($this);
+      $this->view = new View($this->app);
 
       // prevent lowercased method names
       if (!empty($this->allowedRequestMethods)) {

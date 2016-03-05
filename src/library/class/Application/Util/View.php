@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Application\Util;
 
-use Application\Service\ServiceInterface;
+use Application\Application;
 
 /**
  * @package    Application
@@ -47,20 +47,13 @@ final class View
    private $app;
 
    /**
-    * Service object.
-    * @var Application\Service\ServiceInterface
-    */
-   private $service;
-
-   /**
     * Constructor.
     *
-    * @param Application\Service\ServiceInterface $service
+    * @param Application\Application $app
     */
-   final public function __construct(ServiceInterface $service)
+   final public function __construct(Application $app)
    {
-      $this->app = $service->app;
-      $this->service = $service;
+      $this->app = $app;
    }
 
    /**
@@ -140,7 +133,8 @@ final class View
       if ($file[0] == '.') {
          $file = sprintf('%s.php', $file);
       } else {
-         $file = sprintf('./app/service/%s/view/%s.php', $this->service->name, $file);
+         $file = sprintf('./app/service/%s/view/%s.php',
+            $this->app->service->name, $file);
       }
 
       if ($fileCheck && !is_file($file)) {
