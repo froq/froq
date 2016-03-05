@@ -136,9 +136,8 @@ final class Request
       $this->uri = new Uri($this->scheme .'://'.
          $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
 
-      // fix dotted param keys
-      $_GET = $this->fixDottedParamKeys(dig($_SERVER, 'QUERY_STRING'));
-      $_COOKIE = $this->fixDottedParamKeys(dig($_SERVER, 'HTTP_COOKIE'));
+      // fix dotted get keys
+      $_GET = $this->loadGlobalVars('GET');
 
       // set/parse body for overwrite methods
       switch ($this->method) {
@@ -146,10 +145,13 @@ final class Request
          case self::METHOD_POST:
          case self::METHOD_PATCH:
             // act as post
-            $_POST = $this->fixDottedParamKeys(file_get_contents('php://input'));
+            $_POST = $this->loadGlobalVars('POST');
             $this->body = $_POST;
             break;
       }
+
+      // fix dotted cookie keys
+      $_COOKIE = $this->loadGlobalVars('COOKIE');
 
       // set times
       $this->time = (int) $_SERVER['REQUEST_TIME'];
@@ -229,16 +231,28 @@ final class Request
     * SORRY RASMUS, SORRY ZEEV..
     * @see https://github.com/php/php-src/blob/master/main/php_variables.c#L93
     *
-    * @param  string $source
+    * @param  string $varName
     * @return array
     */
-   final private function fixDottedParamKeys(string $source = null): array
+   final private function loadGlobalVars(string $varName): array
    {
-      // auto-create
-      $target = [];
+      $source = '';
+      $return = [];
+
+      switch ($varName) {
+         case 'GET':
+            $source = dig($_SERVER, 'QUERY_STRING');
+            break;
+         case 'POST':
+            $source = file_get_contents('php://input');
+            break;
+         case 'COOKIE':
+            $source = implode('&', array_map('trim', explode(';', dig($_SERVER, 'HTTP_COOKIE'))));
+            break;
+      }
 
       if (empty($source)) {
-         return $target;
+         return $return;
       }
 
       // hex keys
@@ -255,16 +269,16 @@ final class Request
 
          // not array
          if (strpos($key, '[') === false) {
-            $target[$key] = $value;
+            $return[$key] = $value;
             continue;
          }
 
          // handle arrays
          parse_str("{$key}={$value}", $value);
 
-         $target = array_merge_recursive($target, $value);
+         $return = array_merge_recursive($return, $value);
       }
 
-      return $target;
+      return $return;
    }
 }
