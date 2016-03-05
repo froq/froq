@@ -406,7 +406,7 @@ final class Session
    {
       if (isset($_COOKIE[$this->name])) {
          $cookieParams = session_get_cookie_params();
-         setcookie($this->name, null, 322790400,
+         setcookie($this->name, '', 322790400,
             $cookieParams['path'],
             $cookieParams['domain'],
             $cookieParams['secure']
