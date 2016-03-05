@@ -120,7 +120,9 @@ final class View
     */
    final public function includeFile(string $file, array $data = null)
    {
-      extract((array) $data);
+      if (!empty($data)) {
+         extract($data);
+      }
 
       include($file);
    }
