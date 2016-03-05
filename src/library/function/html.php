@@ -183,7 +183,7 @@ function html_options($input, $current = null, $extra = null, array $pairs = nul
  * @param  bool  $strict
  * @return string
  */
-function html_checked($a, $b, $strict = false): string
+function html_checked($a, $b, bool $strict = false): string
 {
    if ($a !== null) {
       return !$strict
@@ -201,7 +201,7 @@ function html_checked($a, $b, $strict = false): string
  * @param  bool  $strict
  * @return string
  */
-function html_disabled($a, $b, $strict = false): string
+function html_disabled($a, $b, bool $strict = false): string
 {
    if ($a !== null) {
       return !$strict
@@ -219,7 +219,7 @@ function html_disabled($a, $b, $strict = false): string
  * @param  bool  $strict
  * @return string
  */
-function html_selected($a, $b, $strict = false): string
+function html_selected($a, $b, bool $strict = false): string
 {
    if ($a !== null) {
       return !$strict
@@ -236,7 +236,7 @@ function html_selected($a, $b, $strict = false): string
  * @param  string $input
  * @return string
  */
-function html_compress($input): string
+function html_compress(string $input): string
 {
    // scripts
    $input = preg_replace_callback('~(<script>(.*?)</script>)~sm', function($match) {
