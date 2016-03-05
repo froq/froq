@@ -476,6 +476,7 @@ final class Response
                      $body, 1 // only once
                );
             }
+
             // check page description
             if ($pageDescription = get_global('page.description')) {
                $body = preg_replace(
@@ -484,13 +485,25 @@ final class Response
                      $body, 1 // only once
                );
             }
-            // append/prepend inline styles
+
+            // prepend inline scripts
+            if ($scriptPrepend = get_global('script.prepend')) {
+               $body = preg_replace('~<body([^>]*)>~', "<body\\1>\n{$scriptPrepend}\n", $body, 1);
+            }
+
+            // prepend/append inline styles
             if ($stylePrepend = get_global('style.prepend')) {
                $body = preg_replace('~<body([^>]*)>~', "<body\\1>\n{$stylePrepend}\n", $body, 1);
             }
             if ($styleAppend = get_global('style.append')) {
                $body = preg_replace('~</body>~', "\n{$styleAppend}\n</body>", $body, 1);
             }
+
+            // append inline scripts
+            if ($scriptAppend = get_global('script.append')) {
+               $body = preg_replace('~</body>~', "\n{$scriptAppend}\n</body>", $body, 1);
+            }
+
             break;
       }
 

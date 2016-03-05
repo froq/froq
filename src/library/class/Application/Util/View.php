@@ -60,6 +60,12 @@ final class View
    private $assetStyles = [];
 
    /**
+    * Inline pre/post scripts.
+    * @var array
+    */
+   private $assetScripts = [];
+
+   /**
     * Constructor.
     *
     * @param Application\Application $app
@@ -80,20 +86,44 @@ final class View
    {
       $this->includeFile($this->prepareFile($file), $data);
 
-      // add pre/post styles
-      if (isset($this->assetStyles[self::ASSET_DIR_PRE])) {
+      // short-ref
+      $dirPre = self::ASSET_DIR_PRE;
+      $dirPost = self::ASSET_DIR_POST;
+
+      // add pre styles
+      if (isset($this->assetStyles[$dirPre])) {
          $stylePrepend = '';
-         foreach ($this->assetStyles[self::ASSET_DIR_PRE] as $style) {
-            $stylePrepend .= "<style>{$style}</style>\n";
+         foreach ($this->assetStyles[$dirPre] as $style) {
+            $stylePrepend .= sprintf("<style>%s</style>\n", $style);
          }
          set_global('style.prepend', trim($stylePrepend));
       }
-      if (isset($this->assetStyles[self::ASSET_DIR_POST])) {
+
+      // add post styles
+      if (isset($this->assetStyles[$dirPost])) {
          $styleAppend = '';
-         foreach ($this->assetStyles[self::ASSET_DIR_POST] as $style) {
-            $styleAppend .= "<style>{$style}</style>\n";
+         foreach ($this->assetStyles[$dirPost] as $style) {
+            $styleAppend .= sprintf("<style>%s</style>\n", $style);
          }
          set_global('style.append', trim($styleAppend));
+      }
+
+      // add pre scripts
+      if (isset($this->assetScripts[$dirPre])) {
+         $scriptPrepend = '';
+         foreach ($this->assetScripts[$dirPre] as $script) {
+            $scriptPrepend .= sprintf("<script>%s</script>\n", $script);
+         }
+         set_global('script.prepend', trim($scriptPrepend));
+      }
+
+      // add post scripts
+      if (isset($this->assetScripts[$dirPost])) {
+         $scriptAppend = '';
+         foreach ($this->assetScripts[$dirPost] as $script) {
+            $scriptAppend .= sprintf('<script>%s</script>\n', $script);
+         }
+         set_global('script.append', trim($scriptAppend));
       }
    }
 
@@ -193,9 +223,8 @@ final class View
    /**
     * Add inline style tag.
     *
-    * @param  string $style
-    * @param  string $dir
-    * @return self
+    * @param string $style
+    * @param string $dir
     */
    final public function addStyle(string $style, string $dir = self::ASSET_DIR_PRE): self
    {
@@ -207,8 +236,7 @@ final class View
    /**
     * Add inline style tag after body.
     *
-    * @param  string $style
-    * @return self
+    * @param string $style
     */
    final public function addStylePre(string $style): self
    {
@@ -218,11 +246,43 @@ final class View
    /**
     * Add inline style tag before body.
     *
-    * @param  string $style
-    * @return self
+    * @param string $style
     */
    final public function addStylePost(string $style): self
    {
       return $this->addStyle($style, self::ASSET_DIR_POST);
+   }
+
+   /**
+    * Add inline script tag.
+    *
+    * @param string $script
+    * @param string $dir
+    */
+   final public function addScript(string $script, string $dir = self::ASSET_DIR_PRE): self
+   {
+      $this->assetScripts[$dir][] = $script;
+
+      return $this;
+   }
+
+   /**
+    * Add inline script tag after body.
+    *
+    * @param string $script
+    */
+   final public function addScriptPre(string $script): self
+   {
+      return $this->addScript($script, self::ASSET_DIR_PRE);
+   }
+
+   /**
+    * Add inline script tag before body.
+    *
+    * @param string $script
+    */
+   final public function addScriptPost(string $script): self
+   {
+      return $this->addScript($script, self::ASSET_DIR_POST);
    }
 }
