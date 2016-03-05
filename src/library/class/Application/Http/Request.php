@@ -80,7 +80,8 @@ final class Request
     * Parsed and raw data.
     * @var array, string
     */
-   private $body = [], $bodyRaw = '';
+   private $body = [],
+           $bodyRaw = ''; // @wait
 
    /**
     * Request time/time float.
