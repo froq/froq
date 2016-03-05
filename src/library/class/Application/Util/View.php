@@ -41,10 +41,23 @@ final class View
          PARTIAL_FOOT = 'partial/foot';
 
    /**
+    * Asset pre/post directions.
+    * @const string, string
+    */
+   const ASSET_DIR_PRE  = 'pre',
+         ASSET_DIR_POST = 'post';
+
+   /**
     * Application object.
     * @var Application\Application
     */
    private $app;
+
+   /**
+    * Inline pre/post styles.
+    * @var array
+    */
+   private $assetStyles = [];
 
    /**
     * Constructor.
@@ -66,6 +79,22 @@ final class View
    final public function display(string $file, array $data = null)
    {
       $this->includeFile($this->prepareFile($file), $data);
+
+      // add pre/post styles
+      if (isset($this->assetStyles[self::ASSET_DIR_PRE])) {
+         $stylePrepend = '';
+         foreach ($this->assetStyles[self::ASSET_DIR_PRE] as $style) {
+            $stylePrepend .= "<style>{$style}</style>\n";
+         }
+         set_global('style.prepend', trim($stylePrepend));
+      }
+      if (isset($this->assetStyles[self::ASSET_DIR_POST])) {
+         $styleAppend = '';
+         foreach ($this->assetStyles[self::ASSET_DIR_POST] as $style) {
+            $styleAppend .= "<style>{$style}</style>\n";
+         }
+         set_global('style.append', trim($styleAppend));
+      }
    }
 
    /**
@@ -159,5 +188,38 @@ final class View
       }
 
       return $file;
+   }
+
+   /**
+    * Add inline style tag.
+    *
+    * @param string $style
+    * @param string $dir
+    */
+   final public function addStyle(string $style, string $dir = self::ASSET_DIR_PRE): self
+   {
+      $this->assetStyles[$dir][] = $style;
+
+      return $this;
+   }
+
+   /**
+    * Add inline style tag after body.
+    *
+    * @param string $style
+    */
+   final public function addStylePre(string $style): self
+   {
+      return $this->addStyle($style, self::ASSET_DIR_PRE);
+   }
+
+   /**
+    * Add inline style tag before body.
+    *
+    * @param string $style
+    */
+   final public function addStylePost(string $style): self
+   {
+      return $this->addStyle($style, self::ASSET_DIR_POST);
    }
 }

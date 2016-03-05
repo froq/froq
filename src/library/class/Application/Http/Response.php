@@ -484,6 +484,13 @@ final class Response
                      $body, 1 // only once
                );
             }
+            // append/prepend inline styles
+            if ($stylePrepend = get_global('style.prepend')) {
+               $body = preg_replace('~<body([^>]*)>~', "<body\\1>\n{$stylePrepend}\n", $body, 1);
+            }
+            if ($styleAppend = get_global('style.append')) {
+               $body = preg_replace('~</body>~', "\n{$styleAppend}\n</body>", $body, 1);
+            }
             break;
       }
 
