@@ -102,9 +102,10 @@ final class ServiceAdapter
       if (!$this->isServiceExists()) {
          $this->serviceViewData['fail']['code'] = Status::NOT_FOUND;
          $this->serviceViewData['fail']['text'] = sprintf(
-            'Service not found! [%s]', $this->serviceName);
+            'Service not found [%s]', $this->serviceName);
          $this->serviceName = ServiceInterface::SERVICE_FAIL;
-         $this->serviceFile = $this->toServiceFile($this->serviceName);
+         $this->serviceMethod = ServiceInterface::METHOD_MAIN;
+         $this->serviceFile = $this->toServiceFile($this->serviceName, true);
       }
 
       // create service
@@ -122,11 +123,11 @@ final class ServiceAdapter
       if (!$this->isServiceFail() && !$this->isServiceMethodExists()) {
          $this->serviceViewData['fail']['code'] = Status::NOT_FOUND;
          $this->serviceViewData['fail']['text'] = sprintf(
-            'Service method not found! [%s::%s()]', $this->serviceName, $this->serviceMethod);
+            'Service method not found [%s::%s()]', $this->serviceName, $this->serviceMethod);
          // overwrite
          $this->serviceName = ServiceInterface::SERVICE_FAIL;
          $this->serviceMethod = ServiceInterface::METHOD_MAIN;
-         $this->serviceFile = $this->toServiceFile($this->serviceName);
+         $this->serviceFile = $this->toServiceFile($this->serviceName, true);
 
          // re-create service as FailService
          $this->service = $this->createService();
@@ -263,9 +264,10 @@ final class ServiceAdapter
     * Prepare service file.
     *
     * @param  string $file
+    * @param  bool   $load;
     * @return string
     */
-   final private function toServiceFile(string $serviceName): string
+   final private function toServiceFile(string $serviceName, bool $load = false): string
    {
       $serviceFile = sprintf('./app/service/%s/%s.php', $serviceName, $serviceName);
       if (!is_file($serviceFile) && (
@@ -273,6 +275,11 @@ final class ServiceAdapter
          $serviceName == ServiceInterface::SERVICE_FAIL
       )) {
          $serviceFile = sprintf('./app/service/default/%s/%s.php', $serviceName, $serviceName);
+      }
+
+      // load?
+      if ($load) {
+         require($serviceFile);
       }
 
       return $serviceFile;
