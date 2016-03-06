@@ -153,7 +153,15 @@ final class ServiceAdapter
     */
    final public function isServiceExists(): bool
    {
-      return is_file($this->serviceFile) && class_exists($this->serviceName);
+      // check file first
+      if (!is_file($this->serviceFile)) {
+         return false;
+      }
+
+      // bypass autoload
+      require($this->serviceFile);
+
+      return class_exists($this->serviceName, false);
    }
 
    /**
@@ -265,8 +273,6 @@ final class ServiceAdapter
          $serviceName == ServiceInterface::SERVICE_FAIL
       )) {
          $serviceFile = sprintf('./app/service/default/%s/%s.php', $serviceName, $serviceName);
-         // no need to autoload
-         require_once($serviceFile);
       }
 
       return $serviceFile;
