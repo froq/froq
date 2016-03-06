@@ -191,8 +191,8 @@ abstract class Service
       }
 
       // handlers
-      $appOnBefore = $this->app->getHandler('onBefore');
-      $appOnAfter  = $this->app->getHandler('onAfter');
+      $appOnBefore = $this->app->getHandler('onbefore');
+      $appOnAfter  = $this->app->getHandler('onafter');
 
       // call app's onbefore
       if ($appOnBefore) {

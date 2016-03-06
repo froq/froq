@@ -296,8 +296,7 @@ final class Application
     */
    public function getHandler(string $name)
    {
-      return isset($this->handlers[$name = strtolower($name)])
-         ? $this->handlers[$name] : null;
+      return $this->handlers[strtolower($name)] ?? null;
    }
 
    /**
