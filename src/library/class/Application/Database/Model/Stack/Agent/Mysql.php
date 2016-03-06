@@ -51,7 +51,7 @@ final class Mysql extends Stack
    /**
     * Find an object.
     *
-    * @param  string $primaryValue
+    * @param  mixed $primaryValue
     * @return mixed
     */
    public function find($primaryValue = null)
