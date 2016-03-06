@@ -211,8 +211,17 @@ final class View
             $this->app->service->name, $file);
       }
 
+      // check file
       if ($fileCheck && !is_file($file)) {
-         throw new \RuntimeException('View file not found! file: '. $file);
+         // look up default folder
+         if ($this->app->service->isDefault()) {
+            $file = sprintf('./app/service/default/%s/view/%s',
+               $this->app->service->name, basename($file));
+         }
+
+         if (!is_file($file)) {
+            throw new \RuntimeException('View file not found! file: '. $file);
+         }
       }
 
       return $file;
