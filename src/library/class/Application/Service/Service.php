@@ -337,4 +337,17 @@ abstract class Service
          $this->view->display($file, $data);
       }
    }
+
+   /**
+    * Check is default service (fail, main).
+    *
+    * @return bool
+    */
+   final public function isDefault(): bool
+   {
+      return (
+         $this->name == ServiceInterface::SERVICE_MAIN ||
+         $this->name == ServiceInterface::SERVICE_FAIL
+      );
+   }
 }
