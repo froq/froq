@@ -301,7 +301,7 @@ abstract class Service
    {
       $file = sprintf('./app/service/%s/model/model.php', $this->name);
       if (is_file($file)) {
-         include($file);
+         require($file);
       }
 
       return $this;
