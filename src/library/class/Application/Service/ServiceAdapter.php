@@ -217,9 +217,9 @@ final class ServiceAdapter
    /**
     * Create service.
     *
-    * @return Application\Service\Service
+    * @return Application\Service\ServiceInterface
     */
-   final private function createService(): Service
+   final private function createService(): ServiceInterface
    {
       return new $this->serviceName(
          $this->app,
