@@ -55,10 +55,10 @@ abstract class Service
    protected $name;
 
    /**
-    * Service method.
-    * @var string
+    * Service method, method args.
+    * @var string, array
     */
-   protected $method;
+   protected $method, $methodArgs = [];
 
    /**
     * Service model.
@@ -126,6 +126,7 @@ abstract class Service
 
       $this->setName($name);
       $this->setMethod($method);
+      $this->setMethodArgs(null);
 
       $this->viewData = $viewData;
 
@@ -162,6 +163,23 @@ abstract class Service
    final public function setMethod(string $method = null): self
    {
       $this->method = (string) $method;
+
+      return $this;
+   }
+
+   /**
+    * Set method args.
+    *
+    * @param  $methodArgs
+    * @return self
+    */
+   final public function setMethodArgs(array $methodArgs = null): self
+   {
+      if ($methodArgs === null) {
+         $methodArgs = array_slice($this->app->request->uri->segments(), 2);
+      }
+
+      $this->methodArgs = $methodArgs;
 
       return $this;
    }
@@ -211,7 +229,7 @@ abstract class Service
          if ($this->useMainOnly || $this->isMain()) {
             $output = $this->{ServiceInterface::METHOD_MAIN}();
          } elseif (method_exists($this, $this->method)) {
-            $output = $this->{$this->method}();
+            $output = call_user_func_array([$this, $this->method], $this->methodArgs);
          } else {
             // call fail::main
             $output = $this->{ServiceInterface::METHOD_MAIN}();
@@ -220,7 +238,7 @@ abstract class Service
       // rest interface
       elseif ($this->protocol == ServiceInterface::PROTOCOL_REST) {
          if (method_exists($this, $this->method)) {
-            $output = $this->{$this->method}();
+            $output = call_user_func_array([$this, $this->method], $this->methodArgs);
          } else {
             // call fail::main
             $output = $this->{ServiceInterface::METHOD_MAIN}();
