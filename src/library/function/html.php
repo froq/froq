@@ -28,9 +28,10 @@ declare(strict_types=1);
  * @param  string $input
  * @return string
  */
-function html_encode(string $input): string
+function html_encode(string $input = null): string
 {
-   if ($input = trim($input)) {
+   $input = trim("{$input}");
+   if ($input) {
       $input = str_replace(
          ["'"    , '"'    , '\\'   , '<'   , '>'],
          ['&#39;', '&#34;', '&#92;', '&lt;', '&gt;'],
@@ -46,9 +47,10 @@ function html_encode(string $input): string
  * @param  string $input
  * @return string
  */
-function html_decode(string $input): string
+function html_decode(string $input = null): string
 {
-   if ($input = trim($input)) {
+   $input = trim("{$input}");
+   if ($input) {
       $input = str_ireplace(
          ['&#39;', '&#34;', '&#92;', '&lt;', '&gt;'],
          ["'"    , '"'    , '\\'   , '<'   , '>'],
@@ -65,13 +67,13 @@ function html_decode(string $input): string
  * @param  bool   $decode
  * @return string
  */
-function html_strip(string $input, bool $decode = false): string
+function html_strip(string $input = null, bool $decode = false): string
 {
    if ($decode) {
       $input = html_decode($input);
    }
 
-   return strip_tags($input);
+   return strip_tags("{$input}");
 }
 
 /**
@@ -80,7 +82,7 @@ function html_strip(string $input, bool $decode = false): string
  * @param  bool   $decode
  * @return string
  */
-function html_remove(string $input, bool $decode = false): string
+function html_remove(string $input = null, bool $decode = false): string
 {
    if ($decode) {
       $input = html_decode($input);
@@ -235,8 +237,12 @@ function html_selected($a, $b, bool $strict = false): string
  * @param  string $input
  * @return string
  */
-function html_compress(string $input): string
+function html_compress(string $input = null): string
 {
+   if ($input === null) {
+      return '';
+   }
+
    // scripts
    $input = preg_replace_callback('~(<script>(.*?)</script>)~sm', function($match) {
       $input = trim($match[2]);
