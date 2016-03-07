@@ -463,10 +463,10 @@ final class Session
    /**
     * Flash messages.
     *
-    * @param  string $message
+    * @param  mixed $message
     * @return mixed
     */
-   final public function flash(string $message = null)
+   final public function flash($message = null)
    {
       // get flash message
       if ($message === null) {
