@@ -52,7 +52,7 @@ final class Mysql extends Stack
     * Find an object.
     *
     * @param  mixed $primaryValue
-    * @return mixed
+    * @return stcClass|null
     */
    public function find($primaryValue = null)
    {
@@ -61,13 +61,13 @@ final class Mysql extends Stack
       }
 
       if ($primaryValue === null) {
-         return null;
+         return;
       }
 
       try {
          return $this->db->getConnection()->getAgent()->get(
             "SELECT * FROM `{$this->name}` WHERE `{$this->primary}` = ?", [$primaryValue]);
-      } catch (\Exception $e) { return null; }
+      } catch (\Exception $e) {}
    }
 
    /**
@@ -77,7 +77,7 @@ final class Mysql extends Stack
     * @param  array     $params
     * @param  int|array $limit
     * @param  int       $order
-    * @return mixed
+    * @return array|null
     */
    public function findAll(string $where = null, array $params = null, $limit = null,
       int $order = -1)
@@ -95,7 +95,7 @@ final class Mysql extends Stack
          ) . $agent->limit($limit ?: self::SELECT_LIMIT);
 
          return $agent->getAll($query, $params);
-      } catch (\Exception $e) { return null; }
+      } catch (\Exception $e) {}
    }
 
    /**
@@ -116,7 +116,7 @@ final class Mysql extends Stack
          // update
          return $agent->update($this->name, $this->data,
             "`{$this->primary}` = ?", [$this->data[$this->primary]]);
-      } catch (\Exception $e) { return null; }
+      } catch (\Exception $e) {}
    }
 
    /**
@@ -131,11 +131,11 @@ final class Mysql extends Stack
 
          // check
          if (!isset($this->data[$this->primary])) {
-            return null;
+            return;
          }
 
          return $agent->delete($this->name,
             "`{$this->primary}` = ?", [$this->data[$this->primary]]);
-      } catch (\Exception $e) { return null; }
+      } catch (\Exception $e) {}
    }
 }
