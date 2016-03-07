@@ -125,4 +125,27 @@ abstract class Stack implements StackInterface
    {
       unset($this->data[$key]);
    }
+
+   /**
+    * Set data.
+    *
+    * @param  array $data
+    * @return self
+    */
+   final public function setData(array $data): self
+   {
+      $this->data = $data;
+
+      return $this;
+   }
+
+   /**
+    * Get data.
+    *
+    * @return array
+    */
+   final public function getData(): array
+   {
+      return $this->data;
+   }
 }
