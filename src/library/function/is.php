@@ -87,3 +87,22 @@ function is_iter($input): bool
       || ($input instanceof \stdClass)
       || ($input instanceof \Traversable);
 }
+
+/**
+ * Check empty vars.
+ * @param  array ...$inputs
+ * @return bool
+ */
+function is_empty(...$inputs): bool
+{
+   foreach ($inputs as $input) {
+      if (empty($input)) {
+         return true;
+      }
+      if (is_object($input) && empty((array) $input)) {
+         return true;
+      }
+   }
+
+   return false;
+}
