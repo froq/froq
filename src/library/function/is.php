@@ -37,13 +37,21 @@ function is_local(): bool
 
 /**
  * Check input is in array.
- * @param  mixed $input
- * @param  array $array
+ * @param  array        $array
+ * @param  string|array $input
  * @return bool
  */
-function is_in($input, array $array): bool
+function is_in(array $array, $input): bool
 {
-   // @extend if needs
+   if (is_array($input)) {
+      foreach ($input as $input) {
+         if (in_array($input, $array)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    return in_array($input, $array);
 }
 
