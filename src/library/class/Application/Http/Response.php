@@ -456,7 +456,7 @@ final class Response
 
             // simply check for pretty print
             $app = app();
-            if (is_in($app->request->params->get['pp'], ['1', 'true'])) {
+            if (in_array($app->request->params->get['pp'], ['1', 'true'])) {
                $body = $json->encode(JSON_PRETTY_PRINT);
             } else {
                $body = $json->encode();
