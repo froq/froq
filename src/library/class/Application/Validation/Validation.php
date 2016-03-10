@@ -81,6 +81,7 @@ final class Validation
     */
    final public function validate(array &$data, &$fails = null): bool
    {
+      // no data to validate
       if (empty($data)) {
          return false;
       }
@@ -98,7 +99,6 @@ final class Validation
          if (!$rule->ok($fieldValue)) {
             $fails[$fieldName] = $rule->fail;
          }
-            prd($fieldValue);
 
          // overwrite
          $data[$fieldName] = $fieldValue;
