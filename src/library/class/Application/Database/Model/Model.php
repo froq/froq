@@ -66,7 +66,10 @@ abstract class Model
          // only mysql for now
          case Database::VENDOR_MYSQL:
             $this->stack = new Mysql(
-               Database::init(Database::VENDOR_MYSQL), $this->stackName, $this->stackPrimary);
+               Database::init(Database::VENDOR_MYSQL),
+               $this->stackName,
+               $this->stackPrimary
+            );
             break;
          default:
             throw new \Exception('Unimplemented vendor given!');
