@@ -87,7 +87,7 @@ final class Validation
       }
 
       foreach ($this->rules as $rule) {
-         // not defined field
+         // not defined field, nothing to do
          if (!array_key_exists($rule->fieldName, $data)) {
             continue;
          }
