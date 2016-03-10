@@ -146,10 +146,12 @@ final class Validation
     * @param  array $fails
     * @return self
     */
-   final public function setFails(array $fails): self
+   final public function setFails(array $fails = null): self
    {
-      foreach ($fails as $fieldName => $fail) {
-         $this->fails[$fieldName] = $fail;
+      if (!empty($fails)) {
+         foreach ($fails as $fieldName => $fail) {
+            $this->fails[$fieldName] = $fail;
+         }
       }
 
       return $this;
