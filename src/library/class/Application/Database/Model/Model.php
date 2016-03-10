@@ -147,6 +147,21 @@ abstract class Model
    }
 
    /**
+    * Load field values.
+    *
+    * @param  array  $data
+    * @return self
+    */
+   final public function load(array $data): self
+   {
+      foreach ($data as $key => $value) {
+         $this->stack->set($key, $value);
+      }
+
+      return $this;
+   }
+
+   /**
     * Get verdor name.
     *
     * @return string
