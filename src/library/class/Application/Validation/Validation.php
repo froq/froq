@@ -86,16 +86,19 @@ final class Validation
          return false;
       }
 
-      foreach ($this->rules as $rule) {
-         // not defined field, nothing to do
-         if (!array_key_exists($rule->fieldName, $data)) {
-            continue;
+      // drop undefined post data
+      $keys = array_keys(array_intersect_key($this->rules, $data));
+      foreach ($data as $key => $value) {
+         if (!in_array($key, $keys)) {
+            unset($data[$key]);
          }
+      }
 
+      foreach ($this->rules as $rule) {
          $fieldName = $rule->fieldName;
          $fieldValue = (string) $data[$fieldName];
 
-         // real check here sanitizing input data
+         // real check here sanitizing/overwriting input data
          if (!$rule->ok($fieldValue)) {
             $fails[$fieldName] = $rule->fail;
          }
