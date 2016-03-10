@@ -85,7 +85,7 @@ abstract class Model
    }
 
    /**
-    * Proxy call method to stack object methods.
+    * Proxy method for stack object methods.
     *
     * @param  string $method
     * @param  array  $arguments
@@ -102,7 +102,7 @@ abstract class Model
    }
 
    /**
-    * Proxy set method to stack set.
+    * Proxy method for stack::set.
     *
     * @param  string $key
     * @param  mixed  $value
@@ -114,7 +114,7 @@ abstract class Model
    }
 
    /**
-    * Proxy getter method to stack getter.
+    * Proxy method for stack::get.
     *
     * @param  string $key
     * @return mixed
@@ -125,7 +125,7 @@ abstract class Model
    }
 
    /**
-    * Proxy isset method to stack isset.
+    * Proxy method for stack::isset.
     *
     * @param  string $key
     * @return bool
@@ -136,7 +136,7 @@ abstract class Model
    }
 
    /**
-    * Proxy unset method to stack unset.
+    * Proxy method for stack::unset.
     *
     * @param  string $key
     * @return void
