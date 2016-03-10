@@ -65,6 +65,9 @@ abstract class Stack implements StackInterface
     */
    protected $primary;
 
+   // @todo
+   protected $useTransaction = false;
+
    /**
     * Exception object that could be any type of.
     * @var \Throwable

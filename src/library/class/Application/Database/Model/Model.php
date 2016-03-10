@@ -46,14 +46,25 @@ abstract class Model
    protected $vendor;
 
    /**
-    * Stack agent,
-    *    stack name (table, collection, etc.),
-    *    stack primary (key).
+    * Stack agent.
     * @var Application\Database\Model\Stack\Stack,
-    *    string,
-    *    string
     */
-   protected $stack, $stackName, $stackPrimary;
+   protected $stack;
+
+   /**
+    * Stack name (table, collection, etc.).
+    * @var string
+    */
+   protected $stackName;
+
+   /**
+    * Stack primary (key).
+    * @var string
+    */
+   protected $stackPrimary;
+
+   // @todo
+   protected $useTransaction = false;
 
    /**
     * Constructor.
@@ -68,7 +79,8 @@ abstract class Model
             $this->stack = new Mysql(
                Database::init(Database::VENDOR_MYSQL),
                $this->stackName,
-               $this->stackPrimary
+               $this->stackPrimary,
+               $this->useTransaction
             );
             break;
          default:
