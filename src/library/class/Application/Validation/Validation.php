@@ -73,23 +73,6 @@ final class Validation
    }
 
    /**
-    * Set rules.
-    *
-    * @note   This method could be used in "service::init" method
-    * in order to set its values after getting from db etc.
-    * @param  array $rules
-    * @return self
-    */
-   final public function setRules(array $rules): self
-   {
-      foreach ($rules as $fieldName => $fieldOptions) {
-         $this->rules[$fieldName] = new ValidationRule($fieldName, $fieldOptions);
-      }
-
-      return $this;
-   }
-
-   /**
     * Validate.
     *
     * @param  array &$data  This will overwrite sanitizing input data.
@@ -125,6 +108,23 @@ final class Validation
       $this->fails = $fails;
 
       return empty($this->fails);
+   }
+
+   /**
+    * Set rules.
+    *
+    * @note   This method could be used in "service::init" method
+    * in order to set its values after getting from db etc.
+    * @param  array $rules
+    * @return self
+    */
+   final public function setRules(array $rules): self
+   {
+      foreach ($rules as $fieldName => $fieldOptions) {
+         $this->rules[$fieldName] = new ValidationRule($fieldName, $fieldOptions);
+      }
+
+      return $this;
    }
 
    /**
