@@ -79,7 +79,7 @@ final class Validation
     * @param  array &$fails Shortcut instead of to call self::getFails().
     * @return bool
     */
-   final public function validate(array &$data, &$fails = null): bool
+   final public function validate(array &$data, &$fails = []): bool
    {
       // no data to validate
       if (empty($data)) {
@@ -105,9 +105,9 @@ final class Validation
       }
 
       // store for later
-      $this->fails = $fails;
+      $this->setFails($fails);
 
-      return empty($this->fails);
+      return empty($fails);
    }
 
    /**
@@ -135,6 +135,21 @@ final class Validation
    final public function getRules(): array
    {
       return $this->rules;
+   }
+
+   /**
+    * Set fails.
+    *
+    * @param  array $fails
+    * @return self
+    */
+   final public function setFails(array $fails): self
+   {
+      foreach ($fails as $fieldName => $fail) {
+         $this->fails[$fieldName] = $fail;
+      }
+
+      return $this;
    }
 
    /**
