@@ -90,16 +90,6 @@ final class Validation
    }
 
    /**
-    * Get rules.
-    *
-    * @return array
-    */
-   final public function getRules(): array
-   {
-      return $this->rules;
-   }
-
-   /**
     * Validate.
     *
     * @param  array &$data  This will overwrite sanitizing input data.
@@ -135,6 +125,16 @@ final class Validation
       $this->fails = $fails;
 
       return empty($this->fails);
+   }
+
+   /**
+    * Get rules.
+    *
+    * @return array
+    */
+   final public function getRules(): array
+   {
+      return $this->rules;
    }
 
    /**
