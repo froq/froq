@@ -114,7 +114,7 @@ final class Validation
     * Set rules.
     *
     * @note   This method could be used in "service::init" method
-    * in order to set its values after getting from db etc.
+    * in order to set (overwrite) its values after getting from db etc.
     * @param  array $rules
     * @return self
     */
