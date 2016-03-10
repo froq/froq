@@ -26,6 +26,11 @@ namespace Application\Service;
 use Application\Application;
 use Application\Util\{View, Config};
 use Application\Util\Traits\GetterTrait as Getter;
+use Application\Validation\{
+    Validation,
+    ValidationException,
+    ValidationRules, ValidationRule
+};
 
 /**
  * @package    Application
@@ -33,8 +38,7 @@ use Application\Util\Traits\GetterTrait as Getter;
  * @object     Application\Service\Service
  * @author     Kerem Güneş <k-gun@mail.com>
  */
-abstract class Service
-   implements ServiceInterface
+abstract class Service implements ServiceInterface
 {
    /**
     * Getter.
@@ -55,10 +59,16 @@ abstract class Service
    protected $name;
 
    /**
-    * Service method, method args.
-    * @var string, array
+    * Service method.
+    * @var string
     */
-   protected $method, $methodArgs = [];
+   protected $method;
+
+   /**
+    * Service method args.
+    * @var array
+    */
+   protected $methodArgs = [];
 
    /**
     * Service model.
@@ -73,8 +83,8 @@ abstract class Service
    protected $view;
 
    /**
-    * Service view data.
-    * @var mixed
+    * View data (internal).
+    * @var null
     */
    protected $viewData = null;
 
@@ -91,19 +101,34 @@ abstract class Service
    protected $useMainOnly = false;
 
    /**
-    * Service partial options
+    * Use both header/footer files.
     * @var bool
     */
-   protected $useViewPartialAll  = false, // use both header/footer
-             $useViewPartialHead = false, // use header
-             $useViewPartialFoot = false; // use footer
+   protected $useViewPartialAll  = false;
 
    /**
-    * Service validations.
-    * @var array
-    * @todo Load from <service>/config/config.php
+    * Use header file.
+    * @var bool
     */
-   protected $validations = [];
+   protected $useViewPartialHead = false;
+
+   /**
+    * Use footer file.
+    * @var bool
+    */
+   protected $useViewPartialFoot = false;
+
+   /**
+    * Validation.
+    * @var Application\Validation\Validation
+    */
+   protected $validation;
+
+   /**
+    * Validation rules (that could be overwriten calling validation::setRules() method after.)
+    * @var array
+    */
+   protected $validationRules = [];
 
    /**
     * Request method limiter.
@@ -130,10 +155,18 @@ abstract class Service
 
       $this->viewData = $viewData;
 
-      // autoloads
+      // load config & model
       $this->loadConfig();
       $this->loadModel();
+
+      // create view
       $this->view = new View($this->app);
+
+      // create validation
+      if (empty($this->validationRules) && $this->config != null) {
+         $this->validationRules = $this->config->get('validation.rules', []);
+      }
+      $this->validation = new Validation($this->validationRules);
 
       // prevent lowercased method names
       if (!empty($this->allowedRequestMethods)) {
