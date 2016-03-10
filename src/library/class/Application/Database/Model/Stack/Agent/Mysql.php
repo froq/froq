@@ -67,7 +67,9 @@ final class Mysql extends Stack
       try {
          return $this->db->getConnection()->getAgent()->get(
             "SELECT * FROM `{$this->name}` WHERE `{$this->primary}` = ?", [$primaryValue]);
-      } catch (\Exception $e) {}
+      } catch (\Throwable $e) {
+         $this->fail = $e;
+      }
    }
 
    /**
@@ -95,7 +97,9 @@ final class Mysql extends Stack
          ) . $agent->limit($limit ?: self::SELECT_LIMIT);
 
          return $agent->getAll($query, $params);
-      } catch (\Exception $e) {}
+      } catch (\Throwable $e) {
+         $this->fail = $e;
+      }
    }
 
    /**
@@ -116,7 +120,9 @@ final class Mysql extends Stack
          // update
          return $agent->update($this->name, $this->data,
             "`{$this->primary}` = ?", [$this->data[$this->primary]]);
-      } catch (\Exception $e) {}
+      } catch (\Throwable $e) {
+         $this->fail = $e;
+      }
    }
 
    /**
@@ -136,6 +142,8 @@ final class Mysql extends Stack
 
          return $agent->delete($this->name,
             "`{$this->primary}` = ?", [$this->data[$this->primary]]);
-      } catch (\Exception $e) {}
+      } catch (\Throwable $e) {
+         $this->fail = $e;
+      }
    }
 }

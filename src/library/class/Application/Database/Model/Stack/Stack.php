@@ -66,6 +66,12 @@ abstract class Stack implements StackInterface
    protected $primary;
 
    /**
+    * Exception object that could be any type of.
+    * @var \Throwable
+    */
+   protected $fail;
+
+   /**
     * Stack data.
     * @var array
     */
@@ -147,5 +153,15 @@ abstract class Stack implements StackInterface
    final public function getData(): array
    {
       return $this->data;
+   }
+
+   /**
+    * Get fail.
+    *
+    * @return \Throwable|null
+    */
+   final public function getFail()
+   {
+      return $this->fail;
    }
 }
