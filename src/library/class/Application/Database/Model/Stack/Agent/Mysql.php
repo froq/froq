@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Application\Database\Model\Stack\Agent;
 
+use Application\Util\Util;
 use Application\Database\Model\Stack\Stack;
 use Application\Database\Vendor\Vendor as Database;
+use Oppa\Database\Query\Builder as QueryBuilder;
 
 /**
  * @package    Application
@@ -35,17 +37,24 @@ use Application\Database\Vendor\Vendor as Database;
 final class Mysql extends Stack
 {
    /**
+    * Use transaction?
+    * @var bool
+    */
+   protected $useTransaction = true;
+
+   /**
     * Constructor.
     *
     * @param Application\Database\Vendor\Vendor $db
     * @param string                             $name
     * @param string                             $primary
     */
-   final public function __construct(Database $db, $name, $primary)
+   final public function __construct(Database $db, $name, $primary, bool $useTransaction = true)
    {
       $this->db = $db;
       $this->name = trim($name);
       $this->primary = trim($primary);
+      $this->useTransaction = $useTransaction;
    }
 
    /**
@@ -109,20 +118,62 @@ final class Mysql extends Stack
     */
    public function save()
    {
-      try {
-         $agent = $this->db->getConnection()->getAgent();
+      $agent = $this->db->getConnection()->getAgent();
+      $batch = null;
+      if ($this->useTransaction) {
+         $batch = $agent->getBatch();
+         // set autocommit=0
+         $batch->lock();
+      }
 
-         // insert
-         if (!isset($this->data[$this->primary])) {
-            return $agent->insert($this->name, $this->data);
+      // create query builder
+      $query = new QueryBuilder(
+         $this->db->getConnection(),
+            $agent->escapeIdentifier($this->name)
+      );
+
+      $return = null;
+      try {
+         $id = $this->getPrimaryValue();
+         // insert action
+         if (!$id) {
+            $query->insert($this->data);
+         }
+         // update action
+         else {
+            $query->update($this->data)->whereEqual(
+               $agent->escapeIdentifier($this->primary), $id);
          }
 
-         // update
-         return $agent->update($this->name, $this->data,
-            "`{$this->primary}` = ?", [$this->data[$this->primary]]);
+         if ($this->useTransaction) {
+            $batch->queue($query->toString());
+            $batch->run();
+            $result = $batch->getResult()[0] ?? null;
+         } else {
+            $result = $agent->query($query->toString());
+         }
+
+         // set return
+         if ($result !== null) {
+            $return = (!$id) ? $result->getId() : $result->getRowsAffected();
+         }
+
+         // updated but no rows affected?
+         if ($id && ($return === 0 || $result === 0 || $result === null)) {
+            $return = true;
+         }
       } catch (\Throwable $e) {
+         // set exception
          $this->fail = $e;
+
+         // rollback & set autocommit=1
+         $batch && $batch->cancel();
       }
+
+      // set autocommit=1
+      $batch && $batch->unlock();
+
+      return $return;
    }
 
    /**
@@ -132,6 +183,7 @@ final class Mysql extends Stack
     */
    public function remove()
    {
+      // @todo transaction
       try {
          $agent = $this->db->getConnection()->getAgent();
 

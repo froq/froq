@@ -63,8 +63,11 @@ abstract class Model
     */
    protected $stackPrimary;
 
-   // @todo
-   protected $useTransaction = false;
+   /**
+    * Use transaction?
+    * @var bool
+    */
+   protected $useTransaction = true;
 
    /**
     * Constructor.
@@ -200,7 +203,7 @@ abstract class Model
     */
    final public function getStackDb(): Vendor
    {
-      return $this->stack->db;
+      return $this->stack->getDb();
    }
 
    /**
@@ -210,7 +213,7 @@ abstract class Model
     */
    final public function getStackName(): string
    {
-      return $this->stack->name;
+      return $this->stack->getName();
    }
 
    /**
@@ -220,6 +223,6 @@ abstract class Model
     */
    final public function getStackPrimary(): string
    {
-      return $this->stack->primary;
+      return $this->stack->getPrimary();
    }
 }

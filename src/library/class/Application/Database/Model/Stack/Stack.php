@@ -65,20 +65,17 @@ abstract class Stack implements StackInterface
     */
    protected $primary;
 
-   // @todo
-   protected $useTransaction = false;
+   /**
+    * Stack data.
+    * @var array
+    */
+   protected $data = [];
 
    /**
     * Exception object that could be any type of.
     * @var \Throwable
     */
    protected $fail;
-
-   /**
-    * Stack data.
-    * @var array
-    */
-   protected $data = [];
 
    /**
     * Set a field value.
@@ -136,6 +133,46 @@ abstract class Stack implements StackInterface
    }
 
    /**
+    * Get db.
+    *
+    * @return string
+    */
+   final public function getDb(): string
+   {
+      return $this->db;
+   }
+
+   /**
+    * Get name.
+    *
+    * @return string
+    */
+   final public function getName(): string
+   {
+      return $this->name;
+   }
+
+   /**
+    * Get primary.
+    *
+    * @return string
+    */
+   final public function getPrimary(): string
+   {
+      return $this->primary;
+   }
+
+   /**
+    * Get primary value.
+    *
+    * @return mixed
+    */
+   final public function getPrimaryValue()
+   {
+      return $this->data[$this->primary] ?? null;
+   }
+
+   /**
     * Set data.
     *
     * @param  array $data
@@ -151,11 +188,53 @@ abstract class Stack implements StackInterface
    /**
     * Get data.
     *
+    * @param  string|array $exclude
     * @return array
     */
    final public function getData(): array
    {
       return $this->data;
+   }
+
+   /**
+    * Get data value.
+    *
+    * @param  string $key
+    * @return mixed
+    */
+   final public function getDataValue(string $key)
+   {
+      return $this->data[$key] ?? null;
+   }
+
+   /**
+    * Get data keys.
+    *
+    * @return array
+    */
+   final public function getDataKeys(): array
+   {
+      $keys = [];
+      if (!empty($this->data)) {
+         $keys = array_keys($this->data);
+      }
+
+      return $keys;
+   }
+
+   /**
+    * Get data values.
+    *
+    * @return array
+    */
+   final public function getDataValues(): array
+   {
+      $values = [];
+      if (!empty($this->data)) {
+         $values = array_values($this->data);
+      }
+
+      return $values;
    }
 
    /**
