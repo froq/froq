@@ -73,4 +73,23 @@ final class Util
 
       return $return;
    }
+
+   /**
+    * Array exclude.
+    *
+    * @param  array  $array
+    * @param  array  $excludeKeys
+    * @return array
+    */
+   final public static function arrayExclude(array $array, array $excludeKeys): array
+   {
+      $return = [];
+      foreach ($array as $key => $value) {
+         if (!in_array($key, $excludeKeys)) {
+            $return[$key] = $value;
+         }
+      }
+
+      return $return;
+   }
 }
