@@ -21,8 +21,9 @@
  */
 declare(strict_types=1);
 
-namespace Application\Database\Vendor;
+namespace Application\Database\Vendor\Factory;
 
+use Application\Database\Vendor\Vendor;
 use Oppa\Configuration;
 use Oppa\Database\{Factory, Query};
 
