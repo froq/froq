@@ -60,23 +60,24 @@ final class Mysql extends Stack
    /**
     * Find an object.
     *
-    * @param  mixed $primaryValue
+    * @param  mixed $id
     * @return stcClass|null
     */
-   final public function find($primaryValue = null)
+   final public function find($id = null)
    {
-      if ($primaryValue === null) {
-         $primaryValue = dig($this->data, $this->primary);
-      }
-
-      if ($primaryValue === null) {
+      $id = $id ?? $this->getPrimaryValue();
+      if ($id === null) {
          return;
       }
 
       try {
-         return $this->db->getConnection()->getAgent()->get(
-            "SELECT * FROM `{$this->name}` WHERE `{$this->primary}` = ?", [$primaryValue]);
+         $query = $this->createQueryBuilder();
+         $query->select('*')->whereEqual("`{$this->primary}`", $id)
+            ->limit(self::SELECT_LIMIT)->toString();
+
+         return $query->get();
       } catch (\Throwable $e) {
+         // set exception
          $this->fail = $e;
       }
    }
@@ -94,19 +95,24 @@ final class Mysql extends Stack
       int $order = -1)
    {
       try {
-         $agent = $this->db->getConnection()->getAgent();
+         $query = $this->createQueryBuilder();
+         $query->select('*');
+         // where
+         if (!empty($where)) {
+            $query->where($where, $params);
+         }
+         // order
+         if ($order == -1) {
+            $query->orderBy("`{$this->primary}`", QueryBuilder::OP_DESC);
+         } elseif ($order == 1) {
+            $query->orderBy("`{$this->primary}`", QueryBuilder::OP_ASC);
+         }
+         // limit
+         $query->limit($limit ?: self::SELECT_LIMIT);
 
-         $query = empty($where)
-            ? sprintf('SELECT * FROM `%s`', $this->name)
-            : sprintf('SELECT * FROM `%s` WHERE (%s)', $this->name, $where);
-
-         $query = (($order == -1)
-            ? sprintf('%s ORDER BY `%s` DESC ', $query, $this->primary)
-            : sprintf('%s ORDER BY `%s` ASC ', $query, $this->primary)
-         ) . $agent->limit($limit ?: self::SELECT_LIMIT);
-
-         return $agent->getAll($query, $params);
+         return $query->getAll();
       } catch (\Throwable $e) {
+         // set exception
          $this->fail = $e;
       }
    }
@@ -135,8 +141,8 @@ final class Mysql extends Stack
          if (!$id) { // insert action
             $query->insert($this->data)->toString();
          } else {    // update action
-            $query->update($this->data)->whereEqual(
-               $agent->escapeIdentifier($this->primary), $id)->limit(1)->toString();
+            $query->update($this->data)->whereEqual("`{$this->primary}`", $id)
+               ->limit(self::UPDATE_LIMIT)->toString();
          }
 
          if ($this->useTransaction) {
@@ -195,8 +201,8 @@ final class Mysql extends Stack
 
       $return = false;
       try {
-         $query->delete()->whereEqual(
-            $agent->escapeIdentifier($this->primary), $id)->limit(1)->toString();
+         $query->delete()->whereEqual("`{$this->primary}`", $id)
+            ->limit(self::DELETE_LIMIT)->toString();
 
          if ($this->useTransaction) {
             $batch->queue($query);
