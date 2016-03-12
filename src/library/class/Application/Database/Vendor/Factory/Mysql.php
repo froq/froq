@@ -29,8 +29,8 @@ use Oppa\Database\{Factory, Query};
 
 /**
  * @package    Application
- * @subpackage Application\Database\Vendor
- * @object     Application\Database\Vendor\Mysql
+ * @subpackage Application\Database\Vendor\Factory
+ * @object     Application\Database\Vendor\Factory\Mysql
  * @author     Kerem Güneş <k-gun@mail.com>
  */
 final class Mysql extends Vendor
