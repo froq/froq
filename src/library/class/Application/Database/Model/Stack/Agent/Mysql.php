@@ -63,7 +63,7 @@ final class Mysql extends Stack
     * @param  mixed $primaryValue
     * @return stcClass|null
     */
-   public function find($primaryValue = null)
+   final public function find($primaryValue = null)
    {
       if ($primaryValue === null) {
          $primaryValue = dig($this->data, $this->primary);
@@ -90,7 +90,7 @@ final class Mysql extends Stack
     * @param  int       $order
     * @return array|null
     */
-   public function findAll(string $where = null, array $params = null, $limit = null,
+   final public function findAll(string $where = null, array $params = null, $limit = null,
       int $order = -1)
    {
       try {
@@ -116,7 +116,7 @@ final class Mysql extends Stack
     *
     * @return int|null
     */
-   public function save()
+   final public function save()
    {
       $agent = $this->db->getConnection()->getAgent();
       $batch = null;
@@ -181,7 +181,7 @@ final class Mysql extends Stack
     *
     * @return int|null
     */
-   public function remove()
+   final public function remove()
    {
       // @todo transaction
       try {
