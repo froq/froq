@@ -231,6 +231,29 @@ final class Mysql extends Stack
    }
 
    /**
+    * Find objects.
+    *
+    * @param  string|null $where
+    * @param  array|null  $params
+    * @return int
+    */
+   final public function count(string $where = null, array $params = null): int
+   {
+      try {
+         $query = $this->createQueryBuilder();
+         // where
+         if (!empty($where)) {
+            $query->where($where, $params);
+         }
+
+         return $query->count();
+      } catch (\Throwable $e) {
+         // set exception
+         $this->fail = $e;
+      }
+   }
+
+   /**
     * Create a fresh query builder.
     *
     * @return Oppa\Database\Query\Builder
