@@ -251,7 +251,7 @@ final class Mysql extends Stack
          // set exception
          $this->fail = $e;
 
-         return 0;
+         return -1;
       }
    }
 
