@@ -250,6 +250,8 @@ final class Mysql extends Stack
       } catch (\Throwable $e) {
          // set exception
          $this->fail = $e;
+
+         return 0;
       }
    }
 
