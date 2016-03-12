@@ -127,30 +127,24 @@ final class Mysql extends Stack
       }
 
       // create query builder
-      $query = new QueryBuilder(
-         $this->db->getConnection(),
-            $agent->escapeIdentifier($this->name)
-      );
+      $query = $this->createQueryBuilder();
 
       $return = null;
       try {
          $id = $this->getPrimaryValue();
-         // insert action
-         if (!$id) {
-            $query->insert($this->data);
-         }
-         // update action
-         else {
+         if (!$id) { // insert action
+            $query->insert($this->data)->toString();
+         } else {    // update action
             $query->update($this->data)->whereEqual(
-               $agent->escapeIdentifier($this->primary), $id);
+               $agent->escapeIdentifier($this->primary), $id)->limit(1)->toString();
          }
 
          if ($this->useTransaction) {
-            $batch->queue($query->toString());
+            $batch->queue($query);
             $batch->run();
             $result = $batch->getResult()[0] ?? null;
          } else {
-            $result = $agent->query($query->toString());
+            $result = $agent->query($query);
          }
 
          // set return
@@ -181,21 +175,65 @@ final class Mysql extends Stack
     *
     * @return int|null
     */
-   final public function remove()
+   final public function remove(): bool
    {
-      // @todo transaction
-      try {
-         $agent = $this->db->getConnection()->getAgent();
+      $id = $this->getPrimaryValue();
+      if (!$id) {
+         return false;
+      }
 
-         // check
-         if (!isset($this->data[$this->primary])) {
-            return;
+      $agent = $this->db->getConnection()->getAgent();
+      $batch = null;
+      if ($this->useTransaction) {
+         $batch = $agent->getBatch();
+         // set autocommit=0
+         $batch->lock();
+      }
+
+      // create query builder
+      $query = $this->createQueryBuilder();
+
+      $return = false;
+      try {
+         $query->delete()->whereEqual(
+            $agent->escapeIdentifier($this->primary), $id)->limit(1)->toString();
+
+         if ($this->useTransaction) {
+            $batch->queue($query);
+            $batch->run();
+            $result = $batch->getResult()[0] ?? null;
+         } else {
+            $result = $agent->query($query);
          }
 
-         return $agent->delete($this->name,
-            "`{$this->primary}` = ?", [$this->data[$this->primary]]);
+         // set return
+         if ($result !== null) {
+            $return = (bool) $result->getRowsAffected();
+         }
       } catch (\Throwable $e) {
+         // set exception
          $this->fail = $e;
+
+         // rollback & set autocommit=1
+         $batch && $batch->cancel();
       }
+
+      // set autocommit=1
+      $batch && $batch->unlock();
+
+      return $return;
+   }
+
+   /**
+    * Create a fresh query builder.
+    *
+    * @return Oppa\Database\Query\Builder
+    */
+   final public function createQueryBuilder(): QueryBuilder
+   {
+      return new QueryBuilder(
+         $this->db->getConnection(),
+         $this->db->getConnection()->getAgent()->escapeIdentifier($this->name)
+      );
    }
 }
