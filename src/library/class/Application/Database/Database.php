@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Application\Database;
 
-use Application\Database\Vendor\{Mysql, Couch, Mongo};
+use Application\Database\Vendor\Factory\{Mysql, Couch, Mongo};
 
 /**
  * @package    Application
