@@ -98,19 +98,6 @@ final class Session
          // ini_set('session.session.hash_function', 1);
          // ini_set('session.hash_bits_per_character', 4);
 
-         // if save path provided @tmp?
-         if (is_local() && isset($this->options['save_path'])) {
-            if (!is_dir($this->options['save_path'])) {
-               mkdir($this->options['save_path'], 0777, true);
-               chmod($this->options['save_path'], 0777);
-            }
-            ini_set('session.save_path', $this->options['save_path']);
-            // set perms
-            foreach (glob($this->options['save_path'] .'/*') as $file) {
-               chmod($file, 0777);
-            }
-         }
-
          // set defaults
          session_set_cookie_params(
             (int)    $this->options['lifetime'],
