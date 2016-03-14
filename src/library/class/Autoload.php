@@ -34,10 +34,10 @@ final class Autoload
    private static $instance;
 
    /**
-    * Application namespace
+    * Froq namespace
     * @var string
     */
-   private static $namespace = 'Application';
+   private static $namespace = 'Froq';
 
    /**
     * Forbid idle initializations.
@@ -102,7 +102,7 @@ final class Autoload
       $objectFile = self::fixSlashes(sprintf(
          '%s/%s/%s.php', __dir__,
             self::$namespace,
-               // remove Application namespace once
+               // remove froq namespace once
                substr_replace($objectName, '', 0, strlen(self::$namespace))
       ));
 

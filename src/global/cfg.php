@@ -5,7 +5,7 @@
 $cfg = [];
 
 /**
- * Application options.
+ * App options.
  */
 $cfg['app'] = [];
 

@@ -27,7 +27,7 @@
 ob_start();
 
 /**
- * Application constants.
+ * App constants.
  * @const bool, bool, float
  */
 define('APP_START_TIME', microtime(true));
@@ -39,7 +39,7 @@ define('APP_START_TIME', microtime(true));
 define('nil', null, true);
 
 /**
- * Application root path.
+ * App root path.
  * @const string
  */
 define('root', __dir__ .'/..', true);
@@ -79,6 +79,6 @@ $autoload = require(root .'/src/library/class/Autoload.php');
 $autoload->register();
 
 /**
- * Init application with default configs (comes from cfg.php).
+ * Init App with default configs (comes from cfg.php).
  */
-return Application\Application::init($cfg);
+return Froq\App::init($cfg);

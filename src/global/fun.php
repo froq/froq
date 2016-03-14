@@ -31,7 +31,7 @@ function get_global(string $key, $valueDefault = null) {
 
 /**
  * Shortcut for app address.
- * @return \Application\Application|mixed
+ * @return Froq\App|mixed
  */
 function app(string $prop = null) {
    $app = get_global('app');
