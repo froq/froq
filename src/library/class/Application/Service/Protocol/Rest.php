@@ -51,6 +51,5 @@ abstract class Rest extends Service
    abstract public function get();
    abstract public function post();
    abstract public function put();
-   abstract public function patch();
    abstract public function delete();
 }
