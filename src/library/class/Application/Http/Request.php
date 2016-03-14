@@ -242,13 +242,13 @@ final class Request
 
       switch ($name) {
          case 'GET':
-            $source = dig($_SERVER, 'QUERY_STRING');
+            $source = dig($_SERVER, 'QUERY_STRING', '');
             break;
          case 'POST':
             $source = file_get_contents('php://input');
             break;
          case 'COOKIE':
-            $source = implode('&', array_map('trim', explode(';', dig($_SERVER, 'HTTP_COOKIE'))));
+            $source = implode('&', array_map('trim', explode(';', dig($_SERVER, 'HTTP_COOKIE', ''))));
             break;
       }
 
