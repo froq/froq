@@ -77,12 +77,6 @@ final class ServiceAdapter
    private $serviceFile;
 
    /**
-    * Service view data.
-    * @var string
-    */
-   private $serviceViewData = null;
-
-   /**
     * Constructor.
     *
     * @param Froq\App $app
@@ -100,9 +94,12 @@ final class ServiceAdapter
 
       // set service as FailService
       if (!$this->isServiceExists()) {
-         $this->serviceViewData['fail']['code'] = Status::NOT_FOUND;
-         $this->serviceViewData['fail']['text'] = sprintf(
-            'Service not found [%s]', $this->serviceName);
+         // set fail stuff that usable in FailService or anywhere
+         set_global('app.service.view.fail', [
+            'code' => Status::NOT_FOUND,
+            'text' => sprintf('Service not found [%s]', $this->serviceName)
+         ]);
+
          $this->serviceName = ServiceInterface::SERVICE_FAIL;
          $this->serviceMethod = ServiceInterface::METHOD_MAIN;
          $this->serviceFile = $this->toServiceFile($this->serviceName, true);
@@ -112,18 +109,25 @@ final class ServiceAdapter
       $this->service = $this->createService();
 
       // detect service method
-      if ($this->service->protocol == ServiceInterface::PROTOCOL_SITE && !$this->service->useMainOnly) {
+      if ($this->service->protocol == ServiceInterface::PROTOCOL_SITE
+         && !$this->service->useMainOnly) {
+         // from segment
          $this->serviceMethod = ($serviceMethod = $this->app->request->uri->segment(1, ''))
             ? $this->toServiceMethod($serviceMethod) : $this->serviceMethodDefault;
       } elseif ($this->service->protocol == ServiceInterface::PROTOCOL_REST) {
+         // from request method
          $this->serviceMethod = strtolower($this->app->request->method);
       }
 
       // set service as FailService
       if (!$this->isServiceFail() && !$this->isServiceMethodExists()) {
-         $this->serviceViewData['fail']['code'] = Status::NOT_FOUND;
-         $this->serviceViewData['fail']['text'] = sprintf(
-            'Service method not found [%s::%s()]', $this->serviceName, $this->serviceMethod);
+         // set fail stuff that usable in FailService or anywhere
+         set_global('app.service.view.fail', [
+            'code' => Status::NOT_FOUND,
+            'text' => sprintf('Service method not found [%s::%s()]',
+               $this->serviceName, $this->serviceMethod)
+         ]);
+
          // overwrite
          $this->serviceName = ServiceInterface::SERVICE_FAIL;
          $this->serviceMethod = ServiceInterface::METHOD_MAIN;
@@ -222,12 +226,7 @@ final class ServiceAdapter
     */
    final private function createService(): ServiceInterface
    {
-      return new $this->serviceName(
-         $this->app,
-         $this->serviceName,
-         $this->serviceMethod,
-         $this->serviceViewData
-      );
+      return new $this->serviceName($this->app, $this->serviceName, $this->serviceMethod);
    }
 
    /**

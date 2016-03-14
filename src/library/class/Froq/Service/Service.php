@@ -26,11 +26,7 @@ namespace Froq\Service;
 use Froq\App;
 use Froq\Util\{View, Config};
 use Froq\Util\Traits\GetterTrait as Getter;
-use Froq\Validation\{
-    Validation,
-    ValidationException,
-    ValidationRules, ValidationRule
-};
+use Froq\Validation\{Validation, ValidationRule, ValidationException};
 
 /**
  * @package    Froq
@@ -81,12 +77,6 @@ abstract class Service implements ServiceInterface
     * @var Froq\Util\View
     */
    protected $view;
-
-   /**
-    * View data (internal).
-    * @var null
-    */
-   protected $viewData = null;
 
    /**
     * Service config.
@@ -142,18 +132,14 @@ abstract class Service implements ServiceInterface
     * @param Froq\App $app
     * @param string   $name
     * @param string   $method
-    * @param mixed    $viewData
     */
-   final public function __construct(App $app,
-      string $name = null, string $method = null, $viewData = null)
+   final public function __construct(App $app, string $name = null, string $method = null)
    {
       $this->app = $app;
 
       $this->setName($name);
       $this->setMethod($method);
       $this->setMethodArgs(null);
-
-      $this->viewData = $viewData;
 
       // load config & model
       $this->loadConfig();
