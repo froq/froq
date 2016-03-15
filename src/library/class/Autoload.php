@@ -94,17 +94,30 @@ final class Autoload
          $objectName = str_replace('.', self::$namespace, $objectName);
       }
 
-      // internal objects only
-      if (0 !== strpos($objectName, self::$namespace)) {
-         return;
+      // app objects
+      if (0 === strpos($objectName, 'App\\')) {
+         $tmp = explode('\\', $objectName);
+         if (count($tmp) < 2) {
+            return;
+         }
+         $objectBase = array_pop($tmp);
+         $objectDir  = strtolower(implode('/', $tmp));
+         $objectFile = self::fixSlashes(sprintf(
+            './%s/%s.php', $objectDir, $objectBase
+         ));
       }
-
-      $objectFile = self::fixSlashes(sprintf(
-         '%s/%s/%s.php', __dir__,
-            self::$namespace,
-               // remove froq namespace once
-               substr_replace($objectName, '', 0, strlen(self::$namespace))
-      ));
+      // internal objects
+      else {
+         if (0 !== strpos($objectName, self::$namespace)) {
+            return;
+         }
+         $objectFile = self::fixSlashes(sprintf(
+            '%s/%s/%s.php', __dir__,
+               self::$namespace,
+                  // remove froq namespace once
+                  substr_replace($objectName, '', 0, strlen(self::$namespace))
+         ));
+      }
 
       // check file exists
       if (!is_file($objectFile)) {
