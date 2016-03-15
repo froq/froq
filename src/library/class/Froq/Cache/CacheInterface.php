@@ -26,49 +26,34 @@ namespace Froq\Cache;
 /**
  * @package    Froq
  * @subpackage Froq\Cache
- * @object     Froq\Cache\Cache
+ * @object     Froq\Cache\CacheInterface
  * @author     Kerem Güneş <k-gun@mail.com>
  */
-abstract class Cache
+interface CacheInterface
 {
    /**
-    * Client ID.
-    * @var string
-    */
-   protected $id;
-
-   /**
-    * Host.
-    * @var string
-    */
-   protected $host;
-
-   /**
-    * Port.
-    * @var int
-    */
-   protected $port;
-
-   /**
-    * Client.
-    * @var mixed
-    */
-   protected $client;
-
-   /**
-    * Client array.
-    * @var array
-    */
-   protected static $clients = [];
-
-   /**
-    * Get (create) client.
+    * Set cache item.
     *
-    * @param  string $id
-    * @param  string $host
-    * @param  int    $port
-    * @return Froq\Cache\CacheInterface
+    * @param  string   $key
+    * @param  mixed    $value
+    * @param  int|null $expiration
+    * @return void
     */
-   abstract public static function getClient(string $id = null,
-      string $host = null, int $port = null): CacheInterface;
+   public function set(string $key, $value, int $expiration = null);
+
+   /**
+    * Get cache item.
+    *
+    * @param  string $key
+    * @return mixed|null
+    */
+   public function get(string $key);
+
+   /**
+    * Delete cache item.
+    *
+    * @param  string $key
+    * @return void
+    */
+   public function delete(string $key);
 }

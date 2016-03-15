@@ -26,8 +26,8 @@ namespace Froq\Cache;
 /**
  * @package    Froq
  * @subpackage Froq\Cache
- * @object     Froq\Cache\Memcache
+ * @object     Froq\Cache\Redis
  * @author     Kerem Güneş <k-gun@mail.com>
  */
-final class Memcache extends Cache
+final class Redis extends Cache
 {}

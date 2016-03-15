@@ -29,5 +29,104 @@ namespace Froq\Cache;
  * @object     Froq\Cache\Memcached
  * @author     Kerem Güneş <k-gun@mail.com>
  */
-final class Memcached extends Cache
-{}
+final class Memcached extends Cache implements CacheInterface
+{
+   /**
+    * Default host.
+    * @const string
+    */
+   const DEFAULT_HOST = 'localhost';
+
+   /**
+    * Default port.
+    * @const int
+    */
+   const DEFAULT_PORT = 11211;
+
+   /**
+    * Constructor.
+    *
+    * @param string $id
+    * @param string $host
+    * @param int    $port
+    */
+   final private function __construct(string $id = null,
+      string $host = self::DEFAULT_HOST, int $port = self::DEFAULT_PORT)
+   {
+      $this->id   = $id;
+      $this->host = $host;
+      $this->port = $port;
+
+      if (empty($this->id)) {
+         $this->client = new \Memcached();
+         $this->client->addServer($host, $port);
+      } else {
+         $this->client = new \Memcached($this->id);
+         $this->client->addServer($host, $port);
+      }
+   }
+
+   /**
+    * Get (create) client.
+    *
+    * @param  string $id
+    * @param  string $host
+    * @param  int    $port
+    * @return Froq\Cache\CacheInterface
+    */
+   final public static function getClient(string $id = null,
+      string $host = self::DEFAULT_HOST, int $port = self::DEFAULT_PORT): CacheInterface
+   {
+      // not persistent
+      if (empty($id)) {
+         $key = sprintf('%s:%s', $host, $port);
+         if (!isset(self::$clients[$key])) {
+            self::$clients[$key] = new self(null, $host, $port);
+         }
+      }
+      // persistent
+      else {
+         $key = sprintf('%s:%s-%s', $host, $port, $id);
+         if (!isset(self::$clients[$key])) {
+            self::$clients[$key] = new self($id, $host, $port);
+         }
+      }
+
+      return self::$clients[$key];
+   }
+
+   /**
+    * Set cache item.
+    *
+    * @param  string   $key
+    * @param  mixed    $value
+    * @param  int|null $expiration
+    * @return void
+    */
+   final public function set(string $key, $value, int $expiration = 0)
+   {
+      return $this->client->set($key, $value, $expiration);
+   }
+
+   /**
+    * Get cache item.
+    *
+    * @param  string $key
+    * @return mixed|null
+    */
+   final public function get(string $key)
+   {
+      return $this->client->get($key);
+   }
+
+   /**
+    * Delete cache item.
+    *
+    * @param  string $key
+    * @return void
+    */
+   final public function delete(string $key)
+   {
+      return $this->client->delete($key);
+   }
+}
