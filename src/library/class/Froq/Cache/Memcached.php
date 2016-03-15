@@ -101,9 +101,9 @@ final class Memcached extends Cache implements CacheInterface
     * @param  string   $key
     * @param  mixed    $value
     * @param  int|null $expiration
-    * @return void
+    * @return bool
     */
-   final public function set(string $key, $value, int $expiration = 0)
+   final public function set(string $key, $value, int $expiration = 0): bool
    {
       return $this->client->set($key, $value, $expiration);
    }

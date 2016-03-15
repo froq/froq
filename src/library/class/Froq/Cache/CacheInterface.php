@@ -37,9 +37,9 @@ interface CacheInterface
     * @param  string   $key
     * @param  mixed    $value
     * @param  int|null $expiration
-    * @return void
+    * @return bool
     */
-   public function set(string $key, $value, int $expiration = null);
+   public function set(string $key, $value, int $expiration = null): bool;
 
    /**
     * Get cache item.
