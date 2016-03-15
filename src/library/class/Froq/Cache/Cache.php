@@ -62,13 +62,63 @@ abstract class Cache
    protected static $clients = [];
 
    /**
-    * Get (create) client.
+    * Get id.
+    *
+    * @return string|null
+    */
+   final public function getId()
+   {
+      return $this->id;
+   }
+
+   /**
+    * Get host.
+    *
+    * @return string|null
+    */
+   final public function getHost()
+   {
+      return $this->host;
+   }
+
+   /**
+    * Get port.
+    *
+    * @return int|null
+    */
+   final public function getPort()
+   {
+      return $this->port;
+   }
+
+   /**
+    * Get client.
+    *
+    * @return mixed|null
+    */
+   final public function getClient()
+   {
+      return $this->client;
+   }
+
+   /**
+    * Get clients.
+    *
+    * @return array
+    */
+   final public function getClients(): array
+   {
+      return self::$clients;
+   }
+
+   /**
+    * Get client instance.
     *
     * @param  string $id
     * @param  string $host
     * @param  int    $port
     * @return Froq\Cache\CacheInterface
     */
-   abstract public static function getClient(string $id = null,
+   abstract public static function getClientInstance(string $id = null,
       string $host = null, int $port = null): CacheInterface;
 }

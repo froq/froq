@@ -67,14 +67,14 @@ final class Memcached extends Cache implements CacheInterface
    }
 
    /**
-    * Get (create) client.
+    * Get client instance.
     *
     * @param  string $id
     * @param  string $host
     * @param  int    $port
     * @return Froq\Cache\CacheInterface
     */
-   final public static function getClient(string $id = null,
+   final public static function getClientInstance(string $id = null,
       string $host = self::DEFAULT_HOST, int $port = self::DEFAULT_PORT): CacheInterface
    {
       // not persistent
