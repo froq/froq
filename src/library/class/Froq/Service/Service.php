@@ -244,7 +244,7 @@ abstract class Service implements ServiceInterface
       $output = null;
       // site interface
       if ($this->protocol == ServiceInterface::PROTOCOL_SITE) {
-         // always uses main method
+         // always uses main method?
          if ($this->useMainOnly || $this->isMain()) {
             $output = $this->{ServiceInterface::METHOD_MAIN}();
          } elseif (method_exists($this, $this->method)) {
@@ -256,7 +256,10 @@ abstract class Service implements ServiceInterface
       }
       // rest interface
       elseif ($this->protocol == ServiceInterface::PROTOCOL_REST) {
-         if (method_exists($this, $this->method)) {
+         // always uses main method?
+         if ($this->useMainOnly) {
+            $output = $this->{ServiceInterface::METHOD_MAIN}();
+         } elseif (method_exists($this, $this->method)) {
             $output = call_user_func_array([$this, $this->method], $this->methodArgs);
          } else {
             // call fail::main
