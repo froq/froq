@@ -109,8 +109,10 @@ final class ServiceAdapter
       $this->service = $this->createService();
 
       // detect service method
-      if ($this->service->protocol == ServiceInterface::PROTOCOL_SITE
-         && !$this->service->useMainOnly) {
+      if ($this->service->useMainOnly) {
+         // main only
+         $this->serviceMethod = ServiceInterface::METHOD_MAIN;
+      } elseif ($this->service->protocol == ServiceInterface::PROTOCOL_SITE) {
          // from segment
          $this->serviceMethod = ($serviceMethod = $this->app->request->uri->segment(1, ''))
             ? $this->toServiceMethod($serviceMethod) : $this->serviceMethodDefault;
