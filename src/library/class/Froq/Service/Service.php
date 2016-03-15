@@ -85,6 +85,12 @@ abstract class Service implements ServiceInterface
    protected $config;
 
    /**
+    * Use session.
+    * @var bool
+    */
+   protected $useSession = true;
+
+   /**
     * Call only main() method.
     * @var bool
     */

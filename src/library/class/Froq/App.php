@@ -212,8 +212,10 @@ final class App
       $this->service = (new ServiceAdapter($this))
          ->getService();
 
-      // sessions used for only "site"
-      if ($this->service->protocol == ServiceInterface::PROTOCOL_SITE) {
+      // sessions used for only "site" services
+      if ($this->service->useSession
+         && $this->service->protocol == ServiceInterface::PROTOCOL_SITE
+      ) {
          $this->session = Session::init($this->config['app.session.cookie']);
       }
 
