@@ -123,9 +123,9 @@ final class Memcached extends Cache implements CacheInterface
     * Delete cache item.
     *
     * @param  string $key
-    * @return void
+    * @return bool
     */
-   final public function delete(string $key)
+   final public function delete(string $key): bool
    {
       return $this->client->delete($key);
    }

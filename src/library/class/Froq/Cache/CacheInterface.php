@@ -53,7 +53,7 @@ interface CacheInterface
     * Delete cache item.
     *
     * @param  string $key
-    * @return void
+    * @return bool
     */
-   public function delete(string $key);
+   public function delete(string $key): bool;
 }
