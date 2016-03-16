@@ -60,3 +60,13 @@ function to_object($input, bool $deep = true): \stdClass
 
    return $input;
 }
+
+/**
+ * Convert: foo-Bar -> foo_bar
+ * @param  string $input
+ * @return string
+ */
+function to_dash_snakecase(string $input = null): string
+{
+   return strtolower(str_replace('-', '_', (string) $input));
+}
