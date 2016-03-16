@@ -25,21 +25,26 @@ declare(strict_types=1);
 
 /**
  * Get real IP.
+ * @param  bool $toLong
  * @return string|null
  */
-function ip(): string
+function ip(bool $toLong = false): string
 {
-	$ip = '';
+   $ip = '';
    if (null != ($ip = get_env('HTTP_X_FORWARDED_FOR'))) {
       if (strpos($ip, ',') !== false) {
          $ip = trim(end(explode(',', $ip)));
       }
    } elseif (null != ($ip = get_env('HTTP_CLIENT_IP'))) {
-   	// ok..
+      // ok..
    } elseif (null != ($ip = get_env('HTTP_X_REAL_IP'))) {
-   	// ok..
+      // ok..
    } elseif (null != ($ip = get_env('REMOTE_ADDR'))) {
-   	// ok..
+      // ok..
+   }
+
+   if ($toLong) {
+      $ip = ip_toLong($ip);
    }
 
    return $ip;
