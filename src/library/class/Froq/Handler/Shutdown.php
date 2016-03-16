@@ -41,7 +41,6 @@ final class Shutdown
       return function() {
          $error = error_get_last();
          if (isset($error['type']) && $error['type'] == E_ERROR) {
-            // pre($error);
             $error = sprintf('Shutdown! E_ERROR in %s:%d ecode[%d] emesg[%s]',
                $error['file'], $error['line'], $error['type'], $error['message']);
 
