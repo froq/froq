@@ -231,11 +231,6 @@ final class Logger
       // prepare filename
       $filename = sprintf('%s/%s.log', $this->directory, date($this->filenameFormat));
 
-      // @tmp just for local
-      if (is_local()) {
-         chmod($filename, 0666);
-      }
-
       // handle exception, object, array messages
       if ($message instanceof \Throwable) {
          $message = get_class($message) ." thrown in '". $message->getFile() .":".
