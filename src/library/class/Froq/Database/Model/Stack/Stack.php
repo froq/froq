@@ -81,7 +81,7 @@ abstract class Stack implements StackInterface
     * Set a field value.
     *
     * @param string $key
-    * @param mixed  $value
+    * @param any    $value
     */
    final public function set(string $key, $value): self
    {
@@ -94,7 +94,7 @@ abstract class Stack implements StackInterface
     * Get a field value.
     *
     * @param  string $key
-    * @return mixed
+    * @return any
     */
    final public function get(string $key)
    {
@@ -165,7 +165,7 @@ abstract class Stack implements StackInterface
    /**
     * Get primary value.
     *
-    * @return mixed
+    * @return any
     */
    final public function getPrimaryValue()
    {
@@ -200,7 +200,7 @@ abstract class Stack implements StackInterface
     * Get data value.
     *
     * @param  string $key
-    * @return mixed
+    * @return any
     */
    final public function getDataValue(string $key)
    {
