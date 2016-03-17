@@ -60,7 +60,7 @@ final class Mysql extends Stack
    /**
     * Find an object.
     *
-    * @param  mixed $id
+    * @param  any $id
     * @return stcClass|null
     */
    final public function find($id = null)
@@ -83,7 +83,7 @@ final class Mysql extends Stack
    }
 
    /**
-    * Find all object.
+    * Find objects.
     *
     * @param  string    $where
     * @param  array     $params
@@ -179,7 +179,7 @@ final class Mysql extends Stack
    /**
     * Remove an object.
     *
-    * @return int|null
+    * @return bool
     */
    final public function remove(): bool
    {
@@ -231,7 +231,7 @@ final class Mysql extends Stack
    }
 
    /**
-    * Find objects.
+    * Count objects.
     *
     * @param  string|null $where
     * @param  array|null  $params
