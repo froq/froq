@@ -300,7 +300,6 @@ final class ValidationRule
                if ($this->isFixed) {
                   $input = mb_substr($input, 0,
                      intval($isLimitNumber ? $this->limit : $this->limitMax));
-                  return true;
                }
 
                $inputLen = strlen($input);
