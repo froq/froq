@@ -75,26 +75,34 @@ final class Validation
    /**
     * Validate.
     *
-    * @param  array &$data  This will overwrite sanitizing input data.
-    * @param  array &$fails Shortcut instead of to call self::getFails().
+    * @param  string $key
+    * @param  array  &$data  This will overwrite sanitizing input data.
+    * @param  array  &$fails Shortcut instead of to call self::getFails().
     * @return bool
     */
-   final public function validate(array &$data, &$fails = []): bool
+   final public function validate(string $key, array &$data, &$fails = []): bool
    {
+      // no rule to validate
+      if (!isset($this->rules[$key])) {
+         return true;
+      }
       // no data to validate
       if (empty($data)) {
          return false;
       }
 
-      // drop undefined post data
-      $keys = array_keys(array_intersect_key($this->rules, $data));
-      foreach ($data as $key => $value) {
-         if (!in_array($key, $keys)) {
-            unset($data[$key]);
+      // get rules
+      $rules = $this->rules[$key];
+      $ruleKeys = array_keys($rules);
+
+      // populate data with null
+      foreach ($ruleKeys as $ruleKey) {
+         if (!array_key_exists($ruleKey, $data)) {
+            $data[$ruleKey] = null;
          }
       }
 
-      foreach ($this->rules as $rule) {
+      foreach ($rules as $rule) {
          $fieldName = $rule->fieldName;
          $fieldValue = (string) $data[$fieldName];
 
@@ -123,8 +131,10 @@ final class Validation
     */
    final public function setRules(array $rules): self
    {
-      foreach ($rules as $fieldName => $fieldOptions) {
-         $this->rules[$fieldName] = new ValidationRule($fieldName, $fieldOptions);
+      foreach ($rules as $key => $fields) {
+         foreach ($fields as $fieldName => $fieldOptions) {
+            $this->rules[$key][$fieldName] = new ValidationRule($fieldName, $fieldOptions);
+         }
       }
 
       return $this;
