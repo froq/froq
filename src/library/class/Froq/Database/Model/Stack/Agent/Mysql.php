@@ -71,11 +71,9 @@ final class Mysql extends Stack
       }
 
       try {
-         $query = $this->createQueryBuilder();
-         $query->select('*')->whereEqual("`{$this->primary}`", $id)
-            ->limit(self::SELECT_LIMIT)->toString();
-
-         return $query->get();
+         return $this->createQueryBuilder()
+            ->select('*')->whereEqual("`{$this->primary}`", $id)->limit(1)
+            ->get();
       } catch (\Throwable $e) {
          // set exception
          $this->fail = $e;
@@ -91,8 +89,8 @@ final class Mysql extends Stack
     * @param  int       $order
     * @return array|null
     */
-   final public function findAll(string $where = null, array $params = null, $limit = null,
-      int $order = -1)
+   final public function findAll(string $where = null, array $params = null,
+      $limit = self::SELECT_LIMIT, int $order = -1)
    {
       try {
          $query = $this->createQueryBuilder();
@@ -108,7 +106,7 @@ final class Mysql extends Stack
             $query->orderBy("`{$this->primary}`", QueryBuilder::OP_ASC);
          }
          // limit
-         $query->limit($limit ?: self::SELECT_LIMIT);
+         $query->limit($limit);
 
          return $query->getAll();
       } catch (\Throwable $e) {
@@ -155,7 +153,13 @@ final class Mysql extends Stack
 
          // set return
          if ($result !== null) {
-            $return = (!$id) ? $result->getId() : $result->getRowsAffected();
+            if (!$id) {
+               $return = $result->getId();
+               // set new id
+               $this->setPrimaryValue($return);
+            } else {
+               $return = $result->getRowsAffected();
+            }
          }
 
          // updated but no rows affected?
