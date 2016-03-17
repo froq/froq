@@ -31,8 +31,38 @@ namespace Froq\Database\Model\Stack;
  */
 interface StackInterface
 {
+   /**
+    * Find an object.
+    *
+    * @return any
+    */
    public function find();
+
+   /**
+    * Find all objects.
+    *
+    * @return any
+    */
    public function findAll();
+
+   /**
+    * Save an object.
+    *
+    * @return any
+    */
    public function save();
-   public function remove();
+
+   /**
+    * Remove an object.
+    *
+    * @return bool
+    */
+   public function remove(): bool;
+
+   /**
+    * Count objects.
+    *
+    * @return int
+    */
+   public function count(): int;
 }
