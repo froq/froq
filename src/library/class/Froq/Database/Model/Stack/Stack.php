@@ -163,6 +163,19 @@ abstract class Stack implements StackInterface
    }
 
    /**
+    * Set primary value.
+    *
+    * @param  any $value
+    * @return self
+    */
+   final public function setPrimaryValue($value): self
+   {
+      $this->data[$this->primary] = $value;
+
+      return $this;
+   }
+
+   /**
     * Get primary value.
     *
     * @return any
