@@ -238,6 +238,16 @@ abstract class Stack implements StackInterface
    }
 
    /**
+    * Is fail.
+    *
+    * @return bool
+    */
+   final public function isFail(): bool
+   {
+      return !empty($this->fail);
+   }
+
+   /**
     * Get fail.
     *
     * @return \Throwable|null
