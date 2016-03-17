@@ -86,10 +86,6 @@ final class Validation
       if (!isset($this->rules[$key])) {
          return true;
       }
-      // no data to validate
-      if (empty($data)) {
-         return false;
-      }
 
       // get rules
       $rules = $this->rules[$key];
