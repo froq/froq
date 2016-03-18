@@ -127,7 +127,7 @@ final class Session
    }
 
    /**
-    * Set a session var.
+    * Set a session data.
     *
     * @param  string $key
     * @param  any    $value
@@ -148,7 +148,7 @@ final class Session
    }
 
    /**
-    * Get a session var.
+    * Get a session data.
     *
     * @param  string $key
     * @return any
@@ -166,7 +166,7 @@ final class Session
    }
 
    /**
-    * Check a session var.
+    * Check a session data.
     *
     * @param  string $key
     * @return bool
@@ -178,7 +178,7 @@ final class Session
    }
 
    /**
-    * Remove a session var.
+    * Remove a session data.
     *
     * @param  string $key
     * @return void
@@ -189,7 +189,7 @@ final class Session
    }
 
    /**
-    * Set a session var.
+    * Set a session data.
     *
     * @param  string $key
     * @param  any    $value
@@ -203,7 +203,22 @@ final class Session
    }
 
    /**
-    * Get a session var or default value.
+    * Set multi session data.
+    *
+    * @param  array $data
+    * @return self
+    */
+   final public function setAll(array $data): self
+   {
+      foreach ($data as $key => $value) {
+         $this->__set($key, $value);
+      }
+
+      return $this;
+   }
+
+   /**
+    * Get a session data or default value.
     *
     * @param  string $key
     * @param  any    $valueDefault
@@ -216,7 +231,23 @@ final class Session
    }
 
    /**
-    * Remove a session var.
+    * Get multi session data.
+    *
+    * @param  array $keys
+    * @return array
+    */
+   final public function getAll(array $keys): array
+   {
+      $data = [];
+      foreach ($keys as $key) {
+         $data[$keys] = $this->__get($key);
+      }
+
+      return $data;
+   }
+
+   /**
+    * Remove a session data.
     *
     * @param  string $key
     * @return self
@@ -224,6 +255,21 @@ final class Session
    final public function remove(string $key): self
    {
       $this->__unset($key);
+
+      return $this;
+   }
+
+   /**
+    * Remove multi session data.
+    *
+    * @param  array $keys
+    * @return self
+    */
+   final public function removeAll(array $keys): self
+   {
+      foreach ($keys as $key) {
+         $this->__unset($key);
+      }
 
       return $this;
    }
