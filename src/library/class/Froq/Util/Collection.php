@@ -29,8 +29,7 @@ namespace Froq\Util;
  * @object     Froq\Util\Collection
  * @author     Kerem Güneş <k-gun@mail.com>
  */
-class Collection
-   implements \Countable, \IteratorAggregate, \ArrayAccess
+class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
 {
    /**
     * Data stack.
@@ -124,6 +123,17 @@ class Collection
       }
 
       return $valueDefault;
+   }
+
+   /**
+    * Check an item.
+    *
+    * @param  int|string $key
+    * @return bool
+    */
+   public function has($key): bool
+   {
+      return $this->offsetExists($key);
    }
 
    /**
