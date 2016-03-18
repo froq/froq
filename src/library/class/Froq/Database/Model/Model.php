@@ -177,6 +177,20 @@ abstract class Model
    }
 
    /**
+    * Unload field values.
+    *
+    * @return self
+    */
+   final public function unload(): self
+   {
+      foreach ($this->stack->data as $key => $value) {
+         $this->stack->unset($key, $value);
+      }
+
+      return $this;
+   }
+
+   /**
     * Get verdor name.
     *
     * @return string
