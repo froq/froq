@@ -162,35 +162,6 @@ abstract class Model
    }
 
    /**
-    * Load field values.
-    *
-    * @param  array  $data
-    * @return self
-    */
-   final public function load(array $data): self
-   {
-      foreach ($data as $key => $value) {
-         $this->stack->set($key, $value);
-      }
-
-      return $this;
-   }
-
-   /**
-    * Unload field values.
-    *
-    * @return self
-    */
-   final public function unload(): self
-   {
-      foreach ($this->stack->data as $key => $value) {
-         $this->stack->unset($key);
-      }
-
-      return $this;
-   }
-
-   /**
     * Get verdor name.
     *
     * @return string
@@ -238,5 +209,34 @@ abstract class Model
    final public function getStackPrimary(): string
    {
       return $this->stack->getPrimary();
+   }
+
+   /**
+    * Load field values.
+    *
+    * @param  array  $data
+    * @return self
+    */
+   final public function load(array $data): self
+   {
+      foreach ($data as $key => $value) {
+         $this->stack->set($key, $value);
+      }
+
+      return $this;
+   }
+
+   /**
+    * Unload field values.
+    *
+    * @return self
+    */
+   final public function unload(): self
+   {
+      foreach ($this->stack->data as $key => $value) {
+         $this->stack->unset($key);
+      }
+
+      return $this;
    }
 }
