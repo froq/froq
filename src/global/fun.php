@@ -31,11 +31,20 @@ function get_global(string $key, $valueDefault = null) {
 
 /**
  * Shortcut for app address.
- * @return Froq\App|mixed
+ * @param  string $prop
+ * @return Froq\App|Froq\App\?|null
+ * @throws \Throwable
  */
-function app(string $prop = null) {
+function app(string $prop = '') {
    $app = get_global('app');
-   return ($prop) ? $app->{$prop} : $app;
+   if (!strpbrk($prop, '.->')) {
+      return (!$prop) ? $app : $app->{$prop};
+   }
+
+   // evil or tricky?
+   eval('$return = $app->'. str_replace('.', '->', $prop) .';');
+
+   return $return;
 }
 
 /**
