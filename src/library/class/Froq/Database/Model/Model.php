@@ -184,7 +184,7 @@ abstract class Model
    final public function unload(): self
    {
       foreach ($this->stack->data as $key => $value) {
-         $this->stack->unset($key, $value);
+         $this->stack->unset($key);
       }
 
       return $this;
