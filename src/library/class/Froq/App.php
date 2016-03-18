@@ -370,10 +370,18 @@ final class App
    final public function endOutputBuffer($output = null)
    {
       // handle redirections
-      if ($this->response->status->code >= 300 && $this->response->status->code <= 399) {
+      if ($this->response->status->code >= 300 &&
+          $this->response->status->code <= 399
+       ) {
+         // clean & turn off output buffering
+         while (ob_get_level()) {
+            ob_end_clean();
+         }
          // no content!
          $this->response->setContentType('none');
-      } else {
+      }
+      // handle outputs
+      else {
          // print'ed service methods return "null"
          if ($output === null) {
             $output = '';
