@@ -377,7 +377,7 @@ final class Uri
     * @param  array $exclude
     * @return string
     */
-   final public function toString(array $exclude = null): string
+   final public function toString(array $exclude = []): string
    {
       $array = $this->toArray($exclude);
       $return = '';
