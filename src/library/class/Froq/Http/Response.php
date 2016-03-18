@@ -140,11 +140,7 @@ final class Response
    }
 
    /**
-    * Redirect client intantly to the given location.
-    *
-    * Notice: This methods causes the program to quit completely.
-    * Also you need to escape the target location, it won't do it
-    * at all.
+    * Redirect client to the given location.
     *
     * @param  string   $location
     * @param  int      $code
@@ -154,6 +150,20 @@ final class Response
    {
       $this->setStatus($code);
       $this->setHeader('Location', $location);
+   }
+
+   /**
+    * Redirect client to the given back location with $_GET['_back'] param.
+    *
+    * @param  int $code
+    * @return void
+    */
+   final public function redirectBack(int $code = 302)
+   {
+      if (isset($_GET['_back'])) {
+         $this->setStatus($code);
+         $this->setHeader('Location', $_GET['_back']);
+      }
    }
 
    /**
