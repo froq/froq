@@ -118,7 +118,7 @@ final class Mysql extends Stack
    /**
     * Save an object.
     *
-    * @return int|null
+    * @return int|bool|null
     */
    final public function save()
    {
