@@ -192,11 +192,13 @@ final class Session
     * Set a session var.
     *
     * @param  string $key
-    * @return void
+    * @return self
     */
-   final public function set(string $key, $value)
+   final public function set(string $key, $value): self
    {
       $this->__set($key, $value);
+
+      return $this;
    }
 
    /**
