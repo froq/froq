@@ -25,11 +25,15 @@ declare(strict_types=1);
 
 /**
  * Encode HTML input.
- * @param  string $input
- * @return string
+ * @param  string|array $input
+ * @return string|array
  */
-function html_encode(string $input = null): string
+function html_encode($input)
 {
+   if (is_array($input)) {
+      return array_map(__function__, $input);
+   }
+
    $input = trim("{$input}");
    if ($input) {
       $input = str_replace(
@@ -44,11 +48,15 @@ function html_encode(string $input = null): string
 
 /**
  * Decode HTML input.
- * @param  string $input
- * @return string
+ * @param  string|array $input
+ * @return string|array
  */
-function html_decode(string $input = null): string
+function html_decode($input)
 {
+   if (is_array($input)) {
+      return array_map(__function__, $input);
+   }
+
    $input = trim("{$input}");
    if ($input) {
       $input = str_ireplace(
@@ -63,12 +71,16 @@ function html_decode(string $input = null): string
 
 /**
  * Strip HTML tags.
- * @param  string $input
+ * @param  string|array $input
  * @param  bool   $decode
- * @return string
+ * @return string|array
  */
-function html_strip(string $input = null, bool $decode = false): string
+function html_strip($input, bool $decode = false)
 {
+   if (is_array($input)) {
+      return array_map(__function__, $input);
+   }
+
    if ($decode) {
       $input = html_decode($input);
    }
@@ -78,12 +90,16 @@ function html_strip(string $input = null, bool $decode = false): string
 
 /**
  * Remove HTML tags.
- * @param  string $input
- * @param  bool   $decode
- * @return string
+ * @param  string|array $input
+ * @param  bool         $decode
+ * @return string|array
  */
-function html_remove(string $input = null, bool $decode = false): string
+function html_remove($input = null, bool $decode = false)
 {
+   if (is_array($input)) {
+      return array_map(__function__, $input);
+   }
+
    if ($decode) {
       $input = html_decode($input);
    }
