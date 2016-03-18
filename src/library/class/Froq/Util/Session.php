@@ -219,11 +219,13 @@ final class Session
     * Remove a session var.
     *
     * @param  string $key
-    * @return void
+    * @return self
     */
-   final public function remove(string $key)
+   final public function remove(string $key): self
    {
       $this->__unset($key);
+
+      return $this;
    }
 
    /**
