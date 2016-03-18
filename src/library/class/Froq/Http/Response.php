@@ -146,7 +146,7 @@ final class Response
     * @param  int      $code
     * @return void
     */
-   final public function redirect(string $location, int $code = 302)
+   final public function redirect(string $location, int $code = Status::FOUND)
    {
       $this->setStatus($code);
       $this->setHeader('Location', $location);
@@ -158,7 +158,7 @@ final class Response
     * @param  int $code
     * @return void
     */
-   final public function redirectBack(int $code = 302)
+   final public function redirectBack(int $code = Status::FOUND)
    {
       if (isset($_GET['_back'])) {
          $this->setStatus($code);
