@@ -153,17 +153,26 @@ final class Response
    }
 
    /**
-    * Redirect client to the given back location with $_GET['_back'] param.
+    * Redirect client to the given back location with $_GET['_back'] param
+    * or default app root.
     *
-    * @param  int $code
+    * @param  bool $decode
+    * @param  int  $code
     * @return void
     */
-   final public function redirectBack(int $code = Status::FOUND)
+   final public function redirectBack(bool $decode = true, int $code = Status::FOUND)
    {
-      if (isset($_GET['_back'])) {
-         $this->setStatus($code);
-         $this->setHeader('Location', $_GET['_back']);
+      $location = $_GET['_back'] ?? null;
+      // check location (to prevent empty back location)
+      if ($location === null) {
+         $location = app()->root;
       }
+      // is encoded?
+      if ($decode) {
+         $location = rawurldecode($location);
+      }
+
+      $this->redirect($location, $code);
    }
 
    /**
