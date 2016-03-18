@@ -130,7 +130,7 @@ final class Session
     * Set a session var.
     *
     * @param  string $key
-    * @param  mixed  $value
+    * @param  any    $value
     * @return void
     */
    final public function __set(string $key, $value)
@@ -151,7 +151,7 @@ final class Session
     * Get a session var.
     *
     * @param  string $key
-    * @return mixed
+    * @return any
     */
    final public function __get(string $key)
    {
@@ -192,6 +192,7 @@ final class Session
     * Set a session var.
     *
     * @param  string $key
+    * @param  any    $value
     * @return self
     */
    final public function set(string $key, $value): self
@@ -205,8 +206,8 @@ final class Session
     * Get a session var or default value.
     *
     * @param  string $key
-    * @param  mixed  $valueDefault
-    * @return mixed
+    * @param  any    $valueDefault
+    * @return any
     */
    final public function get(string $key, $valueDefault = null)
    {
@@ -452,8 +453,8 @@ final class Session
    /**
     * Flash messages.
     *
-    * @param  mixed $message
-    * @return mixed
+    * @param  any $message
+    * @return any
     */
    final public function flash($message = null)
    {
