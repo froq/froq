@@ -47,7 +47,6 @@ $cfg['app']['cookies'] = [];
 
 // session
 $cfg['app']['session'] = [];
-$cfg['app']['session']['use'] = true;
 $cfg['app']['session']['cookie'] = [];
 $cfg['app']['session']['cookie']['name'] = 'SID';
 $cfg['app']['session']['cookie']['domain'] = '';
