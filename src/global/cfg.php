@@ -83,11 +83,15 @@ $cfg['app']['security']['allowFileExtensionSniff'] = false;
  */
 $cfg['etc'] = [];
 
+// redirect
+$cfg['etc']['redirect'] = [];
+$cfg['etc']['redirect']['key'] = '_to';
+$cfg['etc']['redirect']['fallbackLocation'] = '/';
+
 // pager
-$cfg['etc']['pager'] = [
-   's'     => 's',   // start
-   'ss'    => 'ss',  // stop
-   'limit' => 10,    // limit
-];
+$cfg['etc']['pager'] = [];
+$cfg['etc']['pager']['s'] = 's';    // start
+$cfg['etc']['pager']['ss'] = 'ss';  // stop
+$cfg['etc']['pager']['limit'] = 10; // limit
 
 return $cfg;

@@ -153,23 +153,18 @@ final class Response
    }
 
    /**
-    * Redirect client to the given back location with $_GET['_back'] param
-    * or default app root.
+    * Redirect client automatically to the given location with a $_GET param.
     *
-    * @param  bool $decode
-    * @param  int  $code
+    * @param  int $code
     * @return void
     */
-   final public function redirectBack(bool $decode = true, int $code = Status::FOUND)
+   final public function redirectTo(int $code = Status::FOUND)
    {
-      $location = $_GET['_back'] ?? null;
+      $app = app();
+      $location = $_GET[$app->config['etc.redirect.key']] ?? null;
       // check location (to prevent empty back location)
       if ($location === null) {
-         $location = app()->root;
-      }
-      // is encoded?
-      if ($decode) {
-         $location = rawurldecode($location);
+         $location = $app->config['etc.redirect.fallbackLocation'] ?: $app->root;
       }
 
       $this->redirect($location, $code);
