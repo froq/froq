@@ -165,7 +165,7 @@ final class ValidationRule
          case Validation::TYPE_DATETIME:
             if (!isset($this->fieldOptions['spec'])) {
                throw new ValidationException(
-                  "Enum types requires 'spec' definition (field name: {$this->fieldName})");
+                  "Enum, date and datetime types requires 'spec' definition (field name: {$this->fieldName})");
             }
             break;
       }
