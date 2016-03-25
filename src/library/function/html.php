@@ -153,7 +153,11 @@ function html_options($input, $current = null, $extra = null, array $pairs = nul
          case 'hours':
             $input = [];
             for ($i = 0; $i < 24; $i++) {
-               $value = sprintf('%02d%s', $i, $extra);
+               if ($extra === true) {
+                  $value = sprintf('%02d:00', $i);
+               } else {
+                  $value = sprintf('%02d', $i);
+               }
                $input[$value] = $value;
             }
             break;
@@ -161,7 +165,7 @@ function html_options($input, $current = null, $extra = null, array $pairs = nul
          case 'minutes':
             $input = [];
             for ($i = 0; $i < 60; $i++) {
-               $value = sprintf('%02d%s', $i, $extra);
+               $value = sprintf('%02d', $i);
                $input[$value] = $value;
             }
             break;
@@ -181,8 +185,11 @@ function html_options($input, $current = null, $extra = null, array $pairs = nul
    if (!is_array($input)) {
       trigger_error(__function__ .'() cannot iterate given input.');
    }
-   if ($extra) {
+
+   if (is_string($extra) && $extra != '') {
       $extra = ' '. trim($extra);
+   } else {
+      $extra = '';
    }
 
    $return = '';
