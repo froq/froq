@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Froq\Database\Model\Stack;
 
 use Froq\Util\Traits\GetterTrait as Getter;
+use Froq\Database\Vendor\Vendor;
 
 /**
  * @package    Froq
@@ -137,7 +138,7 @@ abstract class Stack implements StackInterface
     *
     * @return string
     */
-   final public function getDb(): string
+   final public function getDb(): Vendor
    {
       return $this->db;
    }
