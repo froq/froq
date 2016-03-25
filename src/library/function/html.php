@@ -153,7 +153,7 @@ function html_options($input, $current = null, $extra = null, array $pairs = nul
          case 'hours':
             $input = [];
             for ($i = 0; $i < 24; $i++) {
-               $value = sprintf('%02d', $i);
+               $value = sprintf('%02d%s', $i, $extra);
                $input[$value] = $value;
             }
             break;
@@ -161,7 +161,7 @@ function html_options($input, $current = null, $extra = null, array $pairs = nul
          case 'minutes':
             $input = [];
             for ($i = 0; $i < 60; $i++) {
-               $value = sprintf('%02d', $i);
+               $value = sprintf('%02d%s', $i, $extra);
                $input[$value] = $value;
             }
             break;
