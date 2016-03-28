@@ -41,7 +41,7 @@ final class Util
     */
    final public static function arrayPick(array &$array, $key, $value = null)
    {
-      if (isset($array[$key])) {
+      if (array_key_exists($key, $array)) {
          $value = $array[$key];
          unset($array[$key]);
       }
