@@ -186,7 +186,7 @@ final class ValidationRule
       }
 
       // set default
-      if (isset($this->fieldOptions['default'])) {
+      if (array_key_exists('default', $this->fieldOptions)) {
          $this->fieldDefault = $this->fieldOptions['default'];
       }
 
@@ -244,7 +244,7 @@ final class ValidationRule
       }
 
       // assing default to input but do not return true to check also given default
-      if ($input === '' && $this->fieldDefault !== null) {
+      if ($input === '') {
          $input = $this->fieldDefault;
       }
 
@@ -354,10 +354,13 @@ final class ValidationRule
             }
 
             // simply date check
-            if (date($this->spec, strtotime($input)) != $input) {
-               $this->fail = 'Field value is not valid date/datetime.';
-               return false;
-            }
+            try {
+               if ($input && date($this->spec, strtotime($input)) != $input) {
+                  $this->fail = 'Field value is not valid date/datetime.';
+                  return false;
+               }
+            } catch (\Throwable $e){}
+
             break;
       }
 
