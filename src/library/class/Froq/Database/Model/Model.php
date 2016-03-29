@@ -81,9 +81,9 @@ abstract class Model
          case Database::VENDOR_MYSQL:
             $this->stack = new Mysql(
                Database::init(Database::VENDOR_MYSQL),
-               $this->stackName,
-               $this->stackPrimary,
-               $this->useTransaction
+               (string) $this->stackName,
+               (string) $this->stackPrimary,
+               (bool)   $this->useTransaction
             );
             break;
          default:

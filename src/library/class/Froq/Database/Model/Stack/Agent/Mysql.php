@@ -49,7 +49,8 @@ final class Mysql extends Stack
     * @param string                      $name
     * @param string                      $primary
     */
-   final public function __construct(Database $db, $name, $primary, bool $useTransaction = true)
+   final public function __construct(Database $db, string $name, string $primary,
+      bool $useTransaction = true)
    {
       $this->db = $db;
       $this->name = trim($name);
