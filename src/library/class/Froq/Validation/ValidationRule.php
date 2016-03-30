@@ -235,7 +235,7 @@ final class ValidationRule
     */
    final public function ok(&$input): bool
    {
-      $input = trim("{$input}");
+      $input = _trim($input);
 
       // check required issue
       if ($input === '' && $this->isRequired) {

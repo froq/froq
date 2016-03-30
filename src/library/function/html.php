@@ -34,7 +34,7 @@ function html_encode($input)
       return array_map(__function__, $input);
    }
 
-   $input = trim("{$input}");
+   $input = _trim($input);
    if ($input) {
       $input = str_replace(
          ["'"    , '"'    , '\\'   , '<'   , '>'],
@@ -57,7 +57,7 @@ function html_decode($input)
       return array_map(__function__, $input);
    }
 
-   $input = trim("{$input}");
+   $input = _trim($input);
    if ($input) {
       $input = str_ireplace(
          ['&#39;', '&#34;', '&#92;', '&lt;', '&gt;'],
