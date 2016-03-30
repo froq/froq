@@ -78,9 +78,11 @@ final class Validation
     * @param  string $key
     * @param  array  &$data  This will overwrite sanitizing input data.
     * @param  array  &$fails Shortcut instead of to call self::getFails().
+    * @param  bool   $dropUndefs
     * @return bool
     */
-   final public function validate(string $key, array &$data, &$fails = []): bool
+   final public function validate(string $key, array &$data, &$fails = [],
+      bool $dropUndefs = true): bool
    {
       // no rule to validate
       if (!isset($this->rules[$key])) {
@@ -90,6 +92,15 @@ final class Validation
       // get rules
       $rules = $this->rules[$key];
       $ruleKeys = array_keys($rules);
+
+      // drop undefined data keys
+      if ($dropUndefs) {
+         foreach ($data as $key => $value) {
+            if (!in_array($key, $ruleKeys)) {
+               unset($data[$key]);
+            }
+         }
+      }
 
       // populate data with null
       foreach ($ruleKeys as $ruleKey) {
