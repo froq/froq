@@ -111,24 +111,27 @@ function if_none($a, $b) {
 }
 
 /**
+ * Default value getter for empty variables.
+ * @param  any $a
+ * @param  any $b
+ * @return any
+ */
+function if_empty($a, $b) {
+   return !empty($a) ? $a : $b;
+}
+
+/**
  * Some tricky functions.
  */
 // nö!
 function _isset($var): bool { return isset($var); }
 function _empty($var): bool { return empty($var); }
-
-// safe trim for strict mode
-function _trim($input): string {
-   return trim((string) $input);
-}
-
 // boolval
 if (!function_exists('boolval')) {
-   function boolval($input): bool {
-      return (bool) $input;
+   function boolval($value): bool {
+      return (bool) $value;
    }
 }
-
 // get_callee
 if (!function_exists('get_callee')) {
    function get_callee($i = 1): array {
