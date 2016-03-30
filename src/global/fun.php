@@ -126,12 +126,19 @@ function if_empty($a, $b) {
 // nö!
 function _isset($var): bool { return isset($var); }
 function _empty($var): bool { return empty($var); }
+
+// safe trim for strict mode
+function _trim($input): string {
+   return trim((string) $input);
+}
+
 // boolval
 if (!function_exists('boolval')) {
-   function boolval($value): bool {
-      return (bool) $value;
+   function boolval($input): bool {
+      return (bool) $input;
    }
 }
+
 // get_callee
 if (!function_exists('get_callee')) {
    function get_callee($i = 1): array {
