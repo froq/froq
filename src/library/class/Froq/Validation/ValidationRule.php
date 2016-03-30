@@ -243,9 +243,15 @@ final class ValidationRule
          return false;
       }
 
-      // assing default to input but do not return true to check also given default
+      // assing default to input but do not return
+      // true to check also given default
       if ($input === '') {
          $input = $this->fieldDefault;
+      }
+
+      // skip if null given as default
+      if ($input === null && !$this->isRequired) {
+         return true;
       }
 
       // valide by field type
