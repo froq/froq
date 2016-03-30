@@ -73,6 +73,12 @@ final class ValidationRule
    private $isRequired = false;
 
    /**
+    * Unsigned flag for numerics.
+    * @var bool
+    */
+   private $isUnsigned = false;
+
+   /**
     * Fixed flag (will truncate and suppress fail if input exceeds the limit).
     * @var bool
     */
@@ -136,8 +142,8 @@ final class ValidationRule
       } elseif (!in_array($this->fieldOptions['type'], [
          Validation::TYPE_INT,
          Validation::TYPE_FLOAT,
-         Validation::TYPE_STRING,
          Validation::TYPE_NUMERIC,
+         Validation::TYPE_STRING,
          Validation::TYPE_BOOL,
          Validation::TYPE_ENUM,
          Validation::TYPE_EMAIL,
@@ -209,13 +215,10 @@ final class ValidationRule
          if (is_int($key) && is_array($value)) {
             foreach ($value as $option) {
                switch ($option) {
-                  case 'required':
-                     $this->isRequired = true;
-                     break;
-                  case 'fixed':
-                     $this->isFixed = true;
-                     break;
-                  // default: ignore for now..
+                  case 'required': $this->isRequired = true; break;
+                  case 'unsigned': $this->isUnsigned = true; break;
+                  case    'fixed': $this->isFixed    = true; break;
+                  // default: ignore others for now..
                }
             }
          }
@@ -267,6 +270,11 @@ final class ValidationRule
             $input = ($this->fieldType == Validation::TYPE_INT)
                ? intval($input) : floatval($input);
 
+            // make unsigned
+            if ($this->isUnsigned) {
+               $input = abs($input);
+            }
+
             // check limit(s)
             if ($this->limit !== null) {
                if (is_numeric($this->limit) && $input !== $this->limit) {
@@ -291,6 +299,12 @@ final class ValidationRule
                $this->fail = 'Field value must be numeric.';
                return false;
             }
+
+            // make unsigned
+            if ($this->isUnsigned) {
+               $input = preg_replace('~^-+~', '', $input);
+            }
+
             break;
          case Validation::TYPE_STRING:
             // check regex if provided
@@ -381,7 +395,17 @@ final class ValidationRule
     */
    final public function isRequired(): bool
    {
-      return ((bool) $this->isRequired);
+      return (bool) $this->isRequired;
+   }
+
+   /**
+    * Unsigned?
+    *
+    * @return bool
+    */
+   final public function isUnsigned(): bool
+   {
+      return (bool) $this->isUnsigned;
    }
 
    /**
@@ -391,7 +415,7 @@ final class ValidationRule
     */
    final public function isFixed(): bool
    {
-      return ((bool) $this->isFixed);
+      return (bool) $this->isFixed;
    }
 
    /**
