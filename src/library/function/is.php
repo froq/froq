@@ -57,12 +57,12 @@ function is_in(array $array, $input): bool
 
 /**
  * Check input is valid int ID.
- * @param  mixed $input
+ * @param  any $input
  * @return bool
  */
 function is_id($input): bool
 {
-   return (is_int($input) && $input > 0);
+   return (($input = intval($input)) && $input > 0);
 }
 
 /**
@@ -86,7 +86,7 @@ function is_callee_allowed(string $filePath, array &$callee = null, string &$err
 
 /**
  * Check var is iterable.
- * @param  mixed $input
+ * @param  any $input
  * @return bool
  */
 function is_iter($input): bool
