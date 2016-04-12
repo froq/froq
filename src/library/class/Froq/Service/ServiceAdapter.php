@@ -139,8 +139,18 @@ final class ServiceAdapter
          $this->service = $this->createService();
       }
 
-      // re-set service method
+      // re-set service method & method args
       $this->service->setMethod($this->serviceMethod);
+
+      $methodArgs = array_slice($this->app->request->uri->segments(), 2);
+      $methodArgsCount = count($methodArgs);
+      $methodArgsCountRef = (new \ReflectionMethod($this->serviceName, $this->serviceMethod))
+         ->getNumberOfParameters();
+      if ($methodArgsCount < $methodArgsCountRef) {
+         $methodArgs += array_fill($methodArgsCount, $methodArgsCountRef - $methodArgsCount, null);
+      }
+
+      $this->service->setMethodArgs($methodArgs);
    }
 
    /**
@@ -265,7 +275,7 @@ final class ServiceAdapter
     * Prepare service file.
     *
     * @param  string $file
-    * @param  bool   $load;
+    * @param  bool   $load
     * @return string
     */
    final private function toServiceFile(string $serviceName, bool $load = false): string
