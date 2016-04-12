@@ -66,25 +66,6 @@ function is_id($input): bool
 }
 
 /**
- * Check callee allowed.
- * @param  string      $filePath
- * @param  array|null  &$callee
- * @param  string|null &$error
- * @return bool
- */
-function is_callee_allowed(string $filePath, array &$callee = null, string &$error = null): bool
-{
-   $callee = get_callee(4);
-   if (strpos($callee['file'], $filePath)) {
-      $error = sprintf('Call from bad scope! class: %s::%s() file: %s:%d',
-         $callee['class'], $callee['function'], $callee['file'], $callee['line']);
-      return false;
-   }
-
-   return true;
-}
-
-/**
  * Check var is iterable.
  * @param  any $input
  * @return bool
@@ -113,4 +94,23 @@ function is_empty(...$inputs): bool
    }
 
    return false;
+}
+
+/**
+ * Check callee allowed.
+ * @param  string      $filePath
+ * @param  array|null  &$callee
+ * @param  string|null &$error
+ * @return bool
+ */
+function is_callee_allowed(string $filePath, array &$callee = null, string &$error = null): bool
+{
+   $callee = get_callee(4);
+   if (strpos($callee['file'], $filePath)) {
+      $error = sprintf('Call from bad scope! class: %s::%s() file: %s:%d',
+         $callee['class'], $callee['function'], $callee['file'], $callee['line']);
+      return false;
+   }
+
+   return true;
 }
