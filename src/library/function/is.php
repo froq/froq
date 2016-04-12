@@ -36,23 +36,19 @@ function is_local(): bool
 }
 
 /**
- * Check input is in array.
+ * Check input(s) is in array.
  * @param  array        $array
- * @param  string|array $input
+ * @param  string|array $inputs
  * @return bool
  */
-function is_in(array $array, $input): bool
+function is_in(array $array, $inputs): bool
 {
-   if (is_array($input)) {
-      foreach ($input as $input) {
-         if (in_array($input, $array)) {
-            return true;
-         }
+   foreach ((array) $inputs as $input) {
+      if (in_array($input, $array)) {
+         return true;
       }
-      return false;
    }
-
-   return in_array($input, $array);
+   return false;
 }
 
 /**
