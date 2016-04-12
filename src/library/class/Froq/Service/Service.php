@@ -145,7 +145,6 @@ abstract class Service implements ServiceInterface
 
       $this->setName($name);
       $this->setMethod($method);
-      $this->setMethodArgs(null);
 
       // load config & model
       $this->loadConfig();
@@ -200,11 +199,7 @@ abstract class Service implements ServiceInterface
     */
    final public function setMethodArgs(array $methodArgs = null): self
    {
-      if ($methodArgs === null) {
-         $methodArgs = array_slice($this->app->request->uri->segments(), 2);
-      }
-
-      $this->methodArgs = $methodArgs;
+      $this->methodArgs = (array) $methodArgs;
 
       return $this;
    }
