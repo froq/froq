@@ -29,10 +29,13 @@ declare(strict_types=1);
  */
 function is_local(): bool
 {
-   if (defined('local')) {
-      return (local === true);
+   static $local; if ($local === null) {
+      if (defined('local')) {
+         $local = (local === true);
+      }
+      $local = strstr(dig($_SERVER, 'SERVER_NAME'), '.local');
    }
-   return ((bool) strstr($_SERVER['SERVER_NAME'], '.local'));
+   return (bool) $local;
 }
 
 /**
