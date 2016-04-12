@@ -56,7 +56,7 @@ function is_in(array $array, $input): bool
 }
 
 /**
- * Check input is valid int ID.
+ * Check input is valid uint ID.
  * @param  any $input
  * @return bool
  */
