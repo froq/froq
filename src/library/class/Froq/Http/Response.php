@@ -474,25 +474,19 @@ final class Response
          // handle xml @todo
          case ContentType::XML:
             break;
+
          // handle json
          case ContentType::JSON:
             $json = new Json($body);
-
-            // simply check for pretty print
-            $app = app();
-            if (in_array($app->request->params->get['pp'], ['1', 'true'])) {
-               $body = $json->encode(JSON_PRETTY_PRINT);
-            } else {
-               $body = $json->encode();
-            }
-
+            $body = $json->encode();
             if ($json->hasError()) {
                throw new JsonException($json->getErrorMessage(), $json->getErrorCode());
             }
             break;
+
          // handle html
          case ContentType::HTML:
-            // check for page title
+            // check page title
             if ($pageTitle = get_global('page.title')) {
                $pageTitlePre = get_global('page.title.pre');
                $pageTitlePost = get_global('page.title.post');
@@ -512,24 +506,19 @@ final class Response
                );
             }
 
-            // prepend inline scripts
+            // append/prepend inline script & style tags
             if ($scriptPrepend = get_global('script.prepend')) {
                $body = preg_replace('~<body([^>]*)>~', "<body\\1>\n{$scriptPrepend}\n", $body, 1);
             }
-
-            // prepend/append inline styles
             if ($stylePrepend = get_global('style.prepend')) {
                $body = preg_replace('~<body([^>]*)>~', "<body\\1>\n{$stylePrepend}\n", $body, 1);
             }
             if ($styleAppend = get_global('style.append')) {
                $body = preg_replace('~</body>~', "\n{$styleAppend}\n</body>", $body, 1);
             }
-
-            // append inline scripts
             if ($scriptAppend = get_global('script.append')) {
                $body = preg_replace('~</body>~', "\n{$scriptAppend}\n</body>", $body, 1);
             }
-
             break;
       }
 
