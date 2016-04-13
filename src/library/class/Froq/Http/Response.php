@@ -501,7 +501,7 @@ final class Response
             if ($pageDescription = get_global('page.description')) {
                $body = preg_replace(
                   '~<meta\s+name="description"\s+content="(.*?)">~',
-                   '<meta\s+name="description"\s+content="'. html_encode($pageDescription) .'">',
+                   '<meta name="description" content="'. html_encode($pageDescription) .'">',
                      $body, 1 // only once
                );
             }
