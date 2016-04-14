@@ -85,27 +85,30 @@ final class Mysql extends Stack
     * Find objects.
     *
     * @param  string    $where
-    * @param  array     $params
+    * @param  array     $whereParams
     * @param  int|array $limit
     * @param  int       $order
     * @return array|null
     */
-   final public function findAll(string $where = null, array $params = null,
+   final public function findAll(string $where = null, array $whereParams = null,
       $limit = self::SELECT_LIMIT, int $order = -1)
    {
       try {
          $query = $this->createQueryBuilder();
          $query->select('*');
+
          // where
          if (!empty($where)) {
-            $query->where($where, $params);
+            $query->where($where, $whereParams);
          }
+
          // order
          if ($order == -1) {
             $query->orderBy("`{$this->primary}`", QueryBuilder::OP_DESC);
          } elseif ($order == 1) {
             $query->orderBy("`{$this->primary}`", QueryBuilder::OP_ASC);
          }
+
          // limit
          $query->limit($limit);
 
@@ -239,16 +242,16 @@ final class Mysql extends Stack
     * Count objects.
     *
     * @param  string|null $where
-    * @param  array|null  $params
+    * @param  array|null  $whereParams
     * @return int
     */
-   final public function count(string $where = null, array $params = null): int
+   final public function count(string $where = null, array $whereParams = null): int
    {
       try {
          $query = $this->createQueryBuilder();
          // where
          if (!empty($where)) {
-            $query->where($where, $params);
+            $query->where($where, $whereParams);
          }
 
          return $query->count();
