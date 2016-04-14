@@ -70,3 +70,35 @@ function to_dash_snakecase(string $input = null): string
 {
    return strtolower(str_replace('-', '_', (string) $input));
 }
+
+/**
+ * Make query string with ignore support.
+ * @param  array  $query
+ * @param  string $keyIgnored
+ * @return string
+ */
+function to_query_string(array $query, string $keyIgnored = ''): string
+{
+   $keyIgnored = explode(',', $keyIgnored);
+
+   foreach ($query as $key => $value) {
+      if (in_array($key, $keyIgnored)) {
+         unset($query[$key]);
+      }
+   }
+
+   $query = http_build_query($query);
+
+   // strip tags
+   if (strpos($query, '%3C') !== false) {
+      $query = preg_replace('~%3C(%2F|)[\w]+%3E~simU', '', $query);
+   }
+
+   // clear arrays
+   if (strpos($query, '%5D') !== false) {
+      $query = preg_replace('~%5B([\d]+)%5D~simU', '[]', $query);
+      $query = preg_replace('~%5B([\w]+)%5D~simU', '[\\1]', $query);
+   }
+
+   return trim($query);
+}
