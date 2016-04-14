@@ -39,6 +39,12 @@ define('APP_START_TIME', microtime(true));
 define('nil', null, true);
 
 /**
+ * More readable empty strings.
+ * @const string
+ */
+define('none', '', true);
+
+/**
  * App root path.
  * @const string
  */
