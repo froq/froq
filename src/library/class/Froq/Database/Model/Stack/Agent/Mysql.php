@@ -266,13 +266,22 @@ final class Mysql extends Stack
    /**
     * Create a fresh query builder.
     *
+    * @param  string|null $stackName
     * @return Oppa\Database\Query\Builder
     */
-   final public function createQueryBuilder(): QueryBuilder
+   final public function createQueryBuilder(string $stackName = null): QueryBuilder
    {
-      return new QueryBuilder(
-         $this->db->getConnection(),
-         $this->db->getConnection()->getAgent()->escapeIdentifier($this->name)
-      );
+      $queryBuilder = new QueryBuilder();
+      $queryBuilder->setConnection($this->db->getConnection());
+
+      if (empty($stackName)) {
+         $queryBuilder->setTable(
+            $this->db->getConnection()->getAgent()->escapeIdentifier($this->name)
+         );
+      } else {
+         $queryBuilder->setTable($stackName);
+      }
+
+      return $queryBuilder;
    }
 }
