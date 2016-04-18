@@ -274,6 +274,7 @@ final class Mysql extends Stack
       $queryBuilder = new QueryBuilder();
       $queryBuilder->setConnection($this->db->getConnection());
 
+      // use self name
       if (empty($stackName)) {
          $queryBuilder->setTable(
             $this->db->getConnection()->getAgent()->escapeIdentifier($this->name)
