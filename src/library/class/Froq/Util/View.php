@@ -37,8 +37,8 @@ final class View
     * Partial files.
     * @const string
     */
-   const PARTIAL_HEAD = 'partial/head',
-         PARTIAL_FOOT = 'partial/foot';
+   const DEFAULT_PARTIAL_HEAD = 'partial/head',
+         DEFAULT_PARTIAL_FOOT = 'partial/foot';
 
    /**
     * Asset pre/post directions.
@@ -151,10 +151,10 @@ final class View
    final public function displayHead(array $data = null)
    {
       // check local service file
-      $file = $this->prepareFile(self::PARTIAL_HEAD, false);
+      $file = $this->prepareFile(self::DEFAULT_PARTIAL_HEAD, false);
       if (!is_file($file)) {
          // look up for global service file
-         $file = $this->prepareFileGlobal(self::PARTIAL_HEAD);
+         $file = $this->prepareFileDefault(self::DEFAULT_PARTIAL_HEAD);
       }
 
       $this->includeFile($file, $data);
@@ -169,10 +169,10 @@ final class View
    final public function displayFoot(array $data = null)
    {
       // check local service file
-      $file = $this->prepareFile(self::PARTIAL_FOOT, false);
+      $file = $this->prepareFile(self::DEFAULT_PARTIAL_FOOT, false);
       if (!is_file($file)) {
          // look up for global service file
-         $file = $this->prepareFileGlobal(self::PARTIAL_FOOT);
+         $file = $this->prepareFileDefault(self::DEFAULT_PARTIAL_FOOT);
       }
 
       $this->includeFile($file, $data);
@@ -203,7 +203,7 @@ final class View
     */
    final public function prepareFile(string $file, bool $fileCheck = true): string
    {
-      // default file given
+      // custom file given
       if ($file[0] == '.') {
          $file = sprintf('%s.php', $file);
       } else {
@@ -234,9 +234,9 @@ final class View
     * @param  bool   $fileCheck
     * @return string
     */
-   final public function prepareFileGlobal(string $file, bool $fileCheck = true): string
+   final public function prepareFileDefault(string $file, bool $fileCheck = true): string
    {
-      $file = sprintf('./app/service/view/%s.php', $file);
+      $file = sprintf('./app/service/default/view/%s.php', $file);
       if ($fileCheck && !is_file($file)) {
          throw new \RuntimeException('View file not found! file: '. $file);
       }
