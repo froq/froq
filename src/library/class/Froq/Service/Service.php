@@ -179,6 +179,16 @@ abstract class Service implements ServiceInterface
    }
 
    /**
+    * Get name.
+    *
+    * @return string
+    */
+   final public function getName(): string
+   {
+      return $this->name;
+   }
+
+   /**
     * Set method.
     *
     * @param  string $method
@@ -189,6 +199,16 @@ abstract class Service implements ServiceInterface
       $this->method = (string) $method;
 
       return $this;
+   }
+
+   /**
+    * Get method.
+    *
+    * @return string
+    */
+   final public function getMethod(): string
+   {
+      return $this->method;
    }
 
    /**
@@ -205,14 +225,23 @@ abstract class Service implements ServiceInterface
    }
 
    /**
+    * Get method args.
+    *
+    * @return array
+    */
+   final public function getMethodArgs(): array
+   {
+      return $this->methodArgs;
+   }
+
+   /**
     * Check is main.
     *
     * @return bool
     */
    final public function isMain(): bool
    {
-      return empty($this->method)
-         || ($this->method == ServiceInterface::METHOD_MAIN);
+      return empty($this->method) || ($this->method == ServiceInterface::METHOD_MAIN);
    }
 
    /**
