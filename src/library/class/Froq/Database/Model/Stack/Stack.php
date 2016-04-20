@@ -228,12 +228,7 @@ abstract class Stack implements StackInterface
     */
    final public function getDataKeys(): array
    {
-      $keys = [];
-      if (!empty($this->data)) {
-         $keys = array_keys($this->data);
-      }
-
-      return $keys;
+      return array_keys($this->data);
    }
 
    /**
@@ -243,12 +238,7 @@ abstract class Stack implements StackInterface
     */
    final public function getDataValues(): array
    {
-      $values = [];
-      if (!empty($this->data)) {
-         $values = array_values($this->data);
-      }
-
-      return $values;
+      return array_values($this->data);
    }
 
    /**
