@@ -266,6 +266,17 @@ final class Status
    }
 
    /**
+    * Get status code by text.
+    *
+    * @param  string $text
+    * @return int
+    */
+   final public static function getStatusCode(string $text): int
+   {
+      return array_flip(self::$statuses)[$text] ?? 0;
+   }
+
+   /**
     * Get status text by code.
     *
     * @param  int $code
@@ -273,20 +284,6 @@ final class Status
     */
    final public static function getStatusText(int $code): string
    {
-      return isset(self::$statuses[$code])
-         ? self::$statuses[$code] : '';
-   }
-
-   /**
-    * Get status code by text
-    *
-    * @param  string $text
-    * @return int
-    */
-   final public static function getStatusCode(string $text): int
-   {
-      $codes = array_flip(self::$statuses);
-      return isset($codes[$text])
-         ? $codes[$text] : 0;
+      return self::$statuses[$code] ?? '';
    }
 }
