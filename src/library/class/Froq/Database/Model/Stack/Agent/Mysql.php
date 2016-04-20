@@ -76,8 +76,8 @@ final class Mysql extends Stack
             ->select('*')->whereEqual("`{$this->primary}`", $id)->limit(1)
             ->get();
       } catch (\Throwable $e) {
-         // set exception
-         $this->fail = $e;
+         // set exception as fail
+         $thi->setFail($e);
       }
    }
 
@@ -114,8 +114,8 @@ final class Mysql extends Stack
 
          return $query->getAll();
       } catch (\Throwable $e) {
-         // set exception
-         $this->fail = $e;
+         // set exception as fail
+         $thi->setFail($e);
       }
    }
 
@@ -171,8 +171,8 @@ final class Mysql extends Stack
             $return = true;
          }
       } catch (\Throwable $e) {
-         // set exception
-         $this->fail = $e;
+         // set exception as fail
+         $thi->setFail($e);
 
          // rollback & set autocommit=1
          $batch && $batch->cancel();
@@ -225,8 +225,8 @@ final class Mysql extends Stack
             $return = (bool) $result->getRowsAffected();
          }
       } catch (\Throwable $e) {
-         // set exception
-         $this->fail = $e;
+         // set exception as fail
+         $thi->setFail($e);
 
          // rollback & set autocommit=1
          $batch && $batch->cancel();
@@ -256,8 +256,8 @@ final class Mysql extends Stack
 
          return $query->count();
       } catch (\Throwable $e) {
-         // set exception
-         $this->fail = $e;
+         // set exception as fail
+         $thi->setFail($e);
 
          return -1;
       }
