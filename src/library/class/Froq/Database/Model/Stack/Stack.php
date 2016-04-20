@@ -99,16 +99,8 @@ abstract class Stack implements StackInterface
     */
    final public function get(string $key)
    {
-      // return all
-      if ($key == '*') {
-         return $this->data;
-      }
-
-      if (array_key_exists($key, $this->data)) {
-         return $this->data[$key];
-      }
-
-      return null;
+      return array_key_exists($key, $this->data)
+         ? $this->data[$key] : null;
    }
 
    /**
