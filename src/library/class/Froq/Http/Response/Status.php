@@ -209,6 +209,7 @@ final class Status
    final public function setCode(int $code): self
    {
       $this->code = $code;
+
       return $this;
    }
 
@@ -231,6 +232,7 @@ final class Status
    final public function setText(string $text): self
    {
       $this->text = $text;
+
       return $this;
    }
 
