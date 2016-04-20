@@ -70,6 +70,13 @@ abstract class Model
    protected $useTransaction = true;
 
    /**
+    * Pager.
+    * @todo Use an internal pager object.
+    * @var  object
+    */
+   protected $pager;
+
+   /**
     * Constructor.
     *
     * @throws \Exception
@@ -136,6 +143,10 @@ abstract class Model
     */
    final public function __get(string $key)
    {
+      if (property_exists($this, $key)) {
+         return $this->{$key};
+      }
+
       return $this->stack->get($key);
    }
 
@@ -238,5 +249,29 @@ abstract class Model
       }
 
       return $this;
+   }
+
+   /**
+    * Set pager.
+    *
+    * @todo   Use an internal pager object.
+    * @param  object $pager
+    * @return self
+    */
+   final public function setPager($pager): self
+   {
+      $this->pager = $pager;
+
+      return $this;
+   }
+
+   /**
+    * Get pager.
+    *
+    * @return object
+    */
+   final public function getPager()
+   {
+      return $this->pager;
    }
 }

@@ -73,12 +73,6 @@ abstract class Stack implements StackInterface
    protected $data = [];
 
    /**
-    * Stack pager.
-    * @todo
-    */
-   protected $pager;
-
-   /**
     * Exception object that could be any type of.
     * @var \Throwable
     */
