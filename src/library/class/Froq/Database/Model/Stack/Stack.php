@@ -252,6 +252,16 @@ abstract class Stack implements StackInterface
    }
 
    /**
+    * Set fail.
+    *
+    * @param \Throwable $fail
+    */
+   final public function setFail(\Throwable $fail): self
+   {
+      $this->fail = $fail;
+   }
+
+   /**
     * Get fail.
     *
     * @return \Throwable|null
