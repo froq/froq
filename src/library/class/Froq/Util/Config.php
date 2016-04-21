@@ -103,8 +103,8 @@ final class Config
    /**
     * Merge.
     *
-    * @param  array  $source
-    * @param  array  $target
+    * @param  array $source
+    * @param  array $target
     * @return array
     */
    final public static function merge(array $source, array $target): array
@@ -114,7 +114,7 @@ final class Config
       }
 
       foreach ($source as $key => $value) {
-         if (isset($target[$key]) && is_array($value)) {
+         if (is_array($value) && isset($target[$key]) && is_array($target[$key])) {
             $target[$key] = self::merge($target[$key], $value);
          } else {
             $target[$key] = $value;
