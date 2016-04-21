@@ -267,7 +267,7 @@ final class App
    final public function setConfig(array $config): self
    {
       if ($this->config) {
-         $config = Config::merge($config, $this->config->getData());
+         $config = Config::merge($this->config->getData(), $config);
       }
       $this->config = new Config($config);
 
