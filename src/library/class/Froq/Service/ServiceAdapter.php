@@ -142,15 +142,17 @@ final class ServiceAdapter
       // re-set service method & method args
       $this->service->setMethod($this->serviceMethod);
 
-      $methodArgs = array_slice($this->app->request->uri->segments(), 2);
-      $methodArgsCount = count($methodArgs);
-      $methodArgsCountRef = (new \ReflectionMethod($this->serviceName, $this->serviceMethod))
-         ->getNumberOfParameters();
-      if ($methodArgsCount < $methodArgsCountRef) {
-         $methodArgs += array_fill($methodArgsCount, $methodArgsCountRef - $methodArgsCount, null);
-      }
+      if ($this->isServiceExists() && $this->isServiceMethodExists()) {
+         $methodArgs = array_slice($this->app->request->uri->segments(), 2);
+         $methodArgsCount = count($methodArgs);
+         $methodArgsCountRef = (new \ReflectionMethod($this->serviceName, $this->serviceMethod))
+            ->getNumberOfParameters();
+         if ($methodArgsCount < $methodArgsCountRef) {
+            $methodArgs += array_fill($methodArgsCount, $methodArgsCountRef - $methodArgsCount, null);
+         }
 
-      $this->service->setMethodArgs($methodArgs);
+         $this->service->setMethodArgs($methodArgs);
+      }
    }
 
    /**
@@ -176,7 +178,7 @@ final class ServiceAdapter
       }
 
       // bypass autoload
-      require($this->serviceFile);
+      require_once($this->serviceFile);
 
       return class_exists($this->serviceName, false);
    }
@@ -290,7 +292,7 @@ final class ServiceAdapter
 
       // load?
       if ($load) {
-         require($serviceFile);
+         require_once($serviceFile);
       }
 
       return $serviceFile;
