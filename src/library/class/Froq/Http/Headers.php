@@ -53,7 +53,7 @@ final class Headers extends Collection
    {
       // try with modified key
       if (!$this->offsetExists($key)) {
-         $key = to_dash_snakecase($key);
+         $key = to_snake_from_dash($key);
       }
 
       return parent::get($key, $valueDefault);

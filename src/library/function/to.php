@@ -62,17 +62,23 @@ function to_object($input, bool $deep = true): \stdClass
 }
 
 /**
- * Convert: foo-Bar -> foo_bar
+ * Convert: Foo-Bar -> foo_bar
  * @param  string $input
+ * @param  bool   $lower
  * @return string
  */
-function to_dash_snakecase(string $input = null): string
+function to_snake_from_dash(string $input = null, bool $lower = true): string
 {
-   return strtolower(str_replace('-', '_', (string) $input));
+   $input = str_replace('-', '_', (string) $input);
+   if ($lower) {
+      $input = strtolower($input),
+   }
+
+   return $input;
 }
 
 /**
- * Make query string with ignore support.
+ * Make query string with ignored key(s) support.
  * @param  array  $query
  * @param  string $keyIgnored
  * @return string
