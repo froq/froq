@@ -128,8 +128,8 @@ function _isset($var): bool { return isset($var); }
 function _empty($var): bool { return empty($var); }
 
 // safe trim for strict mode
-function _trim($input): string {
-   return trim((string) $input);
+function _trim($input, $chrs = " \t\n\r\0\x0B"): string {
+   return trim((string) $input, $chrs);
 }
 
 // boolval
