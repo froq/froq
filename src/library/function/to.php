@@ -71,7 +71,25 @@ function to_snake_from_dash(string $input = null, bool $lower = true): string
 {
    $input = str_replace('-', '_', (string) $input);
    if ($lower) {
-      $input = strtolower($input),
+      $input = strtolower($input);
+   }
+
+   return $input;
+}
+
+/**
+ * Convert: FooBar -> foo-bar
+ * @param  string $input
+ * @param  bool   $lower
+ * @return string
+ */
+function to_dash_from_upper(string $input = null, bool $lower = true): string
+{
+   $input = trim((string) preg_replace_callback('~([A-Z])~', function($m){
+      return '-'. $m[0];
+   }, $input), '-');
+   if ($lower) {
+      $input = strtolower($input);
    }
 
    return $input;
