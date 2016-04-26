@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Froq\Util;
 
 use Froq\App;
+use Froq\Util\Traits\GetterTrait as Getter;
 
 /**
  * @package    Froq
@@ -33,6 +34,12 @@ use Froq\App;
  */
 final class View
 {
+   /**
+    * Getter.
+    * @object Froq\Util\Traits\Getter
+    */
+   use Getter;
+
    /**
     * Partial files.
     * @const string
@@ -52,6 +59,12 @@ final class View
     * @var Froq\App
     */
    private $app;
+
+   /**
+    * View file (real).
+    * @var string
+    */
+   private $file;
 
    /**
     * View metas.
@@ -92,7 +105,8 @@ final class View
     */
    final public function display(string $file, array $data = null)
    {
-      $this->includeFile($this->prepareFile($file), $data);
+      // set and include main (real) file
+      $this->includeFile($this->file = $this->prepareFile($file), $data);
 
       // make global metas
       if (!empty($this->metas)) {
