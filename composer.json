@@ -1,19 +1,26 @@
 {
-   "name": "froq/froq",
-   "homepage": "https://github.com/froq/froq",
-   "description": "froq/froq",
-   "keywords": ["froq", "rest", "restful", "service"],
-   "license": "GNU General Public License v3.0",
-   "authors": [{
-      "name": "Kerem Güneş",
-      "email": "k-gun@mail.com"
-   }],
-   "require": {
-     "php": "^7.0"
-   },
-   "autoload": {
-      "classmap": [
-         "src/library/class/"
-      ]
-   }
+    "name": "froq/froq",
+    "homepage": "https://github.com/froq/froq",
+    "description":  "Core (App) module for Froq!",
+    "keywords": ["froq", "core"],
+    "license": "GNU General Public License v3.0",
+    "authors": [
+        {"name": "Kerem Güneş", "email": "k-gun@mail.com"}
+    ],
+    "require": {
+        "php": "^7.0",
+        "froq/froq-util": "~1.0",
+        "froq/froq-logger": "~1.0",
+        "froq/froq-config": "~1.0",
+        "froq/froq-collection": "~1.0",
+        "froq/froq-http": "~1.0",
+        "froq/froq-event": "~1.0",
+        "froq/froq-service": "~1.0",
+        "froq/froq-session": "~1.0",
+        "froq/froq-encryption": "~1.0",
+        "froq/froq-database": "~1.0"
+    },
+    "autoload": {
+        "classmap": ["src/"]
+    }
 }

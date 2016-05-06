@@ -1,10 +1,10 @@
 <?php
 /**
  * Copyright (c) 2016 Kerem Güneş
- *    <k-gun@mail.com>
+ *     <k-gun@mail.com>
  *
  * GNU General Public License v3.0
- *    <http://www.gnu.org/licenses/gpl-3.0.txt>
+ *     <http://www.gnu.org/licenses/gpl-3.0.txt>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,16 @@
  */
 declare(strict_types=1);
 
-namespace Froq\Encryption\Twoway;
-
 /**
- * @package    Froq
- * @subpackage Froq\Encryption\Twoway
- * @object     Froq\Encryption\Twoway\OpenSsl
- * @author     Kerem Güneş <k-gun@mail.com>
+ * Exception handler.
+ * @return callable
  */
-final class OpenSsl extends Twoway
-{
-   // @todo
-}
+return function(\Throwable $e) {
+    // if not local no error display (set & store old option)
+    if (!is_local()) {
+        set_global('app.displayErrors', ini_set('display_errors', '0'));
+    }
+
+    // this will be catched in shutdown handler
+    throw $e;
+};

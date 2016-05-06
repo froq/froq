@@ -21,28 +21,12 @@
  */
 declare(strict_types=1);
 
-namespace Froq\Database\Vendor\Factory;
-
-use Froq\Database\Vendor\Vendor;
-use Oppa\Configuration;
-use Oppa\Database\{Factory, Query};
+namespace Froq;
 
 /**
- * @package    Froq
- * @subpackage Froq\Database\Vendor\Factory
- * @object     Froq\Database\Vendor\Factory\Mysql
- * @author     Kerem Güneş <k-gun@mail.com>
+ * @package Froq
+ * @object  Froq\AppException
+ * @author  Kerem Güneş <k-gun@mail.com>
  */
-final class Mysql extends Vendor
-{
-   /**
-    * Constructor.
-    *
-    * @param array $config
-    */
-   final private function __construct(array $config)
-   {
-      $this->db = Factory::build(new Configuration($config));
-      $this->db->connect();
-   }
-}
+final class AppException extends \Exception
+{}
