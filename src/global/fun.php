@@ -158,6 +158,6 @@ function prd($s, $e=false) {
 }
 
 /**
- * Include app functions.
+ * Load app functions.
  */
-require_once(__dir__ .'/app.php');
+require_once(__dir__ .'/fun_app.php');
