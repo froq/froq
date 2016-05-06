@@ -1,7 +1,8 @@
 <?php
-/**
- * Default configuration file.
- */
+/*******************************
+ * Default configuration file. *
+ *******************************/
+
 $cfg = [];
 
 /**
