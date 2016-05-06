@@ -1,8 +1,7 @@
 <?php
 /*************************************************
  * Core functions module, that used all over the *
- * application. Define all global functions will *
- * be used anywhere.                             *
+ * application.                                  *
  *************************************************/
 
 if (!isset($GLOBALS['@'])) {
@@ -27,24 +26,6 @@ function set_global(string $key, $value) {
 function get_global(string $key, $valueDefault = null) {
     return isset($GLOBALS['@'][$key])
         ? $GLOBALS['@'][$key] : $valueDefault;
-}
-
-/**
- * Shortcut for app address.
- * @param  string $prop
- * @return Froq\App|Froq\App\?|null
- * @throws \Throwable
- */
-function app(string $prop = '') {
-    $app = get_global('app');
-    if (!strpbrk($prop, '.->')) {
-        return (!$prop) ? $app : $app->{$prop};
-    }
-
-    // evil or tricky?
-    eval('$return = $app->'. str_replace('.', '->', $prop) .';');
-
-    return $return;
 }
 
 /**
@@ -150,7 +131,9 @@ if (!function_exists('get_callee')) {
     }
 }
 
-// Debug tools.
+/**
+ * Dirty debug tools..
+ */
 function _prp($s) {
     $p = '';
     if (is_null($s)) {
@@ -174,3 +157,8 @@ function prd($s, $e=false) {
     print '<pre>'; var_dump($s); print '</pre>'. PHP_EOL;
     $e && exit;
 }
+
+/**
+ * Include app functions.
+ */
+require_once(__dir__ .'/app.php');
