@@ -35,39 +35,16 @@ function get_global(string $key, $valueDefault = null) {
  * @return any
  */
 function dig(array $array = null, string $key, $valueDefault = null) {
-    // direct access
     if (isset($array[$key])) {
-        $value =& $array[$key];
-    }
-    // trace element path
-    else {
-        $value =& $array;
+        $value =& $array[$key]; // direct access
+    } else {
+        $value =& $array;       // trace element path
         foreach (explode('.', $key) as $key) {
             $value =& $value[$key];
         }
     }
 
     return ($value !== null) ? $value : $valueDefault;
-}
-
-// @wait
-function set_env(string $key, $value) {}
-
-/**
- * Real env getter.
- * @param  string $key
- * @param  any    $valueDefault
- * @return any
- */
-function get_env(string $key, $valueDefault = null) {
-    if (isset($_SERVER[$key])) {
-        $valueDefault = $_SERVER[$key];
-    } elseif (isset($_ENV[$key])) {
-        $valueDefault = $_ENV[$key];
-    } elseif (false !== ($value = getenv($key))) {
-        $valueDefault = $value;
-    }
-    return $valueDefault;
 }
 
 /**
@@ -110,24 +87,6 @@ function _empty($var): bool { return empty($var); }
 // safe trim for strict mode
 function _trim($input, $chrs = " \t\n\r\0\x0B"): string {
     return trim((string) $input, $chrs);
-}
-
-// boolval
-if (!function_exists('boolval')) {
-    function boolval($input): bool {
-        return (bool) $input;
-    }
-}
-
-// get_callee
-if (!function_exists('get_callee')) {
-    function get_callee($i = 1): array {
-        $trace = debug_backtrace();
-        if (isset($trace[$i])) {
-            $trace[$i]['object'] = get_class($trace[$i]['object']);
-            return $trace[$i];
-        }
-    }
 }
 
 /**
