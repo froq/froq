@@ -1,8 +1,7 @@
 <?php
-/*************************************************
- * Core functions module, that used all over the *
- * application.                                  *
- *************************************************/
+/****************************
+ * Global functions module. *
+ ****************************/
 
 if (!isset($GLOBALS['@'])) {
     $GLOBALS['@'] = [];
