@@ -253,8 +253,8 @@ final class App
             }
 
             // use user output handler if provided
-            if ($this->events->has('app.endOutputBufferBefore')) {
-                $output = $this->events->fire('app.endOutputBufferBefore', $output);
+            if ($this->events->has('app.output')) {
+                $output = $this->events->fire('app.output', $output);
             }
 
             // set response body
