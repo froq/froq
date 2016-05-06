@@ -368,24 +368,6 @@ final class App
     }
 
     /**
-     * Get dir.
-     * @return string
-     */
-    final public function getDir(): string
-    {
-        return APP_DIR;
-    }
-
-    /**
-     * Get load time.
-     * @return string
-     */
-    final public function getLoadTime(): string
-    {
-        return sprintf('%.10f', (microtime(true) - APP_START_TIME));
-    }
-
-    /**
      * Halt app run.
      * @param  string $status
      * @return void
