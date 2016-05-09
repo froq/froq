@@ -368,6 +368,33 @@ final class App
     }
 
     /**
+     * Check app env is development.
+     * @return bool
+     */
+    final public function isDev(): bool
+    {
+        return ($this->env == self::ENV_DEV);
+    }
+
+    /**
+     * Check app env is stage.
+     * @return bool
+     */
+    final public function isStage(): bool
+    {
+        return ($this->env == self::ENV_STAGE);
+    }
+
+    /**
+     * Check app env is production.
+     * @return bool
+     */
+    final public function isProduction(): bool
+    {
+        return ($this->env == self::ENV_PRODUCTION);
+    }
+
+    /**
      * Halt app run.
      * @param  string $status
      * @return void
