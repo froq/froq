@@ -100,6 +100,11 @@ class Autoload
      */
     final public function load($objectName)
     {
+        // only Froq! stuff
+        if (0 !== strpos($objectName, self::$namespaces[0])) {
+            return;
+        }
+
         $objectFile = null;
 
         // user service objects
@@ -121,48 +126,11 @@ class Autoload
             ));
         }
 
-        // no Froq! stuf
-        if ($objectFile == null) {
-            return;
-        }
-
         if (!is_file($objectFile)) {
             throw new \RuntimeException("Object file not found! file: '{$objectFile}'.");
         }
 
-        $return = require($objectFile);
-
-        $objectName = str_replace('/', '\\', $objectName);
-
-        // check: interface name is same with filaname?
-        if (strripos($objectName, 'interface') !== false) {
-            if (!interface_exists($objectName, false)) {
-                throw new \RuntimeException(
-                    "Interface file '{$objectFile}' has been loaded but no ".
-                    "interface found such as '{$objectName}'."
-                );
-            }
-            return $return;
-        }
-        // check: trait name is same with filaname?
-        if (strripos($objectName, 'trait') !== false) {
-            if (!trait_exists($objectName, false)) {
-                throw new \RuntimeException(
-                    "Trait file '{$objectFile}' has been loaded but no ".
-                    "trait found such as '{$objectName}'."
-                );
-            }
-            return $return;
-        }
-        // check: class name is same with filaname?
-        if (!class_exists($objectName, false)) {
-            throw new \RuntimeException(
-                "Class file '{$objectFile}' has been loaded but no ".
-                "class found such as '{$objectName}'."
-            );
-        }
-
-        return $return;
+        require($objectFile);
     }
 
     /**
