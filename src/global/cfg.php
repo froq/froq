@@ -77,8 +77,11 @@ $cfg['app.security']['allowFileExtensionSniff'] = false;
 /**
  * Service options.
  */
+
+// aliases
 $cfg['app.service.aliases'] = [];
-$cfg['app.service.aliases'] = ['HomeService' => 'MainService'];
+$cfg['app.service.aliases']['home'] = ['main', /* 'methods' => [] */];
+$cfg['app.service.aliases']['error'] = ['fail', /* 'methods' => [] */];
 
 /**
  * Misc. options.
