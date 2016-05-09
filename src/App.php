@@ -67,7 +67,7 @@ final class App
     private $env;
 
     /**
-     * App root.
+     * App root (provides options like "app.loca/v1/book/1" for versioning etc.).
      * @const string
      */
     private $root = '/';
@@ -147,11 +147,10 @@ final class App
         set_exception_handler(require(__dir__ .'/handler/exception.php'));
         register_shutdown_function(require(__dir__ .'/handler/shutdown.php'));
 
-        $this->events = new Events();
-        $this->request = new Request();
+        $this->events   = new Events();
+        $this->request  = new Request();
         $this->response = new Response();
-
-        $this->db = new Database();
+        $this->db       = new Database();
     }
 
     /**
@@ -174,13 +173,20 @@ final class App
             $this->halt($halt);
         }
 
+        // re-set app as global
+        set_global('app', $this);
+
+        $this->request->init(['uriRoot' => $this->root]);
+        $this->response->init();
+
         // set defaults
         $this->setDefaults();
 
         // start output buffer
         $this->startOutputBuffer();
 
-        $this->service = (new ServiceAdapter($this))->getService();
+        $this->service = (new ServiceAdapter($this))
+             ->getService();
 
         // create session if service uses session
         if ($this->service->usesSession()) {
