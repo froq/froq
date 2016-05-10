@@ -379,7 +379,7 @@ final class App
             throw new AppException('Both service class & method names required!');
         }
 
-        $className = 'Froq\\App\\Service\\'. $className;
+        $className = Service::NAMESPACE . $className;
 
         // return service method call
         return call_user_func_array([new $className($this), $classMethod], $args);
