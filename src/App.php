@@ -369,10 +369,10 @@ final class App
     /**
      * Internal service method call.
      * @param  string $names
-     * @param  any... $args
+     * @param  array  $args
      * @return any
      */
-    final public function callServiceMethod(string $names, ...$args)
+    final public function callServiceMethod(string $names, array $args = [])
     {
         @list($className, $classMethod) = explode('::', $names);
         if (!isset($className, $classMethod)) {
