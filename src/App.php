@@ -367,6 +367,25 @@ final class App
     }
 
     /**
+     * Internal service method call.
+     * @param  string $names
+     * @param  any... $args
+     * @return any
+     */
+    final public function callServiceMethod(string $names, ...$args)
+    {
+        @list($className, $classMethod) = explode('::', $names);
+        if (!isset($className, $classMethod)) {
+            throw new AppException('Both service class & method names required!');
+        }
+
+        $className = 'Froq\\App\\Service\\'. $className;
+
+        // return service method call
+        return call_user_func_array([new $className($this), $classMethod], $args);
+    }
+
+    /**
      * Check app env is development.
      * @return bool
      */
