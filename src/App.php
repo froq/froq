@@ -193,14 +193,7 @@ final class App
             $this->session = Session::init($this->config['app.session.cookie']);
         }
 
-        $output = '';
-        if (!$this->service->isAllowedRequestMethod($this->request->method->getName())) {
-            // set fail stuff (bad request)
-            $this->response->setStatus(405);
-            $this->response->setContentType('none');
-        } else {
-            $output = $this->service->run();
-        }
+        $output = $this->service->run();
 
         // end output buffer
         $this->endOutputBuffer($output);
