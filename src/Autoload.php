@@ -31,6 +31,13 @@ namespace Froq;
 class Autoload
 {
     /**
+     * Default service names.
+     * @const string
+     */
+    const MAIN_SERVICE_NAME = 'MainService',
+          FAIL_SERVICE_NAME = 'FailService';
+
+    /**
     * Singleton stuff.
     * @var self
     */
@@ -110,7 +117,7 @@ class Autoload
         // user service objects
         if (0 === strpos($objectName, self::$namespaces[1])) {
             $objectBase =@ end(explode('\\', $objectName));
-            $objectFile = ($objectBase == 'MainService' || $objectBase == 'FailService')
+            $objectFile = ($objectBase == self::MAIN_SERVICE_NAME || $objectBase == self::FAIL_SERVICE_NAME)
                 ? self::fixSlashes(sprintf('./app/service/default/%s/%s.php', $objectBase, $objectBase))
                 : self::fixSlashes(sprintf('./app/service/%s/%s.php', $objectBase, $objectBase));
         }
