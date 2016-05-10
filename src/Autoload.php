@@ -50,6 +50,7 @@ class Autoload
     private static $namespaces = [
         'Froq',
         'Froq\\App\\Service',
+        'Froq\\App\\Service\\Model',
         'Froq\\App\\Library',
     ];
 
@@ -112,27 +113,10 @@ class Autoload
             return;
         }
 
-        $objectFile = null;
-
-        // user service objects
-        if (0 === strpos($objectName, self::$namespaces[1])) {
-            $objectBase =@ end(explode('\\', $objectName));
-            $objectFile = ($objectBase == self::MAIN_SERVICE_NAME || $objectBase == self::FAIL_SERVICE_NAME)
-                ? self::fixSlashes(sprintf('./app/service/default/%s/%s.php', $objectBase, $objectBase))
-                : self::fixSlashes(sprintf('./app/service/%s/%s.php', $objectBase, $objectBase));
+        $objectFile = $this->getObjectFile($objectName);
+        if (!$objectFile) {
+            throw new \RuntimeException("Could not specify object file! name: '{$objectName}'.");
         }
-        // user library objects
-        elseif (0 === strpos($objectName, self::$namespaces[2])) {
-            $objectBase =@ end(explode('\\', $objectName));
-            $objectFile = self::fixSlashes(sprintf('./app/library/%s.php', $objectBase));
-        }
-        // Froq! objects
-        elseif (0 === strpos($objectName, self::$namespaces[0])) {
-            $objectFile = $this->fixSlashes(sprintf('%s/%s.php',
-                __dir__, substr_replace($objectName, '', 0, strlen(self::$namespaces[0]))
-            ));
-        }
-
         if (!is_file($objectFile)) {
             throw new \RuntimeException("Object file not found! file: '{$objectFile}'.");
         }
@@ -141,11 +125,59 @@ class Autoload
     }
 
     /**
-     * Prepare file path.
+     * Get object file.
+     * @param  string $objectName
+     * @return string|null
+     */
+    final private function getObjectFile(string $objectName)
+    {
+        // user model objects
+        if (0 === strpos($objectName, self::$namespaces[2])) {
+            $objectBase = $this->getObjectBase($objectName);
+            $objectBase = str_replace('Model', 'Service', $objectBase);
+            return ($objectBase == self::MAIN_SERVICE_NAME || $objectBase == self::FAIL_SERVICE_NAME)
+                ? $this->fixSlashes(sprintf('./app/service/default/%s/model/model.php', $objectBase))
+                : $this->fixSlashes(sprintf('./app/service/%s/model/model.php', $objectBase));
+        }
+
+        // user service objects
+        if (0 === strpos($objectName, self::$namespaces[1])) {
+            $objectBase = $this->getObjectBase($objectName);
+            return ($objectBase == self::MAIN_SERVICE_NAME || $objectBase == self::FAIL_SERVICE_NAME)
+                ? $this->fixSlashes(sprintf('./app/service/default/%s/%s.php', $objectBase, $objectBase))
+                : $this->fixSlashes(sprintf('./app/service/%s/%s.php', $objectBase, $objectBase));
+        }
+
+        // user library objects
+        if (0 === strpos($objectName, self::$namespaces[3])) {
+            $objectBase = $this->getObjectBase($objectName);
+            return $this->fixSlashes(sprintf('./app/library/%s.php', $objectBase));
+        }
+
+        // Froq! objects
+        if (0 === strpos($objectName, self::$namespaces[0])) {
+            return $this->fixSlashes(sprintf('%s/%s.php',
+                __dir__, substr_replace($objectName, '', 0, strlen(self::$namespaces[0]))
+            ));
+        }
+    }
+
+    /**
+     * Get object base.
+     * @param  string $objectName
+     * @return string
+     */
+    final private function getObjectBase(string $objectName): string
+    {
+        return @end(explode('\\', $objectName));
+    }
+
+    /**
+     * Fix slashes.
      * @param  string $path
      * @return string
      */
-    final private function fixSlashes($path): string
+    final private function fixSlashes(string $path): string
     {
         return preg_replace(['~\\\\~', '~/+~'], '/', $path);
     }
