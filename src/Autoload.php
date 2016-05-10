@@ -50,7 +50,6 @@ class Autoload
     private static $namespaces = [
         'Froq',
         'Froq\\App\\Service',
-        'Froq\\App\\Service\\Model',
         'Froq\\App\\Library',
     ];
 
@@ -132,9 +131,8 @@ class Autoload
     final private function getObjectFile(string $objectName)
     {
         // user model objects
-        if (0 === strpos($objectName, self::$namespaces[2])) {
-            $objectBase = $this->getObjectBase($objectName);
-            $objectBase = str_replace('Model', 'Service', $objectBase);
+        if (preg_match('~Service\\\([a-z]+)Model$~i', $objectName, $match)) {
+            $objectBase = ucfirst($match[1] .'Service');
             return ($objectBase == self::MAIN_SERVICE_NAME || $objectBase == self::FAIL_SERVICE_NAME)
                 ? $this->fixSlashes(sprintf('./app/service/default/%s/model/model.php', $objectBase))
                 : $this->fixSlashes(sprintf('./app/service/%s/model/model.php', $objectBase));
@@ -149,7 +147,7 @@ class Autoload
         }
 
         // user library objects
-        if (0 === strpos($objectName, self::$namespaces[3])) {
+        if (0 === strpos($objectName, self::$namespaces[2])) {
             $objectBase = $this->getObjectBase($objectName);
             return $this->fixSlashes(sprintf('./app/library/%s.php', $objectBase));
         }
@@ -177,7 +175,7 @@ class Autoload
      * @param  string $path
      * @return string
      */
-    final private function fixSlashes(string $path): string
+    final private function fixSlashes($path): string
     {
         return preg_replace(['~\\\\~', '~/+~'], '/', $path);
     }
