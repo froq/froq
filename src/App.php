@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Froq;
 
-use Froq\Util\Traits\SingleTrait as Single;
-use Froq\Util\Traits\GetterTrait as Getter;
+use Froq\Event\Events;
 use Froq\Logger\Logger;
 use Froq\Config\Config;
-use Froq\Event\Events;
-use Froq\Http\{Http, Request, Response};
-use Froq\Service\ServiceAdapter;
 use Froq\Session\Session;
 use Froq\Database\Database;
+use Froq\Http\{Http, Request, Response};
+use Froq\Service\{Service, ServiceAdapter};
+use Froq\Util\Traits\SingleTrait as Single;
+use Froq\Util\Traits\GetterTrait as Getter;
 
 /**
  * @package Froq
