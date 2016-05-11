@@ -325,7 +325,6 @@ final class App
         if ($logOpts = $this->config['app.logger']) {
             isset($logOpts['level']) && $this->logger->setLevel($logOpts['level']);
             isset($logOpts['directory']) && $this->logger->setDirectory($logOpts['directory']);
-            isset($logOpts['filenameFormat']) && $this->logger->setFilenameFormat($logOpts['filenameFormat']);
         }
 
         return $this;
