@@ -73,49 +73,49 @@ final class App
     private $root = '/';
 
     /**
-     * Logger object.
+     * Logger.
      * @var Froq\Logger\Logger
      */
     private $logger;
 
     /**
-     * Config object.
+     * Config.
      * @var Froq\Config\Config
      */
     private $config;
 
     /**
-     * Events object.
+     * Events.
      * @var Froq\Events\Events
      */
     private $events;
 
     /**
-     * Request object.
+     * Request.
      * @var Froq\Htt\Request
      */
     private $request;
 
     /**
-     * Response object.
+     * Response.
      * @var Froq\Htt\Response
      */
     private $response;
 
     /**
-     * Service object.
+     * Service.
      * @var Froq\Service\Service
      */
     private $service;
 
     /**
-     * Session object.
+     * Session.
      * @var Froq\Session\Session
      */
     private $session;
 
     /**
-     * Database object.
+     * Database.
      * @var Froq\Database\Database
      */
     private $db;
@@ -139,8 +139,12 @@ final class App
         set_global('app', $this);
 
         // load core app globals
-        if (is_file($file = APP_DIR .'/app/global/def.php')) require_once($file);
-        if (is_file($file = APP_DIR .'/app/global/fun.php')) require_once($file);
+        if (is_file($file = APP_DIR .'/app/global/def.php')) {
+            require_once($file);
+        }
+        if (is_file($file = APP_DIR .'/app/global/fun.php')) {
+            require_once($file);
+        }
 
         // set handlers
         set_error_handler(require(__dir__ .'/handler/error.php'));
