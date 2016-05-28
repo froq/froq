@@ -91,13 +91,13 @@ final class App
 
     /**
      * Request.
-     * @var Froq\Htt\Request
+     * @var Froq\Http\Request
      */
     private $request;
 
     /**
      * Response.
-     * @var Froq\Htt\Response
+     * @var Froq\Http\Response
      */
     private $response;
 
