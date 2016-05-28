@@ -378,7 +378,7 @@ final class App
     {
         @list($className, $classMethod) = explode('::', $names);
         if (!isset($className, $classMethod)) {
-            throw new AppException('Both service class & method names required!');
+            throw new AppException('Both service class & method names are required!');
         }
 
         $className = Service::NAMESPACE . $className;
