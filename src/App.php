@@ -30,7 +30,7 @@ use Froq\Session\Session;
 use Froq\Database\Database;
 use Froq\Http\{Http, Request, Response};
 use Froq\Service\{Service, ServiceAdapter};
-use Froq\Util\Traits\{SingleTrait as Single, GetterTrait as Getter};
+use Froq\Util\Traits\{SingleTrait, GetterTrait};
 
 /**
  * @package Froq
@@ -40,16 +40,16 @@ use Froq\Util\Traits\{SingleTrait as Single, GetterTrait as Getter};
 final class App
 {
     /**
-     * Single.
+     * Single trait.
      * @object Froq\Util\Traits\SingleTrait
      */
-    use Single;
+    use SingleTrait;
 
     /**
-     * Getter.
+     * Getter trait.
      * @object Froq\Util\Traits\GetterTrait
      */
-    use Getter;
+    use GetterTrait;
 
     /**
      * App envs.
