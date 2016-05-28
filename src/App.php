@@ -30,8 +30,7 @@ use Froq\Session\Session;
 use Froq\Database\Database;
 use Froq\Http\{Http, Request, Response};
 use Froq\Service\{Service, ServiceAdapter};
-use Froq\Util\Traits\SingleTrait as Single;
-use Froq\Util\Traits\GetterTrait as Getter;
+use Froq\Util\Traits\{SingleTrait as Single, GetterTrait as Getter};
 
 /**
  * @package Froq
