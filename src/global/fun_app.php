@@ -11,8 +11,12 @@
  */
 function app(string $prop = '') {
     $app = get_global('app');
+    if (!$prop) {
+        return $app;
+    }
+
     if (!strpbrk($prop, '.->')) {
-        return (!$prop) ? $app : $app->{$prop};
+        return $app->{$prop};
     }
 
     // evil or tricky?
