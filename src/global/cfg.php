@@ -63,7 +63,7 @@ $cfg['app.gzip']['minlen'] = 128;
 // logger
 $cfg['app.logger'] = [];
 $cfg['app.logger']['level'] = 0; // none
-$cfg['app.logger']['directory'] = APP_DIR .'/var/log/app/';
+$cfg['app.logger']['directory'] = APP_DIR .'/tmp/log/app/';
 $cfg['app.logger']['filenameFormat'] = 'Y-m-d';
 
 /**
