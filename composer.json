@@ -1,6 +1,6 @@
 {
-    "name": "froq/froq-app",
-    "homepage": "https://github.com/froq/froq-app",
+    "name": "froq/froq",
+    "homepage": "https://github.com/froq/froq",
     "description":  "Core app module for Froq!",
     "keywords": ["froq", "core", "core app"],
     "license": "GNU General Public License v3.0",
