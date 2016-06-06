@@ -1,8 +1,8 @@
 {
     "name": "froq/froq",
     "homepage": "https://github.com/froq/froq",
-    "description":  "Core app module for Froq!",
-    "keywords": ["froq", "core", "core app"],
+    "description":  "Core module for Froq!",
+    "keywords": ["froq", "core"],
     "license": "GNU General Public License v3.0",
     "authors": [
         {"name": "Kerem Güneş", "email": "k-gun@mail.com"}
