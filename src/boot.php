@@ -39,7 +39,7 @@ define('none', '', true);
  */
 define('local', (
     isset($_SERVER['SERVER_NAME']) &&
-        (bool) strstr($_SERVER['SERVER_NAME'], '.local')), true);
+        (bool) preg_match('~\.local$~i', $_SERVER['SERVER_NAME'])), true);
 
 /**
  * Show all errors if local.
