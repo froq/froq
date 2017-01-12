@@ -437,7 +437,7 @@ final class App
     {
         // check client host
         $hosts = $this->config['app.hosts'];
-        if (!isset($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], $hosts)) {
+        if ($hosts && (!isset($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], $hosts))) {
             return '400 Bad Request';
         }
 
