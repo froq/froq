@@ -352,18 +352,19 @@ final class App
                 'encoding' => $this->config['app.encoding'],
                 'timezone' => $this->config['app.timezone']];
 
-        // timezone
-        date_default_timezone_set($cfg['timezone']);
-        // default charset
-        ini_set('default_charset', $cfg['encoding']);
-        // multibyte
-        mb_internal_encoding($cfg['encoding']);
+        if (isset($cfg['timezone'])) {
+            date_default_timezone_set($cfg['timezone']);
+        }
 
-        // locale stuff
-        $locale = sprintf('%s.%s', $cfg['locale'], $cfg['encoding']);
-        setlocale(LC_TIME, $locale);
-        setlocale(LC_NUMERIC, $locale);
-        setlocale(LC_MONETARY, $locale);
+        if (isset($cfg['encoding'])) {
+            ini_set('default_charset', $cfg['encoding']); mb_internal_encoding($cfg['encoding']);
+            if (isset($cfg['locale'])) {
+                $locale = sprintf('%s.%s', $cfg['locale'], $cfg['encoding']);
+                setlocale(LC_TIME, $locale);
+                setlocale(LC_NUMERIC, $locale);
+                setlocale(LC_MONETARY, $locale);
+            }
+        }
 
         return $this;
     }
@@ -376,7 +377,7 @@ final class App
      */
     final public function callServiceMethod(string $names, array $args = [])
     {
-        @list($className, $classMethod) = explode('::', $names);
+        @ list($className, $classMethod) = explode('::', $names);
         if (!isset($className, $classMethod)) {
             throw new AppException('Both service class & method names are required!');
         }
