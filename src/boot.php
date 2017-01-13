@@ -37,9 +37,8 @@ define('none', '', true);
  * Used to detect local env.
  * @const bool
  */
-define('local', (
-    isset($_SERVER['SERVER_NAME']) &&
-        (bool) preg_match('~\.local$~i', $_SERVER['SERVER_NAME'])), true);
+define('local', (isset($_SERVER['SERVER_NAME'])
+    && !!preg_match('~\.local$~i', $_SERVER['SERVER_NAME'])), true);
 
 /**
  * Show all errors if local.
