@@ -176,29 +176,26 @@ final class App
             $this->halt($halt);
         }
 
-        // re-set app as global
+        // re-set global app var (could be modified by user config)
         set_global('app', $this);
+
+        $this->setDefaults();
 
         $this->request->init(['uriRoot' => $this->root]);
         $this->response->init();
 
-        // set defaults
-        $this->setDefaults();
-
-        // start output buffer
         $this->startOutputBuffer();
 
-        $this->service = (new ServiceAdapter($this))
-             ->getService();
-
-        // create session if service uses session
+        $this->service = (new ServiceAdapter($this))->getService();
         if ($this->service->usesSession()) {
             $this->session = Session::init($this->config['app.session.cookie']);
         }
 
+        // here!
+        $this->app->events->fire('service.beforeRun');
         $output = $this->service->run();
+        $this->app->events->fire('service.afterRun');
 
-        // end output buffer
         $this->endOutputBuffer($output);
     }
 
