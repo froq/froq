@@ -29,7 +29,7 @@ use Froq\Config\Config;
 use Froq\Session\Session;
 use Froq\Database\Database;
 use Froq\Http\{Http, Request, Response};
-use Froq\Service\{Service, ServiceAdapter};
+use Froq\Service\{Service, ServiceAdapter, ServiceInterface};
 use Froq\Util\Traits\{SingleTrait, GetterTrait};
 
 /**
@@ -380,21 +380,21 @@ final class App
 
     /**
      * Internal service method call.
-     * @param  string $names
-     * @param  array  $args
+     * @param  string $dir
+     * @param  array  $arguments
      * @return any
      */
-    final public function callServiceMethod(string $names, array $args = [])
+    final public function callServiceMethod(string $dir, array $arguments = [])
     {
-        @ list($className, $classMethod) = explode('::', $names);
+        @ list($className, $classMethod) = explode('::', $dir);
         if (!isset($className, $classMethod)) {
             throw new AppException('Both service class & method names are required!');
         }
 
-        $className = Service::NAMESPACE . $className;
+        $className = ServiceInterface::NAMESPACE . $className;
 
         // return service method call
-        return call_user_func_array([new $className($this), $classMethod], $args);
+        return call_user_func_array([new $className($this), $classMethod], $arguments);
     }
 
     /**
