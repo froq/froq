@@ -318,15 +318,7 @@ final class App
     {
         // overwrite
         if ($this->config) {
-            $configOld = $this->config->getData();
-            $configNew = [];
-            foreach ($config as $key => $value) {
-                if ($value && is_array($value) && isset($configOld[$key]) && is_array($configOld[$key])) {
-                    $value = array_merge($configOld[$key], $value);
-                }
-                $configNew[$key] = $value;
-            }
-            $config = $configNew;
+            $config = Config::merge($config, $this->config->getData());
         }
         $this->config = new Config($config);
 
