@@ -192,9 +192,9 @@ final class App
         }
 
         // here!
-        $this->app->events->fire('service.beforeRun');
+        $this->events->fire('service.beforeRun');
         $output = $this->service->run();
-        $this->app->events->fire('service.afterRun');
+        $this->events->fire('service.afterRun');
 
         $this->endOutputBuffer($output);
     }
