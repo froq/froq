@@ -139,16 +139,16 @@ final class App
 
         // load core app globals
         if (is_file($file = APP_DIR .'/app/global/def.php')) {
-            require_once($file);
+            include $file;
         }
         if (is_file($file = APP_DIR .'/app/global/fun.php')) {
-            require_once($file);
+            include $file;
         }
 
         // set handlers
-        set_error_handler(require(__dir__ .'/handler/error.php'));
-        set_exception_handler(require(__dir__ .'/handler/exception.php'));
-        register_shutdown_function(require(__dir__ .'/handler/shutdown.php'));
+        set_error_handler(require __dir__ .'/handler/error.php');
+        set_exception_handler(require __dir__ .'/handler/exception.php');
+        register_shutdown_function(require __dir__ .'/handler/shutdown.php');
 
         $this->events   = new Events();
         $this->request  = new Request();
