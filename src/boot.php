@@ -25,20 +25,26 @@ ob_start();
  * Just for fun.
  * @const null
  */
-define('nil', null, true);
+if (!defined('NIL')) {
+    define('NIL', null, true);
+}
 
 /**
  * More readable empty strings.
  * @const string
  */
-define('none', '', true);
+if (!defined('NONE')) {
+    define('NONE', '', true);
+}
 
 /**
  * Used to detect local env.
  * @const bool
  */
-define('local', (isset($_SERVER['SERVER_NAME'])
-    && !!preg_match('~\.local$~i', $_SERVER['SERVER_NAME'])), true);
+if (!defined('LOCAL')) {
+    define('LOCAL', (isset($_SERVER['SERVER_NAME'])
+        && !!preg_match('~\.local$~i', $_SERVER['SERVER_NAME'])), true);
+}
 
 /**
  * Show all errors if local.
