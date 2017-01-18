@@ -24,7 +24,7 @@ $cfg['app.https'] = 'https://'. $_SERVER['SERVER_NAME'];
 $cfg['app.language']  = 'en';
 $cfg['app.languages'] = ['en'];
 $cfg['app.timezone']  = 'UTC';
-$cfg['app.encoding']  = 'utf-8';
+$cfg['app.encoding']  = 'UTF-8';
 $cfg['app.locale']    = 'en_US';
 $cfg['app.locales']   = ['en_US' => 'English'];
 
@@ -51,7 +51,7 @@ $cfg['app.session.cookie']['path'] = '/';
 $cfg['app.session.cookie']['secure'] = false;
 $cfg['app.session.cookie']['httponly'] = false;
 $cfg['app.session.cookie']['lifetime'] = 0;
-$cfg['app.session.cookie']['length'] = 128; // 128-byte
+$cfg['app.session.cookie']['length'] = 128;
 
 // gzip
 $cfg['app.gzip'] = [];
