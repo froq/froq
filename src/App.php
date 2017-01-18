@@ -23,14 +23,13 @@ declare(strict_types=1);
 
 namespace Froq;
 
-use Froq\Event\Events;
-use Froq\Logger\Logger;
+use Froq\Event\Events,
 use Froq\Config\Config;
-use Froq\Session\Session;
+use Froq\Logger\Logger;
 use Froq\Database\Database;
 use Froq\Http\{Http, Request, Response};
-use Froq\Service\{Service, ServiceAdapter, ServiceInterface};
 use Froq\Util\Traits\{SingleTrait, GetterTrait};
+use Froq\Service\{Service, ServiceAdapter, ServiceInterface};
 
 /**
  * @package Froq
@@ -108,12 +107,6 @@ final class App
     private $service;
 
     /**
-     * Session.
-     * @var Froq\Session\Session
-     */
-    private $session;
-
-    /**
      * Database.
      * @var Froq\Database\Database
      */
@@ -139,21 +132,21 @@ final class App
 
         // load core app globals
         if (is_file($file = APP_DIR .'/app/global/def.php')) {
-            include $file;
+            include($file);
         }
         if (is_file($file = APP_DIR .'/app/global/fun.php')) {
-            include $file;
+            include($file);
         }
 
         // set handlers
-        set_error_handler(require __dir__ .'/handler/error.php');
-        set_exception_handler(require __dir__ .'/handler/exception.php');
-        register_shutdown_function(require __dir__ .'/handler/shutdown.php');
+        set_error_handler(require(__dir__ .'/handler/error.php'));
+        set_exception_handler(require(__dir__ .'/handler/exception.php'));
+        register_shutdown_function(require(__dir__ .'/handler/shutdown.php'));
 
+        $this->db       = new Database();
         $this->events   = new Events();
         $this->request  = new Request();
         $this->response = new Response();
-        $this->db       = new Database();
     }
 
     /**
@@ -187,9 +180,6 @@ final class App
         $this->startOutputBuffer();
 
         $this->service = (new ServiceAdapter($this))->getService();
-        if ($this->service->usesSession()) {
-            $this->session = Session::init($this->config['app.session.cookie']);
-        }
 
         // here!
         $this->events->fire('service.beforeRun');
@@ -441,7 +431,7 @@ final class App
         }
 
         // check request count
-        @list($maxRequest, $allowEmptyUserAgent, $allowFileExtensionSniff)
+        @ list($maxRequest, $allowEmptyUserAgent, $allowFileExtensionSniff)
             = $this->config['app.security'];
 
         if (isset($maxRequest) && count($_REQUEST) > $maxRequest) {
