@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Froq;
 
-use Froq\Event\Events,
+use Froq\Event\Events;
 use Froq\Config\Config;
 use Froq\Logger\Logger;
 use Froq\Database\Database;
