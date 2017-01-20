@@ -431,8 +431,7 @@ final class App
             return '400 Bad Request';
         }
 
-        @ list($maxRequest, $allowEmptyUserAgent, $allowFileExtensionSniff)
-            = $this->config['app.security'];
+        @ list($maxRequest, $allowEmptyUserAgent, $allowFileExtensionSniff) = $this->config['app.security'];
 
         // check request count
         if (isset($maxRequest) && count($_REQUEST) > $maxRequest) {
