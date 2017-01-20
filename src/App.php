@@ -431,10 +431,10 @@ final class App
             return '400 Bad Request';
         }
 
-        // check request count
         @ list($maxRequest, $allowEmptyUserAgent, $allowFileExtensionSniff)
             = $this->config['app.security'];
 
+        // check request count
         if (isset($maxRequest) && count($_REQUEST) > $maxRequest) {
             return '429 Too Many Requests';
         }
