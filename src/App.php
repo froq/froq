@@ -195,12 +195,12 @@ final class App
      */
     final public function startOutputBuffer()
     {
-        ini_set('implicit_flush', '1');
+        ini_set('implicit_flush', 'Off');
 
         $gzipOptions = $this->config->get('app.gzip');
         if (!empty($gzipOptions)) {
             if (!headers_sent()) {
-                ini_set('zlib.output_compression', '0');
+                ini_set('zlib.output_compression', 'Off');
             }
 
             // detect client gzip status
@@ -340,18 +340,19 @@ final class App
                 'encoding' => $this->config['app.encoding'],
                 'timezone' => $this->config['app.timezone']];
 
-        if (isset($cfg['timezone'])) {
+        if (!empty($cfg['timezone'])) {
             date_default_timezone_set($cfg['timezone']);
         }
 
-        if (isset($cfg['encoding'])) {
-            ini_set('default_charset', $cfg['encoding']); mb_internal_encoding($cfg['encoding']);
-            if (isset($cfg['locale'])) {
+        if (!empty($cfg['encoding'])) {
+            ini_set('default_charset', $cfg['encoding']);
+            if (!empty($cfg['locale'])) {
                 $locale = sprintf('%s.%s', $cfg['locale'], $cfg['encoding']);
                 setlocale(LC_TIME, $locale);
                 setlocale(LC_NUMERIC, $locale);
                 setlocale(LC_MONETARY, $locale);
             }
+            mb_internal_encoding($cfg['encoding']);
         }
 
         return $this;

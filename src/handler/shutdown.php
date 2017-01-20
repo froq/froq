@@ -43,7 +43,7 @@ return function() {
         // reset error display option (@see exception handler)
         $opt = get_global('app.displayErrors');
         if ($opt !== null) {
-            ini_set('display_errors', $opt);
+            ini_set('display_errors', strval($opt));
         }
     }
 };

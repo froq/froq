@@ -28,7 +28,7 @@ declare(strict_types=1);
 return function(\Throwable $e) {
     // if not local no error display (set & store old option)
     if (!is_local()) {
-        set_global('app.displayErrors', ini_set('display_errors', '0'));
+        set_global('app.displayErrors', ini_set('display_errors', 'Off'));
     }
 
     // this will be catched in shutdown handler
