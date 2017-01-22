@@ -28,26 +28,6 @@ function get_global(string $key, $valueDefault = null) {
 }
 
 /**
- * Array getter with dot notation support for sub-array paths.
- * @param  array  $array
- * @param  string $key (aka path)
- * @param  any    $valueDefault
- * @return any
- */
-function dig(array $array = null, string $key, $valueDefault = null) {
-    if (isset($array[$key])) {
-        $value =& $array[$key]; // direct access
-    } else {
-        $value =& $array;       // trace element path
-        foreach (explode('.', $key) as $key) {
-            $value =& $value[$key];
-        }
-    }
-
-    return ($value !== null) ? $value : $valueDefault;
-}
-
-/**
  * Default value getter for null variables.
  * @param  any $a
  * @param  any $b
