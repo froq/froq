@@ -33,18 +33,18 @@ function get_global(string $key, $valueDefault = null) {
  * @param  any $b
  * @return any
  */
-function if_null($a, $b) {
-    return (null !== $a) ? $a : $b;
+function if_nil($a, $b) {
+    return (nil !== $a) ? $a : $b;
 }
 
 /**
- * Default value getter for none variables.
+ * Default value getter for nil string variables.
  * @param  any $a
  * @param  any $b
  * @return any
  */
-function if_none($a, $b) {
-    return (none !== _trim($a)) ? $a : $b;
+function if_nils($a, $b) {
+    return (nils !== trim((string) $a)) ? $a : $b;
 }
 
 /**
