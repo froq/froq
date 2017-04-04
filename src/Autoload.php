@@ -148,7 +148,7 @@ class Autoload
 
         // user library objects
         if (0 === strpos($objectName, self::$namespaces[2])) {
-            $objectBase = $this->getObjectBase($objectName);
+            $objectBase = $this->getObjectBase($objectName, false);
             return $this->fixSlashes(sprintf('./app/library/%s.php', $objectBase));
         }
 
@@ -163,11 +163,22 @@ class Autoload
     /**
      * Get object base.
      * @param  string $objectName
+     * @param  bool   $endOnly
      * @return string
      */
-    final private function getObjectBase(string $objectName): string
+    final private function getObjectBase(string $objectName, bool $endOnly = true): string
     {
-        return @end(explode('\\', $objectName));
+        $tmp = explode('\\', $objectName);
+        $end = array_pop($tmp);
+
+        if ($endOnly) {
+            return $end;
+        }
+
+        // Froq\App\Library\Entity\UserEntity => ./app/library/entity/UserEntity
+        $path = strtolower(join('\\', array_slice($tmp, 3)));
+
+        return $path .'\\'. $end;
     }
 
     /**
