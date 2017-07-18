@@ -42,8 +42,7 @@ if (!defined('NILS')) {
  * @const bool
  */
 if (!defined('LOCAL')) {
-    define('LOCAL', (isset($_SERVER['SERVER_NAME'])
-        && !!preg_match('~\.local$~i', $_SERVER['SERVER_NAME'])), true);
+    define('LOCAL', (substr($_SERVER['SERVER_NAME'] ?? '', -6) === '.local'), true);
 }
 
 /**
