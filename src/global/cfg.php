@@ -28,6 +28,9 @@ $cfg['app.encoding']  = 'UTF-8';
 $cfg['app.locale']    = 'en_US';
 $cfg['app.locales']   = ['en_US' => 'English'];
 
+// app load time (true = all, 1 = dev, 2 = stage, 3 = production, false = none)
+$cfg['app.exposeAppLoadTime'] = true;
+
 // initial headers
 $cfg['app.headers'] = [];
 $cfg['app.headers']['Expires'] = 'Thu, 19 Nov 1981 08:10:00 GMT';
