@@ -331,6 +331,17 @@ final class App
     }
 
     /**
+     * Get config value.
+     * @param  string $key
+     * @param  any    $valueDefault
+     * @return any
+     */
+    final public function getConfigValue(string $key, $valueDefault = null)
+    {
+        return $this->config->get($key, $valueDefault);
+    }
+
+    /**
      * Set defaults.
      * @return self
      */
