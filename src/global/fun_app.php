@@ -40,6 +40,5 @@ function app_dir()
  */
 function app_load_time()
 {
-    return defined('APP_START_TIME')
-        ? sprintf('%.10f', (microtime(true) - APP_START_TIME)) : null;
+    return sprintf('%.3f', (microtime(true) - APP_START_TIME));
 }
