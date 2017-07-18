@@ -405,6 +405,17 @@ final class App
     }
 
     /**
+     * Load time.
+     * @return array
+     */
+    final public function loadTime(): array
+    {
+        $start = APP_START_TIME; $end = microtime(true);
+
+        return ['start' => $start, 'end' => $end, 'total' => ($end - $start)];
+    }
+
+    /**
      * Halt app run.
      * @param  string $status
      * @return void
