@@ -204,8 +204,8 @@ final class App
             }
 
             // detect client gzip status
-            if (isset($this->request->headers['accept_encoding'])
-                && (false !== strpos($this->request->headers['accept_encoding'], 'gzip'))) {
+            $acceptEncoding = $this->request->headers->get('Accept-Encoding', '');
+            if (strpos($acceptEncoding, 'gzip') !== false) {
                 $this->response->setGzipOptions($gzipOptions);
             }
         }
