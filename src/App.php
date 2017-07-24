@@ -122,7 +122,7 @@ final class App
         $this->applyConfig($config);
 
         // set app as global (@see app() function)
-        // set_global('app', $this);
+        set_global('app', $this);
 
         // load core app globals
         if (is_file($file = APP_DIR .'/app/global/def.php')) {
@@ -268,7 +268,7 @@ final class App
         $this->response = new Response($this);
 
         // @overwrite
-        // set_global('app', $this);
+        set_global('app', $this);
 
         $this->startOutputBuffer();
 
