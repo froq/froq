@@ -36,10 +36,10 @@ return function() {
         // works only for App
         if (isset($this) && $this instanceof App) {
             // log error first
-            $this->logger->logFail($error);
+            $this->getLogger()->logFail($error);
 
             // handle response properly
-            $this->response->setStatus(500)->send();
+            $this->getResponse()->setStatus(500)->send();
         }
 
         // reset error display option (@see exception handler)
