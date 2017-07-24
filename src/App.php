@@ -139,8 +139,6 @@ final class App
 
         $this->database = new Database($this);
         $this->events   = new Events();
-        $this->request  = new Request();
-        $this->response = new Response();
     }
 
     /**
@@ -168,28 +166,6 @@ final class App
     final public function getRoot(): string
     {
         return $this->root;
-    }
-
-    /**
-     * Set config.
-     * @param  array $config
-     * @return self
-     */
-    final public function applyConfig(array $config): self
-    {
-        // overwrite
-        if ($this->config) {
-            $config = Config::merge($config, $this->config->getData());
-        }
-        $this->config = new Config($config);
-
-        // set/reset log options
-        if ($logOptions = $this->config['app.logger']) {
-            isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
-            isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
-        }
-
-        return $this;
     }
 
     /**
@@ -241,18 +217,18 @@ final class App
 
     /**
      * Get request.
-     * @return Froq\Http\Request
+     * @return ?Froq\Http\Request
      */
-    public function getRequest(): Request
+    public function getRequest(): ?Request
     {
         return $this->request;
     }
 
     /**
      * Get response.
-     * @return Froq\Http\Response
+     * @return ?Froq\Http\Response
      */
-    public function getResponse(): Response
+    public function getResponse(): ?Response
     {
         return $this->response;
     }
@@ -288,8 +264,8 @@ final class App
 
         $this->applyDefaults();
 
-        $this->request->init(['root' => $this->root]);
-        $this->response->init();
+        $this->request = new Request($this);
+        $this->response = new Response($this);
 
         $this->startOutputBuffer();
 
@@ -367,12 +343,34 @@ final class App
     }
 
     /**
-     * Set defaults.
+     * Apply config.
+     * @param  array $config
+     * @return self
+     */
+    final public function applyConfig(array $config): self
+    {
+        // overwrite
+        if ($this->config) {
+            $config = Config::merge($config, $this->config->getData());
+        }
+        $this->config = new Config($config);
+
+        // set/reset log options
+        if ($logOptions = $this->config['app.logger']) {
+            isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
+            isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Apply defaults.
      * @return self
      */
     final public function applyDefaults(): self
     {
-        $locale   = $this->config->get('app.locale');
+        $locale = $this->config->get('app.locale');
         $encoding = $this->config->get('app.encoding');
         $timezone = $this->config->get('app.timezone');
 
