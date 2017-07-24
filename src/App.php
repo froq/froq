@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Froq;
 
+use Froq\Util\Traits\SingleTrait;
 use Froq\Event\Events;
 use Froq\Config\Config;
 use Froq\Logger\Logger;
 use Froq\Database\Database;
 use Froq\Http\{Http, Request, Response};
-use Froq\Util\Traits\{SingleTrait, GetterTrait};
-use Froq\Service\{Service, ServiceAdapter, ServiceInterface};
+use Froq\Service\{Service, ServiceAdapter};
 
 /**
  * @package Froq
@@ -43,12 +43,6 @@ final class App
      * @object Froq\Util\Traits\SingleTrait
      */
     use SingleTrait;
-
-    /**
-     * Getter trait.
-     * @object Froq\Util\Traits\GetterTrait
-     */
-    use GetterTrait;
 
     /**
      * App envs.
@@ -71,22 +65,28 @@ final class App
     private $root = '/';
 
     /**
-     * Logger.
-     * @var Froq\Logger\Logger
-     */
-    private $logger;
-
-    /**
      * Config.
      * @var Froq\Config\Config
      */
     private $config;
 
     /**
+     * Logger.
+     * @var Froq\Logger\Logger
+     */
+    private $logger;
+
+    /**
      * Events.
      * @var Froq\Events\Events
      */
     private $events;
+
+    /**
+     * Service.
+     * @var Froq\Service\Service
+     */
+    private $service;
 
     /**
      * Request.
@@ -99,12 +99,6 @@ final class App
      * @var Froq\Http\Response
      */
     private $response;
-
-    /**
-     * Service.
-     * @var Froq\Service\Service
-     */
-    private $service;
 
     /**
      * Database.
@@ -157,114 +151,6 @@ final class App
         restore_error_handler();
         restore_exception_handler();
     }
-
-    /**
-     * Get database.
-     * @return Froq\Database\Database
-     */
-    public function getDatabase(): Database
-    {
-        return $this->database;
-    }
-
-    /**
-     * Run.
-     * @return void
-     */
-    final public function run()
-    {
-        // security & performans checks
-        if ($halt = $this->haltCheck()) {
-            $this->halt($halt);
-        }
-
-        // re-set global app var (could be modified by user config)
-        set_global('app', $this);
-
-        $this->setDefaults();
-
-        $this->request->init(['uriRoot' => $this->root]);
-        $this->response->init();
-
-        $this->startOutputBuffer();
-
-        $this->service = (new ServiceAdapter($this))->getService();
-
-        // here!
-        $this->events->fire('service.beforeRun');
-        $output = $this->service->run();
-        $this->events->fire('service.afterRun');
-
-        $this->endOutputBuffer($output);
-    }
-
-    /**
-     * Start output buffer.
-     * @return void
-     */
-    final public function startOutputBuffer()
-    {
-        ini_set('implicit_flush', 'Off');
-
-        $gzipOptions = $this->config->get('app.gzip');
-        if ($gzipOptions) {
-            if (!headers_sent()) {
-                ini_set('zlib.output_compression', 'Off');
-            }
-
-            // detect client gzip status
-            $acceptEncoding = $this->request->headers->get('Accept-Encoding');
-            if ($acceptEncoding && strpos($acceptEncoding, 'gzip') !== false) {
-                $this->response->setGzipOptions($gzipOptions);
-            }
-        }
-
-        // start!
-        ob_start();
-    }
-
-    /**
-     * End output buffer.
-     * @param  any $output
-     * @return void
-     */
-    final public function endOutputBuffer($output = null)
-    {
-        // handle redirections
-        $statusCode = $this->response->status->getCode();
-        if ($statusCode >= 300 && $statusCode <= 399) {
-            // clean & turn off output buffering
-            while (ob_get_level()) {
-                ob_end_clean();
-            }
-            // no content!
-            $this->response->setContentType('none');
-        }
-        // handle outputs
-        else {
-            // print'ed service methods return "null"
-            if ($output === null) {
-                $output = '';
-                while (ob_get_level()) {
-                    $output .= ob_get_clean();
-                }
-            }
-
-            // use user output handler if provided
-            if ($this->events->has('app.output')) {
-                $output = $this->events->fire('app.output', $output);
-            }
-
-            // set response body
-            $this->response->setBody($output);
-        }
-
-        // send response cookies, headers and body
-        $this->response->sendHeaders();
-        $this->response->sendCookies();
-        $this->response->send();
-    }
-
 
     /**
      * Set env.
@@ -322,9 +208,9 @@ final class App
         $this->config = new Config($config);
 
         // set/reset log options
-        if ($logOpts = $this->config['app.logger']) {
-            isset($logOpts['level']) && $this->logger->setLevel($logOpts['level']);
-            isset($logOpts['directory']) && $this->logger->setDirectory($logOpts['directory']);
+        if ($logOptions = $this->config['app.logger']) {
+            isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
+            isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
         }
 
         return $this;
@@ -348,6 +234,154 @@ final class App
     final public function getConfigValue(string $key, $valueDefault = null)
     {
         return $this->config->get($key, $valueDefault);
+    }
+
+    /**
+     * Get logger.
+     * @return Froq\Logger\Logger
+     */
+    public function getLogger(): Logger
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Get events.
+     * @return Froq\Events\Events
+     */
+    public function getEvents(): Events
+    {
+        return $this->events;
+    }
+
+    /**
+     * Get service.
+     * @return Froq\Service\Service
+     */
+    public function getService(): ?Service
+    {
+        return $this->service;
+    }
+
+    /**
+     * Get request.
+     * @return Froq\Http\Request
+     */
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
+    /**
+     * Get response.
+     * @return Froq\Http\Response
+     */
+    public function getResponse(): Response
+    {
+        return $this->response;
+    }
+
+    /**
+     * Get database.
+     * @return Froq\Database\Database
+     */
+    public function getDatabase(): Database
+    {
+        return $this->database;
+    }
+
+    /**
+     * Run.
+     * @return void
+     */
+    final public function run()
+    {
+        // security & performans checks
+        if ($halt = $this->haltCheck()) {
+            $this->halt($halt);
+        }
+
+        // re-set global app var (could be modified by user config)
+        set_global('app', $this);
+
+        $this->setDefaults();
+
+        $this->request->init(['root' => $this->root]);
+        $this->response->init();
+
+        $this->startOutputBuffer();
+
+        $this->service = (new ServiceAdapter($this))->getService();
+
+        // here!!
+        $this->events->fire('service.beforeRun');
+        $output = $this->service->run();
+        $this->events->fire('service.afterRun');
+
+        $this->endOutputBuffer($output);
+    }
+
+    /**
+     * Start output buffer.
+     * @return void
+     */
+    final public function startOutputBuffer()
+    {
+        ini_set('implicit_flush', 'Off');
+
+        $gzipOptions = $this->config->get('app.gzip');
+        if ($gzipOptions) {
+            if (!headers_sent()) {
+                ini_set('zlib.output_compression', 'Off');
+            }
+
+            // detect client gzip status
+            $acceptEncoding = $this->request->headers->get('Accept-Encoding');
+            if ($acceptEncoding && strpos($acceptEncoding, 'gzip') !== false) {
+                $this->response->setGzipOptions($gzipOptions);
+            }
+        }
+
+        ob_start();
+    }
+
+    /**
+     * End output buffer.
+     * @param  any $output
+     * @return void
+     */
+    final public function endOutputBuffer($output = null)
+    {
+        // handle redirections
+        $statusCode = $this->response->status->getCode();
+        if ($statusCode >= 300 && $statusCode <= 399) {
+            // clean & turn off output buffering
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            $this->response->setContentType('none');
+        }
+        // handle outputs
+        else {
+            // echo or print'ed (service) methods return "null"
+            if ($output === null) {
+                $output = '';
+                while (ob_get_level()) {
+                    $output .= ob_get_clean();
+                }
+            }
+
+            // call user output handler if provided
+            if ($this->events->has('app.output')) {
+                $output = $this->events->fire('app.output', $output);
+            }
+
+            $this->response->setBody($output);
+        }
+
+        $this->response->sendHeaders();
+        $this->response->sendCookies();
+        $this->response->send();
     }
 
     /**
@@ -379,7 +413,7 @@ final class App
     }
 
     /**
-     * Internal service method call.
+     * Call service method (for internal service method calls).
      * @param  string $call
      * @param  array  $arguments
      * @return any
@@ -391,14 +425,14 @@ final class App
             throw new AppException('Both service class & method (Class::method) names are required!');
         }
 
-        $className = ServiceInterface::NAMESPACE . $className;
+        $className = Service::NAMESPACE . $className;
 
         // return service method call
         return call_user_func_array([new $className($this), $classMethod], $arguments);
     }
 
     /**
-     * Check app env is development.
+     * Is dev.
      * @return bool
      */
     final public function isDev(): bool
@@ -407,7 +441,7 @@ final class App
     }
 
     /**
-     * Check app env is stage.
+     * Is stage.
      * @return bool
      */
     final public function isStage(): bool
@@ -416,7 +450,7 @@ final class App
     }
 
     /**
-     * Check app env is production.
+     * Is production.
      * @return bool
      */
     final public function isProduction(): bool
@@ -451,7 +485,7 @@ final class App
     }
 
     /**
-     * Halt check for security & safety.
+     * Halt check (for security & safety).
      * @return string
      */
     final private function haltCheck(): string
