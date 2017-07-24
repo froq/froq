@@ -65,7 +65,7 @@ final class App
     private $env;
 
     /**
-     * App root (provides options like "app.loca/v1/book/1" for versioning etc.).
+     * App root (provides options like "app.local/v1/book/1" for versioning etc.).
      * @const string
      */
     private $root = '/';
@@ -110,13 +110,13 @@ final class App
      * Database.
      * @var Froq\Database\Database
      */
-    private $db;
+    private $database;
 
     /**
      * Constructor.
-     * @param array $cfg
+     * @param array $config
      */
-    final private function __construct(array $cfg)
+    final private function __construct(array $config)
     {
         if (!defined('APP_DIR')) {
             throw new AppException('Application directory is not defined!');
@@ -125,7 +125,7 @@ final class App
         $this->logger = new Logger();
 
         // set default config first
-        $this->setConfig($cfg);
+        $this->setConfig($config);
 
         // set app as global (@see app() function)
         set_global('app', $this);
@@ -143,7 +143,7 @@ final class App
         set_exception_handler(require(__dir__ .'/handler/exception.php'));
         register_shutdown_function(require(__dir__ .'/handler/shutdown.php'));
 
-        $this->db       = new Database();
+        $this->database = new Database($this);
         $this->events   = new Events();
         $this->request  = new Request();
         $this->response = new Response();
@@ -156,6 +156,15 @@ final class App
     {
         restore_error_handler();
         restore_exception_handler();
+    }
+
+    /**
+     * Get database.
+     * @return Froq\Database\Database
+     */
+    public function getDatabase(): Database
+    {
+        return $this->database;
     }
 
     /**
@@ -198,14 +207,14 @@ final class App
         ini_set('implicit_flush', 'Off');
 
         $gzipOptions = $this->config->get('app.gzip');
-        if (!empty($gzipOptions)) {
+        if ($gzipOptions) {
             if (!headers_sent()) {
                 ini_set('zlib.output_compression', 'Off');
             }
 
             // detect client gzip status
-            $acceptEncoding = $this->request->headers->get('Accept-Encoding', '');
-            if (strpos($acceptEncoding, 'gzip') !== false) {
+            $acceptEncoding = $this->request->headers->get('Accept-Encoding');
+            if ($acceptEncoding && strpos($acceptEncoding, 'gzip') !== false) {
                 $this->response->setGzipOptions($gzipOptions);
             }
         }
@@ -347,23 +356,23 @@ final class App
      */
     final public function setDefaults(): self
     {
-        $cfg = ['locale'   => $this->config['app.locale'],
-                'encoding' => $this->config['app.encoding'],
-                'timezone' => $this->config['app.timezone']];
+        $locale   = $this->config->get('app.locale');
+        $encoding = $this->config->get('app.encoding');
+        $timezone = $this->config->get('app.timezone');
 
-        if (!empty($cfg['timezone'])) {
-            date_default_timezone_set($cfg['timezone']);
+        if ($timezone) {
+            date_default_timezone_set($timezone);
         }
 
-        if (!empty($cfg['encoding'])) {
-            ini_set('default_charset', $cfg['encoding']);
-            if (!empty($cfg['locale'])) {
-                $locale = sprintf('%s.%s', $cfg['locale'], $cfg['encoding']);
+        if ($encoding) {
+            ini_set('default_charset', $encoding);
+            if ($locale) {
+                $locale = sprintf('%s.%s', $locale, $encoding);
                 setlocale(LC_TIME, $locale);
                 setlocale(LC_NUMERIC, $locale);
                 setlocale(LC_MONETARY, $locale);
             }
-            mb_internal_encoding($cfg['encoding']);
+            mb_internal_encoding($encoding);
         }
 
         return $this;
@@ -371,15 +380,15 @@ final class App
 
     /**
      * Internal service method call.
-     * @param  string $dir
+     * @param  string $call
      * @param  array  $arguments
      * @return any
      */
-    final public function callServiceMethod(string $dir, array $arguments = [])
+    final public function callServiceMethod(string $call, array $arguments = [])
     {
-        @ list($className, $classMethod) = explode('::', $dir);
+        @ list($className, $classMethod) = explode('::', $call);
         if (!isset($className, $classMethod)) {
-            throw new AppException('Both service class & method names are required!');
+            throw new AppException('Both service class & method (Class::method) names are required!');
         }
 
         $className = ServiceInterface::NAMESPACE . $className;
