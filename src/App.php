@@ -122,7 +122,7 @@ final class App
         $this->applyConfig($config);
 
         // set app as global (@see app() function)
-        set_global('app', $this);
+        // set_global('app', $this);
 
         // load core app globals
         if (is_file($file = APP_DIR .'/app/global/def.php')) {
@@ -138,7 +138,7 @@ final class App
         register_shutdown_function(require(__dir__ .'/handler/shutdown.php'));
 
         $this->database = new Database($this);
-        $this->events   = new Events();
+        $this->events = new Events();
     }
 
     /**
@@ -254,18 +254,21 @@ final class App
         if (isset($options['root'])) $this->root = $options['root'];
         if (isset($options['config'])) $this->applyConfig($options['config']);
 
+        // keep globals clean..
+        unset($GLOBALS['app'], $GLOBALS['appEnv'], $GLOBALS['appRoot'], $GLOBALS['appConfig']);
+
         // security & performans checks
         if ($halt = $this->haltCheck()) {
             $this->halt($halt);
         }
 
-        // re-set global app var (could be modified by user config)
-        set_global('app', $this);
-
         $this->applyDefaults();
 
         $this->request = new Request($this);
         $this->response = new Response($this);
+
+        // @overwrite
+        // set_global('app', $this);
 
         $this->startOutputBuffer();
 
