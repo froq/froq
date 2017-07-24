@@ -48,13 +48,14 @@ return (function() {
     $cfg['app.session.cookie']['secure'] = false;
     $cfg['app.session.cookie']['httponly'] = false;
     $cfg['app.session.cookie']['lifetime'] = 0;
-    $cfg['app.session.cookie']['length'] = 128;
+    $cfg['app.session.cookie']['length'] = 32;
+    $cfg['app.session.cookie']['handler'] = null;
     // gzip
     $cfg['app.gzip'] = [];
     $cfg['app.gzip']['use'] = true;
     $cfg['app.gzip']['mode'] = FORCE_GZIP;
     $cfg['app.gzip']['level'] = -1;
-    $cfg['app.gzip']['minlen'] = 128;
+    $cfg['app.gzip']['minlen'] = 64;
     // logger
     $cfg['app.logger'] = [];
     $cfg['app.logger']['level'] = 0; // none
