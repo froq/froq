@@ -59,6 +59,7 @@ if (local) {
  */
 $autoload = require(__dir__ .'/Autoload.php');
 $autoload->register();
+unset($autoload);
 
 /**
  * Load global base files.
