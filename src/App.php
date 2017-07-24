@@ -119,7 +119,7 @@ final class App
         $this->logger = new Logger();
 
         // set default config first
-        $this->setConfig($config);
+        $this->applyConfig($config);
 
         // set app as global (@see app() function)
         set_global('app', $this);
@@ -153,36 +153,12 @@ final class App
     }
 
     /**
-     * Set env.
-     * @param  string $env
-     * @return self
-     */
-    final public function setEnv(string $env): self
-    {
-        $this->env = $env;
-
-        return $this;
-    }
-
-    /**
      * Get env.
      * @return string
      */
     final public function getEnv(): string
     {
         return $this->env;
-    }
-
-    /**
-     * Set root.
-     * @param  string $root
-     * @return self
-     */
-    final public function setRoot(string $root): self
-    {
-        $this->root = $root;
-
-        return $this;
     }
 
     /**
@@ -199,7 +175,7 @@ final class App
      * @param  array $config
      * @return self
      */
-    final public function setConfig(array $config): self
+    final public function applyConfig(array $config): self
     {
         // overwrite
         if ($this->config) {
@@ -292,10 +268,16 @@ final class App
 
     /**
      * Run.
+     * @param  array options
      * @return void
      */
-    final public function run()
+    final public function run(array $options)
     {
+        // apply user options (pub/index.php)
+        if (isset($options['env'])) $this->env = $options['env'];
+        if (isset($options['root'])) $this->root = $options['root'];
+        if (isset($options['config'])) $this->applyConfig($options['config']);
+
         // security & performans checks
         if ($halt = $this->haltCheck()) {
             $this->halt($halt);
@@ -304,7 +286,7 @@ final class App
         // re-set global app var (could be modified by user config)
         set_global('app', $this);
 
-        $this->setDefaults();
+        $this->applyDefaults();
 
         $this->request->init(['root' => $this->root]);
         $this->response->init();
@@ -388,7 +370,7 @@ final class App
      * Set defaults.
      * @return self
      */
-    final public function setDefaults(): self
+    final public function applyDefaults(): self
     {
         $locale   = $this->config->get('app.locale');
         $encoding = $this->config->get('app.encoding');
