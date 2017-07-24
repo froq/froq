@@ -54,17 +54,20 @@ if (local) {
 }
 
 /**
+ * Load autoload.
+ * @var Froq\Autoload
+ */
+$autoload = require(__dir__ .'/Autoload.php');
+$autoload->register();
+
+/**
  * Load global base files.
  */
 require(__dir__ .'/global/def.php');
-require(__dir__ .'/global/cfg.php');
 require(__dir__ .'/global/fun.php');
-
-$autoload = require(__dir__ .'/Autoload.php');
-$autoload->register();
 
 /**
  * Init app with default configs (comes from cfg.php).
  * @return Froq\App
  */
-return Froq\App::init($cfg);
+return Froq\App::init(require(__dir__ .'/global/cfg.php'));
