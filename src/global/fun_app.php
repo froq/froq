@@ -5,38 +5,25 @@
 
 /**
  * Shortcut for app address.
- * @param  string $prop
- * @return Froq\App|Froq\App\?|null
+ * @return ?Froq\App
  * @throws \Throwable
  */
-function app(string $prop = '') {
-    $app = get_global('app');
-
-    if (!$prop) {
-        return $app;
-    }
-    if (!strpbrk($prop, '.->')) {
-        return $app->{$prop};
-    }
-
-    // evil or tricky?
-    eval('$return = $app->'. str_replace('.', '->', $prop) .';');
-
-    return $return;
+function app() {
+    return get_global('app');
 }
 
 /**
  * Get app dir.
- * @return string|null
+ * @return string
  */
 function app_dir()
 {
-    return defined('APP_DIR') ? APP_DIR : null;
+    return APP_DIR;
 }
 
 /**
  * Get app load time.
- * @return string|null
+ * @return string
  */
 function app_load_time()
 {
