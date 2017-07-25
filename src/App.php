@@ -110,7 +110,7 @@ final class App
      * Constructor.
      * @param array $config
      */
-    final private function __construct(array $config)
+    private function __construct(array $config)
     {
         if (!defined('APP_DIR')) {
             throw new AppException('Application directory is not defined!');
@@ -144,7 +144,7 @@ final class App
     /**
      * Destructor.
      */
-    final public function __destruct()
+    public function __destruct()
     {
         restore_error_handler();
         restore_exception_handler();
@@ -154,7 +154,7 @@ final class App
      * Get env.
      * @return string
      */
-    final public function getEnv(): string
+    public function getEnv(): string
     {
         return $this->env;
     }
@@ -163,7 +163,7 @@ final class App
      * Get root.
      * @return string
      */
-    final public function getRoot(): string
+    public function getRoot(): string
     {
         return $this->root;
     }
@@ -172,7 +172,7 @@ final class App
      * Get config.
      * @return Froq\Config\Config
      */
-    final public function getConfig(): Config
+    public function getConfig(): Config
     {
         return $this->config;
     }
@@ -183,7 +183,7 @@ final class App
      * @param  any    $valueDefault
      * @return any
      */
-    final public function getConfigValue(string $key, $valueDefault = null)
+    public function getConfigValue(string $key, $valueDefault = null)
     {
         return $this->config->get($key, $valueDefault);
     }
@@ -247,7 +247,7 @@ final class App
      * @param  array options
      * @return void
      */
-    final public function run(array $options)
+    public function run(array $options)
     {
         // apply user options (pub/index.php)
         if (isset($options['env'])) $this->env = $options['env'];
@@ -286,7 +286,7 @@ final class App
      * Start output buffer.
      * @return void
      */
-    final public function startOutputBuffer()
+    public function startOutputBuffer()
     {
         ini_set('implicit_flush', 'Off');
 
@@ -311,7 +311,7 @@ final class App
      * @param  any $output
      * @return void
      */
-    final public function endOutputBuffer($output = null)
+    public function endOutputBuffer($output = null)
     {
         // handle redirections
         $statusCode = $this->response->status()->getCode();
@@ -350,7 +350,7 @@ final class App
      * @param  array $config
      * @return self
      */
-    final public function applyConfig(array $config): self
+    public function applyConfig(array $config): self
     {
         // overwrite
         if ($this->config) {
@@ -371,7 +371,7 @@ final class App
      * Apply defaults.
      * @return self
      */
-    final public function applyDefaults(): self
+    public function applyDefaults(): self
     {
         $locale = $this->config->get('app.locale');
         $encoding = $this->config->get('app.encoding');
@@ -401,7 +401,7 @@ final class App
      * @param  array  $arguments
      * @return any
      */
-    final public function callServiceMethod(string $call, array $arguments = [])
+    public function callServiceMethod(string $call, array $arguments = [])
     {
         @ list($className, $classMethod) = explode('::', $call);
         if (!isset($className, $classMethod)) {
@@ -418,7 +418,7 @@ final class App
      * Is dev.
      * @return bool
      */
-    final public function isDev(): bool
+    public function isDev(): bool
     {
         return ($this->env == self::ENV_DEV);
     }
@@ -427,7 +427,7 @@ final class App
      * Is stage.
      * @return bool
      */
-    final public function isStage(): bool
+    public function isStage(): bool
     {
         return ($this->env == self::ENV_STAGE);
     }
@@ -436,7 +436,7 @@ final class App
      * Is production.
      * @return bool
      */
-    final public function isProduction(): bool
+    public function isProduction(): bool
     {
         return ($this->env == self::ENV_PRODUCTION);
     }
@@ -445,7 +445,7 @@ final class App
      * Load time.
      * @return array
      */
-    final public function loadTime(): array
+    public function loadTime(): array
     {
         $start = APP_START_TIME; $end = microtime(true);
 
@@ -457,7 +457,7 @@ final class App
      * @param  string $status
      * @return void
      */
-    final private function halt(string $status)
+    private function halt(string $status)
     {
         header(sprintf('%s %s', Http::detectVersion(), $status));
         header('Connection: close');
@@ -471,7 +471,7 @@ final class App
      * Halt check (for security & safety).
      * @return string
      */
-    final private function haltCheck(): string
+    private function haltCheck(): string
     {
         // check client host
         $hosts = $this->config['app.hosts'];
