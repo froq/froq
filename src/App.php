@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Froq;
 
-use Froq\Util\Traits\SingleTrait;
 use Froq\Event\Events;
 use Froq\Config\Config;
 use Froq\Logger\Logger;
 use Froq\Database\Database;
 use Froq\Http\{Http, Request, Response};
-use Froq\Service\{Service, ServiceAdapter};
+use Froq\Service\{Service, ServiceFactory};
+use Froq\Util\Traits\SingleTrait;
 
 /**
  * @package Froq
@@ -104,7 +104,7 @@ final class App
      * Database.
      * @var Froq\Database\Database
      */
-    private $database;
+    private $db;
 
     /**
      * Constructor.
@@ -137,7 +137,7 @@ final class App
         set_exception_handler(require(__dir__ .'/handler/exception.php'));
         register_shutdown_function(require(__dir__ .'/handler/shutdown.php'));
 
-        $this->database = new Database($this);
+        $this->db = new Database($this);
         $this->events = new Events();
     }
 
@@ -151,95 +151,95 @@ final class App
     }
 
     /**
-     * Get env.
+     * Env.
      * @return string
      */
-    public function getEnv(): string
+    public function env(): string
     {
         return $this->env;
     }
 
     /**
-     * Get root.
+     * Root.
      * @return string
      */
-    public function getRoot(): string
+    public function root(): string
     {
         return $this->root;
     }
 
     /**
-     * Get config.
+     * Config.
      * @return Froq\Config\Config
      */
-    public function getConfig(): Config
+    public function config(): Config
     {
         return $this->config;
     }
 
     /**
-     * Get config value.
+     * Config value.
      * @param  string $key
      * @param  any    $valueDefault
      * @return any
      */
-    public function getConfigValue(string $key, $valueDefault = null)
+    public function configValue(string $key, $valueDefault = null)
     {
         return $this->config->get($key, $valueDefault);
     }
 
     /**
-     * Get logger.
+     * Logger.
      * @return Froq\Logger\Logger
      */
-    public function getLogger(): Logger
+    public function logger(): Logger
     {
         return $this->logger;
     }
 
     /**
-     * Get events.
+     * Events.
      * @return Froq\Events\Events
      */
-    public function getEvents(): Events
+    public function events(): Events
     {
         return $this->events;
     }
 
     /**
-     * Get service.
+     * Service.
      * @return Froq\Service\Service
      */
-    public function getService(): ?Service
+    public function service(): ?Service
     {
         return $this->service;
     }
 
     /**
-     * Get request.
+     * Request.
      * @return ?Froq\Http\Request
      */
-    public function getRequest(): ?Request
+    public function request(): ?Request
     {
         return $this->request;
     }
 
     /**
-     * Get response.
+     * Response.
      * @return ?Froq\Http\Response
      */
-    public function getResponse(): ?Response
+    public function response(): ?Response
     {
         return $this->response;
     }
 
     /**
-     * Get database.
+     * Db.
      * @return Froq\Database\Database
      */
-    public function getDatabase(): Database
+    public function db(): Database
     {
-        return $this->database;
+        return $this->db;
     }
 
     /**
@@ -272,7 +272,11 @@ final class App
 
         $this->startOutputBuffer();
 
-        $this->service = (new ServiceAdapter($this))->getService();
+        // create service
+        $this->service = ServiceFactory::create($this);
+        if ($this->service == null) {
+            throw new AppException('Could not create service!');
+        }
 
         // here!!
         $this->events->fire('service.beforeRun');
@@ -403,9 +407,9 @@ final class App
      */
     public function callServiceMethod(string $call, array $arguments = [])
     {
-        @ list($className, $classMethod) = explode('::', $call);
+        @ [$className, $classMethod] = explode('::', $call);
         if (!isset($className, $classMethod)) {
-            throw new AppException('Both service class & method (Class::method) names are required!');
+            throw new AppException('Both service class & method are required!');
         }
 
         $className = Service::NAMESPACE . $className;
