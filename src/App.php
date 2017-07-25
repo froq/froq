@@ -314,7 +314,7 @@ final class App
     final public function endOutputBuffer($output = null)
     {
         // handle redirections
-        $statusCode = $this->response->status->getCode();
+        $statusCode = $this->response->getStatus()->getCode();
         if ($statusCode >= 300 && $statusCode <= 399) {
             // clean & turn off output buffering
             while (ob_get_level()) {
