@@ -28,14 +28,28 @@ namespace Froq;
  * @object  Froq\Autoload
  * @author  Kerem Güneş <k-gun@mail.com>
  */
-class Autoload
+final class Autoload
 {
     /**
-     * Default service names.
+     * Service names (default).
      * @const string
      */
-    const MAIN_SERVICE_NAME = 'MainService',
-          FAIL_SERVICE_NAME = 'FailService';
+    const SERVICE_NAME_MAIN     = 'MainService',
+          SERVICE_NAME_FAIL     = 'FailService';
+
+    /**
+     * Namespaces.
+     * @const string
+     */
+    const NAMESPACE             = 'Froq',
+          NAMESPACE_APP_SERVICE = 'Froq\\App\\Service',
+          NAMESPACE_APP_LIBRARY = 'Froq\\App\\Library';
+
+    /**
+     * App dir.
+     * @var string
+     */
+    private $appDir;
 
     /**
     * Singleton stuff.
@@ -44,35 +58,36 @@ class Autoload
     private static $instance;
 
     /**
-    * Froq namespace.
-    * @var string
-    */
-    private static $namespaces = [
-        'Froq',
-        'Froq\\App\\Service',
-        'Froq\\App\\Library',
-    ];
-
-    /**
-     * Forbid idle initializations.
+     * Constructor.
      */
-    final private function __clone() {}
-    final private function __construct() {}
+    private function __construct()
+    {
+        if (!defined('APP_DIR')) {
+            throw new RuntimeException('APP_DIR is not defined!');
+        }
+
+        $this->appDir = APP_DIR;
+    }
 
     /**
      * Destructor.
      * @return void
      */
-    final public function __destruct()
+    public function __destruct()
     {
         $this->unregister();
     }
 
     /**
+     * Cloner.
+     */
+    private function __clone() {}
+
+    /**
      * Init.
      * @return self
      */
-    final public static function init(): self
+    public static function init(): self
     {
         if (self::$instance == null) {
             self::$instance = new self();
@@ -85,7 +100,7 @@ class Autoload
      * Register.
      * @return bool
      */
-    final public function register(): bool
+    public function register(): bool
     {
         return spl_autoload_register([$this, 'load']);
     }
@@ -94,7 +109,7 @@ class Autoload
      * Unregister.
      * @return bool
      */
-    final public function unregister(): bool
+    public function unregister(): bool
     {
         return spl_autoload_unregister([$this, 'load']);
     }
@@ -102,22 +117,23 @@ class Autoload
     /**
      * Load an object (class/trait/interface) file.
      * @param  string $objectName
-     * @return any
+     * @return void
      * @throws \RuntimeException
      */
-    final public function load($objectName)
+    public function load($objectName): void
     {
         // only Froq! stuff
-        if (0 !== strpos($objectName, self::$namespaces[0])) {
+        if (0 !== strpos($objectName, self::NAMESPACE)) {
             return;
         }
 
         $objectFile = $this->getObjectFile($objectName);
-        if (!$objectFile) {
-            throw new \RuntimeException("Could not specify object file! name: '{$objectName}'.");
+
+        if ($objectFile == null) {
+            throw new \RuntimeException("Could not specify object file: '{$objectName}'!");
         }
         if (!is_file($objectFile)) {
-            throw new \RuntimeException("Object file not found! file: '{$objectFile}'.");
+            throw new \RuntimeException("Object file not found! file: '{$objectFile}'!");
         }
 
         require($objectFile);
@@ -126,38 +142,45 @@ class Autoload
     /**
      * Get object file.
      * @param  string $objectName
-     * @return string|null
+     * @return ?string
      */
-    final private function getObjectFile(string $objectName)
+    public function getObjectFile(string $objectName): ?string
     {
-        // user model objects
-        if (preg_match('~Service\\\([a-z]+)Model$~i', $objectName, $match)) {
-            $objectBase = ucfirst($match[1] .'Service');
-            return ($objectBase == self::MAIN_SERVICE_NAME || $objectBase == self::FAIL_SERVICE_NAME)
-                ? $this->fixSlashes(sprintf('./app/service/default/%s/model/model.php', $objectBase))
-                : $this->fixSlashes(sprintf('./app/service/%s/model/model.php', $objectBase));
-        }
+        // user service & model objects
+        if (0 === strpos($objectName, self::NAMESPACE_APP_SERVICE)) {
+            // model object
+            if (preg_match('~Service\\\(\w+)Model$~i', $objectName, $match)) {
+                $objectBase = ucfirst($match[1] .'Service');
+                if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
+                    $objectFile = sprintf('%s/app/service/default/%s/model/model.php',
+                        $this->appDir, $objectBase);
+                } else {
+                    $objectFile = sprintf('%s/app/service/%s/model/model.php',
+                        $this->appDir, $objectBase);
+                }
+            }
+            // service object
+            else {
+                $objectBase = $this->getObjectBase($objectName);
+                if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
+                    $objectFile = sprintf('%s/app/service/default/%s/%s.php',
+                        $this->appDir, $objectBase, $objectBase);
+                } else {
+                    $objectFile = sprintf('%s/app/service/%s/%s.php',
+                        $this->appDir, $objectBase, $objectBase);
+                }
+            }
 
-        // user service objects
-        if (0 === strpos($objectName, self::$namespaces[1])) {
-            $objectBase = $this->getObjectBase($objectName);
-            return ($objectBase == self::MAIN_SERVICE_NAME || $objectBase == self::FAIL_SERVICE_NAME)
-                ? $this->fixSlashes(sprintf('./app/service/default/%s/%s.php', $objectBase, $objectBase))
-                : $this->fixSlashes(sprintf('./app/service/%s/%s.php', $objectBase, $objectBase));
+            return $this->fixSlashes($objectFile);
         }
 
         // user library objects
-        if (0 === strpos($objectName, self::$namespaces[2])) {
-            $objectBase = $this->getObjectBase($objectName, false);
-            return $this->fixSlashes(sprintf('./app/library/%s.php', $objectBase));
+        if (0 === strpos($objectName, self::NAMESPACE_APP_LIBRARY)) {
+            return $this->fixSlashes(sprintf('%s/app/library/%s.php',
+                $this->appDir, $this->getObjectBase($objectName, false)));
         }
 
-        // Froq! objects
-        if (0 === strpos($objectName, self::$namespaces[0])) {
-            return $this->fixSlashes(sprintf('%s/%s.php',
-                __dir__, substr_replace($objectName, '', 0, strlen(self::$namespaces[0]))
-            ));
-        }
+        return null;
     }
 
     /**
@@ -166,7 +189,7 @@ class Autoload
      * @param  bool   $endOnly
      * @return string
      */
-    final private function getObjectBase(string $objectName, bool $endOnly = true): string
+    public function getObjectBase(string $objectName, bool $endOnly = true): string
     {
         $tmp = explode('\\', $objectName);
         $end = array_pop($tmp);
@@ -175,7 +198,7 @@ class Autoload
             return $end;
         }
 
-        // Froq\App\Library\Entity\UserEntity => ./app/library/entity/UserEntity
+        // eg: Froq\App\Library\Entity\UserEntity => ./app/library/entity/UserEntity
         $path = strtolower(join('\\', array_slice($tmp, 3)));
 
         return $path .'\\'. $end;
@@ -186,9 +209,9 @@ class Autoload
      * @param  string $path
      * @return string
      */
-    final private function fixSlashes($path): string
+    public function fixSlashes($path): string
     {
-        return preg_replace(['~\\\\~', '~/+~'], '/', $path);
+        return preg_replace(['~\\\~', '~/+~'], '/', $path);
     }
 }
 
