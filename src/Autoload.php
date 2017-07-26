@@ -130,10 +130,10 @@ final class Autoload
         $objectFile = $this->getObjectFile($objectName);
 
         if ($objectFile == null) {
-            throw new \RuntimeException("Could not specify object file: '{$objectName}'!");
+            throw new \RuntimeException("Could not specify object file '{$objectName}'!");
         }
         if (!is_file($objectFile)) {
-            throw new \RuntimeException("Object file not found! file: '{$objectFile}'!");
+            throw new \RuntimeException("Could not found object file '{$objectFile}'!");
         }
 
         require($objectFile);
