@@ -34,16 +34,16 @@ final class Autoload
      * Service names (default).
      * @const string
      */
-    const SERVICE_NAME_MAIN     = 'MainService',
-          SERVICE_NAME_FAIL     = 'FailService';
+    public const SERVICE_NAME_MAIN       = 'MainService',
+                 SERVICE_NAME_FAIL       = 'FailService';
 
     /**
      * Namespaces.
      * @const string
      */
-    const NAMESPACE             = 'Froq',
-          NAMESPACE_APP_SERVICE = 'Froq\\App\\Service',
-          NAMESPACE_APP_LIBRARY = 'Froq\\App\\Library';
+    public const NAMESPACE               = 'Froq',
+                 NAMESPACE_APP_SERVICE   = 'Froq\\App\\Service',
+                 NAMESPACE_APP_LIBRARY   = 'Froq\\App\\Library';
 
     /**
      * App dir.
