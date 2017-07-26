@@ -48,9 +48,9 @@ final class App
      * App envs.
      * @const string
      */
-    const ENV_DEV        = 'dev',
-          ENV_STAGE      = 'stage',
-          ENV_PRODUCTION = 'production';
+    public const ENV_DEV          = 'dev',
+                 ENV_STAGE        = 'stage',
+                 ENV_PRODUCTION   = 'production';
 
     /**
      * App env.
