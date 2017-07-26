@@ -258,7 +258,8 @@ final class App
         unset($GLOBALS['app'], $GLOBALS['appEnv'], $GLOBALS['appRoot'], $GLOBALS['appConfig']);
 
         // security & performans checks
-        if ($halt = $this->haltCheck()) {
+        $halt = $this->haltCheck();
+        if ($halt != null) {
             $this->halt($halt);
         }
 
@@ -472,34 +473,36 @@ final class App
     }
 
     /**
-     * Halt check (for security & safety).
-     * @return string
+     * Halt check (for safety & security).
+     * @return ?string
      */
-    private function haltCheck(): string
+    private function haltCheck(): ?string
     {
-        // check client host
+        // check if client host is allowed
         $hosts = $this->config['app.hosts'];
-        if ($hosts && (!isset($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], $hosts))) {
+        if ($hosts && (empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
             return '400 Bad Request';
         }
 
-        @ list($maxRequest, $allowEmptyUserAgent, $allowFileExtensionSniff) = $this->config['app.security'];
+        @ ['maxRequest' => $maxRequest,
+           'allowEmptyUserAgent' => $allowEmptyUserAgent,
+           'allowFileExtensionSniff' => $allowFileExtensionSniff] = $this->config['app.security'];
 
         // check request count
-        if (isset($maxRequest) && count($_REQUEST) > $maxRequest) {
+        if ($maxRequest && count($_REQUEST) > $maxRequest) {
             return '429 Too Many Requests';
         }
 
         // check user agent
-        if (isset($allowEmptyUserAgent) && $allowEmptyUserAgent === false
-            && (!isset($_SERVER['HTTP_USER_AGENT']) || !trim($_SERVER['HTTP_USER_AGENT']))) {
+        if ($allowEmptyUserAgent === false
+            && (empty($_SERVER['HTTP_USER_AGENT']) || trim($_SERVER['HTTP_USER_AGENT']) == '')) {
             return '400 Bad Request';
         }
 
         // check file extension
-        if (isset($allowFileExtensionSniff) && $allowFileExtensionSniff === false
-            && preg_match('~\.(p[hyl]p?|rb|cgi|cf[mc]|p(pl|lx|erl)|aspx?)$~i',
-                    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
+        if ($allowFileExtensionSniff === false
+            && preg_match('~\.(?:p[hyl]p?|rb|cgi|cf[mc]|p(?:pl|lx|erl)|aspx?)$~i',
+                parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
             return '400 Bad Request';
         }
 
@@ -509,6 +512,6 @@ final class App
             return '503 Service Unavailable';
         }
 
-        return '';
+        return null;
     }
 }
