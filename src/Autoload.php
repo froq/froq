@@ -115,7 +115,7 @@ final class Autoload
     }
 
     /**
-     * Load an object (class/trait/interface) file.
+     * Load.
      * @param  string $objectName
      * @return void
      * @throws \RuntimeException

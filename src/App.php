@@ -247,7 +247,7 @@ final class App
      * @param  array options
      * @return void
      */
-    public function run(array $options)
+    public function run(array $options): void
     {
         // apply user options (pub/index.php)
         if (isset($options['env'])) $this->env = $options['env'];
@@ -291,7 +291,7 @@ final class App
      * Start output buffer.
      * @return void
      */
-    public function startOutputBuffer()
+    public function startOutputBuffer(): void
     {
         ini_set('implicit_flush', 'Off');
 
@@ -316,7 +316,7 @@ final class App
      * @param  any $output
      * @return void
      */
-    public function endOutputBuffer($output = null)
+    public function endOutputBuffer($output = null): void
     {
         // handle redirections
         $statusCode = $this->response->status()->getCode();
@@ -462,7 +462,7 @@ final class App
      * @param  string $status
      * @return void
      */
-    private function halt(string $status)
+    private function halt(string $status): void
     {
         header(sprintf('%s %s', Http::detectVersion(), $status));
         header('Connection: close');
