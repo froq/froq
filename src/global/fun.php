@@ -9,10 +9,12 @@ if (!isset($GLOBALS['@'])) {
 
 /**
  * Global setter.
- * @param string $key
- * @param any    $value
+ * @param  string $key
+ * @param  any    $value
+ * @return void
  */
-function set_global(string $key, $value) {
+function set_global(string $key, $value)
+{
     $GLOBALS['@'][$key] = $value;
 }
 
@@ -22,7 +24,8 @@ function set_global(string $key, $value) {
  * @param  any    $valueDefault
  * @return any
  */
-function get_global(string $key, $valueDefault = null) {
+function get_global(string $key, $valueDefault = null)
+{
     return isset($GLOBALS['@'][$key])
         ? $GLOBALS['@'][$key] : $valueDefault;
 }
@@ -33,7 +36,8 @@ function get_global(string $key, $valueDefault = null) {
  * @param  any $b
  * @return any
  */
-function if_nil($a, $b) {
+function if_nil($a, $b)
+{
     return (nil !== $a) ? $a : $b;
 }
 
@@ -43,7 +47,8 @@ function if_nil($a, $b) {
  * @param  any $b
  * @return any
  */
-function if_nils($a, $b) {
+function if_nils($a, $b)
+{
     return (nils !== trim((string) $a)) ? $a : $b;
 }
 
@@ -53,7 +58,8 @@ function if_nils($a, $b) {
  * @param  any $b
  * @return any
  */
-function if_empty($a, $b) {
+function if_empty($a, $b)
+{
     return !empty($a) ? $a : $b;
 }
 
@@ -65,8 +71,9 @@ function _isset($var): bool { return isset($var); }
 function _empty($var): bool { return empty($var); }
 
 // safe trim for strict mode
-function _trim($input, $chrs = " \t\n\r\0\x0B"): string {
-    return trim((string) $input, $chrs);
+function _trim($var, $chrs = " \t\n\r\0\x0B"): string
+{
+    return trim((string) $var, $chrs);
 }
 
 /**

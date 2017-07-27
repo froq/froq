@@ -4,28 +4,28 @@
  ********************************/
 
 /**
- * Shortcut for app address.
+ * Shortcut for global app address.
  * @return ?Froq\App
- * @throws \Throwable
  */
-function app() {
+function app()
+{
     return get_global('app');
 }
 
 /**
- * Get app dir.
+ * App dir.
  * @return string
  */
-function app_dir()
+function app_dir(): string
 {
     return APP_DIR;
 }
 
 /**
- * Get app load time.
+ * App load time.
  * @return string
  */
-function app_load_time()
+function app_load_time(): string
 {
     return sprintf('%.3f', (microtime(true) - APP_START_TIME));
 }

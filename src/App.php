@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Froq;
 
+use Froq\Util\Traits\SingleTrait;
 use Froq\Event\Events;
 use Froq\Config\Config;
 use Froq\Logger\Logger;
 use Froq\Database\Database;
 use Froq\Http\{Http, Request, Response};
 use Froq\Service\{Service, ServiceFactory};
-use Froq\Util\Traits\SingleTrait;
 
 /**
  * @package Froq
