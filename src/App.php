@@ -101,7 +101,7 @@ final class App
     private $response;
 
     /**
-     * Database.
+     * Db.
      * @var Froq\Database\Database
      */
     private $db;
@@ -329,7 +329,7 @@ final class App
         }
         // handle outputs
         else {
-            // echo or print'ed (service) methods return "null"
+            // echo or print'ed service methods return "null"
             if ($output === null) {
                 $output = '';
                 while (ob_get_level()) {
@@ -458,7 +458,7 @@ final class App
     }
 
     /**
-     * Halt app run.
+     * Halt.
      * @param  string $status
      * @return void
      */
