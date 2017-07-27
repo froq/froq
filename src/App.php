@@ -478,6 +478,11 @@ final class App
      */
     private function haltCheck(): ?string
     {
+        // built-in http server
+        if (PHP_SAPI == 'cli-server') {
+            return null;
+        }
+
         // check if client host is allowed
         $hosts = $this->config['app.hosts'];
         if ($hosts && (empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
