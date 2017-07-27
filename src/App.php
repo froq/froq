@@ -257,6 +257,11 @@ final class App
         // keep globals clean..
         unset($GLOBALS['app'], $GLOBALS['appEnv'], $GLOBALS['appRoot'], $GLOBALS['appConfig']);
 
+        // check env
+        if (empty($this->env)) {
+            throw new AppException('Application env is not defined!');
+        }
+
         // security & performans checks
         $halt = $this->haltCheck();
         if ($halt != null) {
