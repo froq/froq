@@ -398,6 +398,7 @@ final class App
                 setlocale(LC_TIME, $locale);
                 setlocale(LC_NUMERIC, $locale);
                 setlocale(LC_MONETARY, $locale);
+                setlocale(LC_COLLATE, $locale);
             }
             mb_internal_encoding($encoding);
         }
