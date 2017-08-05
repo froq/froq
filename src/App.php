@@ -513,7 +513,7 @@ final class App
         // check file extension
         if ($allowFileExtensionSniff === false
             && preg_match('~\.(?:p[hyl]p?|rb|cgi|cf[mc]|p(?:pl|lx|erl)|aspx?)$~i',
-                parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
+                (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
             return '400 Bad Request';
         }
 
