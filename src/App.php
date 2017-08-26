@@ -350,9 +350,7 @@ final class App
             $this->response->setBody($output);
         }
 
-        $this->response->sendHeaders();
-        $this->response->sendCookies();
-        $this->response->send();
+        $this->response->end();
     }
 
     /**
