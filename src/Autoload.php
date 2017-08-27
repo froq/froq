@@ -43,6 +43,7 @@ final class Autoload
      */
     public const NAMESPACE               = 'Froq',
                  NAMESPACE_APP_SERVICE   = 'Froq\\App\\Service',
+                 NAMESPACE_APP_DATABASE  = 'Froq\\App\\Database',
                  NAMESPACE_APP_LIBRARY   = 'Froq\\App\\Library';
 
     /**
@@ -133,7 +134,7 @@ final class Autoload
             throw new \RuntimeException("Could not specify object file '{$objectName}'!");
         }
         if (!is_file($objectFile)) {
-            throw new \RuntimeException("Could not found object file '{$objectFile}'!");
+            throw new \RuntimeException("Could not find object file '{$objectFile}'!");
         }
 
         require($objectFile);
@@ -148,27 +149,27 @@ final class Autoload
     {
         // user service & model objects
         if (0 === strpos($objectName, self::NAMESPACE_APP_SERVICE)) {
-            // model object
-            if (preg_match('~Service\\\(\w+)Model$~i', $objectName, $match)) {
-                $objectBase = ucfirst($match[1] .'Service');
-                if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
-                    $objectFile = sprintf('%s/app/service/default/%s/model/model.php',
-                        $this->appDir, $objectBase);
-                } else {
-                    $objectFile = sprintf('%s/app/service/%s/model/model.php',
-                        $this->appDir, $objectBase);
-                }
+            $objectBase = $this->getObjectBase($objectName);
+            if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
+                $objectFile = sprintf('%s/app/service/default/%s/%s.php',
+                    $this->appDir, $objectBase, $objectBase);
+            } else {
+                $objectFile = sprintf('%s/app/service/%s/%s.php',
+                    $this->appDir, $objectBase, $objectBase);
             }
-            // service object
-            else {
-                $objectBase = $this->getObjectBase($objectName);
-                if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
-                    $objectFile = sprintf('%s/app/service/default/%s/%s.php',
-                        $this->appDir, $objectBase, $objectBase);
-                } else {
-                    $objectFile = sprintf('%s/app/service/%s/%s.php',
-                        $this->appDir, $objectBase, $objectBase);
-                }
+
+            return $this->fixSlashes($objectFile);
+        }
+
+        // user model objects
+        if (0 === strpos($objectName, self::NAMESPACE_APP_DATABASE)) {
+            $objectBase = $this->getObjectBase(substr($objectName, 0, -5 /* strlen('Model') */) . 'Service');
+            if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
+                $objectFile = sprintf('%s/app/service/default/%s/model/model.php',
+                    $this->appDir, $objectBase);
+            } else {
+                $objectFile = sprintf('%s/app/service/%s/model/model.php',
+                    $this->appDir, $objectBase);
             }
 
             return $this->fixSlashes($objectFile);
@@ -198,7 +199,7 @@ final class Autoload
             return $end;
         }
 
-        // eg: Froq\App\Library\Entity\UserEntity => ./app/library/entity/UserEntity
+        // eg: Froq\App\Library\Entity\UserEntity => app/library/entity/UserEntity
         $path = strtolower(join('\\', array_slice($tmp, 3)));
 
         return $path .'\\'. $end;
@@ -211,7 +212,7 @@ final class Autoload
      */
     public function fixSlashes($path): string
     {
-        return preg_replace(['~\\\~', '~/+~'], '/', $path);
+        return str_replace('\\', '/', $path);
     }
 }
 
