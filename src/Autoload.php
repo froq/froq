@@ -147,7 +147,7 @@ final class Autoload
      */
     public function getObjectFile(string $objectName): ?string
     {
-        // user service & model objects
+        // user service objects
         if (0 === strpos($objectName, self::NAMESPACE_APP_SERVICE)) {
             $objectBase = $this->getObjectBase($objectName);
             if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
