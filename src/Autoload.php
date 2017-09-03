@@ -162,7 +162,7 @@ final class Autoload
         }
 
         // user model objects
-        if (0 === strpos($objectName, self::NAMESPACE_APP_DATABASE)) {
+        if (0 === strpos($objectName, self::NAMESPACE_APP_DATABASE) && 'Model' === substr($objectName, -5)) {
             $objectBase = $this->getObjectBase(substr($objectName, 0, -5 /* strlen('Model') */) . 'Service');
             if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
                 $objectFile = sprintf('%s/app/service/default/%s/model/model.php',
