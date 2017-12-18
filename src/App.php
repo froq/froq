@@ -208,7 +208,7 @@ final class App
 
     /**
      * Service.
-     * @return Froq\Service\Service
+     * @return ?Froq\Service\Service
      */
     public function service(): ?Service
     {
@@ -265,7 +265,7 @@ final class App
         // security & performans checks
         $halt = $this->haltCheck();
         if ($halt != null) {
-            $this->halt($halt);
+            $this->halt($halt[1], $halt[0]);
         }
 
         $this->applyDefaults();
@@ -464,23 +464,33 @@ final class App
     /**
      * Halt.
      * @param  string $status
+     * @param  string $reason
      * @return void
      */
-    private function halt(string $status): void
+    private function halt(string $status, string $reason): void
     {
         header(sprintf('%s %s', Http::detectVersion(), $status));
         header('Connection: close');
         header('Content-Type: none');
         header('Content-Length: 0');
+
+        header($error = ('X-Halt: true, reason='. $reason));
+        try {
+            throw new AppException($error);
+        } catch (AppException $e) {
+            $this->logger->logFail($e);
+        }
+
         header_remove('X-Powered-By');
-        exit(1);
+
+        exit(1); // boom!
     }
 
     /**
      * Halt check (for safety & security).
-     * @return ?string
+     * @return ?array
      */
-    private function haltCheck(): ?string
+    private function haltCheck(): ?array
     {
         // built-in http server
         if (PHP_SAPI == 'cli-server') {
@@ -490,7 +500,7 @@ final class App
         // check if client host is allowed
         $hosts = $this->config['app.hosts'];
         if ($hosts && (empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
-            return '400 Bad Request';
+            return ['hosts', '400 Bad Request'];
         }
 
         @ ['maxRequest' => $maxRequest,
@@ -499,26 +509,26 @@ final class App
 
         // check request count
         if ($maxRequest && count($_REQUEST) > $maxRequest) {
-            return '429 Too Many Requests';
+            return ['maxRequest', '429 Too Many Requests'];
         }
 
         // check user agent
         if ($allowEmptyUserAgent === false
             && (empty($_SERVER['HTTP_USER_AGENT']) || trim($_SERVER['HTTP_USER_AGENT']) == '')) {
-            return '400 Bad Request';
+            return ['allowEmptyUserAgent', '400 Bad Request'];
         }
 
         // check file extension
         if ($allowFileExtensionSniff === false
             && preg_match('~\.(?:p[hyl]p?|rb|cgi|cf[mc]|p(?:pl|lx|erl)|aspx?)$~i',
                 (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
-            return '400 Bad Request';
+            return ['allowFileExtensionSniff', '400 Bad Request'];
         }
 
         // check service load
         $loadAvg = $this->config['app.loadAvg'];
         if ($loadAvg && sys_getloadavg()[0] > $loadAvg) {
-            return '503 Service Unavailable';
+            return ['loadAvg', '503 Service Unavailable'];
         }
 
         return null;
