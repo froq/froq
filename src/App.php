@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Froq;
 
-use Froq\Util\Traits\SingleTrait;
+use Froq\Util\{Util, Traits\SingleTrait};
 use Froq\Event\Events;
 use Froq\Config\Config;
 use Froq\Logger\Logger;
@@ -474,13 +474,14 @@ final class App
         header('Content-Type: none');
         header('Content-Length: 0');
 
-        header($error = ('X-Halt: true, reason='. $reason));
+        $xHaltMessage = sprintf('X-Halt: true, Reason=%s, Ip=%s', $reason, Util::getClientIp());
         try {
-            throw new AppException($error);
+            throw new AppException($xHaltMessage);
         } catch (AppException $e) {
             $this->logger->logFail($e);
         }
 
+        header($xHaltMessage);
         header_remove('X-Powered-By');
 
         exit(1); // boom!
