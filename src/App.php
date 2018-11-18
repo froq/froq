@@ -475,14 +475,11 @@ final class App
         header('Content-Length: 0');
 
         $xHaltMessage = sprintf('X-Halt: true, Reason=%s, Ip=%s', $reason, Util::getClientIp());
-        try {
-            throw new AppException($xHaltMessage);
-        } catch (AppException $e) {
-            $this->logger->logFail($e);
-        }
 
         header($xHaltMessage);
         header_remove('X-Powered-By');
+
+        $this->logger->logFail(new AppException($xHaltMessage));
 
         exit(1); // boom!
     }
