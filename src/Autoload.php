@@ -60,11 +60,12 @@ final class Autoload
 
     /**
      * Constructor.
+     * @throws \RuntimeException
      */
     private function __construct()
     {
         if (!defined('APP_DIR')) {
-            throw new RuntimeException('APP_DIR is not defined!');
+            throw new \RuntimeException('APP_DIR is not defined!');
         }
 
         $this->appDir = APP_DIR;
