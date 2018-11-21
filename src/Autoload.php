@@ -122,7 +122,7 @@ final class Autoload
      * @return void
      * @throws \RuntimeException
      */
-    public function load($objectName): void
+    public function load(string $objectName): void
     {
         // only Froq! stuff
         if (0 !== strpos($objectName, self::NAMESPACE)) {
