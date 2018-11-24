@@ -26,8 +26,7 @@ function set_global(string $key, $value)
  */
 function get_global(string $key, $valueDefault = null)
 {
-    return isset($GLOBALS['@'][$key])
-        ? $GLOBALS['@'][$key] : $valueDefault;
+    return $GLOBALS['@'][$key] ?? $valueDefault;
 }
 
 /**
