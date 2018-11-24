@@ -78,23 +78,29 @@ function _trim($var, $chrs = " \t\n\r\0\x0B"): string
 
 /**
  * We missed you so much baby..
- * @param  string   $delim
+ * @param  string   $delimiter
  * @param  string   $input
- * @param  int      $limit
+ * @param  int|bool $limit
  * @param  int|bool $flags
  * @return array
  */
-function split(string $delim, string $input, int $limit = null, $flags = 0): array
+function split(string $delimiter, string $input, $limit = null, $flags = 0): array
 {
+    // swap args
+    if ($limit === true) {
+        $flags = true;
+        $limit = null;
+    }
+
     // regexp: only ~...~ patterns accepted
-    if ($delim[0] == '~' && strlen($delim) > 1) {
-        $return = preg_split($delim, $input, $limit ?? -1,
-            // true means no-empty
-            ($flags !== true) ? $flags : PREG_SPLIT_NO_EMPTY);
+    if ($delimiter[0] == '~' && strlen($delimiter) > 1) {
+        $return = (array) preg_split($delimiter, $input, $limit ?? -1,
+            // true=no empty
+            ($flags === true) ? PREG_SPLIT_NO_EMPTY : $flags);
     } else {
-        $return = explode($delim, $input, $limit ?? PHP_INT_MAX);
-        if ($flags) { // no empty
-            $return = array_filter($return);
+        $return = (array) explode($delimiter, $input, $limit ?? PHP_INT_MAX);
+        if ($flags === true) { // no empty
+            $return = array_filter($return, 'strlen');
         }
     }
 
