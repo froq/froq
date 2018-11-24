@@ -3,7 +3,7 @@
     "homepage": "https://github.com/froq/froq",
     "description":  "Core module for Froq!",
     "keywords": ["froq", "core"],
-    "license": "GNU General Public License v3.0",
+    "license": "MIT",
     "authors": [
         {"name": "Kerem Güneş", "email": "k-gun@mail.com"}
     ],
