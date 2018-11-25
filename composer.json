@@ -8,15 +8,15 @@
         {"name": "Kerem Güneş", "email": "k-gun@mail.com"}
     ],
     "require": {
-        "php": "^7.1",
-        "froq/froq-util": "~2.0",
-        "froq/froq-event": "~2.0",
-        "froq/froq-config": "~2.0",
-        "froq/froq-logger": "~2.0",
-        "froq/froq-database": "~2.0",
-        "froq/froq-http": "~2.0",
-        "froq/froq-service": "~2.0",
-        "froq/froq-exception": "~1.0"
+        "php": "^7.2",
+        "froq/froq-util": "~3.0",
+        "froq/froq-event": "~3.0",
+        "froq/froq-config": "~3.0",
+        "froq/froq-logger": "~3.0",
+        "froq/froq-database": "~3.0",
+        "froq/froq-http": "~3.0",
+        "froq/froq-service": "~3.0",
+        "froq/froq-exception": "~3.0"
     },
     "autoload": {
         "classmap": ["src/"]
