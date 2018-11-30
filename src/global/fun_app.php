@@ -1,7 +1,7 @@
 <?php
-/********************************
- * Global app functions module. *
- ********************************/
+/*************************
+ * Global app functions. *
+ *************************/
 
 /**
  * Shortcut for global app address.

@@ -1,8 +1,8 @@
 <?php
 /**
- * Copyright (c) 2015 Kerem Güneş
- *
  * MIT License <https://opensource.org/licenses/mit>
+ *
+ * Copyright (c) 2015 Kerem Güneş
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,9 +51,9 @@ final class App
      * App envs.
      * @const string
      */
-    public const ENV_DEV          = 'dev',
-                 ENV_STAGE        = 'stage',
-                 ENV_PRODUCTION   = 'production';
+    public const ENV_DEV        = 'dev',
+                 ENV_STAGE      = 'stage',
+                 ENV_PRODUCTION = 'production';
 
     /**
      * App env.
@@ -111,7 +111,8 @@ final class App
 
     /**
      * Constructor.
-     * @param array $config
+     * @param  array $config
+     * @throws Froq\AppException
      */
     private function __construct(array $config)
     {
@@ -249,6 +250,7 @@ final class App
      * Run.
      * @param  array options
      * @return void
+     * @throws Froq\AppException
      */
     public function run(array $options): void
     {
@@ -412,6 +414,7 @@ final class App
      * @param  string $call
      * @param  array  $arguments
      * @return any
+     * @throws Froq\AppException
      */
     public function callServiceMethod(string $call, array $arguments = [])
     {

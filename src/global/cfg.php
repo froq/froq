@@ -1,7 +1,7 @@
 <?php
-/*******************************
- * Default configuration file. *
- *******************************/
+/***************************
+ * Default configurations. *
+ ***************************/
 
 // keep globals clean..
 return (function() {
