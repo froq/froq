@@ -16,7 +16,7 @@
         "froq/froq-database": "~3.0",
         "froq/froq-http": "~3.0",
         "froq/froq-service": "~3.0",
-        "froq/froq-exception": "~3.0"
+        "froq/froq-exception": "~1.0"
     },
     "autoload": {
         "classmap": ["src/"]
