@@ -3,8 +3,13 @@
  * Global functions. *
  *********************/
 
-if (!isset($GLOBALS['@'])) {
-    $GLOBALS['@'] = [];
+/**
+ * Set Froq! global key, and init sub-array.
+ */
+define('__FROQ', '__froq');
+
+if (!isset($GLOBALS[__FROQ])) {
+    $GLOBALS[__FROQ] = [];
 }
 
 /**
@@ -15,7 +20,7 @@ if (!isset($GLOBALS['@'])) {
  */
 function set_global(string $key, $value)
 {
-    $GLOBALS['@'][$key] = $value;
+    $GLOBALS[__FROQ][$key] = $value;
 }
 
 /**
@@ -26,7 +31,7 @@ function set_global(string $key, $value)
  */
 function get_global(string $key, $valueDefault = null)
 {
-    return $GLOBALS['@'][$key] ?? $valueDefault;
+    return $GLOBALS[__FROQ][$key] ?? $valueDefault;
 }
 
 /**
@@ -66,13 +71,13 @@ function if_empty($a, $b)
  * Some tricky functions.
  */
 // nö!
-function _isset($var): bool { return isset($var); }
-function _empty($var): bool { return empty($var); }
+function _isset($var) { return isset($var); }
+function _empty($var) { return empty($var); }
 
 // safe trim for strict mode
-function _trim($var, $chrs = " \t\n\r\0\x0B"): string
+function _trim($var, $chars = " \t\n\r\0\x0B")
 {
-    return trim((string) $var, $chrs);
+    return (string) trim((string) $var, (string) $chars);
 }
 
 /**
@@ -83,7 +88,7 @@ function _trim($var, $chrs = " \t\n\r\0\x0B"): string
  * @param  int|bool $flags
  * @return array
  */
-function split(string $delimiter, string $input, $limit = null, $flags = 0): array
+function split(string $delimiter, string $input, $limit = null, $flags = 0)
 {
     // swap args
     if ($limit === true) {
@@ -122,7 +127,7 @@ function _prp($s) {
     } elseif (is_bool($s)) {
         $p = $s ? 'TRUE' : 'FALSE';
     } else {
-        $p = preg_replace('~\[(.+):(.+):(private|protected)\]~', '[\\1:\\3]', print_r($s, 1));
+        $p = preg_replace('~\[(.+):(.+):(private|protected)\]~', '[\1:\3]', print_r($s, true));
     }
     return $p;
 }
@@ -142,4 +147,4 @@ function prd($s, $e=false) {
 /**
  * Load app functions.
  */
-require_once(__dir__ .'/fun_app.php');
+require_once __dir__ .'/fun_app.php';

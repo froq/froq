@@ -16,7 +16,7 @@ function app()
  * App dir.
  * @return string
  */
-function app_dir(): string
+function app_dir()
 {
     return APP_DIR;
 }
@@ -25,7 +25,7 @@ function app_dir(): string
  * App load time.
  * @return string
  */
-function app_load_time(): string
+function app_load_time()
 {
-    return sprintf('%.3f', (microtime(true) - APP_START_TIME));
+    return sprintf('%.3f', microtime(true) - APP_START_TIME);
 }
