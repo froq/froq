@@ -27,5 +27,5 @@ function app_dir()
  */
 function app_load_time()
 {
-    return sprintf('%.3f', microtime(true) - APP_START_TIME);
+    return substr(strval(microtime(true) - APP_START_TIME), 0, 5);
 }
