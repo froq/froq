@@ -42,7 +42,10 @@ return function() {
             $this->logger()->logFail($error);
 
             // handle response properly
-            $this->response()->setStatus(500)->send();
+            $response = $this->response();
+            if ($response != null) {
+                $response->setStatus(500)->send();
+            }
         }
 
         // reset error display option (@see exception handler)
