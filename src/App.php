@@ -116,11 +116,13 @@ final class App
      */
     private function __construct(array $config)
     {
+        // @see skeleton/pub/index.php
         if (!defined('APP_DIR')) {
             throw new AppException('Application directory is not defined!');
         }
 
         $this->logger = new Logger();
+        $this->events = new Events();
 
         // set default config first
         $this->applyConfig($config);
@@ -128,21 +130,20 @@ final class App
         // set app as global (@see app() function)
         set_global('app', $this);
 
-        // load core app globals
-        if (is_file($file = APP_DIR .'/app/global/def.php')) {
-            include($file);
+        // load core app globals if exists
+        if (file_exists($file = APP_DIR .'/app/global/def.php')) {
+            include $file;
         }
-        if (is_file($file = APP_DIR .'/app/global/fun.php')) {
-            include($file);
+        if (file_exists($file = APP_DIR .'/app/global/fun.php')) {
+            include $file;
         }
 
         // set handlers
-        set_error_handler(require(__dir__ .'/handler/error.php'));
-        set_exception_handler(require(__dir__ .'/handler/exception.php'));
-        register_shutdown_function(require(__dir__ .'/handler/shutdown.php'));
+        set_error_handler(require __dir__ .'/handler/error.php');
+        set_exception_handler(require __dir__ .'/handler/exception.php');
+        register_shutdown_function(require __dir__ .'/handler/shutdown.php');
 
         $this->db = new Database($this);
-        $this->events = new Events();
     }
 
     /**
@@ -278,7 +279,7 @@ final class App
         $this->request = new Request($this);
         $this->response = new Response($this);
 
-        // @overwrite
+        // @override
         set_global('app', $this);
 
         $this->startOutputBuffer();
@@ -301,19 +302,19 @@ final class App
      * Start output buffer.
      * @return void
      */
-    public function startOutputBuffer(): void
+    private function startOutputBuffer(): void
     {
         ini_set('implicit_flush', 'Off');
 
         $gzipOptions = $this->config->get('app.gzip');
-        if ($gzipOptions) {
+        if ($gzipOptions != null) {
             if (!headers_sent()) {
                 ini_set('zlib.output_compression', 'Off');
             }
 
             // detect client gzip status
             $acceptEncoding = $this->request->getHeader('Accept-Encoding');
-            if ($acceptEncoding && strpos($acceptEncoding, 'gzip') !== false) {
+            if ($acceptEncoding != null && strpos($acceptEncoding, 'gzip') !== false) {
                 $this->response->setGzipOptions($gzipOptions);
             }
         }
@@ -326,7 +327,7 @@ final class App
      * @param  any $output
      * @return void
      */
-    public function endOutputBuffer($output = null): void
+    private function endOutputBuffer($output = null): void
     {
         // handle redirections
         $statusCode = $this->response->status()->getCode();
@@ -361,52 +362,49 @@ final class App
     /**
      * Apply config.
      * @param  array $config
-     * @return self
+     * @return void
      */
-    public function applyConfig(array $config): self
+    private function applyConfig(array $config): void
     {
-        // overwrite
-        if ($this->config) {
+        // override
+        if (!empty($this->config)) {
             $config = Config::merge($config, $this->config->getData());
         }
         $this->config = new Config($config);
 
         // set/reset log options
-        if ($logOptions = $this->config['app.logger']) {
+        $logOptions = $this->config->get('app.logger');
+        if ($logOptions != null) {
             isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
             isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
         }
-
-        return $this;
     }
 
     /**
      * Apply defaults.
-     * @return self
+     * @return void
      */
-    public function applyDefaults(): self
+    private function applyDefaults(): void
     {
-        $locale = $this->config->get('app.locale');
-        $encoding = $this->config->get('app.encoding');
         $timezone = $this->config->get('app.timezone');
-
-        if ($timezone) {
+        if ($timezone != null) {
             date_default_timezone_set($timezone);
         }
 
-        if ($encoding) {
+        $encoding = $this->config->get('app.encoding');
+        if ($encoding != null) {
             ini_set('default_charset', $encoding);
-            if ($locale) {
-                $locale = sprintf('%s.%s', $locale, $encoding);
+            mb_internal_encoding($encoding);
+
+            $locale = $this->config->get('app.locale');
+            if ($locale != null) {
+                $locale = $locale .'.'. $encoding;
                 setlocale(LC_TIME, $locale);
                 setlocale(LC_NUMERIC, $locale);
                 setlocale(LC_MONETARY, $locale);
                 setlocale(LC_COLLATE, $locale);
             }
-            mb_internal_encoding($encoding);
         }
-
-        return $this;
     }
 
     /**
@@ -462,9 +460,9 @@ final class App
      */
     public function loadTime(): array
     {
-        $start = APP_START_TIME; $end = microtime(true);
+        $start = APP_START_TIME; $end = microtime(true); $total = ($end - $start);
 
-        return ['start' => $start, 'end' => $end, 'total' => ($end - $start)];
+        return ['start' => $start, 'end' => $end, 'total' => $total, 's' => substr(strval($total), 0, 5)];
     }
 
     /**
@@ -502,36 +500,37 @@ final class App
         }
 
         // check if client host is allowed
-        $hosts = $this->config['app.hosts'];
-        if ($hosts && (empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
+        $hosts = $this->config->get('app.hosts');
+        if ($hosts != null && (
+            empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
             return ['hosts', '400 Bad Request'];
         }
 
         @ ['maxRequest' => $maxRequest,
            'allowEmptyUserAgent' => $allowEmptyUserAgent,
-           'allowFileExtensionSniff' => $allowFileExtensionSniff] = $this->config['app.security'];
+           'allowFileExtensionSniff' => $allowFileExtensionSniff] = $this->config->get('app.security');
 
         // check request count
-        if ($maxRequest && count($_REQUEST) > $maxRequest) {
+        if ($maxRequest != null && count($_REQUEST) > $maxRequest) {
             return ['maxRequest', '429 Too Many Requests'];
         }
 
         // check user agent
-        if ($allowEmptyUserAgent === false
-            && (empty($_SERVER['HTTP_USER_AGENT']) || trim($_SERVER['HTTP_USER_AGENT']) == '')) {
+        if ($allowEmptyUserAgent === false && (
+            empty($_SERVER['HTTP_USER_AGENT']) || trim($_SERVER['HTTP_USER_AGENT']) == '')) {
             return ['allowEmptyUserAgent', '400 Bad Request'];
         }
 
         // check file extension
-        if ($allowFileExtensionSniff === false
-            && preg_match('~\.(?:p[hyl]p?|rb|cgi|cf[mc]|p(?:pl|lx|erl)|aspx?)$~i',
+        if ($allowFileExtensionSniff === false &&
+            preg_match('~\.(?:p[hyl]p?|rb|cgi|cf[mc]|p(?:pl|lx|erl)|aspx?)$~i',
                 (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
             return ['allowFileExtensionSniff', '400 Bad Request'];
         }
 
         // check service load
-        $loadAvg = $this->config['app.loadAvg'];
-        if ($loadAvg && sys_getloadavg()[0] > $loadAvg) {
+        $loadAvg = $this->config->get('app.loadAvg');
+        if ($loadAvg != null && sys_getloadavg()[0] > $loadAvg) {
             return ['loadAvg', '503 Service Unavailable'];
         }
 
