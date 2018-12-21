@@ -137,7 +137,7 @@ final class Autoload
         if ($objectFile == null) {
             throw new \RuntimeException("Could not specify object file '{$objectName}'!");
         }
-        if (!is_file($objectFile)) {
+        if (!file_exists($objectFile)) {
             throw new \RuntimeException("Could not find object file '{$objectFile}'!");
         }
 
