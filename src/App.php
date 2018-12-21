@@ -255,12 +255,12 @@ final class App
      */
     public function run(array $options): void
     {
-        // apply user options (pub/index.php)
+        // apply user options (@see skeleton/pub/index.php)
         if (isset($options['env'])) $this->env = $options['env'];
         if (isset($options['root'])) $this->root = $options['root'];
         if (isset($options['config'])) $this->applyConfig($options['config']);
 
-        // keep globals clean..
+        // keep globals clean.. (@see skeleton/pub/index.php)
         unset($GLOBALS['app'], $GLOBALS['appEnv'], $GLOBALS['appRoot'], $GLOBALS['appConfig']);
 
         // check env
@@ -296,6 +296,112 @@ final class App
         $this->events->fire('service.afterRun');
 
         $this->endOutputBuffer($output);
+    }
+
+    /**
+     * Is dev.
+     * @return bool
+     */
+    public function isDev(): bool
+    {
+        return $this->env == self::ENV_DEV;
+    }
+
+    /**
+     * Is stage.
+     * @return bool
+     */
+    public function isStage(): bool
+    {
+        return $this->env == self::ENV_STAGE;
+    }
+
+    /**
+     * Is production.
+     * @return bool
+     */
+    public function isProduction(): bool
+    {
+        return $this->env == self::ENV_PRODUCTION;
+    }
+
+    /**
+     * Load time.
+     * @return array
+     */
+    public function loadTime(): array
+    {
+        $start = APP_START_TIME; $end = microtime(true); $total = ($end - $start);
+
+        return ['start' => $start, 'end' => $end, 'total' => $total, 's' => substr(strval($total), 0, 5)];
+    }
+
+    /**
+     * Call service method (for internal service method calls).
+     * @param  string $call
+     * @param  array  $arguments
+     * @return any
+     * @throws Froq\AppException
+     */
+    public function callServiceMethod(string $call, array $arguments = [])
+    {
+        @ [$className, $classMethod] = explode('::', $call);
+        if (!isset($className, $classMethod)) {
+            throw new AppException('Both service class & method are required!');
+        }
+
+        $className = Service::NAMESPACE . $className;
+
+        // return service method call
+        return call_user_func_array([new $className($this), $classMethod], $arguments);
+    }
+
+    /**
+     * Apply config.
+     * @param  array $config
+     * @return void
+     */
+    private function applyConfig(array $config): void
+    {
+        // override
+        if (!empty($this->config)) {
+            $config = Config::merge($config, $this->config->getData());
+        }
+        $this->config = new Config($config);
+
+        // set/reset log options
+        $logOptions = $this->config->get('app.logger');
+        if ($logOptions != null) {
+            isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
+            isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
+        }
+    }
+
+    /**
+     * Apply defaults.
+     * @return void
+     */
+    private function applyDefaults(): void
+    {
+        $timezone = $this->config->get('app.timezone');
+        if ($timezone != null) {
+            date_default_timezone_set($timezone);
+        }
+
+        $encoding = $this->config->get('app.encoding');
+        if ($encoding != null) {
+            ini_set('default_charset', $encoding);
+            mb_internal_encoding($encoding);
+
+            $locale = $this->config->get('app.locale');
+            if ($locale != null) {
+                $locale = $locale .'.'. $encoding;
+                setlocale(LC_TIME, $locale);
+                setlocale(LC_NUMERIC, $locale);
+                setlocale(LC_MONETARY, $locale);
+                setlocale(LC_COLLATE, $locale);
+            }
+        }
     }
 
     /**
@@ -357,112 +463,6 @@ final class App
         }
 
         $this->response->end();
-    }
-
-    /**
-     * Apply config.
-     * @param  array $config
-     * @return void
-     */
-    private function applyConfig(array $config): void
-    {
-        // override
-        if (!empty($this->config)) {
-            $config = Config::merge($config, $this->config->getData());
-        }
-        $this->config = new Config($config);
-
-        // set/reset log options
-        $logOptions = $this->config->get('app.logger');
-        if ($logOptions != null) {
-            isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
-            isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
-        }
-    }
-
-    /**
-     * Apply defaults.
-     * @return void
-     */
-    private function applyDefaults(): void
-    {
-        $timezone = $this->config->get('app.timezone');
-        if ($timezone != null) {
-            date_default_timezone_set($timezone);
-        }
-
-        $encoding = $this->config->get('app.encoding');
-        if ($encoding != null) {
-            ini_set('default_charset', $encoding);
-            mb_internal_encoding($encoding);
-
-            $locale = $this->config->get('app.locale');
-            if ($locale != null) {
-                $locale = $locale .'.'. $encoding;
-                setlocale(LC_TIME, $locale);
-                setlocale(LC_NUMERIC, $locale);
-                setlocale(LC_MONETARY, $locale);
-                setlocale(LC_COLLATE, $locale);
-            }
-        }
-    }
-
-    /**
-     * Call service method (for internal service method calls).
-     * @param  string $call
-     * @param  array  $arguments
-     * @return any
-     * @throws Froq\AppException
-     */
-    public function callServiceMethod(string $call, array $arguments = [])
-    {
-        @ [$className, $classMethod] = explode('::', $call);
-        if (!isset($className, $classMethod)) {
-            throw new AppException('Both service class & method are required!');
-        }
-
-        $className = Service::NAMESPACE . $className;
-
-        // return service method call
-        return call_user_func_array([new $className($this), $classMethod], $arguments);
-    }
-
-    /**
-     * Is dev.
-     * @return bool
-     */
-    public function isDev(): bool
-    {
-        return ($this->env == self::ENV_DEV);
-    }
-
-    /**
-     * Is stage.
-     * @return bool
-     */
-    public function isStage(): bool
-    {
-        return ($this->env == self::ENV_STAGE);
-    }
-
-    /**
-     * Is production.
-     * @return bool
-     */
-    public function isProduction(): bool
-    {
-        return ($this->env == self::ENV_PRODUCTION);
-    }
-
-    /**
-     * Load time.
-     * @return array
-     */
-    public function loadTime(): array
-    {
-        $start = APP_START_TIME; $end = microtime(true); $total = ($end - $start);
-
-        return ['start' => $start, 'end' => $end, 'total' => $total, 's' => substr(strval($total), 0, 5)];
     }
 
     /**
