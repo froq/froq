@@ -304,7 +304,7 @@ final class App
      */
     public function isDev(): bool
     {
-        return $this->env == self::ENV_DEV;
+        return $this->env === self::ENV_DEV;
     }
 
     /**
@@ -313,7 +313,7 @@ final class App
      */
     public function isStage(): bool
     {
-        return $this->env == self::ENV_STAGE;
+        return $this->env === self::ENV_STAGE;
     }
 
     /**
@@ -322,7 +322,7 @@ final class App
      */
     public function isProduction(): bool
     {
-        return $this->env == self::ENV_PRODUCTION;
+        return $this->env === self::ENV_PRODUCTION;
     }
 
     /**
