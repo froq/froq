@@ -25,15 +25,15 @@ return (function() {
     $cfg['app.encoding']  = 'UTF-8';
     $cfg['app.locale']    = 'en_US';
     $cfg['app.locales']   = ['en_US' => 'English'];
-    // app load time (true = all, 1 = dev, 2 = stage, 3 = production, false = none)
-    $cfg['app.exposeAppLoadTime'] = true;
+    // app load time
+    $cfg['app.exposeAppLoadTime'] = true; // true, false, 'dev', 'stage', 'production'
     // initial headers
     $cfg['app.headers'] = [];
     $cfg['app.headers']['Expires'] = 'Thu, 19 Nov 1981 08:10:00 GMT';
     $cfg['app.headers']['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, pre-check=0, post-check=0';
     $cfg['app.headers']['Pragma'] = 'no-cache';
     $cfg['app.headers']['Connection'] = 'close';
-    $cfg['app.headers']['X-Powered-By'] = null; // remove
+    $cfg['app.headers']['X-Powered-By'] = null; // null = remove
     // security (https://www.owasp.org/index.php/List_of_useful_HTTP_headers)
     $cfg['app.headers']['X-Frame-Options'] = 'SAMEORIGIN';
     $cfg['app.headers']['X-XSS-Protection'] = '1; mode=block';
