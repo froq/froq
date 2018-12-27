@@ -304,7 +304,7 @@ final class App
      */
     public function isDev(): bool
     {
-        return $this->env === self::ENV_DEV;
+        return $this->env == self::ENV_DEV;
     }
 
     /**
@@ -313,7 +313,7 @@ final class App
      */
     public function isStage(): bool
     {
-        return $this->env === self::ENV_STAGE;
+        return $this->env == self::ENV_STAGE;
     }
 
     /**
@@ -322,7 +322,7 @@ final class App
      */
     public function isProduction(): bool
     {
-        return $this->env === self::ENV_PRODUCTION;
+        return $this->env == self::ENV_PRODUCTION;
     }
 
     /**
@@ -411,19 +411,6 @@ final class App
     private function startOutputBuffer(): void
     {
         ini_set('implicit_flush', 'Off');
-
-        $gzipOptions = $this->config->get('app.gzip');
-        if ($gzipOptions != null) {
-            if (!headers_sent()) {
-                ini_set('zlib.output_compression', 'Off');
-            }
-
-            // detect client gzip status
-            $acceptEncoding = $this->request->getHeader('Accept-Encoding');
-            if ($acceptEncoding != null && strpos($acceptEncoding, 'gzip') !== false) {
-                $this->response->setGzipOptions($gzipOptions);
-            }
-        }
 
         ob_start();
     }
