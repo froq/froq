@@ -370,7 +370,7 @@ final class App
         $this->config = new Config($config);
 
         // set/reset log options
-        $logOptions = $this->config->get('app.logger');
+        $logOptions = $this->config->get('logger');
         if ($logOptions != null) {
             isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
             isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
@@ -383,17 +383,17 @@ final class App
      */
     private function applyDefaults(): void
     {
-        $timezone = $this->config->get('app.timezone');
+        $timezone = $this->config->get('timezone');
         if ($timezone != null) {
             date_default_timezone_set($timezone);
         }
 
-        $encoding = $this->config->get('app.encoding');
+        $encoding = $this->config->get('encoding');
         if ($encoding != null) {
             ini_set('default_charset', $encoding);
             mb_internal_encoding($encoding);
 
-            $locale = $this->config->get('app.locale');
+            $locale = $this->config->get('locale');
             if ($locale != null) {
                 $locale = $locale .'.'. $encoding;
                 setlocale(LC_TIME, $locale);
@@ -487,7 +487,7 @@ final class App
         }
 
         // check if client host is allowed
-        $hosts = $this->config->get('app.hosts');
+        $hosts = $this->config->get('hosts');
         if ($hosts != null && (
             empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
             return ['hosts', '400 Bad Request'];
@@ -495,7 +495,7 @@ final class App
 
         @ ['maxRequest' => $maxRequest,
            'allowEmptyUserAgent' => $allowEmptyUserAgent,
-           'allowFileExtensionSniff' => $allowFileExtensionSniff] = $this->config->get('app.security');
+           'allowFileExtensionSniff' => $allowFileExtensionSniff] = $this->config->get('security');
 
         // check request count
         if ($maxRequest != null && count($_REQUEST) > $maxRequest) {
@@ -516,7 +516,7 @@ final class App
         }
 
         // check service load
-        $loadAvg = $this->config->get('app.loadAvg');
+        $loadAvg = $this->config->get('loadAvg');
         if ($loadAvg != null && sys_getloadavg()[0] > $loadAvg) {
             return ['loadAvg', '503 Service Unavailable'];
         }
