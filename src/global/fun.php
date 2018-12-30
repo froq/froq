@@ -13,25 +13,35 @@ if (!isset($GLOBALS[__FROQ])) {
 }
 
 /**
- * Global setter.
+ * Set global.
  * @param  string $key
  * @param  any    $value
  * @return void
  */
-function set_global(string $key, $value)
+function set_global($key, $value)
 {
     $GLOBALS[__FROQ][$key] = $value;
 }
 
 /**
- * Global getter.
+ * Get global.
  * @param  string $key
  * @param  any    $valueDefault
  * @return any
  */
-function get_global(string $key, $valueDefault = null)
+function get_global($key, $valueDefault = null)
 {
     return $GLOBALS[__FROQ][$key] ?? $valueDefault;
+}
+
+/**
+ * Delete global.
+ * @param  string $key
+ * @return void
+ */
+function delete_global($key)
+{
+    unset($GLOBALS[__FROQ][$key]);
 }
 
 /**
@@ -78,6 +88,35 @@ function _empty($var) { return empty($var); }
 function _trim($var, $chars = " \t\n\r\0\x0B")
 {
     return (string) trim((string) $var, (string) $chars);
+}
+
+/**
+ * E (set/get/delete last error exception, @see error handler).
+ * @param  $e \Throwable|null|bool
+ * @return \Throwable|null
+ */
+function e($e = true)
+{
+    static $eKey = '@e';
+
+    // set
+    if ($e instanceof \Throwable) {
+        $message = $e->getMessage();
+        if (strpos($message, 'emesg')) {
+            $message = preg_replace('~.*emesg\[(.+)\].*~', '\1', $message);
+        }
+        set_global($eKey, new \Exception($message, $e->getCode(), $e->getPrevious()));
+    }
+
+    // get
+    elseif ($e === null) {
+        return get_global($eKey);
+    }
+
+    // delete
+    elseif ($e === false) {
+        delete_global($eKey);
+    }
 }
 
 /**
