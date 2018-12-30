@@ -24,8 +24,6 @@
  */
 declare(strict_types=1);
 
-use Froq\App;
-
 /**
  * Shutdown handler.
  * @return callable
@@ -33,11 +31,11 @@ use Froq\App;
 return function() {
     $error = error_get_last();
     if (isset($error['type']) && $error['type'] == E_ERROR) {
-        $error = sprintf('Shutdown! E_ERROR in %s:%s ecode[%s] emesg[%s]',
-            $error['file'], $error['line'], $error['type'], $error['message']);
+        $error = sprintf("Shutdown(E_ERROR) in %s:%s.\n%s", $error['file'], $error['line'],
+            $error['message']);
 
         // works only for App
-        if (isset($this) && $this instanceof App) {
+        if (isset($this) && $this instanceof \Froq\App) {
             // log error first
             $this->logger()->logFail($error);
 
