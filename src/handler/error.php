@@ -29,10 +29,11 @@ declare(strict_types=1);
  * @return callable
  */
 return function($ecode, $emesg, $efile, $eline) {
-    // error was suppressed with the @-operator
-    if (!$ecode || !($ecode & error_reporting())) {
-        return;
-    }
+    // @cancel 'cos error_get_last() should always work!
+    // error was suppressed with the @ operator
+    // if (!$ecode || !($ecode & error_reporting())) {
+    //     return;
+    // }
 
     $error = null;
     // check error type
@@ -68,11 +69,13 @@ return function($ecode, $emesg, $efile, $eline) {
                 $efile, $eline, $ecode, $emesg);
     }
 
-    // throw! exception handler will catch it
-    if ($error) {
-        throw new \ErrorException($error, $ecode);
+    if ($error != null) {
+        // this maybe be used anywhere e() function exists
+        e(new \ErrorException($error, $ecode));
     }
 
+    // @cancel 'cos error_get_last() should always work!
     // don't execute php internal error handler
-    return true;
+    // return true;
+    return false;
 };
