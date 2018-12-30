@@ -68,7 +68,7 @@ final class Autoload
     private function __construct()
     {
         if (!defined('APP_DIR')) {
-            throw new \RuntimeException('APP_DIR is not defined!');
+            throw new \RuntimeException('APP_DIR is not defined');
         }
 
         $this->appDir = APP_DIR;
@@ -135,10 +135,11 @@ final class Autoload
         $objectFile = $this->getObjectFile($objectName);
 
         if ($objectFile == null) {
-            throw new \RuntimeException("Could not specify object file '{$objectName}'!");
+            throw new \RuntimeException("Could not specify object file '{$objectName}'");
         }
+
         if (!file_exists($objectFile)) {
-            throw new \RuntimeException("Could not find object file '{$objectFile}'!");
+            throw new \RuntimeException("Could not find object file '{$objectFile}'");
         }
 
         require $objectFile;

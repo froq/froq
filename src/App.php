@@ -118,7 +118,7 @@ final class App
     {
         // @see skeleton/pub/index.php
         if (!defined('APP_DIR')) {
-            throw new AppException('Application directory is not defined!');
+            throw new AppException('APP_DIR is not defined');
         }
 
         $this->logger = new Logger();
@@ -265,7 +265,7 @@ final class App
 
         // check env
         if (empty($this->env)) {
-            throw new AppException('Application env is not defined!');
+            throw new AppException('Application env is not defined');
         }
 
         // security & performans checks
@@ -287,7 +287,7 @@ final class App
         // create service
         $this->service = ServiceFactory::create($this);
         if ($this->service == null) {
-            throw new AppException('Could not create service!');
+            throw new AppException('Could not create service');
         }
 
         // here!!
@@ -347,7 +347,7 @@ final class App
     {
         @ [$className, $classMethod] = explode('::', $call);
         if (!isset($className, $classMethod)) {
-            throw new AppException('Both service class & method are required!');
+            throw new AppException('Both service class & method are required');
         }
 
         $className = Service::NAMESPACE . $className;
