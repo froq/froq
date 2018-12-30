@@ -34,6 +34,6 @@ return function(\Throwable $e) {
         set_global('app.displayErrors', ini_set('display_errors', 'Off'));
     }
 
-    // this will be catched in shutdown handler
+    // this will be caught in shutdown handler
     throw $e;
 };
