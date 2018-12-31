@@ -515,8 +515,7 @@ final class App
 
         // check if client host is allowed
         $hosts = $this->config->get('hosts');
-        if ($hosts != null && (
-            empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
+        if ($hosts != null && (empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
             return ['hosts', '400 Bad Request'];
         }
 

@@ -148,9 +148,9 @@ function split(string $delimiter, string $input, $limit = null, $flags = 0)
     }
 
     // plus: prevent 'undefined index..' error
-    $size = sizeof($return);
-    if ($limit > $size) {
-        $return = array_merge($return, array_fill($size, $limit - $size, null));
+    $returnSize = sizeof($return);
+    if ($limit > $returnSize) {
+        $return = array_merge($return, array_fill($returnSize, $limit - $returnSize, null));
     }
 
     return $return;
