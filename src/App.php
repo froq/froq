@@ -156,6 +156,33 @@ final class App
     }
 
     /**
+     * Call magic.
+     * @param  string     $method
+     * @param  array|null $methodArguments
+     * @return any
+     * @throws Froq\AppException
+     * @since  3.0
+     */
+    public function __call(string $method, array $methodArguments = null)
+    {
+        // this is a getter method actually
+        if (strpos($method, 'get') !== 0) {
+            throw new AppException("Only 'get' prefixed methods accepted for __call() method");
+        }
+
+        $name = lcfirst(substr($method, 3));
+        // just an exception
+        if ($name == 'database') {
+            return $this->db;
+        }
+        if (property_exists($this, $name)) {
+            return $this->{$name};
+        }
+
+        throw new AppException("Undefined property name '{$name}' given");
+    }
+
+    /**
      * Env.
      * @return string
      */
