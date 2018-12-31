@@ -29,7 +29,7 @@ declare(strict_types=1);
  * @return callable
  */
 return function($ecode, $emesg, $efile, $eline) {
-    // @cancel 'cos error_get_last() should always work!
+    // @cancel because error_get_last() should always work!
     // error was suppressed with the @ operator
     // if (!$ecode || !($ecode & error_reporting())) {
     //     return;
@@ -74,7 +74,7 @@ return function($ecode, $emesg, $efile, $eline) {
         e(new \ErrorException($error, $ecode));
     }
 
-    // @cancel 'cos error_get_last() should always work!
+    // @cancel because error_get_last() should always work!
     // don't execute php internal error handler
     // return true;
     return false;
