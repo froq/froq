@@ -309,13 +309,13 @@ final class App
         // @override
         set_global('app', $this);
 
-        $this->startOutputBuffer();
-
         // create service
         $this->service = ServiceFactory::create($this);
         if ($this->service == null) {
             throw new AppException('Could not create service');
         }
+
+        $this->startOutputBuffer();
 
         // here!!
         $this->events->fire('service.beforeRun');
@@ -437,9 +437,9 @@ final class App
      */
     private function startOutputBuffer(): void
     {
-        ini_set('implicit_flush', 'Off');
-
         ob_start();
+        ob_implicit_flush(0);
+        ini_set('implicit_flush', 'Off');
     }
 
     /**
@@ -513,9 +513,10 @@ final class App
             return null;
         }
 
-        // check if client host is allowed
+        // check client host
         $hosts = $this->config->get('hosts');
-        if ($hosts != null && (empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
+        if ($hosts != null && (empty($_SERVER['HTTP_HOST']) ||
+            !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
             return ['hosts', '400 Bad Request'];
         }
 
@@ -529,8 +530,8 @@ final class App
         }
 
         // check user agent
-        if ($allowEmptyUserAgent === false && (
-            empty($_SERVER['HTTP_USER_AGENT']) || trim($_SERVER['HTTP_USER_AGENT']) == '')) {
+        if ($allowEmptyUserAgent === false && (empty($_SERVER['HTTP_USER_AGENT']) ||
+            trim($_SERVER['HTTP_USER_AGENT']) == '')) {
             return ['allowEmptyUserAgent', '400 Bad Request'];
         }
 
