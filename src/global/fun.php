@@ -38,6 +38,7 @@ function get_global($key, $valueDefault = null)
  * Delete global.
  * @param  string $key
  * @return void
+ * @since  3.0
  */
 function delete_global($key)
 {
@@ -95,6 +96,7 @@ function _trim($var, $chars = " \t\n\r\0\x0B")
  * @param  \Throwable|null $e
  * @param             bool $delete
  * @return \Throwable|null
+ * @since  3.0
  */
 function e($e = true, $delete = true)
 {
