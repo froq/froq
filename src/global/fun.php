@@ -91,11 +91,12 @@ function _trim($var, $chars = " \t\n\r\0\x0B")
 }
 
 /**
- * E (set/get/delete last error exception, @see error handler).
- * @param  $e \Throwable|null|bool
+ * E (set/get last error exception, @see error handler).
+ * @param  \Throwable|null $e
+ * @param             bool $delete
  * @return \Throwable|null
  */
-function e($e = true)
+function e($e = true, $delete = true)
 {
     static $eKey = '@e';
 
@@ -114,7 +115,7 @@ function e($e = true)
     }
 
     // delete
-    elseif ($e === false) {
+    if ($delete) {
         delete_global($eKey);
     }
 }
