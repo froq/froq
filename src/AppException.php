@@ -30,6 +30,7 @@ namespace Froq;
  * @package Froq
  * @object  Froq\AppException
  * @author  Kerem Güneş <k-gun@mail.com>
+ * @since   1.0
  */
 final class AppException extends \Exception
 {}

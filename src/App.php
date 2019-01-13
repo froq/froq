@@ -38,6 +38,7 @@ use Froq\Service\{Service, ServiceFactory};
  * @package Froq
  * @object  Froq\App
  * @author  Kerem Güneş <k-gun@mail.com>
+ * @since   1.0
  */
 final class App
 {
