@@ -139,7 +139,8 @@ function split(string $delimiter, string $input, $limit = null, $flags = 0)
     }
 
     // regexp: only ~...~ patterns accepted
-    if ($delimiter[0] == '~' && strlen($delimiter) > 1) {
+    $delimiterLength = strlen($delimiter);
+    if ($delimiterLength == 0 /* split all */ || ($delimiterLength >= 2 && $delimiter[0] == '~')) {
         $return = (array) preg_split($delimiter, $input, $limit ?? -1,
             // true=no empty
             ($flags === true) ? PREG_SPLIT_NO_EMPTY : $flags);
