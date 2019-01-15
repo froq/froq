@@ -70,7 +70,7 @@ return function($ecode, $emesg, $efile, $eline) {
     }
 
     if ($error != null) {
-        // this maybe be used anywhere e() function exists
+        // this maybe be used later to check errors
         e(new \ErrorException($error, $ecode));
     }
 
