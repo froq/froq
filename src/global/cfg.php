@@ -45,6 +45,7 @@ return (function() {
     $cfg['session']['hashLength'] = 40; // ID length (32, 40, 64, 128)
     $cfg['session']['savePath'] = null;
     $cfg['session']['saveHandler'] = null;
+    // session cookie
     $cfg['session']['cookie'] = [];
     $cfg['session']['cookie']['lifetime'] = 0;
     $cfg['session']['cookie']['path'] = '/';
@@ -53,12 +54,23 @@ return (function() {
     $cfg['session']['cookie']['httponly'] = false;
     $cfg['session']['cookie']['samesite'] = ''; // PHP/7.3
 
-    // gzip
-    $cfg['gzip'] = [];
-    $cfg['gzip']['use'] = true;
-    $cfg['gzip']['mode'] = FORCE_GZIP;
-    $cfg['gzip']['level'] = -1;
-    $cfg['gzip']['minlen'] = 64;
+    // request
+    $cfg['request'] = [];
+    // request json (for decoding request data @see http://php.net/json_decode)
+    $cfg['request']['json']['flags'] = 0;
+    $cfg['request']['json']['depth'] = 512;
+    $cfg['request']['json']['assoc'] = false;
+
+    // response
+    $cfg['response'] = [];
+    // response json (for encoding response data @see http://php.net/json_encode)
+    $cfg['response']['json']['flags'] = 0;
+    $cfg['response']['json']['depth'] = 512;
+    // response gzip
+    $cfg['response']['gzip']['minimumLength'] = 64;
+    $cfg['response']['gzip']['mode'] = FORCE_GZIP;
+    $cfg['response']['gzip']['level'] = -1;
+    $cfg['response']['gzip']['length'] = PHP_INT_MAX;
 
     // logger
     $cfg['logger'] = [];
