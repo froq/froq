@@ -57,6 +57,12 @@ final class App
                  ENV_PRODUCTION = 'production';
 
     /**
+     * App dir.
+     * @const string
+     */
+    private $dir;
+
+    /**
      * App env.
      * @const string
      */
@@ -121,6 +127,7 @@ final class App
         if (!defined('APP_DIR')) {
             throw new AppException('APP_DIR is not defined');
         }
+        $this->dir = APP_DIR;
 
         $this->logger = new Logger();
         $this->events = new Events();
@@ -132,10 +139,10 @@ final class App
         set_global('app', $this);
 
         // load core app globals if exists
-        if (file_exists($file = APP_DIR .'/app/global/def.php')) {
+        if (file_exists($file = "{$this->dir}/app/global/def.php")) {
             include $file;
         }
-        if (file_exists($file = APP_DIR .'/app/global/fun.php')) {
+        if (file_exists($file = "{$this->dir}/app/global/fun.php")) {
             include $file;
         }
 
@@ -181,6 +188,15 @@ final class App
         }
 
         throw new AppException("Undefined property name '{$name}' given");
+    }
+
+    /**
+     * Dir.
+     * @return string
+     */
+    public function dir(): string
+    {
+        return $this->dir;
     }
 
     /**
@@ -355,13 +371,20 @@ final class App
 
     /**
      * Load time.
-     * @return array
+     * @param  bool $totalStringOnly
+     * @return array|string
      */
-    public function loadTime(): array
+    public function loadTime(bool $totalStringOnly = true)
     {
-        $start = APP_START_TIME; $end = microtime(true); $total = ($end - $start);
+        $start = APP_START_TIME; $end = microtime(true);
 
-        return ['start' => $start, 'end' => $end, 'total' => $total, 's' => substr(strval($total), 0, 5)];
+        $total = $end - $start;
+        $totalString = sprintf('%.5F', $total);
+        if ($totalStringOnly) {
+            return $totalString;
+        }
+
+        return [$start, $end, $total, $totalString];
     }
 
     /**
@@ -461,7 +484,7 @@ final class App
         }
         // handle outputs
         else {
-            // echo or print'ed service methods return "null"
+            // echo'd or print'ed service methods return 'null'
             if ($output === null) {
                 $output = '';
                 while (ob_get_level()) {
@@ -493,7 +516,7 @@ final class App
         header('Content-Type: none');
         header('Content-Length: 0');
 
-        $xHaltMessage = sprintf('X-Halt: true, Reason=%s, Ip=%s', $reason, Util::getClientIp());
+        $xHaltMessage = sprintf('X-Halt: Reason=%s, Ip=%s', $reason, Util::getClientIp());
 
         header($xHaltMessage);
         header_remove('X-Powered-By');
