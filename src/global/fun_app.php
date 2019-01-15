@@ -18,7 +18,7 @@ function app()
  */
 function app_dir()
 {
-    return APP_DIR;
+    return app()->dir();
 }
 
 /**
@@ -27,5 +27,5 @@ function app_dir()
  */
 function app_load_time()
 {
-    return substr(strval(microtime(true) - APP_START_TIME), 0, 5);
+    return app()->loadTime();
 }
