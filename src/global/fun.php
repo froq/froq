@@ -94,31 +94,30 @@ function _trim($var, $chars = " \t\n\r\0\x0B")
 /**
  * E (set/get last error exception, @see error handler).
  * @param  \Throwable|null $e
- * @param             bool $delete
+ * @param             bool $deleteAfterGet
  * @return \Throwable|null
  * @since  3.0
  */
-function e($e = true, $delete = true)
+function e($e = null, $deleteAfterGet = true)
 {
+    $eType = gettype($e);
     static $eKey = '@e';
 
     // set
-    if ($e instanceof \Throwable) {
-        $message = $e->getMessage();
-        if (strpos($message, 'emesg')) {
-            $message = preg_replace('~.*emesg\[(.+)\].*~', '\1', $message);
-        }
-        set_global($eKey, new \Exception($message, $e->getCode(), $e->getPrevious()));
+    if ($eType == 'object' && $e instanceof \Throwable) {
+        set_global($eKey, $e);
+    } elseif ($eType == 'array') {
+        @[$message, $code, $previous] = $e;
+        set_global($eKey, new \Exception($message, $code, $previous));
     }
 
     // get
     elseif ($e === null) {
-        return get_global($eKey);
-    }
-
-    // delete
-    if ($delete) {
-        delete_global($eKey);
+        $e = get_global($eKey);
+        if ($deleteAfterGet) {
+            delete_global($eKey);
+        }
+        return $e;
     }
 }
 
