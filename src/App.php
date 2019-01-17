@@ -379,7 +379,7 @@ final class App
         $start = APP_START_TIME; $end = microtime(true);
 
         $total = $end - $start;
-        $totalString = sprintf('%.5F', $total);
+        $totalString = sprintf('%.5f', $total);
         if ($totalStringOnly) {
             return $totalString;
         }
