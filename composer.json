@@ -16,7 +16,7 @@
         "froq/froq-database": "~dev-master",
         "froq/froq-http": "~dev-master",
         "froq/froq-service": "~dev-master",
-        "froq/froq-exception": "~1.0"
+        "froq/froq-exception": "dev-master"
     },
     "autoload": {
         "classmap": ["src/"]
