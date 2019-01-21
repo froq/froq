@@ -9,13 +9,13 @@
     ],
     "require": {
         "php": "^7.2",
-        "froq/froq-util": "~3.0",
-        "froq/froq-event": "~3.0",
-        "froq/froq-config": "~3.0",
-        "froq/froq-logger": "~3.0",
-        "froq/froq-database": "~3.0",
-        "froq/froq-http": "~3.0",
-        "froq/froq-service": "~3.0",
+        "froq/froq-util": "~dev-master",
+        "froq/froq-event": "~dev-master",
+        "froq/froq-config": "~dev-master",
+        "froq/froq-logger": "~dev-master",
+        "froq/froq-database": "~dev-master",
+        "froq/froq-http": "~dev-master",
+        "froq/froq-service": "~dev-master",
         "froq/froq-exception": "~1.0"
     },
     "autoload": {
