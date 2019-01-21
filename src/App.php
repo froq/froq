@@ -524,17 +524,19 @@ final class App
      */
     private function halt(string $status, string $reason): void
     {
-        header(sprintf('%s %s', Http::detectVersion(), $status));
+        header('HTTP/1.0 '. $status);
         header('Connection: close');
         header('Content-Type: none');
-        header('Content-Length: 0');
 
-        $xHaltMessage = sprintf('X-Halt: Reason=%s, Ip=%s', $reason, Util::getClientIp());
+        $xHaltMessage = sprintf('X-Halt: Reason=%s, Ip=%s, Url:%s', $reason,
+            Util::getClientIp(), Util::getCurrentUrl());
 
         header($xHaltMessage);
         header_remove('X-Powered-By');
 
         $this->logger->logFail(new AppException($xHaltMessage));
+
+        print '<!---->';
 
         exit(1); // boom!
     }
