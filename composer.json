@@ -9,14 +9,14 @@
     ],
     "require": {
         "php": "^7.2",
-        "froq/froq-util": "3.0.0-dev",
-        "froq/froq-event": "3.0.0-dev",
-        "froq/froq-config": "3.0.0-dev",
-        "froq/froq-logger": "3.0.0-dev",
-        "froq/froq-database": "3.0.0-dev",
-        "froq/froq-http": "3.0.0-dev",
-        "froq/froq-service": "3.0.0-dev",
-        "froq/froq-exception": "3.0.0-dev"
+        "froq/froq-util": "3.0.0",
+        "froq/froq-event": "3.0.0",
+        "froq/froq-config": "3.0.0",
+        "froq/froq-logger": "3.0.0",
+        "froq/froq-database": "3.0.0",
+        "froq/froq-http": "3.0.0",
+        "froq/froq-service": "3.0.0",
+        "froq/froq-exception": "3.0.0"
     },
     "autoload": {
         "classmap": ["src/"]
