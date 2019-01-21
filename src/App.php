@@ -117,6 +117,12 @@ final class App
     private $db;
 
     /**
+     * Run.
+     * @var bool
+     */
+    private static $run = false;
+
+    /**
      * Constructor.
      * @param  array $config
      * @throws Froq\AppException
@@ -299,6 +305,13 @@ final class App
      */
     public function run(array $options): void
     {
+        // run once
+        if (self::$run) {
+            throw new AppException("You cannot call App::run() anymore, it's already called ".
+                "in skeleton/pub/index.php once");
+        }
+        self::$run = true;
+
         // apply user options (@see skeleton/pub/index.php)
         if (isset($options['env'])) $this->env = $options['env'];
         if (isset($options['root'])) $this->root = $options['root'];
