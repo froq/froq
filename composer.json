@@ -9,17 +9,16 @@
     ],
     "require": {
         "php": "^7.2",
-        "froq/froq-util": "~dev-master",
-        "froq/froq-event": "~dev-master",
-        "froq/froq-config": "~dev-master",
-        "froq/froq-logger": "~dev-master",
-        "froq/froq-database": "~dev-master",
-        "froq/froq-http": "~dev-master",
-        "froq/froq-service": "~dev-master",
+        "froq/froq-util": "dev-master",
+        "froq/froq-event": "dev-master",
+        "froq/froq-config": "dev-master",
+        "froq/froq-logger": "dev-master",
+        "froq/froq-database": "dev-master",
+        "froq/froq-http": "dev-master",
+        "froq/froq-service": "dev-master",
         "froq/froq-exception": "dev-master"
     },
     "autoload": {
         "classmap": ["src/"]
-    },
-    "minimum-stability": "dev-master"
+    }
 }
