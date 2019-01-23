@@ -44,7 +44,7 @@ use Froq\Service\{Service, ServiceFactory};
 final class App
 {
     /**
-     * Single trait.
+     * Singleton trait.
      * @object Froq\Util\Traits\SingletonTrait
      */
     use SingletonTrait;
