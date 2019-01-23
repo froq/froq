@@ -26,7 +26,8 @@ declare(strict_types=1);
 
 namespace Froq;
 
-use Froq\Util\{Util, Traits\SingleTrait};
+use Froq\Util\Util;
+use Froq\Util\Traits\SingletonTrait;
 use Froq\Event\Events;
 use Froq\Config\Config;
 use Froq\Logger\Logger;
@@ -44,9 +45,9 @@ final class App
 {
     /**
      * Single trait.
-     * @object Froq\Util\Traits\SingleTrait
+     * @object Froq\Util\Traits\SingletonTrait
      */
-    use SingleTrait;
+    use SingletonTrait;
 
     /**
      * App envs.
