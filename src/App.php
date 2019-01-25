@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace Froq;
 
 use Froq\Util\Util;
-use Froq\Util\Traits\SingletonTrait;
+use Froq\Util\Traits\{SingletonTrait, OneRunTrait};
 use Froq\Event\Events;
 use Froq\Config\Config;
 use Froq\Logger\Logger;
@@ -48,6 +48,12 @@ final class App
      * @object Froq\Util\Traits\SingletonTrait
      */
     use SingletonTrait;
+
+    /**
+     * One run trait.
+     * @object Froq\Util\Traits\OneRunTrait
+     */
+    use OneRunTrait;
 
     /**
      * App envs.
@@ -116,12 +122,6 @@ final class App
      * @var Froq\Database\Database
      */
     private $db;
-
-    /**
-     * Run.
-     * @var bool
-     */
-    private static $run = false;
 
     /**
      * Constructor.
@@ -307,11 +307,8 @@ final class App
     public function run(array $options): void
     {
         // run once
-        if (self::$run) {
-            throw new AppException("You cannot call App::run() anymore, it's already called ".
-                "in skeleton/pub/index.php once");
-        }
-        self::$run = true;
+        $this->___checkRun(new AppException("You cannot call App::run() anymore, it's already ".
+                "called in skeleton/pub/index.php once"));
 
         // apply user options (@see skeleton/pub/index.php)
         if (isset($options['env'])) $this->env = $options['env'];
