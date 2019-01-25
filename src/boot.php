@@ -45,7 +45,10 @@ if (!defined('NILS')) {
  * @const bool
  */
 if (!defined('LOCAL')) {
-    define('LOCAL', (substr($_SERVER['SERVER_NAME'] ?? '', -6) === '.local'), true);
+    $serverName = $_SERVER['SERVER_NAME'] ?? '';
+    $serverNameExtension = substr($serverName, strrpos($serverName, '.') + 1);
+    define('LOCAL', $serverNameExtension && in_array($serverNameExtension, ['local', 'localhost']), true);
+    unset($serverName, $serverNameExtension);
 }
 
 /**
