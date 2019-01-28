@@ -205,8 +205,8 @@ final class Autoload
             return $end;
         }
 
-        // eg: Froq\App\Library\Entity\UserEntity => app/library/entity/UserEntity
-        $path = strtolower(join('\\', array_slice($tmp, 3)));
+        // eg: Froq\App\Library\Entity\UserEntity => app/library/Entity/UserEntity
+        $path = join('\\', array_slice($tmp, 3));
 
         return $path .'\\'. $end;
     }
