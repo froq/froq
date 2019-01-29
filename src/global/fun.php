@@ -170,7 +170,7 @@ function _prp($s) {
 function _prd($s, $e=false) {
     ob_start();
     var_dump($s);
-    return preg_replace('~\["?(.+?)"?\]=>\s+~', '\1: ', _prp(ob_get_clean()));
+    return preg_replace('~\["?(.+?)"?(:(private|protected))?\]=>\s+~', '[\1\2] => ', _prp(ob_get_clean()));
 }
 function prs($s, $e=false) {
     echo _prp($s), "\n";
