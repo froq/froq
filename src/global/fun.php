@@ -163,26 +163,30 @@ function split(string $delimiter, string $input, $limit = null, $flags = 0)
  * Dirty debug tools..
  */
 function _prp($s) {
-    $p = '';
-    if (is_null($s)) {
-        $p = 'NULL';
-    } elseif (is_bool($s)) {
-        $p = $s ? 'TRUE' : 'FALSE';
-    } else {
-        $p = preg_replace('~\[(.+):(.+):(private|protected)\]~', '[\1:\3]', print_r($s, true));
-    }
-    return $p;
+    if (is_null($s)) return 'NULL';
+    if (is_bool($s)) return $s ? 'TRUE' : 'FALSE';
+    return preg_replace('~\["(.+?)":(.+?):(private|protected)\]~', '[\1:\3]', print_r($s, true));
+}
+function _prd($s, $e=false) {
+    ob_start();
+    var_dump($s);
+    return preg_replace('~\["?(.+?)"?\]=>\s+~', '\1: ', _prp(ob_get_clean()));
 }
 function prs($s, $e=false) {
-    print _prp($s) . PHP_EOL;
+    echo _prp($s), "\n";
     $e && exit;
 }
 function pre($s, $e=false) {
-    print '<pre>'. _prp($s) .'</pre>'. PHP_EOL;
+    echo "<pre>", _prp($s), "</pre>", "\n";
     $e && exit;
 }
+function prr(...$ss) {
+    foreach ($ss as $s) {
+        echo _prp($s), "\n";
+    }
+}
 function prd($s, $e=false) {
-    print '<pre>'; var_dump($s); print '</pre>'. PHP_EOL;
+    echo _prd($s);
     $e && exit;
 }
 
