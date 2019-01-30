@@ -167,7 +167,7 @@ function _prp($s) {
     if (is_bool($s)) return $s ? 'TRUE' : 'FALSE';
     return preg_replace('~\["(.+?)":(.+?):(private|protected)\]~', '[\1:\3]', print_r($s, true));
 }
-function _prd($s, $e=false) {
+function _prd($s) {
     ob_start();
     var_dump($s);
     return preg_replace('~\["?(.+?)"?(:(private|protected))?\]=>\s+~', '[\1\2] => ', _prp(ob_get_clean()));
