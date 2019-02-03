@@ -160,34 +160,39 @@ function split(string $delimiter, string $input, $limit = null, $flags = 0)
 }
 
 /**
- * Dirty debug tools..
+ * Dirty debug (dump) tools.. :(
  */
-function _prp($s) {
+function _ps($s) {
     if (is_null($s)) return 'NULL';
     if (is_bool($s)) return $s ? 'TRUE' : 'FALSE';
-    return preg_replace('~\["(.+?)":(.+?):(private|protected)\]~', '[\1:\3]', print_r($s, true));
+    return preg_replace('~\[(.+?):.+?:(private|protected)\]~', '[\1:\2]', print_r($s, true));
 }
-function _prd($s) {
+function _pd($s) {
     ob_start();
     var_dump($s);
-    return preg_replace('~\["?(.+?)"?(:(private|protected))?\]=>\s+~', '[\1\2] => ', _prp(ob_get_clean()));
-}
-function prs($s, $e=false) {
-    echo _prp($s), "\n";
-    $e && exit;
+    return preg_replace('~\["?(.+?)"?(:(private|protected))?\]=>\s+~', '[\1\2] => ', _ps(ob_get_clean()));
 }
 function pre($s, $e=false) {
-    echo "<pre>", _prp($s), "</pre>", "\n";
+    echo "<pre>", _ps($s), "</pre>", "\n";
     $e && exit;
 }
-function prr(...$ss) {
+function prs($s, $e=false) {
+    echo _ps($s), "\n";
+    $e && exit;
+}
+function prss(...$ss) {
     foreach ($ss as $s) {
-        echo _prp($s), "\n";
+        echo _ps($s), "\n";
     }
 }
 function prd($s, $e=false) {
-    echo _prd($s);
+    echo _pd($s);
     $e && exit;
+}
+function prdd(...$dd) {
+    foreach ($dd as $s) {
+        echo _pd($s), "\n";
+    }
 }
 
 /**
