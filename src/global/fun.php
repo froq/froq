@@ -122,6 +122,35 @@ function e($e = null, $deleteAfterGet = true)
 }
 
 /**
+ * Size.
+ * @param  any $input
+ * @return int|null
+ */
+function size($input)
+{
+    if (is_array($input))   return count($input);
+    if (is_string($input))  return strlen($input);
+    if (is_numeric($input)) return strlen((string) $input);
+
+    if ($input && is_object($input)) {
+        if ($input instanceof \stdClass) {
+            return count((array) $input);
+        }
+        if (method_exists($input, 'count')) {
+            return $input->count();
+        }
+        if (method_exists($input, 'size')) {
+            return $input->size();
+        }
+        if (method_exists($input, 'toArray')) {
+            return count($input->toArray());
+        }
+    }
+
+    return null; // error
+}
+
+/**
  * We missed you so much baby..
  * @param  string   $delimiter
  * @param  string   $input
@@ -151,7 +180,7 @@ function split(string $delimiter, string $input, $limit = null, $flags = 0)
     }
 
     // plus: prevent 'undefined index..' error
-    $returnSize = sizeof($return);
+    $returnSize = count($return);
     if ($limit > $returnSize) {
         $return = array_merge($return, array_fill($returnSize, $limit - $returnSize, null));
     }
