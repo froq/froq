@@ -315,9 +315,6 @@ final class App
         if (isset($options['root'])) $this->root = $options['root'];
         if (isset($options['config'])) $this->applyConfig($options['config']);
 
-        // keep globals clean.. (@see skeleton/pub/index.php)
-        unset($GLOBALS['app'], $GLOBALS['appEnv'], $GLOBALS['appRoot'], $GLOBALS['appConfig']);
-
         // check env
         if (empty($this->env)) {
             throw new AppException('Application env is not defined');
