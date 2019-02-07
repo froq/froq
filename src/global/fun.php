@@ -215,7 +215,7 @@ function prss(...$ss) {
     }
 }
 function prd($s, $e=false) {
-    echo _pd($s);
+    echo _pd($s), "\n";
     $e && exit;
 }
 function prdd(...$dd) {
