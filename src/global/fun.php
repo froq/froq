@@ -199,7 +199,7 @@ function _ps($s) {
 function _pd($s) {
     ob_start();
     var_dump($s);
-    return preg_replace('~\["?(.+?)"?(:(private|protected))?\]=>\s+~', '[\1\2] => ', _ps(ob_get_clean()));
+    return preg_replace('~\["?(.+?)"?(:(private|protected))?\]=>\s+~', '[\1\2] => ', _ps(trim(ob_get_clean())));
 }
 function pre($s, $e=false) {
     echo "<pre>", _ps($s), "</pre>", "\n";
