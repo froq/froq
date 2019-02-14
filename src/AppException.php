@@ -26,8 +26,6 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\exception\Exception;
-
 /**
  * App exception.
  * @package froq
@@ -35,5 +33,5 @@ use froq\exception\Exception;
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */
-final class AppException extends Exception
+final class AppException extends \Exception
 {}
