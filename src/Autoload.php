@@ -24,11 +24,11 @@
  */
 declare(strict_types=1);
 
-namespace Froq;
+namespace froq;
 
 /**
- * @package Froq
- * @object  Froq\Autoload
+ * @package froq
+ * @object  froq\Autoload
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */
@@ -45,10 +45,10 @@ final class Autoload
      * Namespaces.
      * @const string
      */
-    public const NAMESPACE               = 'Froq',
-                 NAMESPACE_APP_SERVICE   = 'Froq\\App\\Service',
-                 NAMESPACE_APP_DATABASE  = 'Froq\\App\\Database',
-                 NAMESPACE_APP_LIBRARY   = 'Froq\\App\\Library';
+    public const NAMESPACE               = 'froq',
+                 NAMESPACE_APP_SERVICE   = 'froq\app\service',
+                 NAMESPACE_APP_DATABASE  = 'froq\app\database',
+                 NAMESPACE_APP_LIBRARY   = 'froq\app\library';
 
     /**
      * App dir.
@@ -205,7 +205,7 @@ final class Autoload
             return $end;
         }
 
-        // eg: Froq\App\Library\Entity\UserEntity => app/library/Entity/UserEntity
+        // eg: froq\app\library\entity\UserEntity => app/library/entity/UserEntity
         $path = join('\\', array_slice($tmp, 3));
 
         return $path .'\\'. $end;

@@ -61,7 +61,7 @@ if (local) {
 
 /**
  * Load autoload.
- * @var Froq\Autoload
+ * @var froq\Autoload
  */
 $autoload = require __dir__ .'/Autoload.php';
 $autoload->register();
@@ -75,8 +75,8 @@ require __dir__ .'/global/fun.php';
 
 /**
  * Init app with default configs (comes from cfg.php).
- * @return Froq\App
+ * @return froq\App
  */
-return Froq\App::init(
+return froq\App::init(
     require __dir__ .'/global/cfg.php'
 );

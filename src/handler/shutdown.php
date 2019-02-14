@@ -24,6 +24,8 @@
  */
 declare(strict_types=1);
 
+use froq\App;
+
 /**
  * Shutdown handler.
  * @return callable
@@ -35,7 +37,7 @@ return function() {
             $error['message']);
 
         // works only for App
-        if (isset($this) && $this instanceof \Froq\App) {
+        if (isset($this) && $this instanceof App) {
             // log error first
             $this->logger()->logFail($error);
 

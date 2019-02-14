@@ -24,11 +24,11 @@
  */
 declare(strict_types=1);
 
-namespace Froq;
+namespace froq;
 
 /**
- * @package Froq
- * @object  Froq\AppException
+ * @package froq
+ * @object  froq\AppException
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */

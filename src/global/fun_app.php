@@ -5,7 +5,7 @@
 
 /**
  * Shortcut for global app address.
- * @return ?Froq\App
+ * @return froq\App
  */
 function app()
 {

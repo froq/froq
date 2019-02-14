@@ -24,20 +24,20 @@
  */
 declare(strict_types=1);
 
-namespace Froq;
+namespace froq;
 
-use Froq\Util\Util;
-use Froq\Util\Traits\{SingletonTrait, OneRunTrait};
-use Froq\Event\Events;
-use Froq\Config\Config;
-use Froq\Logger\Logger;
-use Froq\Database\Database;
-use Froq\Http\{Http, Request, Response};
-use Froq\Service\{Service, ServiceFactory};
+use froq\util\Util;
+use froq\util\traits\{SingletonTrait, OneRunTrait};
+use froq\event\Events;
+use froq\config\Config;
+use froq\logger\Logger;
+use froq\database\Database;
+use froq\http\{Http, Request, Response};
+use froq\service\{Service, ServiceFactory};
 
 /**
- * @package Froq
- * @object  Froq\App
+ * @package froq
+ * @object  froq\App
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */
@@ -45,13 +45,13 @@ final class App
 {
     /**
      * Singleton trait.
-     * @object Froq\Util\Traits\SingletonTrait
+     * @object froq\util\traits\SingletonTrait
      */
     use SingletonTrait;
 
     /**
      * One run trait.
-     * @object Froq\Util\Traits\OneRunTrait
+     * @object froq\util\traits\OneRunTrait
      */
     use OneRunTrait;
 
@@ -83,50 +83,50 @@ final class App
 
     /**
      * Config.
-     * @var Froq\Config\Config
+     * @var froq\config\Config
      */
     private $config;
 
     /**
      * Logger.
-     * @var Froq\Logger\Logger
+     * @var froq\logger\Logger
      */
     private $logger;
 
     /**
      * Events.
-     * @var Froq\Events\Events
+     * @var froq\events\Events
      */
     private $events;
 
     /**
      * Service.
-     * @var Froq\Service\Service
+     * @var froq\service\Service
      */
     private $service;
 
     /**
      * Request.
-     * @var Froq\Http\Request
+     * @var froq\http\Request
      */
     private $request;
 
     /**
      * Response.
-     * @var Froq\Http\Response
+     * @var froq\http\Response
      */
     private $response;
 
     /**
      * Db.
-     * @var Froq\Database\Database
+     * @var froq\database\Database
      */
     private $db;
 
     /**
      * Constructor.
      * @param  array $config
-     * @throws Froq\AppException
+     * @throws froq\AppException
      */
     private function __construct(array $config)
     {
@@ -175,7 +175,7 @@ final class App
      * @param  string     $method
      * @param  array|null $methodArguments
      * @return any
-     * @throws Froq\AppException
+     * @throws froq\AppException
      * @since  3.0
      */
     public function __call(string $method, array $methodArguments = null)
@@ -226,7 +226,7 @@ final class App
 
     /**
      * Config.
-     * @return Froq\Config\Config
+     * @return froq\config\Config
      */
     public function config(): Config
     {
@@ -246,7 +246,7 @@ final class App
 
     /**
      * Logger.
-     * @return Froq\Logger\Logger
+     * @return froq\logger\Logger
      */
     public function logger(): Logger
     {
@@ -255,7 +255,7 @@ final class App
 
     /**
      * Events.
-     * @return Froq\Events\Events
+     * @return froq\events\Events
      */
     public function events(): Events
     {
@@ -264,7 +264,7 @@ final class App
 
     /**
      * Service.
-     * @return ?Froq\Service\Service
+     * @return ?froq\service\Service
      */
     public function service(): ?Service
     {
@@ -273,7 +273,7 @@ final class App
 
     /**
      * Request.
-     * @return ?Froq\Http\Request
+     * @return ?froq\http\Request
      */
     public function request(): ?Request
     {
@@ -282,7 +282,7 @@ final class App
 
     /**
      * Response.
-     * @return ?Froq\Http\Response
+     * @return ?froq\http\Response
      */
     public function response(): ?Response
     {
@@ -291,7 +291,7 @@ final class App
 
     /**
      * Db.
-     * @return Froq\Database\Database
+     * @return froq\database\Database
      */
     public function db(): Database
     {
@@ -302,7 +302,7 @@ final class App
      * Run.
      * @param  array options
      * @return void
-     * @throws Froq\AppException
+     * @throws froq\AppException
      */
     public function run(array $options): void
     {
@@ -400,7 +400,7 @@ final class App
      * @param  string $call
      * @param  array  $arguments
      * @return any
-     * @throws Froq\AppException
+     * @throws froq\AppException
      */
     public function callServiceMethod(string $call, array $arguments = [])
     {
