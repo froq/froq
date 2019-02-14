@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace froq;
 
 /**
+ * Autoload.
  * @package froq
  * @object  froq\Autoload
  * @author  Kerem Güneş <k-gun@mail.com>

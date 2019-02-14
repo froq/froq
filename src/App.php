@@ -36,6 +36,7 @@ use froq\http\{Http, Request, Response};
 use froq\service\{Service, ServiceFactory};
 
 /**
+ * App.
  * @package froq
  * @object  froq\App
  * @author  Kerem Güneş <k-gun@mail.com>

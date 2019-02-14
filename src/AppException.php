@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace froq;
 
 /**
+ * App exception.
  * @package froq
  * @object  froq\AppException
  * @author  Kerem Güneş <k-gun@mail.com>
