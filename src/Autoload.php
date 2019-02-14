@@ -47,9 +47,9 @@ final class Autoload
      * @const string
      */
     public const NAMESPACE               = 'froq',
-                 NAMESPACE_APP_SERVICE   = 'froq\app\service',
-                 NAMESPACE_APP_DATABASE  = 'froq\app\database',
-                 NAMESPACE_APP_LIBRARY   = 'froq\app\library';
+                 NAMESPACE_APP_SERVICE   = 'froq\\app\\service',
+                 NAMESPACE_APP_DATABASE  = 'froq\\app\\database',
+                 NAMESPACE_APP_LIBRARY   = 'froq\\app\\library';
 
     /**
      * App dir.
