@@ -122,22 +122,27 @@ function e($e = null, $deleteAfterGet = true)
 }
 
 /**
- * Error.
- * @param  bool $clear
- * @return string|null
- * @since  3.0
+ * Error function (normally comes from froq/froq).
  */
-function error(bool $clear = false)
-{
-    $error = error_get_last();
+if (!function_exists('error')) {
+    /**
+     * Error.
+     * @param  bool $clear
+     * @return string|null
+     * @since  3.0
+     */
+    function error(bool $clear = false)
+    {
+        $error = error_get_last();
 
-    if ($error !== null) {
-        $error = preg_replace('~(?:.*?:)?.*?:\s*(.+)~', '\1', strtolower($error['message']));
-        $error = $error ?: 'unknown error';
-        $clear && error_clear_last();
+        if ($error !== null) {
+            $error = preg_replace('~(?:.*?:)?.*?:\s*(.+)~', '\1', strtolower($error['message']));
+            $error = $error ?: 'unknown error';
+            $clear && error_clear_last();
+        }
+
+        return $error;
     }
-
-    return $error;
 }
 
 /**
