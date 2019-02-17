@@ -247,7 +247,7 @@ function split(string $delimiter, string $input, int $limit = null, int $flags =
     // regexp: only ~...~ patterns accepted
     $delimiterLength = strlen($delimiter);
     if ($delimiterLength == 0 /* split all */ ||
-        ($delimiterLength >= 2 && $delimiter[0] == '~') /* regexp */ ) {
+        ($delimiterLength >= 2 && $delimiter[0] == '~') /* regexp */) {
         $return = (array) preg_split($delimiter, $input, $limit ?? -1,
             ($flags === null) ? PREG_SPLIT_NO_EMPTY : $flags);
     } else {
@@ -275,6 +275,35 @@ function split(string $delimiter, string $input, int $limit = null, int $flags =
 function unsplit(string $delimiter, array $input)
 {
     return join($delimiter, $input);
+}
+
+/**
+ * Replace.
+ * @param  array|string $input
+ * @param  any          $search
+ * @param  any          $replacement
+ * @return array|string|null
+ * @since  3.0
+ */
+function replace($input, $search, $replacement)
+{
+    if (is_array($input)) {
+        $key = array_search($search, $input);
+        if ($key !== false && array_key_exists($key, $input)) {
+            $input[$key] = $replacement;
+        }
+    } elseif (is_string($input)) {
+        $search = (string) $search;
+        if (strlen($search) > 2 && $search[0] == '~' /* regexp */) {
+            $input = preg_replace($search, $replacement, $input);
+        } else {
+            $input = str_replace($search, $replacement, $input);
+        }
+    } else {
+        $input = null; // no valid input
+    }
+
+    return $input;
 }
 
 /**
