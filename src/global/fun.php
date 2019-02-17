@@ -6,10 +6,10 @@
 /**
  * Set Froq! global key, and init sub-array.
  */
-define('__FROQ', '__froq');
+define('__froq', '__froq', true);
 
-if (!isset($GLOBALS[__FROQ])) {
-    $GLOBALS[__FROQ] = [];
+if (!isset($GLOBALS[__froq])) {
+    $GLOBALS[__froq] = [];
 }
 
 /**
@@ -20,7 +20,7 @@ if (!isset($GLOBALS[__FROQ])) {
  */
 function set_global($key, $value)
 {
-    $GLOBALS[__FROQ][$key] = $value;
+    $GLOBALS[__froq][$key] = $value;
 }
 
 /**
@@ -31,7 +31,7 @@ function set_global($key, $value)
  */
 function get_global($key, $valueDefault = null)
 {
-    return $GLOBALS[__FROQ][$key] ?? $valueDefault;
+    return $GLOBALS[__froq][$key] ?? $valueDefault;
 }
 
 /**
@@ -42,7 +42,7 @@ function get_global($key, $valueDefault = null)
  */
 function delete_global($key)
 {
-    unset($GLOBALS[__FROQ][$key]);
+    unset($GLOBALS[__froq][$key]);
 }
 
 /**
@@ -86,7 +86,7 @@ function _isset($var) { return isset($var); }
 function _empty($var) { return empty($var); }
 
 // safe trim for strict mode
-function _trim($var, $chars = " \t\n\r\0\x0B")
+function _trim($var, $chars = " \t\n\r\0\x0b")
 {
     return (string) trim((string) $var, (string) $chars);
 }
@@ -200,6 +200,21 @@ function size($input)
 }
 
 /**
+ * Strip.
+ * @param  string|null $input
+ * @param  string|null $chars
+ * @param  int         $side
+ * @return string
+ * @since  3.0
+ */
+function strip($input, string $chars = null, int $side = 0)
+{
+    $input = (string) $input;
+    $chars = $chars ?? " \t\n\r\0\x0b";
+    return $side == 0 ? trim($input, $chars) : ($side == 1 ? ltrim($input, $chars) : rtrim($input, $chars));
+}
+
+/**
  * Slice.
  * @param  array|string $input
  * @param  int          $offset
@@ -282,6 +297,7 @@ function unsplit(string $delimiter, array $input)
  * @param  array|string $input
  * @param  any          $search
  * @return array|string|null
+ * @since  3.0
  */
 function remove($input, $search)
 {
