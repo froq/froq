@@ -157,19 +157,27 @@ function size($input)
     if (is_numeric($input)) return strlen((string) $input);
 
     if ($input && is_object($input)) {
-        if ($input instanceof \stdClass) {
-            return count((array) $input);
-        }
-        if (method_exists($input, 'count')) {
-            return $input->count();
-        }
-        if (method_exists($input, 'size')) {
-            return $input->size();
-        }
-        if (method_exists($input, 'toArray')) {
-            return count($input->toArray());
-        }
+        if ($input instanceof \stdClass)      return count((array) $input);
+        if ($input instanceof \Traversable)   return count((array) iterator_to_array($input));
+        if (method_exists($input, 'count'))   return $input->count();
+        if (method_exists($input, 'size'))    return $input->size();
+        if (method_exists($input, 'toArray')) return count($input->toArray());
     }
+
+    return null; // error
+}
+
+/**
+ * Slice.
+ * @param  array|string $input
+ * @param  int          $offset
+ * @param  int|null     $length
+ * @return array|string|null
+ */
+function slice($input, int $offset, int $length = null)
+{
+    if (is_array($input)) return array_slice($input, $offset, $length);
+    if (is_string($input)) return substr($input, $offset, $length ?? strlen($input));
 
     return null; // error
 }
