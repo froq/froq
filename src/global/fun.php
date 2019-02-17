@@ -151,6 +151,7 @@ if (!function_exists('error')) {
  * @param  any          $search
  * @param  bool         $strict
  * @return bool
+ * @since  3.0
  */
 function has($input, $search, bool $strict = true)
 {
@@ -168,6 +169,7 @@ function has($input, $search, bool $strict = true)
  * Len (alias of size()).
  * @param  any $input
  * @return int|null
+ * @since  3.0
  */
 function len($input)
 {
@@ -178,6 +180,7 @@ function len($input)
  * Size.
  * @param  any $input
  * @return int|null
+ * @since  3.0
  */
 function size($input)
 {
@@ -202,6 +205,7 @@ function size($input)
  * @param  int          $offset
  * @param  int|null     $length
  * @return array|string|null
+ * @since  3.0
  */
 function slice($input, int $offset, int $length = null)
 {
@@ -216,6 +220,7 @@ function slice($input, int $offset, int $length = null)
  * @param  array|string $input1
  * @param  array|string $input2
  * @return array|string|null
+ * @since  3.0
  */
 function unslice($input1, $input2)
 {
@@ -265,6 +270,7 @@ function split(string $delimiter, string $input, int $limit = null, int $flags =
  * @param  string $delimiter
  * @param  array  $input
  * @return string
+ * @since  3.0
  */
 function unsplit(string $delimiter, array $input)
 {
