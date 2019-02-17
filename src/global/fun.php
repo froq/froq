@@ -158,7 +158,7 @@ function has($input, $search, bool $strict = true)
         return in_array($input, $search, $strict);
     }
     if (is_string($input) && is_string($search)) {
-        return false !!== ($strict ? strpos($input, $search) : stripos($input, $search));
+        return false !== ($strict ? strpos($input, $search) : stripos($input, $search));
     }
 
     return null; // no valid input
