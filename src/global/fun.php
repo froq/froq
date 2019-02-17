@@ -278,19 +278,33 @@ function unsplit(string $delimiter, array $input)
 }
 
 /**
+ * Remove.
+ * @param  array|string $input
+ * @param  any          $search
+ * @return array|string|null
+ */
+function remove($input, $search)
+{
+    return replace($input, $search, '', true);
+}
+
+/**
  * Replace.
  * @param  array|string $input
  * @param  any          $search
  * @param  any          $replacement
+ * @param  bool         $remove
  * @return array|string|null
  * @since  3.0
  */
-function replace($input, $search, $replacement)
+function replace($input, $search, $replacement, bool $remove = false)
 {
     if (is_array($input)) {
         $key = array_search($search, $input);
         if ($key !== false && array_key_exists($key, $input)) {
-            $input[$key] = $replacement;
+            if ($remove) {
+                unset($input[$key]);
+            } else { $input[$key] = $replacement; }
         }
     } elseif (is_string($input)) {
         $search = (string) $search;
