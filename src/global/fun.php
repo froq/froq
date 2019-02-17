@@ -146,6 +146,25 @@ if (!function_exists('error')) {
 }
 
 /**
+ * Has.
+ * @param  array|string $input
+ * @param  any          $search
+ * @param  bool         $strict
+ * @return bool
+ */
+function has($input, $search, bool $strict = true)
+{
+    if (is_array($input)) {
+        return in_array($input, $search, $strict);
+    }
+    if (is_string($input) && is_string($search)) {
+        return false !!== ($strict ? strpos($input, $search) : stripos($input, $search));
+    }
+
+    return null; // no valid input
+}
+
+/**
  * Len (alias of size()).
  * @param  any $input
  * @return int|null
@@ -174,7 +193,7 @@ function size($input)
         if (method_exists($input, 'toArray')) return count($input->toArray());
     }
 
-    return null; // error
+    return null; // no valid input
 }
 
 /**
@@ -189,45 +208,67 @@ function slice($input, int $offset, int $length = null)
     if (is_array($input)) return array_slice($input, $offset, $length);
     if (is_string($input)) return substr($input, $offset, $length ?? strlen($input));
 
-    return null; // error
+    return null; // no valid input
+}
+
+/**
+ * Unslice (fun function).
+ * @param  array|string $input1
+ * @param  array|string $input2
+ * @return array|string|null
+ */
+function unslice($input1, $input2)
+{
+    if (is_array($input1) && is_array($input2)) {
+        return array_merge($input1, $input2);
+    }
+    if (is_string($input1) && is_string($input2)) {
+        return $input1 . $input2;
+    }
+
+    return null; // no valid input
 }
 
 /**
  * We missed you so much baby..
  * @param  string   $delimiter
  * @param  string   $input
- * @param  int|bool $limit
- * @param  int|bool $flags
+ * @param  int|null $limit
+ * @param  int|null $flags
  * @return array
  */
-function split(string $delimiter, string $input, $limit = null, $flags = 0)
+function split(string $delimiter, string $input, int $limit = null, int $flags = null)
 {
-    // swap args
-    if ($limit === true) {
-        $flags = true;
-        $limit = null;
-    }
-
     // regexp: only ~...~ patterns accepted
     $delimiterLength = strlen($delimiter);
-    if ($delimiterLength == 0 /* split all */ || ($delimiterLength >= 2 && $delimiter[0] == '~')) {
+    if ($delimiterLength == 0 /* split all */ ||
+        ($delimiterLength >= 2 && $delimiter[0] == '~') /* regexp */ ) {
         $return = (array) preg_split($delimiter, $input, $limit ?? -1,
-            // true=no empty
-            ($flags === true) ? PREG_SPLIT_NO_EMPTY : $flags);
+            ($flags === null) ? PREG_SPLIT_NO_EMPTY : $flags);
     } else {
         $return = (array) explode($delimiter, $input, $limit ?? PHP_INT_MAX);
-        if ($flags === true) { // no empty
+        if ($flags === null) { // no empty
             $return = array_filter($return, 'strlen');
         }
     }
 
     // plus: prevent 'undefined index..' error
-    $returnSize = count($return);
-    if ($limit > $returnSize) {
+    if ($limit && $limit > ($returnSize = count($return))) {
         $return = array_merge($return, array_fill($returnSize, $limit - $returnSize, null));
     }
 
     return $return;
+}
+
+/**
+ * Unsplit (fun function).
+ * @param  string $delimiter
+ * @param  array  $input
+ * @return string
+ */
+function unsplit(string $delimiter, array $input)
+{
+    return join($delimiter, $input);
 }
 
 /**
