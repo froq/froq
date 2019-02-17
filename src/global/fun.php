@@ -146,6 +146,16 @@ if (!function_exists('error')) {
 }
 
 /**
+ * Len (alias of size()).
+ * @param  any $input
+ * @return int|null
+ */
+function len($input)
+{
+    return size($input);
+}
+
+/**
  * Size.
  * @param  any $input
  * @return int|null
