@@ -155,11 +155,33 @@ if (!function_exists('error')) {
  */
 function has($input, $search, bool $strict = true)
 {
-    if (is_array($input)) {
-        return in_array($input, $search, $strict);
+    if (is_string($input)) {
+        return false !== ($strict ? strpos($input, (string) $search) : stripos($input, (string) $search));
     }
-    if (is_string($input) && is_string($search)) {
-        return false !== ($strict ? strpos($input, $search) : stripos($input, $search));
+    if (is_array($input)) {
+        return in_array($search, $input, $strict);
+    }
+    if (is_object($input)) {
+        return in_array($search, get_class_vars($input), $strict);
+    }
+
+    return null; // no valid input
+}
+
+/**
+ * Has key.
+ * @param  array|object $input
+ * @param  int|string   $key
+ * @return bool
+ * @since  3.0
+ */
+function has_key($input, $key)
+{
+    if (is_array($input)) {
+        return array_key_exists($key, $input);
+    }
+    if (is_object($input)) {
+        return array_key_exists($key, get_class_vars($input));
     }
 
     return null; // no valid input
