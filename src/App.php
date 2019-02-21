@@ -450,17 +450,16 @@ final class App
 
         $encoding = $this->config->get('encoding');
         if ($encoding != null) {
-            ini_set('default_charset', $encoding);
             mb_internal_encoding($encoding);
+            ini_set('default_charset', $encoding);
+        }
 
-            $locale = $this->config->get('locale');
-            if ($locale != null) {
-                $locale = $locale .'.'. $encoding;
-                setlocale(LC_TIME, $locale);
-                setlocale(LC_NUMERIC, $locale);
-                setlocale(LC_MONETARY, $locale);
-                setlocale(LC_COLLATE, $locale);
-            }
+        $locale = $this->config->get('locale');
+        if ($locale != null) {
+            setlocale(LC_TIME, $locale);
+            setlocale(LC_NUMERIC, $locale);
+            setlocale(LC_MONETARY, $locale);
+            setlocale(LC_COLLATE, $locale);
         }
     }
 

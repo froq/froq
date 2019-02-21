@@ -12,16 +12,14 @@ return (function() {
      */
 
     // protocols
-    $cfg['http']  = 'http://'. $_SERVER['SERVER_NAME'];
+    $cfg['http'] = 'http://'. $_SERVER['SERVER_NAME'];
     $cfg['https'] = 'https://'. $_SERVER['SERVER_NAME'];
 
     // localization
-    $cfg['language']  = 'en';
-    $cfg['languages'] = ['en'];
-    $cfg['timezone']  = 'UTC';
-    $cfg['encoding']  = 'UTF-8';
-    $cfg['locale']    = 'en_US';
-    $cfg['locales']   = ['en_US' => 'English'];
+    $cfg['locale'] = 'en_US.UTF-8';
+    $cfg['language'] = 'en';
+    $cfg['encoding'] = 'UTF-8';
+    $cfg['timezone'] = 'UTC';
 
     // initial response headers
     $cfg['headers'] = [];
