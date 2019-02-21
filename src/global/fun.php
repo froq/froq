@@ -315,10 +315,11 @@ function filter(array $input, callable $func = null, int $option = 0): array
  * @param  int|null      $flags
  * @param  callable|null $map
  * @param  callable|null $filter
+ * @param  string|null   $filter
  * @return array
  */
 function split(string $delimiter, string $input, int $limit = null, int $flags = null,
-    callable $map = null, callable $filter = null)
+    callable $map = null, callable $filter = null, string $unsplit = null)
 {
     // regexp: only ~...~ patterns accepted
     $delimiterLength = strlen($delimiter);
@@ -338,9 +339,12 @@ function split(string $delimiter, string $input, int $limit = null, int $flags =
         $return = array_merge($return, array_fill($returnSize, $limit - $returnSize, null));
     }
 
-    // map,filter return if provided
+    // map,filter if provided
     if ($map) $return = map($return, $map);
     if ($filter) $return = filter($return, $filter);
+
+    // yea, some devs are so lazy.. pofff :)
+    if ($unsplit) $return = unsplit($unsplit, $return);
 
     return $return;
 }
