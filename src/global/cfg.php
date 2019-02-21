@@ -16,10 +16,10 @@ return (function() {
     $cfg['https'] = 'https://'. $_SERVER['SERVER_NAME'];
 
     // localization
-    $cfg['locale'] = 'en_US.UTF-8';
+    $cfg['timezone'] = 'UTC';
     $cfg['language'] = 'en';
     $cfg['encoding'] = 'UTF-8';
-    $cfg['timezone'] = 'UTC';
+    $cfg['locales'] = [LC_TIME => 'en_US.UTF-8', /* ... */];
 
     // initial response headers
     $cfg['headers'] = [];

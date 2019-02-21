@@ -454,12 +454,11 @@ final class App
             ini_set('default_charset', $encoding);
         }
 
-        $locale = $this->config->get('locale');
-        if ($locale != null) {
-            setlocale(LC_TIME, $locale);
-            setlocale(LC_NUMERIC, $locale);
-            setlocale(LC_MONETARY, $locale);
-            setlocale(LC_COLLATE, $locale);
+        $locales = $this->config->get('locales');
+        if ($locales != null) {
+            foreach ((array) $locales as $category => $locale) {
+                setlocale($category, $locale);
+            }
         }
     }
 
