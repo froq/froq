@@ -72,7 +72,7 @@ return (function() {
 
     // logger
     $cfg['logger'] = [];
-    $cfg['logger']['level'] = 0; // none
+    $cfg['logger']['level'] = froq\logger\Logger::FAIL | froq\logger\Logger::WARN;
     $cfg['logger']['directory'] = APP_DIR .'/tmp/log/app/';
     $cfg['logger']['filenameFormat'] = 'Y-m-d';
 
@@ -96,10 +96,12 @@ return (function() {
      * Service options.
      */
 
-    // aliases
-    $cfg['service.aliases'] = [];
-    $cfg['service.aliases']['home'] = ['main', /* 'methods' => [] */];
-    $cfg['service.aliases']['error'] = ['fail', /* 'methods' => [] */];
+    // service
+    $cfg['service'] = [];
+    // service aliases
+    $cfg['service']['aliases'] = [];
+    $cfg['service']['aliases']['home'] = ['main', /* 'methods' => [] */];
+    $cfg['service']['aliases']['error'] = ['fail', /* 'methods' => [] */];
 
     /**
      * Misc. options.
