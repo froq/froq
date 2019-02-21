@@ -423,9 +423,17 @@ final class App
      */
     private function applyConfig(array $config): void
     {
+        static $noMerge = ['locales'];
+
         // override
-        if (!empty($this->config)) {
-            $config = Config::merge($config, $this->config->getData());
+        if ($this->config != null) {
+            $newConfig = $config; $oldConfig = $this->config->getData();
+            foreach ($noMerge as $key) {
+                if (isset($newConfig[$key])) {
+                    unset($oldConfig[$key]);
+                }
+            }
+            $config = Config::merge($newConfig, $oldConfig);
         }
         $this->config = new Config($config);
 
