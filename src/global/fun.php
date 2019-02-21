@@ -272,14 +272,53 @@ function unslice($input1, $input2)
 }
 
 /**
- * We missed you so much baby..
- * @param  string   $delimiter
- * @param  string   $input
- * @param  int|null $limit
- * @param  int|null $flags
+ * Map.
+ * @param  array    $input
+ * @param  callable $func
+ * @param  int      $option
  * @return array
  */
-function split(string $delimiter, string $input, int $limit = null, int $flags = null)
+function map(array $input, callable $func, int $option = 0): array
+{
+    // use value,key
+    if ($option == 1) {
+        foreach ($input as $key => $value) {
+            $input[$key] = $func($value, $key);
+        }
+        return $input;
+    }
+
+    return array_map($func, $input);
+}
+
+/**
+ * Filter.
+ * @param  array    $input
+ * @param  callable $func
+ * @param  int      $option
+ * @return array
+ */
+function filter(array $input, callable $func = null, int $option = 0): array
+{
+    $func = $func ?? function ($value) {
+        return strlen((string) $value);
+    };
+
+    return array_filter($input, $func, $option);
+}
+
+/**
+ * We missed you so much baby..
+ * @param  string        $delimiter
+ * @param  string        $input
+ * @param  int|null      $limit
+ * @param  int|null      $flags
+ * @param  callable|null $map
+ * @param  callable|null $filter
+ * @return array
+ */
+function split(string $delimiter, string $input, int $limit = null, int $flags = null,
+    callable $map = null, callable $filter = null)
 {
     // regexp: only ~...~ patterns accepted
     $delimiterLength = strlen($delimiter);
@@ -298,6 +337,10 @@ function split(string $delimiter, string $input, int $limit = null, int $flags =
     if ($limit && $limit > ($returnSize = count($return))) {
         $return = array_merge($return, array_fill($returnSize, $limit - $returnSize, null));
     }
+
+    // map,filter return if provided
+    if ($map) $return = map($return, $map);
+    if ($filter) $return = filter($return, $filter);
 
     return $return;
 }
