@@ -150,7 +150,7 @@ if (!function_exists('error')) {
  * @param  array|string $input
  * @param  any          $search
  * @param  bool         $strict
- * @return bool
+ * @return bool|null
  * @since  3.0
  */
 function has($input, $search, bool $strict = true)
@@ -172,7 +172,7 @@ function has($input, $search, bool $strict = true)
  * Has key.
  * @param  array|object $input
  * @param  int|string   $key
- * @return bool
+ * @return bool|null
  * @since  3.0
  */
 function has_key($input, $key)
