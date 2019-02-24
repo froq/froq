@@ -272,6 +272,21 @@ function unslice($input1, $input2)
 }
 
 /**
+ * Grep.
+ * @param  string $input
+ * @param  string $pattern
+ * @param  int    $i
+ * @return ?array
+ */
+function grep(string $input, string $pattern, int $i = 1): ?array
+{
+    if (preg_match_all($pattern, $input, $matches) && isset($matches[$i])) {
+        return $matches[$i];
+    }
+    return null;
+}
+
+/**
  * Map.
  * @param  array    $input
  * @param  callable $func
