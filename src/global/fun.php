@@ -146,6 +146,26 @@ if (!function_exists('error')) {
 }
 
 /**
+ * Upper.
+ * @param  any $input
+ * @return ?string
+ */
+function upper($input): ?string
+{
+    return is_string($input) ? strtoupper($input) : null;
+}
+
+/**
+ * Lower.
+ * @param  any $input
+ * @return ?string
+ */
+function lower($input): ?string
+{
+    return is_string($input) ? strtolower($input) : null;
+}
+
+/**
  * Has.
  * @param  array|string $input
  * @param  any          $search
