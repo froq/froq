@@ -398,22 +398,22 @@ final class App
 
     /**
      * Call service method (for internal service method calls).
-     * @param  string $call
-     * @param  array  $arguments
+     * @param  string      $call
+     * @param  array|null  $callArgs
      * @return any
      * @throws froq\AppException
      */
-    public function callServiceMethod(string $call, array $arguments = [])
+    public function callServiceMethod(string $call, array $callArgs = null)
     {
         @ [$className, $classMethod] = explode('::', $call);
         if (!isset($className, $classMethod)) {
             throw new AppException('Both service class & method are required');
         }
 
-        $className = Service::NAMESPACE . $className;
+        $className = Service::NAMESPACE .'\\'. $className;
 
         // return service method call
-        return call_user_func_array([new $className($this), $classMethod], $arguments);
+        return call_user_func_array([new $className($this), $classMethod], (array) $callArgs);
     }
 
     /**
