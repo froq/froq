@@ -413,7 +413,7 @@ final class App
         $className = Service::NAMESPACE .'\\'. $className;
 
         // return service method call
-        return call_user_func_array([new $className($this), $classMethod], (array) $callArgs);
+        return call_user_func_array([new $className($this), $classMethod], $callArgs ? [$callArgs] : null);
     }
 
     /**
