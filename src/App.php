@@ -405,13 +405,18 @@ final class App
      */
     public function callServiceMethod(string $call, array $callArgs = null)
     {
-        @ [$class, $classMethod] = explode('::', $call);
-        if (!isset($class, $classMethod)) {
-            throw new AppException('Both service class & method are required');
+        @ [$className, $classMethod] = explode('::', $call);
+        if (!isset($className, $classMethod)) {
+            throw new AppException('Both service class name & method are required');
         }
 
-        $class = Service::NAMESPACE .'\\'. $class;
-        if (!class_exists($class, false)) {
+        $class = ServiceFactory::toServiceClass($className);
+        $classFile = ServiceFactory::toServiceFile($className);
+
+        if (!file_exists($classFile)) {
+            throw new AppException("Service class file '{$classFile}' not found");
+        }
+        if (!class_exists($class)) {
             throw new AppException("Service class '{$class}' not found");
         }
 
