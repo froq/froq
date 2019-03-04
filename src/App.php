@@ -421,7 +421,7 @@ final class App
         }
 
         // return service method call
-        return call_user_func_array([new $class($this), $classMethod], $callArgs ? [$callArgs] : null);
+        return call_user_func_array([new $class($this), $classMethod], $callArgs ? [$callArgs] : []);
     }
 
     /**
