@@ -410,6 +410,7 @@ final class App
             throw new AppException('Both service class name & method are required');
         }
 
+        $className = ServiceFactory::toServiceName($className);
         $class = ServiceFactory::toServiceClass($className);
         $classFile = ServiceFactory::toServiceFile($className);
 
