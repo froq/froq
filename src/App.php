@@ -409,10 +409,11 @@ final class App
      * Call service method (for internal service method calls).
      * @param  string      $call
      * @param  array|null  $callArgs
+     * @param  bool        $prepareMethod
      * @return any
      * @throws froq\AppException
      */
-    public function callServiceMethod(string $call, array $callArgs = null)
+    public function callServiceMethod(string $call, array $callArgs = null, bool $prepareMethod = false)
     {
         @ [$className, $classMethod] = explode('::', $call);
         if (!isset($className, $classMethod)) {
@@ -420,6 +421,9 @@ final class App
         }
 
         $className = ServiceFactory::toServiceName($className);
+        if ($prepareMethod) {
+            $classMethod = ServiceFactory::toServiceMethod($classMethod);
+        }
         $class = ServiceFactory::toServiceClass($className);
         $classFile = ServiceFactory::toServiceFile($className);
 
@@ -429,9 +433,16 @@ final class App
         if (!class_exists($class)) {
             throw new AppException("Service class '{$class}' not found");
         }
+        if (!method_exists($class, $classMethod)) {
+            throw new AppException("Service class method '{$classMethod}' not found");
+        }
+
+        $service = new $class($this);
+        $serviceMethod = $classMethod;
+        $service->setMethod($serviceMethod);
 
         // return service method call
-        return call_user_func_array([new $class($this), $classMethod], $callArgs ? [$callArgs] : []);
+        return call_user_func_array([$service, $serviceMethod], $callArgs ? [$callArgs] : []);
     }
 
     /**
