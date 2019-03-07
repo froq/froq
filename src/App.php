@@ -352,6 +352,15 @@ final class App
     }
 
     /**
+     * Is root.
+     * @return bool
+     */
+    public function isRoot(): bool
+    {
+        return $this->root == $this->request->uri()->getPath();
+    }
+
+    /**
      * Is dev.
      * @return bool
      */
