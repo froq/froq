@@ -252,8 +252,10 @@ function size($input)
 function strip($input, string $chars = null, int $side = 0)
 {
     $input = (string) $input;
-    $chars = $chars ?? " \t\n\r\0\x0b";
-    return $side == 0 ? trim($input, $chars) : ($side == 1 ? ltrim($input, $chars) : rtrim($input, $chars));
+    $chars = $chars ?: " \t\n\r\0\x0b";
+
+    return $side == 0 ? trim($input, $chars)
+        : ($side == 1 ? ltrim($input, $chars) : rtrim($input, $chars));
 }
 
 /**
