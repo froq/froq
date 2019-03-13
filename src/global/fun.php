@@ -136,7 +136,10 @@ if (!function_exists('error')) {
         $error = error_get_last();
 
         if ($error !== null) {
-            $error = preg_replace('~(?:.*?:)?.*?:\s*(.+)~', '\1', strtolower($error['message']));
+            $error = strtolower($error['message']);
+            if (strpos($error, '(')) {
+                $error = preg_replace('~(?:.*?:)?.*?:\s*(.+)~', '\1', $error);
+            }
             $error = $error ?: 'unknown error';
             $clear && error_clear_last();
         }
