@@ -86,9 +86,9 @@ function _isset($var) { return isset($var); }
 function _empty($var) { return empty($var); }
 
 // safe trim for strict mode
-function _trim($var, $chars = " \t\n\r\0\x0b")
+function _trim($var, $chars = null)
 {
-    return (string) trim((string) $var, (string) $chars);
+    return (string) trim((string) $var, (string) ($chars ?? " \t\n\r\0\x0b"));
 }
 
 /**
@@ -152,6 +152,7 @@ if (!function_exists('error')) {
  * Upper.
  * @param  any $input
  * @return ?string
+ * @since  3.0
  */
 function upper($input): ?string
 {
@@ -162,6 +163,7 @@ function upper($input): ?string
  * Lower.
  * @param  any $input
  * @return ?string
+ * @since  3.0
  */
 function lower($input): ?string
 {
@@ -235,10 +237,10 @@ function size($input)
 
     if ($input && is_object($input)) {
         if ($input instanceof \stdClass)      return count((array) $input);
-        if ($input instanceof \Traversable)   return count((array) iterator_to_array($input));
         if (method_exists($input, 'count'))   return $input->count();
         if (method_exists($input, 'size'))    return $input->size();
         if (method_exists($input, 'toArray')) return count($input->toArray());
+        if ($input instanceof \Traversable)   return count((array) iterator_to_array($input));
     }
 
     return null; // no valid input
@@ -246,19 +248,24 @@ function size($input)
 
 /**
  * Strip.
- * @param  string|null $input
+ * @param  string      $input
  * @param  string|null $chars
- * @param  int         $side
  * @return string
  * @since  3.0
  */
-function strip($input, string $chars = null, int $side = 0)
+function strip($input, string $chars = null)
 {
-    $input = (string) $input;
-    $chars = $chars ?: " \t\n\r\0\x0b";
+    if ($chars != null) {
+        // regexp: only ~...~ patterns accepted
+        $charsLen = strlen($chars);
+        if ($charsLen >= 2 && $chars[0] == '~') {
+            $pattern = substr($chars, 1, ($pos = strrpos($chars, '~')) - 1);
+            $modifiers = substr($chars, $pos + 1);
+            return preg_replace(sprintf('~^%s|%s$~%s', $pattern, $pattern, $modifiers), '', $input);
+        }
+    }
 
-    return $side == 0 ? trim($input, $chars)
-        : ($side == 1 ? ltrim($input, $chars) : rtrim($input, $chars));
+    return _trim($input, $chars);
 }
 
 /**
@@ -271,8 +278,12 @@ function strip($input, string $chars = null, int $side = 0)
  */
 function slice($input, int $offset, int $length = null)
 {
-    if (is_array($input)) return array_slice($input, $offset, $length);
-    if (is_string($input)) return substr($input, $offset, $length ?? strlen($input));
+    if (is_array($input)) {
+        return array_slice($input, $offset, $length);
+    }
+    if (is_string($input)) {
+        return substr($input, $offset, $length ?? strlen($input));
+    }
 
     return null; // no valid input
 }
@@ -302,6 +313,7 @@ function unslice($input1, $input2)
  * @param  string $pattern
  * @param  int    $i
  * @return ?array
+ * @since  3.0
  */
 function grep(string $input, string $pattern, int $i = 1): ?array
 {
@@ -312,11 +324,28 @@ function grep(string $input, string $pattern, int $i = 1): ?array
 }
 
 /**
+ * Pad.
+ * @param  array    $array
+ * @param  int      $size
+ * @param  any|null $value
+ * @return array
+ * @since  3.1
+ */
+function pad(array $array, int $size, $value = null): array
+{
+    if (sizeof($array) < $size) {
+        $array = array_pad($array, $size, $value);
+    }
+    return $array;
+}
+
+/**
  * Map.
  * @param  array    $input
  * @param  callable $func
  * @param  int      $option
  * @return array
+ * @since  3.0
  */
 function map(array $input, callable $func, int $option = 0): array
 {
@@ -337,6 +366,7 @@ function map(array $input, callable $func, int $option = 0): array
  * @param  callable $func
  * @param  int      $option
  * @return array
+ * @since  3.0
  */
 function filter(array $input, callable $func = null, int $option = 0): array
 {
@@ -362,9 +392,9 @@ function split(string $delimiter, string $input, int $limit = null, int $flags =
     callable $map = null, callable $filter = null, string $unsplit = null)
 {
     // regexp: only ~...~ patterns accepted
-    $delimiterLength = strlen($delimiter);
-    if ($delimiterLength == 0 /* split all */ ||
-        ($delimiterLength >= 2 && $delimiter[0] == '~') /* regexp */) {
+    $delimiterLen = strlen($delimiter);
+    if ($delimiterLen == 0 /* split all */ ||
+        ($delimiterLen >= 2 && $delimiter[0] == '~') /* regexp */) {
         $return = (array) preg_split($delimiter, $input, $limit ?? -1,
             ($flags === null) ? PREG_SPLIT_NO_EMPTY : $flags);
     } else {
