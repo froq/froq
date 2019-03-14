@@ -333,10 +333,7 @@ function grep(string $input, string $pattern, int $i = 1): ?array
  */
 function pad(array $array, int $size, $value = null): array
 {
-    if (sizeof($array) < $size) {
-        $array = array_pad($array, $size, $value);
-    }
-    return $array;
+    return array_pad($array, $size, $value);
 }
 
 /**
