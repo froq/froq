@@ -46,6 +46,19 @@ function delete_global($key)
 }
 
 /**
+ * No.
+ * @param  ... $vars
+ * @return bool
+ */
+function no(...$vars) {
+    foreach ($vars as $var) {
+        if (!$var) return true;
+        if ($var instanceof \stdClass && !((array) $var)) return true;
+    }
+    return false;
+}
+
+/**
  * Default value getter for null variables.
  * @param  any $a
  * @param  any $b
@@ -151,10 +164,10 @@ if (!function_exists('error')) {
 /**
  * Upper.
  * @param  any $input
- * @return ?string
+ * @return string|null
  * @since  3.0
  */
-function upper($input): ?string
+function upper($input)
 {
     return is_string($input) ? strtoupper($input) : null;
 }
@@ -162,10 +175,10 @@ function upper($input): ?string
 /**
  * Lower.
  * @param  any $input
- * @return ?string
+ * @return string|null
  * @since  3.0
  */
-function lower($input): ?string
+function lower($input)
 {
     return is_string($input) ? strtolower($input) : null;
 }
@@ -258,14 +271,15 @@ function strip($input, string $chars = null)
     if ($chars != null) {
         // regexp: only ~...~ patterns accepted
         $charsLen = strlen($chars);
-        if ($charsLen >= 2 && $chars[0] == '~') {
-            $pattern = substr($chars, 1, ($pos = strrpos($chars, '~')) - 1);
+        if ($charsLen > 2 && $chars[0] == '~') {
+            $rules = substr($chars, 1, ($pos = strrpos($chars, '~')) - 1);
             $modifiers = substr($chars, $pos + 1);
-            return preg_replace(sprintf('~^%s|%s$~%s', $pattern, $pattern, $modifiers), '', $input);
+            $pattern = sprintf('~^%s|%s$~%s', $rules, $rules, $modifiers);
+            return preg_replace($pattern, '', $input);
         }
     }
 
-    return _trim($input, $chars);
+    return _trim($input, $chars); // save trim
 }
 
 /**
@@ -312,10 +326,10 @@ function unslice($input1, $input2)
  * @param  string $input
  * @param  string $pattern
  * @param  int    $i
- * @return ?array
+ * @return array|null
  * @since  3.0
  */
-function grep(string $input, string $pattern, int $i = 1): ?array
+function grep(string $input, string $pattern, int $i = 1)
 {
     if (preg_match_all($pattern, $input, $matches) && isset($matches[$i])) {
         return $matches[$i];
@@ -331,7 +345,7 @@ function grep(string $input, string $pattern, int $i = 1): ?array
  * @return array
  * @since  3.1
  */
-function pad(array $array, int $size, $value = null): array
+function pad(array $array, int $size, $value = null)
 {
     return array_pad($array, $size, $value);
 }
@@ -344,7 +358,7 @@ function pad(array $array, int $size, $value = null): array
  * @return array
  * @since  3.0
  */
-function map(array $input, callable $func, int $option = 0): array
+function map(array $input, callable $func, int $option = 0)
 {
     // use value,key
     if ($option == 1) {
@@ -365,7 +379,7 @@ function map(array $input, callable $func, int $option = 0): array
  * @return array
  * @since  3.0
  */
-function filter(array $input, callable $func = null, int $option = 0): array
+function filter(array $input, callable $func = null, int $option = 0)
 {
     $func = $func ?? function ($value) {
         return strlen((string) $value);
@@ -376,56 +390,48 @@ function filter(array $input, callable $func = null, int $option = 0): array
 
 /**
  * We missed you so much baby..
- * @param  string        $delimiter
+ * @param  string        $delim
  * @param  string        $input
  * @param  int|null      $limit
  * @param  int|null      $flags
- * @param  callable|null $map
- * @param  callable|null $filter
- * @param  string|null   $filter
  * @return array
  */
-function split(string $delimiter, string $input, int $limit = null, int $flags = null,
-    callable $map = null, callable $filter = null, string $unsplit = null)
+function split(string $delim, string $input, int $limit = null, int $flags = null)
 {
     // regexp: only ~...~ patterns accepted
-    $delimiterLen = strlen($delimiter);
-    if ($delimiterLen == 0 /* split all */ ||
-        ($delimiterLen >= 2 && $delimiter[0] == '~') /* regexp */) {
-        $return = (array) preg_split($delimiter, $input, $limit ?? -1,
-            ($flags === null) ? PREG_SPLIT_NO_EMPTY : $flags);
+    $delimLen = strlen($delim);
+    if ($delimLen == 0) { // split all
+        $delim = '~~u';
+        $delimLen = 3;
+    }
+
+    if ($delimLen > 2 && $delim[0] == '~') { // regexp
+        $ret = (array) preg_split($delim, $input, $limit ?? -1, $flags ?? 1); // no empty=1
     } else {
-        $return = (array) explode($delimiter, $input, $limit ?? PHP_INT_MAX);
-        if ($flags === null) { // no empty
-            $return = array_filter($return, 'strlen');
+        $ret = (array) explode($delim, $input, $limit ?? PHP_INT_MAX);
+        if ($flags === null) { // no empty=null
+            $ret = array_filter($ret, 'strlen');
         }
     }
 
     // plus: prevent 'undefined index..' error
-    if ($limit && $limit > ($returnSize = count($return))) {
-        $return = array_merge($return, array_fill($returnSize, $limit - $returnSize, null));
+    if ($limit && $limit > 0 && $limit != count($ret)) {
+        $ret = array_pad($ret, $limit, null);
     }
 
-    // map,filter if provided
-    if ($map) $return = map($return, $map);
-    if ($filter) $return = filter($return, $filter);
-
-    // yea, some devs are so lazy.. pofff :)
-    if ($unsplit) $return = unsplit($unsplit, $return);
-
-    return $return;
+    return $ret;
 }
 
 /**
  * Unsplit (fun function).
- * @param  string $delimiter
+ * @param  string $delim
  * @param  array  $input
  * @return string
  * @since  3.0
  */
-function unsplit(string $delimiter, array $input)
+function unsplit(string $delim, array $input)
 {
-    return join($delimiter, $input);
+    return join($delim, $input);
 }
 
 /**
@@ -449,7 +455,7 @@ function remove($input, $search)
  * @return array|string|null
  * @since  3.0
  */
-function replace($input, $search, $replacement, bool $remove = false)
+function replace($input, $search, $replacement, $remove = false)
 {
     if (is_array($input)) {
         $key = array_search($search, $input);
@@ -460,7 +466,7 @@ function replace($input, $search, $replacement, bool $remove = false)
         }
     } elseif (is_string($input)) {
         $search = (string) $search;
-        if (strlen($search) > 2 && $search[0] == '~' /* regexp */) {
+        if (strlen($search) > 2 && $search[0] == '~') { // regexp
             $input = preg_replace($search, $replacement, $input);
         } else {
             $input = str_replace($search, $replacement, $input);
