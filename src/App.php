@@ -437,12 +437,18 @@ final class App
             throw new AppException("Service class method '{$classMethod}' not found");
         }
 
-        $service = new $class($this);
-        $serviceMethod = $classMethod;
-        $service->setMethod($serviceMethod);
+        // keep current service
+        $service = $this->service;
 
-        // return service method call
-        return call_user_func_array([$service, $serviceMethod], $callArgs ? [$callArgs] : []);
+        // override (get_service() etc. sould accurate service info)
+        $this->service = new $class($this, $className, $classMethod, $callArgs ?? []);
+
+        $ret = $this->service->run(false);
+
+        // restore current service
+        $this->service = $service;
+
+        return $ret;
     }
 
     /**
