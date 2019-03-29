@@ -530,7 +530,7 @@ final class App
             while (ob_get_level()) {
                 ob_end_clean();
             }
-            $this->response->setContentType('none');
+            $this->response->body()->setContentType('none');
         }
         // handle outputs
         else {
