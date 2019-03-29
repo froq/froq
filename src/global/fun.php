@@ -50,12 +50,26 @@ function delete_global($key)
  * @param  ... $vars
  * @return bool
  */
-function no(...$vars) {
+function no(...$vars)
+{
     foreach ($vars as $var) {
         if (!$var) return true;
         if ($var instanceof \stdClass && !((array) $var)) return true;
     }
     return false;
+}
+
+/**
+ * Env.
+ * @param  string   $key
+ * @param  any|null $value
+ * @return any|void
+ */
+function env($name, $value = null)
+{
+    return ($value === null)
+        ? \froq\util\Util::getEnv($name)
+        : \froq\util\Util::setEnv($name, $value);
 }
 
 /**
