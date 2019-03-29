@@ -61,15 +61,27 @@ function no(...$vars)
 
 /**
  * Env.
- * @param  string   $key
- * @param  any|null $value
+ * @param  string|array $key
+ * @param  any|null     $value
  * @return any|void
  */
-function env($name, $value = null)
+function env($key, $value = null)
 {
-    return ($value === null)
-        ? \froq\util\Util::getEnv($name)
-        : \froq\util\Util::setEnv($name, $value);
+    // get
+    if ($value === null) {
+        if (is_array($key)) {
+            $ret = [];
+            foreach ($key as $ke) {
+                $ret[] = \froq\util\Util::getEnv($ke);
+            }
+        } else {
+            $ret = \froq\util\Util::getEnv($key);
+        }
+        return $ret;
+    }
+
+    // set
+    \froq\util\Util::setEnv($key, $value);
 }
 
 /**
