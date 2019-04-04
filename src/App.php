@@ -336,8 +336,8 @@ final class App
         set_global('app', $this);
 
         // create service
-        $this->service = ServiceFactory::create($this);
-        if ($this->service == null) {
+        $service = ServiceFactory::create($this);
+        if ($service == null) {
             throw new AppException('Could not create service');
         }
 
@@ -345,7 +345,7 @@ final class App
 
         // here!!
         $this->events->fire('service.beforeRun');
-        $output = $this->service->run();
+        $output = $service->run();
         $this->events->fire('service.afterRun');
 
         $this->endOutputBuffer($output);
@@ -406,6 +406,26 @@ final class App
     }
 
     /**
+     * Set service.
+     * @param  froq\service\Service $service
+     * @return void
+     */
+    public function setService(Service $service): void
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * Set service method.
+     * @param  string $method
+     * @return void
+     */
+    public function setServiceMethod(string $method): void
+    {
+        $this->service && $this->service->setMethod($method);
+    }
+
+    /**
      * Call service method (for internal service method calls).
      * @param  string      $call
      * @param  array|null  $callArgs
@@ -440,15 +460,15 @@ final class App
         // keep current service
         $service = $this->service;
 
-        // override (get_service() etc. sould accurate service info)
-        $this->service = new $class($this, $className, $classMethod, $callArgs ?? []);
+        // overrides also in service constructor (so, get_service() etc. sould accurate service info)
+        $this->service = new $class($this, $className, $classMethod, $callArgs ?? [], $service);
 
-        $ret = $this->service->run(false);
+        $output = $this->service->run(false);
 
         // restore current service
         $this->service = $service;
 
-        return $ret;
+        return $output;
     }
 
     /**
