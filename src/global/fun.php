@@ -60,6 +60,19 @@ function no(...$vars)
 }
 
 /**
+ * Not.
+ * @param  ... $vars
+ * @return bool
+ */
+function not(...$vars)
+{
+    foreach ($vars as $var) {
+        if ($var === false) return true;
+    }
+    return false;
+}
+
+/**
  * Env.
  * @param  string|array $key
  * @param  any|null     $value
