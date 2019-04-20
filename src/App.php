@@ -478,7 +478,7 @@ final class App
      */
     private function applyConfig(array $config): void
     {
-        static $noMerge = ['locales'];
+        static $noMerge = ['locales', 'logger'];
 
         // override
         if ($this->config != null) {
@@ -492,11 +492,11 @@ final class App
         }
         $this->config = new Config($config);
 
-        // set/reset log options
-        $logOptions = $this->config->get('logger');
-        if ($logOptions != null) {
-            isset($logOptions['level']) && $this->logger->setLevel($logOptions['level']);
-            isset($logOptions['directory']) && $this->logger->setDirectory($logOptions['directory']);
+        // set/reset logger options
+        $loggerOptions = $this->config->get('logger');
+        if ($loggerOptions != null) {
+            isset($loggerOptions['level']) && $this->logger->setLevel($loggerOptions['level']);
+            isset($loggerOptions['directory']) && $this->logger->setDirectory($loggerOptions['directory']);
         }
     }
 

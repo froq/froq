@@ -74,7 +74,6 @@ return (function() {
     $cfg['logger'] = [];
     $cfg['logger']['level'] = froq\logger\Logger::FAIL | froq\logger\Logger::WARN;
     $cfg['logger']['directory'] = APP_DIR .'/tmp/log/app/';
-    $cfg['logger']['filenameFormat'] = 'Y-m-d';
 
     /**
      * Security & safety options.
