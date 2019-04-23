@@ -19,12 +19,12 @@ return (function() {
     $cfg['timezone'] = 'UTC';
     $cfg['language'] = 'en';
     $cfg['encoding'] = 'UTF-8';
-    $cfg['locales'] = [LC_TIME => 'en_US.UTF-8', /* ... */];
+    $cfg['locales'] = [LC_TIME => 'en_US.UTF-8'];
 
     // initial response headers
     $cfg['headers'] = [];
     $cfg['headers']['Expires'] = 'Thu, 19 Nov 1981 08:10:00 GMT';
-    $cfg['headers']['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, pre-check=0, post-check=0';
+    $cfg['headers']['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, pre-check=0, post-check=0';
     $cfg['headers']['Pragma'] = 'no-cache';
     $cfg['headers']['Connection'] = 'close';
     $cfg['headers']['X-Powered-By'] = null; // null = remove
