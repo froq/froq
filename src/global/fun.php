@@ -391,10 +391,10 @@ function pad(array $array, int $size, $value = null)
 
 /**
  * Map.
- * @param  array    $input
- * @param  callable $func
- * @param  int      $option
- * @return array
+ * @param  array|object $input
+ * @param  callable     $func
+ * @param  int          $option
+ * @return array|object
  * @since  3.0
  */
 function map(array $input, callable $func, int $option = 0)
@@ -407,24 +407,44 @@ function map(array $input, callable $func, int $option = 0)
         return $input;
     }
 
-    return array_map($func, $input);
+    $is_object = is_object($input);
+    if ($is_object) {
+        $input = (array) $input;
+    }
+
+    $input = array_map($func, $input);
+    if ($is_object) {
+        $input = (object) $input;
+    }
+
+    return $input;
 }
 
 /**
  * Filter.
- * @param  array    $input
- * @param  callable $func
- * @param  int      $option
- * @return array
+ * @param  array|object $input
+ * @param  callable     $func
+ * @param  int          $option
+ * @return array|object
  * @since  3.0
  */
-function filter(array $input, callable $func = null, int $option = 0)
+function filter($input, callable $func = null, int $option = 0)
 {
     $func = $func ?? function ($value) {
         return strlen((string) $value);
     };
 
-    return array_filter($input, $func, $option);
+    $is_object = is_object($input);
+    if ($is_object) {
+        $input = (array) $input;
+    }
+
+    $input = array_filter($input, $func, $option);
+    if ($is_object) {
+        $input = (object) $input;
+    }
+
+    return $input;
 }
 
 /**
