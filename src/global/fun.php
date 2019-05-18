@@ -116,7 +116,7 @@ function if_nil($a, $b)
  */
 function if_nils($a, $b)
 {
-    return (nils !== trim((string) $a)) ? $a : $b;
+    return (nils !== strval($a)) ? $a : $b;
 }
 
 /**
@@ -127,12 +127,9 @@ function if_nils($a, $b)
  */
 function if_empty($a, $b)
 {
-    return !empty($a) ? $a : $b;
+    return $a ? $a : $b;
 }
 
-/**
- * Some tricky functions.
- */
 // nö!
 function _isset($var) { return isset($var); }
 function _empty($var) { return empty($var); }

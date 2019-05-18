@@ -25,7 +25,7 @@
 ob_start();
 
 /**
- * Just for fun.
+ * Nil (aka null).
  * @const null
  */
 if (!defined('NIL')) {
@@ -33,7 +33,7 @@ if (!defined('NIL')) {
 }
 
 /**
- * More readable empty strings.
+ * Nils (aka null string).
  * @const string
  */
 if (!defined('NILS')) {
