@@ -97,6 +97,7 @@ return (function() {
 
     // service
     $cfg['service'] = [];
+    $cfg['service']['allowRealName'] = true;
     // service aliases
     $cfg['service']['aliases'] = [];
     $cfg['service']['aliases']['home'] = ['main', /* 'methods' => [] */];
