@@ -523,7 +523,9 @@ function replace($input, $search, $replacement, $remove = false)
     } elseif (is_string($input)) {
         $search = (string) $search;
         if (strlen($search) > 2 && $search[0] == '~') { // regexp
-            $input = preg_replace($search, $replacement, $input);
+            $input = !is_callable($replacement)
+                ? preg_replace($search, $replacement, $input)
+                : preg_replace_callback($search, $replacement, $input);
         } else {
             $input = str_replace($search, $replacement, $input);
         }
