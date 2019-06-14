@@ -394,7 +394,7 @@ function pad(array $array, int $size, $value = null)
  * @return array|object
  * @since  3.0
  */
-function map(array $input, callable $func, int $option = 0)
+function map($input, callable $func, int $option = 0)
 {
     // use value,key
     if ($option == 1) {
