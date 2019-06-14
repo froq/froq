@@ -374,19 +374,6 @@ function grep(string $input, string $pattern, int $i = 1)
 }
 
 /**
- * Pad.
- * @param  array    $array
- * @param  int      $size
- * @param  any|null $value
- * @return array
- * @since  3.1
- */
-function pad(array $array, int $size, $value = null)
-{
-    return array_pad($array, $size, $value);
-}
-
-/**
  * Map.
  * @param  array|object $input
  * @param  callable     $func
