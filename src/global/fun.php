@@ -3,6 +3,8 @@
  * Global functions. *
  *********************/
 
+use froq\util\Util;
+
 /**
  * Set Froq! global key, and init sub-array.
  */
@@ -53,8 +55,9 @@ function delete_global($key)
 function no(...$vars)
 {
     foreach ($vars as $var) {
-        if (!$var) return true;
-        if ($var instanceof \stdClass && !((array) $var)) return true;
+        if (!$var || ($var instanceof \stdClass && !((array) $var))) {
+            return true;
+        }
     }
     return false;
 }
@@ -67,7 +70,9 @@ function no(...$vars)
 function not(...$vars)
 {
     foreach ($vars as $var) {
-        if ($var === false) return true;
+        if ($var === false) {
+            return true;
+        }
     }
     return false;
 }
@@ -83,18 +88,18 @@ function env($key, $value = null)
     // get
     if ($value === null) {
         if (is_array($key)) {
-            $ret = [];
+            $value = [];
             foreach ($key as $ke) {
-                $ret[] = \froq\util\Util::getEnv($ke);
+                $value[] = Util::getEnv($ke);
             }
         } else {
-            $ret = \froq\util\Util::getEnv($key);
+            $value = Util::getEnv($key);
         }
-        return $ret;
+        return $value;
     }
 
     // set
-    \froq\util\Util::setEnv($key, $value);
+    Util::setEnv($key, $value);
 }
 
 /**
