@@ -108,10 +108,10 @@ return (function() {
      */
 
     // pager
-    $cfg['pager'] = [];
-    $cfg['pager']['s'] = 's';    // start
-    $cfg['pager']['ss'] = 'ss';  // stop
-    $cfg['pager']['limit'] = 10; // limit
+    // $cfg['pager'] = [];
+    // $cfg['pager']['startKey'] = 's';
+    // $cfg['pager']['stopKey'] = 'ss';
+    // $cfg['pager']['stopMax'] = 100;
 
     return $cfg;
 })();
