@@ -388,25 +388,22 @@ function grep(string $input, string $pattern, int $i = 1)
  */
 function map($input, callable $func, int $option = 0)
 {
-    // use value,key
-    if ($option == 1) {
-        foreach ($input as $key => $value) {
-            $input[$key] = $func($value, $key);
-        }
-        return $input;
-    }
-
     $is_object = is_object($input);
     if ($is_object) {
         $input = (array) $input;
     }
 
-    $input = array_map($func, $input);
-    if ($is_object) {
-        $input = (object) $input;
+    // use key,value
+    if ($option == 1) {
+        foreach ($input as $key => $value) {
+            $input[$key] = $func($key, $value);
+        }
+        return $is_object ? (object) $input : $input;
     }
 
-    return $input;
+    $input = array_map($func, $input);
+
+    return $is_object ? (object) $input : $input;
 }
 
 /**
@@ -429,11 +426,8 @@ function filter($input, callable $func = null, int $option = 0)
     }
 
     $input = array_filter($input, $func, $option);
-    if ($is_object) {
-        $input = (object) $input;
-    }
 
-    return $input;
+    return $is_object ? (object) $input : $input;
 }
 
 /**
