@@ -286,7 +286,7 @@ function len($input)
 function size($input)
 {
     if (is_array($input))   return count($input);
-    if (is_string($input))  return strlen($input);
+    if (is_string($input))  return mb_strlen($input);
     if (is_numeric($input)) return strlen((string) $input);
 
     if ($input && is_object($input)) {
@@ -337,7 +337,7 @@ function slice($input, int $offset, int $length = null)
         return array_slice($input, $offset, $length);
     }
     if (is_string($input)) {
-        return substr($input, $offset, $length ?? strlen($input));
+        return mb_substr($input, $offset, $length ?? mb_strlen($input));
     }
 
     return null; // no valid input
