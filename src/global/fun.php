@@ -382,26 +382,25 @@ function grep(string $input, string $pattern, int $i = 1)
  * Map.
  * @param  array|object $input
  * @param  callable     $func
- * @param  int          $option
+ * @param  bool         $kv
  * @return array|object
  * @since  3.0
  */
-function map($input, callable $func, int $option = 0)
+function map($input, callable $func, bool $kv = false)
 {
     $is_object = is_object($input);
     if ($is_object) {
         $input = (array) $input;
     }
 
-    // use key,value
-    if ($option == 1) {
+    if (!$kv) {
+        $input = array_map($func, $input);
+    } else {
+        // use key,value
         foreach ($input as $key => $value) {
             $input[$key] = $func($key, $value);
         }
-        return $is_object ? (object) $input : $input;
     }
-
-    $input = array_map($func, $input);
 
     return $is_object ? (object) $input : $input;
 }
@@ -410,11 +409,11 @@ function map($input, callable $func, int $option = 0)
  * Filter.
  * @param  array|object $input
  * @param  callable     $func
- * @param  int          $option
+ * @param  bool         $kv
  * @return array|object
  * @since  3.0
  */
-function filter($input, callable $func = null, int $option = 0)
+function filter($input, callable $func = null, bool $kv = false)
 {
     $func = $func ?? function ($value) {
         return strlen((string) $value);
@@ -425,7 +424,16 @@ function filter($input, callable $func = null, int $option = 0)
         $input = (array) $input;
     }
 
-    $input = array_filter($input, $func, $option);
+    if (!$kv) {
+        $input = array_filter($input, $func);
+    } else {
+        // use key,value
+        foreach ($input as $key => $value) {
+            if ($func($key, $value)) {
+                $input[$key] = $value;
+            }
+        }
+    }
 
     return $is_object ? (object) $input : $input;
 }
