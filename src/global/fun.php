@@ -382,52 +382,56 @@ function grep(string $input, string $pattern, int $i = 1)
  * Map.
  * @param  array|object $input
  * @param  callable     $func
- * @param  bool         $kv
+ * @param  array|null   $keys
  * @return array|object
  * @since  3.0
  */
-function map($input, callable $func, bool $kv = false)
+function map($input, callable $func, array $keys = null)
 {
-    $is_object = is_object($input);
-    if ($is_object) {
+    // object check
+    $check = is_object($input);
+    if ($check) {
         $input = (array) $input;
     }
 
-    if (!$kv) {
+    if ($keys === null) {
         $input = array_map($func, $input);
-    } else {
-        // use key,value
+    } else { // use key,value
+        $keys = $keys ?: array_keys($input);
         foreach ($input as $key => $value) {
-            $input[$key] = $func($key, $value);
+            if (in_array($key, $keys)) {
+                $input[$key] = $func($key, $value);
+            }
         }
     }
 
-    return $is_object ? (object) $input : $input;
+    return $check ? (object) $input : $input;
 }
 
 /**
  * Filter.
  * @param  array|object $input
  * @param  callable     $func
- * @param  bool         $kv
+ * @param  array|null   $keys
  * @return array|object
  * @since  3.0
  */
-function filter($input, callable $func = null, bool $kv = false)
+function filter($input, callable $func = null, array $keys = null)
 {
     $func = $func ?? function ($value) {
         return strlen((string) $value);
     };
 
-    $is_object = is_object($input);
-    if ($is_object) {
+    // object check
+    $check = is_object($input);
+    if ($check) {
         $input = (array) $input;
     }
 
-    if (!$kv) {
+    if ($keys === null) {
         $input = array_filter($input, $func);
-    } else {
-        // use key,value
+    } else { // use key,value
+        $keys = $keys ?: array_keys($input);
         foreach ($input as $key => $value) {
             if ($func($key, $value)) {
                 $input[$key] = $value;
@@ -435,7 +439,7 @@ function filter($input, callable $func = null, bool $kv = false)
         }
     }
 
-    return $is_object ? (object) $input : $input;
+    return $check ? (object) $input : $input;
 }
 
 /**
