@@ -382,11 +382,11 @@ function grep(string $input, string $pattern, int $i = 1)
  * Map.
  * @param  array|object $input
  * @param  callable     $func
- * @param  array|null   $keys
+ * @param  array|string $keys
  * @return array|object
  * @since  3.0
  */
-function map($input, callable $func, array $keys = null)
+function map($input, callable $func, $keys = null)
 {
     // object check
     $check = is_object($input);
@@ -397,7 +397,7 @@ function map($input, callable $func, array $keys = null)
     if ($keys === null) {
         $input = array_map($func, $input);
     } else { // use key,value
-        $keys = $keys ?: array_keys($input);
+        $keys = ($keys == '*') ? array_keys($input) : $keys;
         foreach ($input as $key => $value) {
             if (in_array($key, $keys)) {
                 $input[$key] = $func($key, $value);
@@ -412,11 +412,11 @@ function map($input, callable $func, array $keys = null)
  * Filter.
  * @param  array|object $input
  * @param  callable     $func
- * @param  array|null   $keys
+ * @param  array|string $keys
  * @return array|object
  * @since  3.0
  */
-function filter($input, callable $func = null, array $keys = null)
+function filter($input, callable $func = null, $keys = null)
 {
     $func = $func ?? function ($value) {
         return strlen((string) $value);
@@ -431,7 +431,7 @@ function filter($input, callable $func = null, array $keys = null)
     if ($keys === null) {
         $input = array_filter($input, $func);
     } else { // use key,value
-        $keys = $keys ?: array_keys($input);
+        $keys = ($keys == '*') ? array_keys($input) : $keys;
         foreach ($input as $key => $value) {
             if ($func($key, $value)) {
                 $input[$key] = $value;
