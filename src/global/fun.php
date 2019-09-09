@@ -226,13 +226,13 @@ function lower($input)
 
 /**
  * Has.
- * @param  array|string $input
  * @param  any          $search
+ * @param  array|string $input
  * @param  bool         $strict
  * @return bool|null
  * @since  3.0
  */
-function has($input, $search, bool $strict = true)
+function has($search, $input, bool $strict = true)
 {
     if (is_string($input)) {
         return false !== ($strict ? strpos($input, (string) $search) : stripos($input, (string) $search));
@@ -249,18 +249,18 @@ function has($input, $search, bool $strict = true)
 
 /**
  * Has key.
+ * @param  int|string   $search
  * @param  array|object $input
- * @param  int|string   $key
  * @return bool|null
  * @since  3.0
  */
-function has_key($input, $key)
+function has_key($search, $input)
 {
     if (is_array($input)) {
-        return array_key_exists($key, $input);
+        return array_key_exists($search, $input);
     }
     if (is_object($input)) {
-        return array_key_exists($key, get_class_vars($input));
+        return array_key_exists($search, get_class_vars($input));
     }
 
     return null; // no valid input
