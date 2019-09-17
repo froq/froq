@@ -185,7 +185,7 @@ if (!function_exists('error')) {
      * @return string|null
      * @since  3.0
      */
-    function error(bool $clear = false)
+    function error($clear = false)
     {
         $error = error_get_last();
 
@@ -232,7 +232,7 @@ function lower($input)
  * @return bool|null
  * @since  3.0
  */
-function has($search, $input, bool $strict = true)
+function has($search, $input, $strict = true)
 {
     if (is_string($input)) {
         return false !== ($strict ? strpos($input, (string) $search) : stripos($input, (string) $search));
@@ -307,7 +307,7 @@ function size($input)
  * @return string
  * @since  3.0
  */
-function strip($input, string $chars = null)
+function strip($input, $chars = null)
 {
     if ($chars != null) {
         // regexp: only ~...~ patterns accepted
@@ -331,7 +331,7 @@ function strip($input, string $chars = null)
  * @return array|string|null
  * @since  3.0
  */
-function slice($input, int $offset, int $length = null)
+function slice($input, $offset, $length = null)
 {
     if (is_array($input)) {
         return array_slice($input, $offset, $length);
@@ -370,7 +370,7 @@ function unslice($input1, $input2)
  * @return array|null
  * @since  3.0
  */
-function grep(string $input, string $pattern, int $i = 1)
+function grep($input, $pattern, $i = 1)
 {
     if (preg_match_all($pattern, $input, $matches) && isset($matches[$i])) {
         return $matches[$i];
@@ -386,7 +386,7 @@ function grep(string $input, string $pattern, int $i = 1)
  * @return array|object
  * @since  3.0
  */
-function map($input, callable $func, $keys = null)
+function map($input, $func, $keys = null)
 {
     // object check
     $check = is_object($input);
@@ -416,7 +416,7 @@ function map($input, callable $func, $keys = null)
  * @return array|object
  * @since  3.0
  */
-function filter($input, callable $func = null, $keys = null)
+function filter($input, $func = null, $keys = null)
 {
     $func = $func ?? function ($value) {
         return strlen((string) $value);
@@ -444,22 +444,22 @@ function filter($input, callable $func = null, $keys = null)
 
 /**
  * We missed you so much baby..
- * @param  string        $delim
- * @param  string        $input
- * @param  int|null      $limit
- * @param  int|null      $flags
+ * @param  string   $delim
+ * @param  string   $input
+ * @param  int|null $limit
+ * @param  int|null $flags
  * @return array
  */
-function split(string $delim, string $input, int $limit = null, int $flags = null)
+function split($delim, $input, $limit = null, $flags = null)
 {
     // regexp: only ~...~ patterns accepted
-    $delimLen = strlen($delim);
-    if ($delimLen == 0) { // split all
+    $delim_len = strlen($delim);
+    if ($delim_len == 0) { // split all
         $delim = '~~u';
-        $delimLen = 3;
+        $delim_len = 3;
     }
 
-    if ($delimLen > 2 && $delim[0] == '~') { // regexp
+    if ($delim_len > 2 && $delim[0] == '~') { // regexp
         $ret = (array) preg_split($delim, $input, $limit ?? -1, $flags ?? 1); // no empty=1
     } else {
         $ret = (array) explode($delim, $input, $limit ?? PHP_INT_MAX);
@@ -483,7 +483,7 @@ function split(string $delim, string $input, int $limit = null, int $flags = nul
  * @return string
  * @since  3.0
  */
-function unsplit(string $delim, array $input)
+function unsplit($delim, $input)
 {
     return join($delim, $input);
 }
