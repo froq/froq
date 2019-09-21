@@ -210,7 +210,7 @@ if (!function_exists('error')) {
  */
 function upper($input)
 {
-    return is_string($input) ? strtoupper($input) : null;
+    return is_string($input) ? mb_strtoupper($input) : null;
 }
 
 /**
@@ -221,49 +221,7 @@ function upper($input)
  */
 function lower($input)
 {
-    return is_string($input) ? strtolower($input) : null;
-}
-
-/**
- * Has.
- * @param  any          $search
- * @param  array|string $input
- * @param  bool         $strict
- * @return bool|null
- * @since  3.0
- */
-function has($search, $input, $strict = true)
-{
-    if (is_string($input)) {
-        return false !== ($strict ? strpos($input, (string) $search) : stripos($input, (string) $search));
-    }
-    if (is_array($input)) {
-        return in_array($search, $input, $strict);
-    }
-    if (is_object($input)) {
-        return in_array($search, get_class_vars($input), $strict);
-    }
-
-    return null; // no valid input
-}
-
-/**
- * Has key.
- * @param  int|string   $search
- * @param  array|object $input
- * @return bool|null
- * @since  3.0
- */
-function has_key($search, $input)
-{
-    if (is_array($input)) {
-        return array_key_exists($search, $input);
-    }
-    if (is_object($input)) {
-        return array_key_exists($search, get_class_vars($input));
-    }
-
-    return null; // no valid input
+    return is_string($input) ? mb_strtolower($input) : null;
 }
 
 /**
