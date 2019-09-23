@@ -324,14 +324,32 @@ function unslice($input1, $input2)
  * Grep.
  * @param  string $input
  * @param  string $pattern
- * @param  int    $i
- * @return array|null
+ * @return string|null
  * @since  3.0
  */
-function grep($input, $pattern, $i = 1)
+function grep($input, $pattern)
 {
-    if (preg_match_all($pattern, $input, $matches) && isset($matches[$i])) {
-        return $matches[$i];
+    preg_match($pattern, $input, $match);
+    if (isset($match[1])) {
+        return $match[1];
+    }
+    return null;
+}
+
+/**
+ * Grep all.
+ * @param  string $input
+ * @param  string $pattern
+ * @return array|null
+ * @since  3.15
+ */
+function grep_all($input, $pattern) {
+    preg_match_all($pattern, $input, $matches);
+    if (isset($matches[1])) {
+        foreach (array_slice($matches, 1) as $match) {
+            $ret[] = $match[0];
+        }
+        return $ret;
     }
     return null;
 }
