@@ -449,8 +449,8 @@ function remove($input, $search)
 function replace($input, $search, $replacement, $remove = false)
 {
     if (is_array($input)) {
-        $key = array_search($search, $input);
-        if ($key !== false && array_key_exists($key, $input)) {
+        $key = array_search($search, $input, true);
+        if ($key !== false) {
             if ($remove) {
                 unset($input[$key]);
             } else { $input[$key] = $replacement; }
