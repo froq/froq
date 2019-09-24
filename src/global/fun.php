@@ -282,45 +282,6 @@ function strip($input, $chars = null)
 }
 
 /**
- * Slice.
- * @param  array|string $input
- * @param  int          $offset
- * @param  int|null     $length
- * @return array|string|null
- * @since  3.0
- */
-function slice($input, $offset, $length = null)
-{
-    if (is_array($input)) {
-        return array_slice($input, $offset, $length);
-    }
-    if (is_string($input)) {
-        return mb_substr($input, $offset, $length ?? mb_strlen($input));
-    }
-
-    return null; // no valid input
-}
-
-/**
- * Unslice (fun function).
- * @param  array|string $input1
- * @param  array|string $input2
- * @return array|string|null
- * @since  3.0
- */
-function unslice($input1, $input2)
-{
-    if (is_array($input1) && is_array($input2)) {
-        return array_merge($input1, $input2);
-    }
-    if (is_string($input1) && is_string($input2)) {
-        return $input1 . $input2;
-    }
-
-    return null; // no valid input
-}
-
-/**
  * Grep.
  * @param  string $input
  * @param  string $pattern
