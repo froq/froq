@@ -38,19 +38,20 @@ return (function() {
 
     // session
     $cfg['session'] = [];
-    $cfg['session']['name'] = 'SID';
-    $cfg['session']['hash'] = true;
-    $cfg['session']['hashLength'] = 40; // ID length (32, 40, 64, 128)
-    $cfg['session']['savePath'] = null;
-    $cfg['session']['saveHandler'] = null;
-    // session cookie
-    $cfg['session']['cookie'] = [];
-    $cfg['session']['cookie']['lifetime'] = 0;
-    $cfg['session']['cookie']['path'] = '/';
-    $cfg['session']['cookie']['domain'] = '';
-    $cfg['session']['cookie']['secure'] = false;
-    $cfg['session']['cookie']['httponly'] = false;
-    $cfg['session']['cookie']['samesite'] = ''; // PHP/7.3
+    // or with custom options below
+    // $cfg['session']['name'] = 'SID';
+    // $cfg['session']['hash'] = true;
+    // $cfg['session']['hashLength'] = 40; // ID length (32, 40, 64, 128)
+    // $cfg['session']['savePath'] = null;
+    // $cfg['session']['saveHandler'] = null;
+    // // session cookie
+    // $cfg['session']['cookie'] = [];
+    // $cfg['session']['cookie']['lifetime'] = 0;
+    // $cfg['session']['cookie']['path'] = '/';
+    // $cfg['session']['cookie']['domain'] = '';
+    // $cfg['session']['cookie']['secure'] = false;
+    // $cfg['session']['cookie']['httponly'] = false;
+    // $cfg['session']['cookie']['samesite'] = ''; // PHP/7.3
 
     // request
     $cfg['request'] = [];

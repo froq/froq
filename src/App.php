@@ -31,6 +31,7 @@ use froq\util\traits\{SingletonTrait, OneRunTrait};
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
+use froq\session\Session;
 use froq\database\Database;
 use froq\http\{Http, Request, Response};
 use froq\service\{Service, ServiceFactory};
@@ -119,6 +120,12 @@ final class App
     private $response;
 
     /**
+     * Session.
+     * @var froq\session\Session
+     */
+    private $session;
+
+    /**
      * Db.
      * @var froq\database\Database
      */
@@ -158,8 +165,6 @@ final class App
         set_error_handler(require __dir__ .'/handler/error.php');
         set_exception_handler(require __dir__ .'/handler/exception.php');
         register_shutdown_function(require __dir__ .'/handler/shutdown.php');
-
-        $this->db = new Database($this);
     }
 
     /**
@@ -169,33 +174,6 @@ final class App
     {
         restore_error_handler();
         restore_exception_handler();
-    }
-
-    /**
-     * Call magic.
-     * @param  string     $method
-     * @param  array|null $methodArguments
-     * @return any
-     * @throws froq\AppException
-     * @since  3.0
-     */
-    public function __call(string $method, array $methodArguments = null)
-    {
-        // this is a getter method actually
-        if (strpos($method, 'get') !== 0) {
-            throw new AppException("Only 'get' prefixed methods accepted for __call() method");
-        }
-
-        $name = lcfirst(substr($method, 3));
-        // just an exception
-        if ($name == 'database') {
-            return $this->db;
-        }
-        if (property_exists($this, $name)) {
-            return $this->{$name};
-        }
-
-        throw new AppException("Undefined property name '{$name}' given");
     }
 
     /**
@@ -286,10 +264,19 @@ final class App
     }
 
     /**
-     * Db.
-     * @return froq\database\Database
+     * Session.
+     * @return ?froq\http\Session
      */
-    public function db(): Database
+    public function session(): ?Session
+    {
+        return $this->session;
+    }
+
+    /**
+     * Db.
+     * @return ?froq\database\Database
+     */
+    public function db(): ?Database
     {
         return $this->db;
     }
@@ -327,6 +314,14 @@ final class App
         $this->request = new Request($this);
         $this->response = new Response($this);
 
+        // could be emptied by developer to disable session or database
+        if ($this->config['session'] !== null) {
+            $this->session = new Session($this);
+        }
+        if ($this->config['db'] !== null) {
+            $this->db = new Database($this);
+        }
+
         // @override
         set_global('app', $this);
 
@@ -352,7 +347,7 @@ final class App
      */
     public function isRoot(): bool
     {
-        return $this->root == $this->request->uri()->getPath();
+        return ($this->root === $this->request->uri()->getPath());
     }
 
     /**
@@ -361,7 +356,7 @@ final class App
      */
     public function isDev(): bool
     {
-        return $this->env == self::ENV_DEV;
+        return ($this->env === self::ENV_DEV);
     }
 
     /**
@@ -370,7 +365,7 @@ final class App
      */
     public function isStage(): bool
     {
-        return $this->env == self::ENV_STAGE;
+        return ($this->env === self::ENV_STAGE);
     }
 
     /**
@@ -379,7 +374,7 @@ final class App
      */
     public function isProduction(): bool
     {
-        return $this->env == self::ENV_PRODUCTION;
+        return ($this->env === self::ENV_PRODUCTION);
     }
 
     /**
@@ -506,8 +501,8 @@ final class App
 
         $locales = $this->config->get('locales');
         if ($locales != null) {
-            foreach ((array) $locales as $category => $locale) {
-                setlocale($category, $locale);
+            foreach ((array) $locales as $name => $value) {
+                setlocale($name, $value);
             }
         }
     }
