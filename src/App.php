@@ -266,6 +266,7 @@ final class App
     /**
      * Session.
      * @return ?froq\http\Session
+     * @since  3.18
      */
     public function session(): ?Session
     {
