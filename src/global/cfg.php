@@ -65,7 +65,7 @@ return (function() {
     $cfg['response']['json']['flags'] = 0;
     $cfg['response']['json']['depth'] = 512;
     // response gzip
-    $cfg['response']['gzip']['minimumLength'] = 64;
+    $cfg['response']['gzip']['minlen'] = 64;
     $cfg['response']['gzip']['mode'] = FORCE_GZIP;
     $cfg['response']['gzip']['level'] = -1;
     $cfg['response']['gzip']['length'] = PHP_INT_MAX;
