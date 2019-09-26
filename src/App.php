@@ -227,21 +227,16 @@ final class App
 
     /**
      * Config.
-     * @return froq\config\Config
-     */
-    public function config(): Config
-    {
-        return $this->config;
-    }
-
-    /**
-     * Config value.
      * @param  string $key
      * @param  any    $valueDefault
-     * @return any
+     * @return froq\config\Config|any
      */
-    public function configValue(string $key, $valueDefault = null)
+    public function config(string $key = null, $valueDefault = null)
     {
+        if ($key === null) {
+            return $this->config;
+        }
+        // set is not allowed, so config readonly and set available in cfg.php's only
         return $this->config->get($key, $valueDefault);
     }
 
