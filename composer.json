@@ -13,6 +13,7 @@
         "froq/froq-event": "^3.0",
         "froq/froq-config": "^3.0",
         "froq/froq-logger": "^3.0",
+        "froq/froq-session": "^3.0",
         "froq/froq-database": "^3.0",
         "froq/froq-http": "^3.0",
         "froq/froq-service": "^3.0"
