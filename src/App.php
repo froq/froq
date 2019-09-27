@@ -451,7 +451,7 @@ final class App
         // keep current service
         $service = $this->service;
 
-        // overrides also in service constructor (so, get_service() etc. sould accurate service info)
+        // overrides also in service constructor (so, get_service() etc. should have accurate service info)
         $this->service = new $class($this, $className, $classMethod, $callArgs ?? [], $service);
 
         $output = $this->service->run(false);
