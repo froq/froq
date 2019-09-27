@@ -317,7 +317,7 @@ final class App
 
         // could be emptied by developer to disable session or database
         if ($this->config['session'] !== null) {
-            $this->session = new Session($this);
+            $this->session = new Session($this->config['session']);
         }
         if ($this->config['db'] !== null) {
             $this->db = new Database($this);
