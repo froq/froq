@@ -308,7 +308,7 @@ function grep_all($input, $pattern) {
     preg_match_all($pattern, $input, $matches);
     if (isset($matches[1])) {
         foreach (array_slice($matches, 1) as $match) {
-            $ret[] = $match[0];
+            $ret[] = $match[0] ?? null;
         }
         return $ret;
     }
