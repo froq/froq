@@ -315,11 +315,11 @@ final class App
         $this->request = new Request($this);
         $this->response = new Response($this);
 
-        // could be emptied by developer to disable session or database (with NULL)
-        if ($this->config['session'] !== null) {
+        // could be emptied by developer to disable session or database (with null)
+        if (isset($this->config['session'])) {
             $this->session = new Session($this->config['session']);
         }
-        if ($this->config['db'] !== null) {
+        if (isset($this->config['db'])) {
             $this->db = new Database($this);
         }
 
