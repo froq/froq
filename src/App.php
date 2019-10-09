@@ -265,7 +265,7 @@ final class App
 
     /**
      * Session.
-     * @return ?froq\http\Session
+     * @return ?froq\session\Session
      * @since  3.18
      */
     public function session(): ?Session
@@ -316,10 +316,10 @@ final class App
         $this->response = new Response($this);
 
         // could be emptied by developer to disable session or database
-        if ($this->config['session'] !== null) {
+        if (isset($this->config['session'])) {
             $this->session = new Session($this->config['session']);
         }
-        if ($this->config['db'] !== null) {
+        if (isset($this->config['db'])) {
             $this->db = new Database($this);
         }
 
