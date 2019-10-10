@@ -250,7 +250,6 @@ function size($input)
     if ($input && is_object($input)) {
         if ($input instanceof \stdClass)      return count((array) $input);
         if (method_exists($input, 'count'))   return $input->count();
-        if (method_exists($input, 'size'))    return $input->size();
         if (method_exists($input, 'toArray')) return count($input->toArray());
         if ($input instanceof \Traversable)   return count((array) iterator_to_array($input));
     }
