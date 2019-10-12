@@ -207,7 +207,7 @@ final class App
      * Config.
      * @param  string $key
      * @param  any    $valueDefault
-     * @return froq\config\Config|any
+     * @return any|froq\config\Config
      */
     public function config(string $key = null, $valueDefault = null)
     {
@@ -537,7 +537,7 @@ final class App
         }
         // handle outputs
         else {
-            // echo'd or print'ed service methods return 'null'
+            // service methods use echo/print/view() then return 'null'
             if ($output === null) {
                 $output = '';
                 while (ob_get_level()) {
@@ -551,6 +551,12 @@ final class App
             }
 
             $this->response->setBody($output);
+        }
+
+        // load time
+        $exposeAppLoadTime = $this->config('exposeAppLoadTime');
+        if ($exposeAppLoadTime === true || $exposeAppLoadTime === $this->env()) {
+            $this->response->header('X-App-Load-Time', $this->loadTime());
         }
 
         $this->response->end();
