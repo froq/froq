@@ -348,7 +348,7 @@ final class App
      */
     public function isRoot(): bool
     {
-        return ($this->root === $this->request->uri()->getPath());
+        return ($this->root === $this->request->uri()->get('path'));
     }
 
     /**
