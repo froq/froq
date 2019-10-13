@@ -44,7 +44,7 @@ return function() {
             // handle response properly
             $response = $this->response();
             if ($response != null) {
-                $response->setStatus(500)->send();
+                $response->setStatus(500)->end();
             }
         }
 
