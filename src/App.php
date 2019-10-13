@@ -205,17 +205,26 @@ final class App
 
     /**
      * Config.
-     * @param  string $key
-     * @param  any    $valueDefault
+     * @param  string|array $key
+     * @param  any          $valueDefault
      * @return any|froq\config\Config
+     * @throws froq\AppException
      */
-    public function config(string $key = null, $valueDefault = null)
+    public function config($key = null, $valueDefault = null)
     {
         if ($key === null) {
             return $this->config;
         }
-        // set is not allowed, so config readonly and set available in cfg.php's only
-        return $this->config->get($key, $valueDefault);
+
+        // set is not allowed, so config readonly and set available in cfg.php files only
+        if (is_string($key)) {
+            return $this->config->get($key, $valueDefault);
+        } elseif (is_array($key)) {
+            return $this->config->getAll($key, $valueDefault);
+        } else {
+            throw new AppException(sprintf("Only 'string,array' type keys allowed for %s() ".
+                "method, '%s' given", __method__, gettype($key)));
+        }
     }
 
     /**
@@ -300,8 +309,8 @@ final class App
         if (isset($options['config'])) $this->applyConfig($options['config']);
 
         // check env
-        if (empty($this->env)) {
-            throw new AppException('Application env is not defined');
+        if ($this->env == null) {
+            throw new AppException('App env is not defined');
         }
 
         // security & performans checks
