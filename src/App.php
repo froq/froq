@@ -546,7 +546,7 @@ final class App
         }
         // handle outputs
         else {
-            // service methods use echo/print/view() then return 'null'
+            // service methods that use 'echo/print/view()' will return 'null'
             if ($output === null) {
                 $output = '';
                 while (ob_get_level()) {
@@ -568,6 +568,7 @@ final class App
             $this->response->header('X-App-Load-Time', $this->loadTime());
         }
 
+        // the end..
         $this->response->end();
     }
 
