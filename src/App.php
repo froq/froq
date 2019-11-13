@@ -26,15 +26,16 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\util\Util;
-use froq\util\traits\{SingletonTrait, OneRunTrait};
+use froq\Env;
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
 use froq\session\Session;
 use froq\database\Database;
 use froq\http\{Http, Request, Response};
-use froq\service\{Service, ServiceFactory};
+use froq\service\{ServiceInterface, ServiceFactory};
+use froq\util\{Util, Ini, traits\SingletonTrait};
+use Throwable;
 
 /**
  * App.
@@ -52,119 +53,118 @@ final class App
     use SingletonTrait;
 
     /**
-     * One run trait.
-     * @object froq\util\traits\OneRunTrait
+     * Root (provides options like "app.local/v1/book/1" for versioning etc.).
+     * @var string
      */
-    use OneRunTrait;
+    private string $root = '/';
 
     /**
-     * App envs.
-     * @const string
+     * Dir.
+     * @var string
      */
-    public const ENV_DEV        = 'dev',
-                 ENV_STAGE      = 'stage',
-                 ENV_PRODUCTION = 'production';
+    private string $dir;
 
     /**
-     * App dir.
-     * @const string
+     * Env.
+     * @var froq\Env
      */
-    private $dir;
-
-    /**
-     * App env.
-     * @const string
-     */
-    private $env;
-
-    /**
-     * App root (provides options like "app.local/v1/book/1" for versioning etc.).
-     * @const string
-     */
-    private $root = '/';
+    private Env $env;
 
     /**
      * Config.
      * @var froq\config\Config
      */
-    private $config;
+    private Config $config;
 
     /**
      * Logger.
      * @var froq\logger\Logger
      */
-    private $logger;
+    private Logger $logger;
 
     /**
      * Events.
      * @var froq\events\Events
      */
-    private $events;
-
-    /**
-     * Service.
-     * @var froq\service\Service
-     */
-    private $service;
+    private Events $events;
 
     /**
      * Request.
-     * @var froq\http\Request
+     * @var ?froq\http\Request
      */
-    private $request;
+    private ?Request $request;
 
     /**
      * Response.
-     * @var froq\http\Response
+     * @var ?froq\http\Response
      */
-    private $response;
+    private ?Response $response;
 
     /**
      * Session.
-     * @var froq\session\Session
+     * @var ?froq\session\Session
      */
-    private $session;
+    private ?Session $session;
 
     /**
-     * Db.
-     * @var froq\database\Database
+     * Database.
+     * @var ?froq\database\Database
      */
-    private $db;
+    private ?Database $database;
+
+    /**
+     * Service.
+     * @var ?froq\service\ServiceInterface
+     */
+    private ?ServiceInterface $service;
+
+    /**
+     * Called service.
+     * @var ?froq\service\ServiceInterface
+     * @since 4.0
+     */
+    private ?ServiceInterface $calledService;
+
+    /**
+     * Caller service.
+     * @var ?froq\service\ServiceInterface
+     * @since 4.0
+     */
+    private ?ServiceInterface $callerService;
 
     /**
      * Constructor.
-     * @param  array $config
+     * @param  array $configs
      * @throws froq\AppException
      */
-    private function __construct(array $config)
+    private function __construct(array $configs)
     {
-        // @see skeleton/pub/index.php
+        // App dir is required (@see skeleton/pub/index.php).
         if (!defined('APP_DIR')) {
-            throw new AppException('APP_DIR is not defined');
+            throw new AppException('APP_DIR is not defined!');
         }
-        $this->dir = APP_DIR;
 
-        $this->logger = new Logger();
-        $this->events = new Events();
+        [$this->dir, $this->env, $this->config, $this->logger, $this->events] = [
+            APP_DIR, new Env(), new Config(), new Logger(), new Events()];
 
-        // set default config first
-        $this->applyConfig($config);
+        // Set default configs first.
+        $this->applyConfigs($configs);
 
-        // set app as global (@see app() function)
+        // Set app as global (@see app()).
         set_global('app', $this);
 
-        // load core app globals if exists
-        if (file_exists($file = "{$this->dir}/app/global/def.php")) {
+        // Load core app globals if exists.
+        if (file_exists($file = $this->dir .'/app/global/def.php')) {
             include $file;
         }
-        if (file_exists($file = "{$this->dir}/app/global/fun.php")) {
+        if (file_exists($file = $this->dir .'/app/global/fun.php')) {
             include $file;
         }
 
-        // set handlers
-        set_error_handler(require __dir__ .'/handler/error.php');
-        set_exception_handler(require __dir__ .'/handler/exception.php');
-        register_shutdown_function(require __dir__ .'/handler/shutdown.php');
+        // Set handlers.
+        set_error_handler(include __dir__ .'/handler/error.php');
+        set_exception_handler(include __dir__ .'/handler/exception.php');
+        register_shutdown_function(include __dir__ .'/handler/shutdown.php');
     }
 
     /**
@@ -174,6 +174,36 @@ final class App
     {
         restore_error_handler();
         restore_exception_handler();
+    }
+
+    /**
+     * Call.
+     * @param  string     $method
+     * @param  array|null $methodArgs
+     * @return any
+     * @since  4.0
+     */
+    public function __call(string $method, array $methodArgs = null)
+    {
+        static $names = ['root', 'dir', 'env', 'config', 'logger', 'events', 'request',
+            'response', 'session', 'database', 'service', 'calledService', 'callerService'];
+
+        $name = lcfirst(substr($method, 3));
+        if (in_array($name, $names)) {
+            return $this->{$name}(...$methodArgs);
+        }
+
+        throw new AppException(sprintf('Invalid call as App.%s(), valid are only %s with get'.
+            ' prefix!', $method, join(', ', array_map('ucfirst', $names))));
+    }
+
+    /**
+     * Root.
+     * @return string
+     */
+    public function root(): string
+    {
+        return $this->root;
     }
 
     /**
@@ -187,44 +217,35 @@ final class App
 
     /**
      * Env.
-     * @return string
+     * @return froq\Env
      */
-    public function env(): string
+    public function env(): Env
     {
         return $this->env;
     }
 
     /**
-     * Root.
-     * @return string
-     */
-    public function root(): string
-    {
-        return $this->root;
-    }
-
-    /**
      * Config.
-     * @param  string|array $key
-     * @param  any          $valueDefault
-     * @return any|froq\config\Config
-     * @throws froq\AppException
+     * @param  string|array|null $key
+     * @param  any|null          $valueDefault
+     * @return any|null|froq\config\Config
+     * @throws froq\AppException If ket type not valid.
      */
     public function config($key = null, $valueDefault = null)
     {
+        // Set is not allowed, so config readonly and set available in cfg.php files only.
         if ($key === null) {
             return $this->config;
         }
-
-        // set is not allowed, so config readonly and set available in cfg.php files only
         if (is_string($key)) {
             return $this->config->get($key, $valueDefault);
-        } elseif (is_array($key)) {
-            return $this->config->getAll($key, $valueDefault);
-        } else {
-            throw new AppException(sprintf("Only 'string,array' type keys allowed for %s() ".
-                "method, '%s' given", __method__, gettype($key)));
         }
+        if (is_array($key)) {
+            return $this->config->getAll($key, $valueDefault);
+        }
+
+        throw new AppException(sprintf('Only string, array and null keys allowed for %s() '.
+            'method, %s given!', __method__, gettype($key)));
     }
 
     /**
@@ -246,21 +267,12 @@ final class App
     }
 
     /**
-     * Service.
-     * @return ?froq\service\Service
-     */
-    public function service(): ?Service
-    {
-        return $this->service;
-    }
-
-    /**
      * Request.
      * @return ?froq\http\Request
      */
     public function request(): ?Request
     {
-        return $this->request;
+        return ($this->request ?? null);
     }
 
     /**
@@ -269,7 +281,7 @@ final class App
      */
     public function response(): ?Response
     {
-        return $this->response;
+        return ($this->response ?? null);
     }
 
     /**
@@ -279,76 +291,111 @@ final class App
      */
     public function session(): ?Session
     {
-        return $this->session;
+        return ($this->session ?? null);
+    }
+
+    /**
+     * Database.
+     * @return ?froq\database\Database
+     * @since  4.0
+     */
+    public function database(): ?Database
+    {
+        return ($this->database ?? null);
     }
 
     /**
      * Db.
-     * @return ?froq\database\Database
+     * @aliasOf database()
      */
-    public function db(): ?Database
+    public function db()
     {
-        return $this->db;
+        return $this->database();
+    }
+
+    /**
+     * Service.
+     * @return ?froq\service\ServiceInterface
+     */
+    public function service(): ?ServiceInterface
+    {
+        return ($this->service ?? null);
+    }
+
+    /**
+     * Get called service.
+     * @return ?froq\service\ServiceInterface
+     * @since  4.0
+     */
+    public function calledService(): ?ServiceInterface
+    {
+        return ($this->calledService ?? null);
+    }
+
+    /**
+     * Get caller service.
+     * @return ?froq\service\ServiceInterface
+     * @since  4.0
+     */
+    public function callerService(): ?ServiceInterface
+    {
+        return ($this->callerService ?? null);
     }
 
     /**
      * Run.
-     * @param  array options
+     * @param  array $options
      * @return void
      * @throws froq\AppException
      */
-    public function run(array $options): void
+    public function run(array $options = null): void
     {
-        // run once
-        $this->___checkRun(new AppException("You cannot call App::run() anymore, it's already ".
-                "called in skeleton/pub/index.php once"));
+        // Apply run options (user options) (@see skeleton/pub/index.php).
+        ['root' => $root, 'env' => $env, 'configs' => $configs] = $options;
 
-        // apply user options (@see skeleton/pub/index.php)
-        if (isset($options['env'])) $this->env = $options['env'];
-        if (isset($options['root'])) $this->root = $options['root'];
-        if (isset($options['config'])) $this->applyConfig($options['config']);
+        $root && $this->root = $root;
+        $env && $this->env()->setName($env);
+        $configs && $this->applyConfigs($configs);
 
-        // check env
-        if ($this->env == null) {
-            throw new AppException('App env is not defined');
+        if ($this->root == '' || $this->env->getName() == '') {
+            throw new AppException('App env or root cannot be empty!');
         }
 
-        // security & performans checks
+        // Security & performans checks.
         $halt = $this->haltCheck();
         if ($halt != null) {
             $this->halt($halt[1], $halt[0]);
         }
 
+        // Apply defaults (timezone, locales etc.)
         $this->applyDefaults();
 
         $this->request = new Request($this);
         $this->response = new Response($this);
 
-        // could be emptied by developer to disable session or database (with null)
-        if (isset($this->config['session'])) {
-            $this->session = new Session($this->config['session']);
-        }
-        if (isset($this->config['db'])) {
-            $this->db = new Database($this);
-        }
+        // These options could be emptied by developer to disable session or database with 'null'
+        // if app won't be using session & database.
+        [$session, $database] = $this->config->getAll(['session', 'database']);
+        isset($session) && $this->session = new Session((array) $session);
+        isset($database) && $this->database = new Database($this);
 
         // @override
         set_global('app', $this);
 
-        // create service
-        $service = ServiceFactory::create($this);
-        if ($service == null) {
-            throw new AppException('Could not create service');
+        // Create service.
+        $this->service = ServiceFactory::create($this);
+        if ($this->service == null) {
+            throw new AppException('Failed to create service!');
         }
 
         $this->startOutputBuffer();
 
-        // here!!
+        // Here!!
         $this->events->fire('service.beforeRun');
-        $output = $service->run();
+        $return = $this->service->serve();
         $this->events->fire('service.afterRun');
 
-        $this->endOutputBuffer($output);
+        $this->endOutputBuffer($return);
     }
 
     /**
@@ -357,139 +404,76 @@ final class App
      */
     public function isRoot(): bool
     {
-        return ($this->root === $this->request->uri()->get('path'));
-    }
-
-    /**
-     * Is dev.
-     * @return bool
-     */
-    public function isDev(): bool
-    {
-        return ($this->env === self::ENV_DEV);
-    }
-
-    /**
-     * Is stage.
-     * @return bool
-     */
-    public function isStage(): bool
-    {
-        return ($this->env === self::ENV_STAGE);
-    }
-
-    /**
-     * Is production.
-     * @return bool
-     */
-    public function isProduction(): bool
-    {
-        return ($this->env === self::ENV_PRODUCTION);
+        return ($this->root == $this->request->uri()->get('path'));
     }
 
     /**
      * Load time.
-     * @param  bool $totalStringOnly
-     * @return array|string
+     * @return string
      */
-    public function loadTime(bool $totalStringOnly = true)
+    public function loadTime(): string
     {
-        $start = APP_START_TIME; $end = microtime(true);
-
-        $total = $end - $start;
-        $totalString = sprintf('%.5f', $total);
-        if ($totalStringOnly) {
-            return $totalString;
-        }
-
-        return [$start, $end, $total, $totalString];
+        return sprintf('%.5f', microtime(true) - APP_START_TIME);
     }
 
     /**
-     * Set service.
-     * @param  froq\service\Service $service
-     * @return void
-     */
-    public function setService(Service $service): void
-    {
-        $this->service = $service;
-    }
-
-    /**
-     * Set service method.
-     * @param  string $method
-     * @return void
-     */
-    public function setServiceMethod(string $method): void
-    {
-        $this->service && $this->service->setMethod($method);
-    }
-
-    /**
-     * Call service method (for internal service method calls).
+     * Call service (for internal service calls).
      * @param  string      $call
      * @param  array|null  $callArgs
      * @param  bool        $prepareMethod
      * @return any
      * @throws froq\AppException
      */
-    public function callServiceMethod(string $call, array $callArgs = null, bool $prepareMethod = false)
+    public function callService(string $call, array $callArgs = null, bool $prepareMethod = false)
     {
-        @ [$className, $classMethod] = explode('::', $call);
-        if (!isset($className, $classMethod)) {
-            throw new AppException('Both service class name & method are required');
+        @ [$className, $classMethod] = explode('.', $call);
+        if ($className == null) {
+            throw new AppException('Both service class name & method are required!');
         }
 
         $className = ServiceFactory::toServiceName($className);
+        $classMethod = $classMethod ?? ServiceInterface::METHOD_MAIN;
         if ($prepareMethod) {
             $classMethod = ServiceFactory::toServiceMethod($classMethod);
         }
+
         $class = ServiceFactory::toServiceClass($className);
         $classFile = ServiceFactory::toServiceFile($className);
 
         if (!file_exists($classFile)) {
-            throw new AppException("Service class file '{$classFile}' not found");
-        }
-        if (!class_exists($class)) {
-            throw new AppException("Service class '{$class}' not found");
-        }
-        if (!method_exists($class, $classMethod)) {
-            throw new AppException("Service class method '{$classMethod}' not found");
+            throw new AppException(sprintf('Service class file %s not found!', $classFile));
+        } elseif (!class_exists($class)) {
+            throw new AppException(sprintf('Service class %s not found!', $class));
+        } elseif (!method_exists($class, $classMethod)) {
+            throw new AppException(sprintf('Service class method %s not found!', $classMethod));
         }
 
-        // keep current service
-        $service = $this->service;
+        $service = new $class($this, $className, $classMethod, $callArgs);
 
-        // overrides also in service constructor (so, get_service() etc. should have accurate service info)
-        $this->service = new $class($this, $className, $classMethod, $callArgs ?? [], $service);
+        // Store called & caller service, so both could be used some app services for
+        // detecting which service called or caller at the moment (at serve time).
+        $this->calledService = $service;
+        $this->callerService = $this->service;
 
-        $output = $this->service->run(false);
+        $return = $service->serve();
 
-        // restore current service
-        $this->service = $service;
-
-        return $output;
+        return $return;
     }
 
     /**
-     * Apply config.
-     * @param  array $config
+     * Apply configs.
+     * @param  array $configs
      * @return void
      */
-    private function applyConfig(array $config): void
+    private function applyConfigs(array $configs): void
     {
-        // override
-        if ($this->config != null) {
-            $config = Config::merge($config, $this->config->getData());
-        }
-        $this->config = new Config($config);
+        $this->config->update($configs);
 
-        // set/reset logger options
-        $loggerOptions = $this->config->get('logger');
-        if ($loggerOptions != null) {
-            isset($loggerOptions['level']) && $this->logger->setLevel($loggerOptions['level']);
-            isset($loggerOptions['directory']) && $this->logger->setDirectory($loggerOptions['directory']);
-        }
+        // Set/reset logger options.
+        @ ['level' => $level, 'directory' => $directory] = $this->config->get('logger');
+
+        $level && $this->logger->setOption('level', $level);
+        $directory && $this->logger->setOption('directory', $directory);
     }
 
     /**
@@ -498,18 +482,17 @@ final class App
      */
     private function applyDefaults(): void
     {
-        $timezone = $this->config->get('timezone');
+        [$timezone, $encoding, $locales] = $this->config->getAll(['timezone', 'encoding', 'locales']);
+
         if ($timezone != null) {
             date_default_timezone_set($timezone);
         }
 
-        $encoding = $this->config->get('encoding');
         if ($encoding != null) {
             mb_internal_encoding($encoding);
             ini_set('default_charset', $encoding);
         }
 
-        $locales = $this->config->get('locales');
         if ($locales != null) {
             foreach ((array) $locales as $name => $value) {
                 setlocale($name, $value);
@@ -525,51 +508,119 @@ final class App
     {
         ob_start();
         ob_implicit_flush(0);
-        ini_set('implicit_flush', 'Off');
+        ini_set('implicit_flush', 'off');
     }
 
     /**
      * End output buffer.
-     * @param  any $output
+     * @param  any       $output
+     * @param  bool|null $isError @internal (@see Message.setBody())
      * @return void
      */
-    private function endOutputBuffer($output = null): void
+    private function endOutputBuffer($output, bool $isError = null): void
     {
-        // handle redirections
-        $statusCode = $this->response->status()->getCode();
-        if ($statusCode >= 300 && $statusCode <= 399) {
-            // clean & turn off output buffering
+        $response = $this->response();
+        if ($response == null) {
+            throw new AppException('App has no response yet');
+        }
+
+        // Handle redirections.
+        $code = $response->getStatusCode();
+        if ($code >= 300 && $code <= 399) {
             while (ob_get_level()) {
                 ob_end_clean();
             }
-            $this->response->setBody(null, 'n/a');
+            $response->setBody(null, ['type' => 'n/a']);
         }
-        // handle outputs
+        // Handle outputs & returns.
         else {
-            // service methods that use 'echo/print/view()' will return 'null'
-            if ($output === null) {
+            $body = $response->getBody();
+            $content = $body->getContent();
+            $contentAttributes = $body->getContentAttributes();
+
+            // Pass, output comes from App.error() already.
+            if ($isError) {
+            }
+            // Service methods that use echo/print/view()/response.setBody()
+            // will return null.
+            elseif ($output === null) {
                 $output = '';
                 while (ob_get_level()) {
                     $output .= ob_get_clean();
                 }
             }
 
-            // call user output handler if provided
+            // Returned content from service method or set on body.
+            $content = $content ?: $output;
+
+            // Call user output handler if provided.
             if ($this->events->has('app.output')) {
-                $output = $this->events->fire('app.output', $output);
+                $content = $this->events->fire('app.output', $content);
             }
 
-            $this->response->setBody($output);
+            $response->setBody($content, $contentAttributes, $isError);
         }
 
-        // load time
         $exposeAppLoadTime = $this->config('exposeAppLoadTime');
-        if ($exposeAppLoadTime === true || $exposeAppLoadTime === $this->env()) {
-            $this->response->header('X-App-Load-Time', $this->loadTime());
+        if ($exposeAppLoadTime === true || $exposeAppLoadTime === $this->env()->getName()) {
+            $response->setHeader('X-App-Load-Time', $this->loadTime());
         }
 
-        // the end..
-        $this->response->end();
+        // The end..
+        $response->end();
+    }
+
+    /**
+     * Error.
+     * @param  Throwable $error
+     * @param  bool      $log
+     * @return void
+     * @since  4.0
+     */
+    public function error(Throwable $error, bool $log = true): void
+    {
+        $log && $this->errorLog($error);
+
+        $code = 500;
+        $response = $this->response();
+
+        // Status may change in FailService.
+        $response && $response->setStatusCode($code);
+
+        // Call user error handler if provided.
+        $this->events->fire('app.error', $error);
+
+        // Clear outputs (FailService will work below for output).
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        ob_start();
+        $return = $this->callService('FailService', ['code' => $code]);
+        $output = ob_get_clean();
+
+        $output = $return ?? $output;
+
+        // Prepend error top of the output (if ini.display_errors is on).
+        if ($output == null || is_string($output)) {
+            $outputErrors = Ini::getBool('display_errors');
+            if ($outputErrors) {
+                $output = $error ."\n". $output;
+            }
+        }
+
+        $this->endOutputBuffer($output, true);
+    }
+
+    /**
+     * Error log.
+     * @param  any $error
+     * @return void
+     * @since  4.0
+     */
+    public function errorLog($error): void
+    {
+        $this->logger->logFail($error);
     }
 
     /**
@@ -582,7 +633,8 @@ final class App
     {
         header('HTTP/1.0 '. $status);
         header('Connection: close');
-        header('Content-Type: none');
+        header('Content-Type: n/a');
+        header('Content-Length: 0');
 
         $xHaltMessage = sprintf('X-Halt: Reason=%s, Ip=%s, Url:%s', $reason,
             Util::getClientIp(), Util::getCurrentUrl());
@@ -592,9 +644,8 @@ final class App
 
         $this->logger->logFail(new AppException($xHaltMessage));
 
-        print '<!---->';
-
-        exit(1); // boom!
+        // Boom!
+        exit(1);
     }
 
     /**
@@ -603,15 +654,14 @@ final class App
      */
     private function haltCheck(): ?array
     {
-        // built-in http server
         if (PHP_SAPI == 'cli-server') {
             return null;
         }
 
-        // check client host
+        // Check client host.
         $hosts = $this->config->get('hosts');
-        if ($hosts != null && (empty($_SERVER['HTTP_HOST']) ||
-            !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
+        if ($hosts != null && (
+            empty($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], (array) $hosts))) {
             return ['hosts', '400 Bad Request'];
         }
 
@@ -619,25 +669,25 @@ final class App
            'allowEmptyUserAgent' => $allowEmptyUserAgent,
            'allowFileExtensionSniff' => $allowFileExtensionSniff] = $this->config->get('security');
 
-        // check request count
+        // Check request count.
         if ($maxRequest != null && count($_REQUEST) > $maxRequest) {
             return ['maxRequest', '429 Too Many Requests'];
         }
 
-        // check user agent
-        if ($allowEmptyUserAgent === false && (empty($_SERVER['HTTP_USER_AGENT']) ||
-            trim($_SERVER['HTTP_USER_AGENT']) == '')) {
+        // Check user agent.
+        if ($allowEmptyUserAgent === false && (
+            empty($_SERVER['HTTP_USER_AGENT']) || trim($_SERVER['HTTP_USER_AGENT']) == '')) {
             return ['allowEmptyUserAgent', '400 Bad Request'];
         }
 
-        // check file extension
-        if ($allowFileExtensionSniff === false &&
+        // Check file (uri) extension.
+        if ($allowFileExtensionSniff === false && (
             preg_match('~\.(?:p[hyl]p?|rb|cgi|cf[mc]|p(?:pl|lx|erl)|aspx?)$~i',
-                (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
+                (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)))) {
             return ['allowFileExtensionSniff', '400 Bad Request'];
         }
 
-        // check service load
+        // Check service load.
         $loadAvg = $this->config->get('loadAvg');
         if ($loadAvg != null && sys_getloadavg()[0] > $loadAvg) {
             return ['loadAvg', '503 Service Unavailable'];
