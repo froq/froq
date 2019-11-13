@@ -28,44 +28,44 @@ ob_start();
  * Nil (aka null).
  * @const null
  */
-if (!defined('NIL')) {
-    define('NIL', null, true);
-}
+defined('nil') || define('nil', null);
 
 /**
  * Nils (aka null string).
  * @const string
  */
-if (!defined('NILS')) {
-    define('NILS', '', true);
-}
+defined('nils') || define('nils', '');
+
+/**
+ * None (aka null string but not == '', === '', == null, === null).
+ * @const string
+ * @since 4.0
+ * @internal Used by some function as param default that differs from '' or null etc.
+ */
+defined('none') || define('none', chr(0));
 
 /**
  * Used to detect local env.
  * @const bool
  */
-if (!defined('LOCAL')) {
-    $serverName = $_SERVER['SERVER_NAME'] ?? '';
-    $serverNameExtension = substr($serverName, strrpos($serverName, '.') + 1);
-    define('LOCAL', $serverNameExtension && in_array($serverNameExtension, ['local', 'localhost']), true);
-    unset($serverName, $serverNameExtension);
-}
+defined('local') || define('local', in_array(
+    strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
+));
 
 /**
  * Show all errors if local.
  */
 if (local) {
-    ini_set('display_errors', 'On');
+    ini_set('display_errors', 'on');
     ini_set('error_reporting', E_ALL);
 }
 
 /**
- * Load autoload.
- * @var froq\Autoload
+ * Register autoload (if not skipped in pub/index.php for local dev purporses).
  */
-$autoload = require __dir__ .'/Autoload.php';
-$autoload->register();
-unset($autoload);
+if (!defined('__SKIP_AUTOLOAD')) {
+    (require __dir__ .'/Autoload.php')->register();
+}
 
 /**
  * Load global base files.
