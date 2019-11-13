@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace froq;
 
+use RuntimeException;
+
 /**
  * Autoload.
  * @package froq
@@ -36,49 +38,36 @@ namespace froq;
 final class Autoload
 {
     /**
-     * Service names (default).
-     * @const string
+     * Default services.
+     * @const array<string>
      */
-    public const SERVICE_NAME_MAIN       = 'MainService',
-                 SERVICE_NAME_FAIL       = 'FailService';
+    public const DEFAULT_SERVICES   = ['MainService', 'FailService'];
 
     /**
-     * Namespaces.
-     * @const string
+     * Default namespaces.
+     * @const array<string>
      */
-    public const NAMESPACE               = 'froq',
-                 NAMESPACE_APP_SERVICE   = 'froq\\app\\service',
-                 NAMESPACE_APP_DATABASE  = 'froq\\app\\database',
-                 NAMESPACE_APP_LIBRARY   = 'froq\\app\\library';
+    public const DEFAULT_NAMESPACES = ['froq\\app\\service', 'froq\\app\\database', 'froq\\app\\library'];
 
     /**
-     * App dir.
-     * @var string
+     * Instance.
+     * @var self
      */
-    private $appDir;
-
-    /**
-    * Singleton stuff.
-    * @var self
-    */
     private static $instance;
 
     /**
      * Constructor.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     private function __construct()
     {
         if (!defined('APP_DIR')) {
-            throw new \RuntimeException('APP_DIR is not defined');
+            throw new RuntimeException('APP_DIR is not defined!');
         }
-
-        $this->appDir = APP_DIR;
     }
 
     /**
      * Destructor.
-     * @return void
      */
     public function __destruct()
     {
@@ -86,9 +75,13 @@ final class Autoload
     }
 
     /**
-     * Cloner.
+     * Clone.
+     * @throws RuntimeException
      */
-    private function __clone() {}
+    private function __clone()
+    {
+        throw new RuntimeException('Autoload cannot be cloned, what to do with it cloning?');
+    }
 
     /**
      * Init.
@@ -96,11 +89,7 @@ final class Autoload
      */
     public static function init(): self
     {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
+        return self::$instance ? self::$instance : (self::$instance = new self());
     }
 
     /**
@@ -123,105 +112,120 @@ final class Autoload
 
     /**
      * Load.
-     * @param  string $objectName
+     * @param  string $name
      * @return void
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
-    public function load(string $objectName): void
+    public function load(string $name): void
     {
-        // only Froq! stuff
-        if (0 !== strpos($objectName, self::NAMESPACE)) {
+        // Only Froq! stuff.
+        if (0 !== strpos($name, 'froq')) {
             return;
         }
 
-        $objectFile = $this->getObjectFile($objectName);
-
-        if ($objectFile == null) {
-            throw new \RuntimeException("Could not specify object file '{$objectName}'");
+        $file = $this->getObjectFile($name);
+        if ($file == null) {
+            return;
         }
 
-        if (!file_exists($objectFile)) {
-            throw new \RuntimeException("Could not find object file '{$objectFile}'");
-        }
-
-        require $objectFile;
+        require $file;
     }
 
     /**
      * Get object file.
-     * @param  string $objectName
+     * @param  string $name
      * @return ?string
      */
-    public function getObjectFile(string $objectName): ?string
+    private function getObjectFile(string $name): ?string
     {
-        // user service objects
-        if (0 === strpos($objectName, self::NAMESPACE_APP_SERVICE)) {
-            $objectBase = $this->getObjectBase($objectName);
-            if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
-                $objectFile = sprintf('%s/app/service/_default/%s/%s.php',
-                    $this->appDir, $objectBase, $objectBase);
-            } else {
-                $objectFile = sprintf('%s/app/service/%s/%s.php',
-                    $this->appDir, $objectBase, $objectBase);
-            }
-
-            return $this->fixSlashes($objectFile);
+        // User service objects (eg: FooService => app/service/FooService/FooService.php).
+        if (0 === strpos($name, self::DEFAULT_NAMESPACES[0]) && substr($name, -7) == 'Service') {
+            $base = $this->getObjectBase($name);
+            $file = in_array($base, self::DEFAULT_SERVICES)
+                ? sprintf('%s/app/service/_default/%s/%s.php', APP_DIR, $base, $base)
+                : sprintf('%s/app/service/%s/%s.php', APP_DIR, $base, $base);
         }
 
-        // user model objects
-        if (0 === strpos($objectName, self::NAMESPACE_APP_DATABASE) && 'Model' === substr($objectName, -5)) {
-            $objectBase = $this->getObjectBase(substr($objectName, 0, -5 /* strlen('Model') */) . 'Service');
-            if ($objectBase == self::SERVICE_NAME_MAIN || $objectBase == self::SERVICE_NAME_FAIL) {
-                $objectFile = sprintf('%s/app/service/_default/%s/model/model.php',
-                    $this->appDir, $objectBase);
-            } else {
-                $objectFile = sprintf('%s/app/service/%s/model/model.php',
-                    $this->appDir, $objectBase);
-            }
-
-            return $this->fixSlashes($objectFile);
+        // User model objects (eg: FooModel => app/service/FooService/model/model.php).
+        elseif (0 === strpos($name, self::DEFAULT_NAMESPACES[1]) && substr($name, -5) == 'Model') {
+            $base = $this->getObjectBase(substr($name, 0, -5)) .'Service';
+            $file = in_array($base, self::DEFAULT_SERVICES)
+                ? sprintf('%s/app/service/_default/%s/model/model.php', APP_DIR, $base)
+                : sprintf('%s/app/service/%s/model/model.php', APP_DIR, $base);
         }
 
-        // user library objects
-        if (0 === strpos($objectName, self::NAMESPACE_APP_LIBRARY)) {
-            return $this->fixSlashes(sprintf('%s/app/library/%s.php',
-                $this->appDir, $this->getObjectBase($objectName, false)));
+        // User library objects (eg: Foo => app/library/Foo.php).
+        elseif (0 === strpos($name, self::DEFAULT_NAMESPACES[2])) {
+            $file = sprintf('%s/app/library/%s.php', APP_DIR, $this->getObjectBase($name, false));
         }
 
-        return null;
+        // Most objects loaded by Composer, but in case this part is just a fallback.
+        else {
+            $name   = $this->translateSlashes($name);
+            $pkgDir = $this->getFileBase($name);
+            $srcDir = substr($name, strlen($pkgDir) + 1);
+
+            // Eg: <app-dir>/vendor/froq/froq-http/src/response/Payload.php
+            $file = APP_DIR .'/vendor/froq/'. $pkgDir .'/src/'. $srcDir .'.php';
+        }
+
+        $file = $this->translateSlashes($file);
+
+        if (!file_exists($file)) {
+            return null;
+        }
+        return $file;
+    }
+
+    /**
+     * Get file base.
+     * @param  string $name
+     * @return string
+     */
+    private function getFileBase(string $name): string
+    {
+        $dir = dirname($name);
+
+        $offset = 2;
+        // This is exceptional.
+        if (0 === strpos($dir, 'froq/http/client')) {
+            $offset = 3;
+        }
+
+        return implode('-', array_slice(explode('/', $dir), 0, $offset));
     }
 
     /**
      * Get object base.
-     * @param  string $objectName
+     * @param  string $name
      * @param  bool   $endOnly
      * @return string
      */
-    public function getObjectBase(string $objectName, bool $endOnly = true): string
+    private function getObjectBase(string $name, bool $endOnly = true): string
     {
-        $tmp = explode('\\', $objectName);
+        $tmp = explode('\\', $name);
         $end = array_pop($tmp);
 
         if ($endOnly) {
             return $end;
         }
 
-        // eg: froq\app\library\entity\UserEntity => app/library/entity/UserEntity
+        // Eg: froq\app\library\entity\UserEntity => app/library/entity/UserEntity
         $path = join('\\', array_slice($tmp, 3));
 
         return $path .'\\'. $end;
     }
 
     /**
-     * Fix slashes.
-     * @param  string $path
+     * Translate slashes.
+     * @param  string $input
      * @return string
      */
-    public function fixSlashes($path): string
+    private function translateSlashes($input): string
     {
-        return str_replace('\\', '/', $path);
+        return strtr($input, '\\', '/');
     }
 }
 
-// auto-init as a shorcut for require/include actions
+// Auto-init as a shorcut for require/include actions.
 return Autoload::init();
