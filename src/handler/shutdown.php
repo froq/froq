@@ -24,31 +24,39 @@
  */
 declare(strict_types=1);
 
-use froq\App;
+use froq\AppError;
 
 /**
  * Shutdown handler.
  * @return callable
  */
 return function() {
+    $app = app();
+
     $error = error_get_last();
-    if (isset($error['type']) && $error['type'] == E_ERROR) {
-        $error = sprintf("Shutdown(E_ERROR) in %s:%s.\n%s", $error['file'], $error['line'],
-            $error['message']);
+    $error = isset($error['type']) && ($error['type'] == E_ERROR) ? $error : null;
 
-        // works only for App
-        if (isset($this) && $this instanceof App) {
-            // log error first
-            $this->logger()->logFail($error);
-
-            // handle response properly
-            $response = $this->response();
-            if ($response != null) {
-                $response->setStatus(500)->end();
-            }
+    // This will keep app running, even if a ParseError occurs.
+    if ($error == null) {
+        $error = app_fail('exception');
+        if ($error != null) {
+            $error = [
+                'type' => $error->getCode(), 'message' => get_class($error) .': '. $error->getMessage(),
+                'file' => $error->getFile(), 'line' => $error->getLine()
+            ];
         }
+    }
 
-        // reset error display option (@see exception handler)
+    if ($error != null) {
+        $error = sprintf("Shutdown in %s:%s\n%s", $error['file'], $error['line'], $error['message']);
+
+        // Call app error prosess (log etc.).
+        $app->error($e = new AppError($error, -1));
+
+        // This could be used later to check error stuff.
+        app_fail('shutdown', $e);
+
+        // Reset error display option (@see exception handler).
         $opt = get_global('app.displayErrors');
         if ($opt !== null) {
             ini_set('display_errors', strval($opt));
