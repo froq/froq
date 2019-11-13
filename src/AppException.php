@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use Exception;
+use froq\core\throwables\Exception;
 
 /**
  * App Exception.

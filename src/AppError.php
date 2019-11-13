@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use Error;
+use froq\core\throwables\Error;
 
 /**
  * App Error.

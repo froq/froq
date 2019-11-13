@@ -9,6 +9,7 @@
     ],
     "require": {
         "php": "^7.4",
+        "froq/froq-core": "^4.0",
         "froq/froq-util": "^4.0",
         "froq/froq-event": "^4.0",
         "froq/froq-config": "^4.0",

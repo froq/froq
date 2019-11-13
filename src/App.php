@@ -34,7 +34,8 @@ use froq\session\Session;
 use froq\database\Database;
 use froq\http\{Http, Request, Response};
 use froq\service\{ServiceInterface, ServiceFactory};
-use froq\util\{Util, Ini, traits\SingletonTrait};
+use froq\core\traits\SingletonTrait;
+use froq\util\{Util, IniUtil};
 use Throwable;
 
 /**
@@ -48,7 +49,7 @@ final class App
 {
     /**
      * Singleton trait.
-     * @object froq\util\traits\SingletonTrait
+     * @object froq\core\traits\SingletonTrait
      */
     use SingletonTrait;
 
@@ -603,7 +604,7 @@ final class App
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($output == null || is_string($output)) {
-            $outputErrors = Ini::getBool('display_errors');
+            $outputErrors = IniUtil::getBool('display_errors');
             if ($outputErrors) {
                 $output = $error ."\n". $output;
             }
