@@ -1,7 +1,7 @@
 {
     "name": "froq/froq",
     "homepage": "https://github.com/froq/froq",
-    "description":  "Core module of Froq! App.",
+    "description":  "Froq!",
     "keywords": ["froq", "core"],
     "license": "MIT",
     "authors": [
