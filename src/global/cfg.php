@@ -35,10 +35,12 @@ return (function() {
 
     // initial response cookies
     $cfg['cookies'] = [];
+    // $cfg['cookies']['name'] = [value, ?options];
 
     // session
     $cfg['session'] = [];
     // or with custom options below
+    // $cfg['session'] = [];
     // $cfg['session']['name'] = 'SID';
     // $cfg['session']['hash'] = true;
     // $cfg['session']['hashLength'] = 40; // ID length (32, 40, 64, 128)
@@ -53,28 +55,52 @@ return (function() {
     // $cfg['session']['cookie']['httponly'] = false;
     // $cfg['session']['cookie']['samesite'] = ''; // PHP/7.3
 
+    // json encode (use | operator for flags, eg: ... |= JSON_PRETTY_PRINT)
+    $cfg['json']['encode']['flags'] = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION;
+    $cfg['json']['encode']['depth'] = 512;
+    // json decode
+    $cfg['json']['decode']['flags'] = JSON_BIGINT_AS_STRING;
+    $cfg['json']['decode']['depth'] = 512;
+    $cfg['json']['decode']['assoc'] = null;
+
     // request
     $cfg['request'] = [];
-    // request json (for decoding request data @see http://php.net/json_decode)
-    $cfg['request']['json']['flags'] = 0;
-    $cfg['request']['json']['depth'] = 512;
-    $cfg['request']['json']['assoc'] = false;
+
+    // for decoding request json data (@see froq\encoding\JsonEncoder::decode())
+    $cfg['request']['json'] = $cfg['json']['decode'];
+
+    // for decoding request xml data (@see froq\encoding\XmlEncoder::decode())
+    // $cfg['request']['xml']['validateOnParse'] = false;
+    // $cfg['request']['xml']['preserveWhiteSpace'] = false;
+    // $cfg['request']['xml']['strictErrorChecking'] = false;
+    // $cfg['request']['xml']['throwErrors'] = true;
+    // $cfg['request']['xml']['flags'] = 0;
+    // $cfg['request']['xml']['assoc'] = true;
 
     // response
     $cfg['response'] = [];
-    // response json (for encoding response data @see http://php.net/json_encode)
-    $cfg['response']['json']['flags'] = 0;
-    $cfg['response']['json']['depth'] = 512;
-    // response gzip
-    $cfg['response']['gzip']['minlen'] = 64;
-    $cfg['response']['gzip']['mode'] = FORCE_GZIP;
-    $cfg['response']['gzip']['level'] = -1;
-    $cfg['response']['gzip']['length'] = PHP_INT_MAX;
+
+    // for encoding response json data (@see froq\encoding\JsonEncoder::encode())
+    $cfg['response']['json'] = $cfg['json']['encode'];
+
+    // for encoding response xml data (@see froq\encoding\XmlEncoder::encode())
+    // $cfg['response']['xml']['indent'] = true;
+    // $cfg['response']['xml']['indentString'] = "\t";
+
+    // for encoding response gzip data (@see froq\encoding\GzipEncoder)
+    $cfg['response']['gzip']['minlen'] = 64; // bytes
+    // $cfg['response']['gzip']['mode'] = null;
+    // $cfg['response']['gzip']['level'] = null;
+    // $cfg['response']['gzip']['length'] = null;
+
+    // display & download stuff
+    $cfg['response']['file']['jpegQuality'] = -1; // php's default
+    $cfg['response']['file']['rateLimit'] = 2097152; // 2MB
 
     // logger
     $cfg['logger'] = [];
     $cfg['logger']['level'] = froq\logger\Logger::FAIL | froq\logger\Logger::WARN;
-    $cfg['logger']['directory'] = APP_DIR .'/tmp/log/app/';
+    $cfg['logger']['directory'] = APP_DIR .'/tmp/log';
 
     /**
      * Security & safety options.
@@ -85,7 +111,7 @@ return (function() {
     $cfg['hosts'][] = $_SERVER['SERVER_NAME'];
 
     $cfg['loadAvg'] = 85.00;
-    $cfg['exposeAppLoadTime'] = true; // true (all), false (none), 'dev', 'stage', 'production'
+    $cfg['exposeAppLoadTime'] = true; // true (all), false (none), 'dev', 'test', 'stage', 'production'
 
     $cfg['security'] = [];
     $cfg['security']['maxRequest'] = 100;
