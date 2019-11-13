@@ -24,19 +24,19 @@
  */
 declare(strict_types=1);
 
+use froq\AppError;
+
 /**
  * Error handler.
  * @return callable
  */
 return function($ecode, $emesg, $efile, $eline) {
-    // @cancel because error_get_last() should always work!
-    // error was suppressed with the @ operator
+    // @cancel Because error_get_last() should always work!
+    // Error was suppressed with the @ operator.
     // if (!$ecode || !($ecode & error_reporting())) {
     //     return;
     // }
 
-    $error = null;
-    // check error type
     switch ($ecode) {
         case E_ERROR:
         case E_PARSE:
@@ -49,19 +49,19 @@ return function($ecode, $emesg, $efile, $eline) {
                 $efile, $eline,  $ecode, $emesg);
             break;
         case E_RECOVERABLE_ERROR:
-            $error = sprintf('E_RECOVERABLE_ERROR in %s:%s ecode[%s] emesg[%s]',
+            $error = sprintf('Recoverable error in %s:%s ecode[%s] emesg[%s]',
                 $efile, $eline, $ecode, $emesg);
             break;
         case E_USER_ERROR:
-            $error = sprintf('E_USER_ERROR in %s:%s ecode[%s] emesg[%s]',
+            $error = sprintf('User error in %s:%s ecode[%s] emesg[%s]',
                 $efile, $eline, $ecode, $emesg);
             break;
         case E_USER_WARNING:
-            $error = sprintf('E_USER_WARNING in %s:%s ecode[%s] emesg[%s]',
+            $error = sprintf('User warning in %s:%s ecode[%s] emesg[%s]',
                 $efile, $eline, $ecode, $emesg);
             break;
         case E_USER_NOTICE:
-            $error = sprintf('E_USER_NOTICE in %s:%s ecode[%s] emesg[%s]',
+            $error = sprintf('User notice in %s:%s ecode[%s] emesg[%s]',
                 $efile, $eline, $ecode, $emesg);
             break;
         default:
@@ -69,13 +69,11 @@ return function($ecode, $emesg, $efile, $eline) {
                 $efile, $eline, $ecode, $emesg);
     }
 
-    if ($error != null) {
-        // this maybe be used later to check errors
-        e(new \ErrorException($error, $ecode));
-    }
+    // This could be used later to check error stuff.
+    app_fail('error', new AppError($error, $ecode));
 
-    // @cancel because error_get_last() should always work!
-    // don't execute php internal error handler
+    // @cancel Because error_get_last() should always work!
+    // Dont not execute php internal error handler.
     // return true;
     return false;
 };
