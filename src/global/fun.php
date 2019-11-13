@@ -6,12 +6,10 @@
 use froq\util\Util;
 
 /**
- * Set Froq! global key, and init sub-array.
+ * Init Froq! global.
  */
-define('__froq', '__froq', true);
-
-if (!isset($GLOBALS[__froq])) {
-    $GLOBALS[__froq] = [];
+if (!isset($GLOBALS['@froq'])) {
+    $GLOBALS['@froq'] = [];
 }
 
 /**
@@ -22,18 +20,31 @@ if (!isset($GLOBALS[__froq])) {
  */
 function set_global($key, $value)
 {
-    $GLOBALS[__froq][$key] = $value;
+    $GLOBALS['@froq'][$key] = $value;
 }
 
 /**
  * Get global.
  * @param  string $key
- * @param  any    $valueDefault
+ * @param  any    $value_default
  * @return any
  */
-function get_global($key, $valueDefault = null)
+function get_global($key, $value_default = null)
 {
-    return $GLOBALS[__froq][$key] ?? $valueDefault;
+    $subs = ($key[-1] === '*'); // Is all?
+    if (!$subs) {
+        $value = $GLOBALS['@froq'][$key] ?? $value_default;
+    } else {
+        $values = [];
+        $search = substr($key, 0, -1);
+        foreach ($GLOBALS['@froq'] as $key => $value) {
+            if (strpos($key, $search) === 0) {
+                $values[$key] = $value;
+            }
+        }
+        $value = $values;
+    }
+    return $value;
 }
 
 /**
@@ -44,7 +55,7 @@ function get_global($key, $valueDefault = null)
  */
 function delete_global($key)
 {
-    unset($GLOBALS[__froq][$key]);
+    unset($GLOBALS['@froq'][$key]);
 }
 
 /**
@@ -55,7 +66,7 @@ function delete_global($key)
 function no(...$vars)
 {
     foreach ($vars as $var) {
-        if (!$var || ($var instanceof \stdClass && !((array) $var))) {
+        if (!$var || ($var instanceof stdClass && !((array) $var))) {
             return true;
         }
     }
@@ -79,31 +90,28 @@ function not(...$vars)
 
 /**
  * Env.
- * @param  string|array $key
- * @param  any|null     $value
- * @return any|void
+ * @param  string|array           $key
+ * @param  string|array|null|none $value
+ * @return string|array|null
  */
-function env($key, $value = null)
+function env($key, $value = none)
 {
-    // get
-    if ($value === null) {
+    if ($value === none) { // Set.
+        Util::setEnv($key, $value);
+    } else {               // Get.
         if (is_array($key)) {
-            $value = [];
+            $values = [];
             foreach ($key as $ke) {
-                $value[] = Util::getEnv($ke);
+                $values[] = Util::getEnv($ke);
             }
-        } else {
-            $value = Util::getEnv($key);
+            return $values;
         }
-        return $value;
+        return Util::getEnv($key);
     }
-
-    // set
-    Util::setEnv($key, $value);
 }
 
 /**
- * Default value getter for null variables.
+ * If nil.
  * @param  any $a
  * @param  any $b
  * @return any
@@ -114,7 +122,7 @@ function if_nil($a, $b)
 }
 
 /**
- * Default value getter for nil string variables.
+ * If nils.
  * @param  any $a
  * @param  any $b
  * @return any
@@ -125,7 +133,7 @@ function if_nils($a, $b)
 }
 
 /**
- * Default value getter for empty variables.
+ * If empty.
  * @param  any $a
  * @param  any $b
  * @return any
@@ -133,73 +141,6 @@ function if_nils($a, $b)
 function if_empty($a, $b)
 {
     return $a ? $a : $b;
-}
-
-// nö!
-function _isset($var) { return isset($var); }
-function _empty($var) { return empty($var); }
-
-// safe trim for strict mode
-function _trim($var, $chars = null)
-{
-    return (string) trim((string) $var, (string) ($chars ?? " \t\n\r\0\x0b"));
-}
-
-/**
- * E (set/get last error exception, @see error handler).
- * @param  \Throwable|null $e
- * @param             bool $deleteAfterGet
- * @return \Throwable|null
- * @since  3.0
- */
-function e($e = null, $deleteAfterGet = true)
-{
-    $eType = gettype($e);
-    static $eKey = '@e';
-
-    // set
-    if ($eType == 'object' && $e instanceof \Throwable) {
-        set_global($eKey, $e);
-    } elseif ($eType == 'array') {
-        @[$message, $code, $previous] = $e;
-        set_global($eKey, new \Exception($message, $code, $previous));
-    }
-
-    // get
-    elseif ($e === null) {
-        $e = get_global($eKey);
-        if ($deleteAfterGet) {
-            delete_global($eKey);
-        }
-        return $e;
-    }
-}
-
-/**
- * Error function (normally comes from froq/froq).
- */
-if (!function_exists('error')) {
-    /**
-     * Error.
-     * @param  bool $clear
-     * @return string|null
-     * @since  3.0
-     */
-    function error($clear = false)
-    {
-        $error = error_get_last();
-
-        if ($error !== null) {
-            $error = strtolower($error['message']);
-            if (strpos($error, '(')) {
-                $error = preg_replace('~(?:.*?:)?.*?:\s*(.+)~', '\1', $error);
-            }
-            $error = $error ?: 'unknown error';
-            $clear && error_clear_last();
-        }
-
-        return $error;
-    }
 }
 
 /**
@@ -210,7 +151,7 @@ if (!function_exists('error')) {
  */
 function upper($input)
 {
-    return is_string($input) ? mb_strtoupper($input) : null;
+    return is_string($input) ? strtoupper($input) : null;
 }
 
 /**
@@ -221,14 +162,13 @@ function upper($input)
  */
 function lower($input)
 {
-    return is_string($input) ? mb_strtolower($input) : null;
+    return is_string($input) ? strtolower($input) : null;
 }
 
 /**
- * Len (alias of size()).
- * @param  any $input
- * @return int|null
- * @since  3.0
+ * Len
+ * @aliasOf size()
+ * @since   3.0
  */
 function len($input)
 {
@@ -244,17 +184,17 @@ function len($input)
 function size($input)
 {
     if (is_array($input))   return count($input);
-    if (is_string($input))  return mb_strlen($input);
+    if (is_string($input))  return strlen($input);
     if (is_numeric($input)) return strlen((string) $input);
 
     if ($input && is_object($input)) {
-        if ($input instanceof \stdClass)      return count((array) $input);
+        if ($input instanceof stdClass)       return count((array) $input);
         if (method_exists($input, 'count'))   return $input->count();
         if (method_exists($input, 'toArray')) return count($input->toArray());
-        if ($input instanceof \Traversable)   return count((array) iterator_to_array($input));
+        if ($input instanceof Traversable)    return count((array) iterator_to_array($input));
     }
 
-    return null; // no valid input
+    return null; // No valid input.
 }
 
 /**
@@ -267,17 +207,18 @@ function size($input)
 function strip($input, $chars = null)
 {
     if ($chars != null) {
-        // regexp: only ~...~ patterns accepted
+        // Regexp: only ~...~ patterns accepted.
         $charsLen = strlen($chars);
         if ($charsLen > 2 && $chars[0] == '~') {
             $rules = substr($chars, 1, ($pos = strrpos($chars, '~')) - 1);
             $modifiers = substr($chars, $pos + 1);
             $pattern = sprintf('~^%s|%s$~%s', $rules, $rules, $modifiers);
+
             return preg_replace($pattern, '', $input);
         }
     }
 
-    return _trim($input, $chars); // save trim
+    return trim($input, $chars);
 }
 
 /**
@@ -324,15 +265,15 @@ function grep_all($input, $pattern) {
  */
 function map($input, $func, $keys = null)
 {
-    // object check
-    $check = is_object($input);
+    // Object check.
+    $check = ($input instanceof stdClass);
     if ($check) {
         $input = (array) $input;
     }
 
     if ($keys === null) {
         $input = array_map($func, $input);
-    } else { // use key,value
+    } else { // Use key,value notation.
         $keys = ($keys == '*') ? array_keys($input) : $keys;
         foreach ($input as $key => $value) {
             if (in_array($key, $keys)) {
@@ -358,15 +299,15 @@ function filter($input, $func = null, $keys = null)
         return strlen((string) $value);
     };
 
-    // object check
-    $check = is_object($input);
+    // Object check.
+    $check = ($input instanceof stdClass);
     if ($check) {
         $input = (array) $input;
     }
 
     if ($keys === null) {
         $input = array_filter($input, $func);
-    } else { // use key,value
+    } else { // Use key,value notation.
         $keys = ($keys == '*') ? array_keys($input) : $keys;
         foreach ($input as $key => $value) {
             if ($func($key, $value)) {
@@ -388,23 +329,23 @@ function filter($input, $func = null, $keys = null)
  */
 function split($delim, $input, $limit = null, $flags = null)
 {
-    // regexp: only ~...~ patterns accepted
+    // Regexp: only ~...~ patterns accepted.
     $delim_len = strlen($delim);
-    if ($delim_len == 0) { // split all
+    if ($delim_len == 0) { // Split all.
         $delim = '~~u';
         $delim_len = 3;
     }
 
-    if ($delim_len > 2 && $delim[0] == '~') { // regexp
-        $ret = (array) preg_split($delim, $input, $limit ?? -1, $flags ?? 1); // no empty=1
+    if ($delim_len > 2 && $delim[0] == '~') { // Regexp.
+        $ret = (array) preg_split($delim, $input, $limit ?? -1, $flags ?? 1); // 1=no empty.
     } else {
         $ret = (array) explode($delim, $input, $limit ?? PHP_INT_MAX);
-        if ($flags === null) { // no empty=null
+        if ($flags === null) { // Null=no empty.
             $ret = array_filter($ret, 'strlen');
         }
     }
 
-    // plus: prevent 'undefined index..' error
+    // Plus: prevent 'undefined index..' error.
     if ($limit && $limit > 0 && $limit != count($ret)) {
         $ret = array_pad($ret, $limit, null);
     }
@@ -456,7 +397,7 @@ function replace($input, $search, $replacement, $remove = false)
         }
     } elseif (is_string($input)) {
         $search = (string) $search;
-        if (strlen($search) > 2 && $search[0] == '~') { // regexp
+        if (strlen($search) > 2 && $search[0] == '~') { // Regexp.
             $input = !is_callable($replacement)
                 ? preg_replace($search, $replacement, $input)
                 : preg_replace_callback($search, $replacement, $input);
@@ -464,10 +405,37 @@ function replace($input, $search, $replacement, $remove = false)
             $input = str_replace($search, $replacement, $input);
         }
     } else {
-        $input = null; // no valid input
+        $input = null; // No valid input.
     }
 
     return $input;
+}
+
+/**
+ * Error function.
+ */
+if (!function_exists('error')) {
+    /**
+     * Error.
+     * @param  bool $clear
+     * @return string|null
+     * @since  3.0
+     */
+    function error($clear = false)
+    {
+        $error = error_get_last();
+
+        if ($error !== null) {
+            $error = strtolower($error['message']);
+            if (strpos($error, '(')) {
+                $error = preg_replace('~(?:.*?:)?.*?:\s*(.+)~', '\1', $error);
+            }
+            $error = $error ?: 'unknown error';
+            $clear && error_clear_last();
+        }
+
+        return $error;
+    }
 }
 
 /**
