@@ -28,12 +28,15 @@ declare(strict_types=1);
  * Exception handler.
  * @return callable
  */
-return function(\Throwable $e) {
-    // if not local no error display (set & store old option)
+return function(Throwable $e) {
+    // If not local no error display (set & store old option).
     if (!is_local()) {
-        set_global('app.displayErrors', ini_set('display_errors', 'Off'));
+        set_global('app.displayErrors', ini_set('display_errors', 'off'));
     }
 
-    // this will be caught in shutdown handler
+    // This could be used later to check error stuff.
+    app_fail('exception', $e);
+
+    // This will be caught in shutdown handler.
     throw $e;
 };
