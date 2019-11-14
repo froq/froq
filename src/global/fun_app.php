@@ -13,6 +13,16 @@ function app()
 }
 
 /**
+ * App root.
+ * @return string
+ * @since  4.0
+ */
+function app_root()
+{
+    return app()->root();
+}
+
+/**
  * App dir.
  * @return string
  */
@@ -32,22 +42,13 @@ function app_env()
 }
 
 /**
- * App root.
- * @return string
- * @since  4.0
+ * App runtime.
+ * @return float
+ * @since  4.0 Replaced with app_load_time().
  */
-function app_root()
+function app_runtime()
 {
-    return app()->root();
-}
-
-/**
- * App load time.
- * @return string
- */
-function app_load_time()
-{
-    return app()->loadTime();
+    return app()->runtime()->total();
 }
 
 /**

@@ -53,7 +53,7 @@ final class Env
      * Name.
      * @var string
      */
-    private $name;
+    private string $name;
 
     /**
      * Constructor.

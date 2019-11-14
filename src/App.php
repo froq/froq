@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\Env;
+use froq\{Env, Runtime};
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
@@ -35,7 +35,7 @@ use froq\database\Database;
 use froq\http\{Http, Request, Response};
 use froq\service\{ServiceInterface, ServiceFactory};
 use froq\core\traits\SingletonTrait;
-use froq\util\{Util, IniUtil};
+use froq\util\Util;
 use Throwable;
 
 /**
@@ -70,6 +70,13 @@ final class App
      * @var froq\Env
      */
     private Env $env;
+
+    /**
+     * Runtime.
+     * @var froq\Runtime
+     * @since 4.0
+     */
+    private Runtime $runtime;
 
     /**
      * Config.
@@ -142,11 +149,11 @@ final class App
     {
         // App dir is required (@see skeleton/pub/index.php).
         if (!defined('APP_DIR')) {
-            throw new AppException('APP_DIR is not defined!');
+            throw new AppException('APP_DIR is not defined');
         }
 
-        [$this->dir, $this->env, $this->config, $this->logger, $this->events] = [
-            APP_DIR, new Env(), new Config(), new Logger(), new Events()];
+        [$this->dir, $this->env, $this->runtime, $this->config, $this->logger, $this->events] = [
+            APP_DIR, new Env(), new Runtime(), new Config(), new Logger(), new Events()];
 
         // Set default configs first.
         $this->applyConfigs($configs);
@@ -178,6 +185,16 @@ final class App
     }
 
     /**
+     * Clone.
+     * @return void
+     * @since  4.0
+     */
+    public function __clone()
+    {
+        $this->calledService = $this->callerService = null;
+    }
+
+    /**
      * Call.
      * @param  string     $method
      * @param  array|null $methodArgs
@@ -195,7 +212,7 @@ final class App
         }
 
         throw new AppException(sprintf('Invalid call as App.%s(), valid are only %s with get'.
-            ' prefix!', $method, join(', ', array_map('ucfirst', $names))));
+            ' prefix', $method, join(', ', array_map('ucfirst', $names))));
     }
 
     /**
@@ -226,6 +243,19 @@ final class App
     }
 
     /**
+     * Runtime.
+     * @return string
+     * @since  4.0 Replaced with loadTime().
+     */
+    public function runtime(): string
+    {
+        $this->runtime->start(APP_START_TIME);
+        $this->runtime->end();
+
+        return $this->runtime->toString();
+    }
+
+    /**
      * Config.
      * @param  string|array|null $key
      * @param  any|null          $valueDefault
@@ -246,7 +276,7 @@ final class App
         }
 
         throw new AppException(sprintf('Only string, array and null keys allowed for %s() '.
-            'method, %s given!', __method__, gettype($key)));
+            'method, %s given', __method__, gettype($key)));
     }
 
     /**
@@ -359,7 +389,7 @@ final class App
         $configs && $this->applyConfigs($configs);
 
         if ($this->root == '' || $this->env->getName() == '') {
-            throw new AppException('App env or root cannot be empty!');
+            throw new AppException('App env or root cannot be empty');
         }
 
         // Security & performans checks.
@@ -386,7 +416,7 @@ final class App
         // Create service.
         $this->service = ServiceFactory::create($this);
         if ($this->service == null) {
-            throw new AppException('Failed to create service!');
+            throw new AppException('Failed to create service');
         }
 
         $this->startOutputBuffer();
@@ -409,15 +439,6 @@ final class App
     }
 
     /**
-     * Load time.
-     * @return string
-     */
-    public function loadTime(): string
-    {
-        return sprintf('%.5f', microtime(true) - APP_START_TIME);
-    }
-
-    /**
      * Call service (for internal service calls).
      * @param  string      $call
      * @param  array|null  $callArgs
@@ -429,7 +450,7 @@ final class App
     {
         @ [$className, $classMethod] = explode('.', $call);
         if ($className == null) {
-            throw new AppException('Both service class name & method are required!');
+            throw new AppException('Both service class name & method are required');
         }
 
         $className = ServiceFactory::toServiceName($className);
@@ -442,11 +463,11 @@ final class App
         $classFile = ServiceFactory::toServiceFile($className);
 
         if (!file_exists($classFile)) {
-            throw new AppException(sprintf('Service class file %s not found!', $classFile));
+            throw new AppException(sprintf('Service class file %s not found', $classFile));
         } elseif (!class_exists($class)) {
-            throw new AppException(sprintf('Service class %s not found!', $class));
+            throw new AppException(sprintf('Service class %s not found', $class));
         } elseif (!method_exists($class, $classMethod)) {
-            throw new AppException(sprintf('Service class method %s not found!', $classMethod));
+            throw new AppException(sprintf('Service class method %s not found', $classMethod));
         }
 
         $service = new $class($this, $className, $classMethod, $callArgs);
@@ -562,9 +583,9 @@ final class App
             $response->setBody($content, $contentAttributes, $isError);
         }
 
-        $exposeAppLoadTime = $this->config('exposeAppLoadTime');
-        if ($exposeAppLoadTime === true || $exposeAppLoadTime === $this->env()->getName()) {
-            $response->setHeader('X-App-Load-Time', $this->loadTime());
+        $exposeAppRuntime = $this->config('exposeAppRuntime');
+        if ($exposeAppRuntime === true || $exposeAppRuntime === $this->env()->getName()) {
+            $response->setHeader('X-App-Runtime', $this->runtime()->toString());
         }
 
         // The end..
@@ -604,7 +625,7 @@ final class App
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($output == null || is_string($output)) {
-            $outputErrors = IniUtil::getBool('display_errors');
+            $outputErrors = ini('display_errors', true);
             if ($outputErrors) {
                 $output = $error ."\n". $output;
             }
