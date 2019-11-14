@@ -111,7 +111,6 @@ return (function() {
     $cfg['hosts'][] = $_SERVER['SERVER_NAME'];
 
     $cfg['loadAvg'] = 85.00;
-    $cfg['exposeAppLoadTime'] = true; // true (all), false (none), 'dev', 'test', 'stage', 'production'
 
     $cfg['security'] = [];
     $cfg['security']['maxRequest'] = 100;
@@ -133,6 +132,8 @@ return (function() {
     /**
      * Misc. options.
      */
+
+    $cfg['exposeAppRuntime'] = true; // true (all), false (none), 'dev', 'test', 'stage', 'production'
 
     // pager
     // $cfg['pager'] = [];
