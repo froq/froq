@@ -52,7 +52,7 @@ function if_nil($a, $b)
  */
 function if_nils($a, $b)
 {
-    return (nils !== strval($a)) ? $a : $b;
+    return (nils !== $a) ? $a : $b;
 }
 
 /**
