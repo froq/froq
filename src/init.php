@@ -24,25 +24,8 @@
  */
 ob_start();
 
-/**
- * Nil (aka null).
- * @const null
- */
-defined('nil') or define('nil', null);
-
-/**
- * Nils (aka null string).
- * @const string
- */
-defined('nils') or define('nils', '');
-
-/**
- * None (aka null string but not == '', === '', == null, === null).
- * @const string
- * @since 4.0
- * @internal Used by some function as param default that differs from '' or null etc.
- */
-defined('none') or define('none', chr(0));
+// Ensure request scheme.
+$_SERVER['REQUEST_SCHEME'] ??= 'http'. (($_SERVER['SERVER_PORT'] ?? '') == '443' ? 's' : '');
 
 /**
  * Used to detect local env.
@@ -61,11 +44,9 @@ if (local) {
 }
 
 /**
- * Register autoload (if not skipped in pub/index.php for local dev purporses).
+ * Register autoload and register.
  */
-if (!defined('__SKIP_AUTOLOAD')) {
-    (require __dir__ .'/Autoload.php')->register();
-}
+(require __dir__ .'/Autoload.php')->register();
 
 /**
  * Load global base files.

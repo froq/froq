@@ -34,39 +34,6 @@ function not(...$vars)
 }
 
 /**
- * If nil.
- * @param  any $a
- * @param  any $b
- * @return any
- */
-function if_nil($a, $b)
-{
-    return (nil !== $a) ? $a : $b;
-}
-
-/**
- * If nils.
- * @param  any $a
- * @param  any $b
- * @return any
- */
-function if_nils($a, $b)
-{
-    return (nils !== $a) ? $a : $b;
-}
-
-/**
- * If empty.
- * @param  any $a
- * @param  any $b
- * @return any
- */
-function if_empty($a, $b)
-{
-    return $a ? $a : $b;
-}
-
-/**
  * Upper.
  * @param  any $input
  * @return string|null

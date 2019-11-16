@@ -66,13 +66,13 @@ function app_config($key, $value_default = null)
 /**
  * App fail.
  * @param  string   $name
- * @param  any|none $value
+ * @param  any|null $value
  * @return any|null
  * @since  4.0
  */
-function app_fail($name, $value = none)
+function app_fail($name, $value = null)
 {
-    return ($value === none)
+    return (func_num_args() == 1)
         ? get_global('app.fail.'. $name)
         : set_global('app.fail.'. $name, $value);
 }
