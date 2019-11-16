@@ -24,11 +24,10 @@
  */
 declare(strict_types=1);
 
-use froq\AppError;
+use froq\app\AppError;
 
 /**
  * Error handler.
- * @return callable
  */
 return function($ecode, $emesg, $efile, $eline) {
     // @cancel Because error_get_last() should always work!

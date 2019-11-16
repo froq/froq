@@ -28,13 +28,13 @@ ob_start();
  * Nil (aka null).
  * @const null
  */
-defined('nil') || define('nil', null);
+defined('nil') or define('nil', null);
 
 /**
  * Nils (aka null string).
  * @const string
  */
-defined('nils') || define('nils', '');
+defined('nils') or define('nils', '');
 
 /**
  * None (aka null string but not == '', === '', == null, === null).
@@ -42,13 +42,13 @@ defined('nils') || define('nils', '');
  * @since 4.0
  * @internal Used by some function as param default that differs from '' or null etc.
  */
-defined('none') || define('none', chr(0));
+defined('none') or define('none', chr(0));
 
 /**
  * Used to detect local env.
  * @const bool
  */
-defined('local') || define('local', in_array(
+defined('local') or define('local', in_array(
     strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
 ));
 
@@ -74,9 +74,8 @@ require __dir__ .'/global/def.php';
 require __dir__ .'/global/fun.php';
 
 /**
- * Init app with default configs (comes from cfg.php).
- * @return froq\App
+ * Init app with default configs (comes from cfg.php) and return it.
  */
-return froq\App::init(
+return froq\app\App::init(
     require __dir__ .'/global/cfg.php'
 );

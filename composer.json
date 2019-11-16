@@ -1,21 +1,18 @@
 {
-    "name": "froq/froq",
-    "homepage": "https://github.com/froq/froq",
-    "description":  "Froq!",
-    "keywords": ["froq", "core"],
+    "name": "froq/froq-app",
+    "homepage": "https://github.com/froq/froq-app",
+    "description":  "Froq! App.",
+    "keywords": ["froq", "app"],
     "license": "MIT",
     "authors": [
         {"name": "Kerem Güneş", "email": "k-gun@mail.com"}
     ],
     "require": {
         "php": "^7.4",
-        "froq/froq-core": "^4.0",
-        "froq/froq-util": "^4.0",
-        "froq/froq-event": "^4.0",
+        "froq/froq": "^4.0",
         "froq/froq-config": "^4.0",
+        "froq/froq-event": "^4.0",
         "froq/froq-logger": "^4.0",
-        "froq/froq-session": "^4.0",
-        "froq/froq-database": "^4.0",
         "froq/froq-http": "^4.0",
         "froq/froq-service": "^4.0"
     },

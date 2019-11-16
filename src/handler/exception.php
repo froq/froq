@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 /**
  * Exception handler.
- * @return callable
  */
 return function(Throwable $e) {
     // If not local no error display (set & store old option).

@@ -24,7 +24,7 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\app;
 
 /**
  * Env.
@@ -33,8 +33,8 @@ namespace froq;
  * such stuff which database would be connected to, etc. More information could be fould at
  * https://en.wikipedia.org/wiki/Deployment_environment.
  *
- * @package froq
- * @object  froq\Env
+ * @package froq\app
+ * @object  froq\app\Env
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */
@@ -44,9 +44,9 @@ final class Env
      * Names.
      * @const string
      */
-    public const DEV = 'dev',
-                 TEST = 'test',
-                 STAGE = 'stage',
+    public const DEV        = 'dev',
+                 TEST       = 'test',
+                 STAGE      = 'stage',
                  PRODUCTION = 'production';
 
     /**

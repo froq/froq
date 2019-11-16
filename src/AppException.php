@@ -24,14 +24,14 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\app;
 
-use froq\core\throwables\Exception;
+use froq\Exception;
 
 /**
  * App Exception.
- * @package froq
- * @object  froq\AppException
+ * @package froq\app
+ * @object  froq\app\AppException
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */

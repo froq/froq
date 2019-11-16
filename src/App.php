@@ -24,24 +24,24 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\app;
 
-use froq\{Env, Runtime};
+use froq\app\{AppException, Env};
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
 use froq\session\Session;
 use froq\database\Database;
 use froq\http\{Http, Request, Response};
-use froq\service\{ServiceInterface, ServiceFactory};
-use froq\core\traits\SingletonTrait;
-use froq\util\Util;
+use froq\service\{ServiceFactory, ServiceInterface};
+use froq\traits\SingletonTrait;
+use froq\Util;
 use Throwable;
 
 /**
  * App.
- * @package froq
- * @object  froq\App
+ * @package froq\app
+ * @object  froq\app\App
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */
@@ -49,7 +49,7 @@ final class App
 {
     /**
      * Singleton trait.
-     * @object froq\core\traits\SingletonTrait
+     * @object froq\traits\SingletonTrait
      */
     use SingletonTrait;
 
@@ -67,16 +67,9 @@ final class App
 
     /**
      * Env.
-     * @var froq\Env
+     * @var froq\app\Env
      */
     private Env $env;
-
-    /**
-     * Runtime.
-     * @var froq\Runtime
-     * @since 4.0
-     */
-    private Runtime $runtime;
 
     /**
      * Config.
@@ -143,7 +136,7 @@ final class App
     /**
      * Constructor.
      * @param  array $configs
-     * @throws froq\AppException
+     * @throws froq\app\AppException
      */
     private function __construct(array $configs)
     {
@@ -152,8 +145,8 @@ final class App
             throw new AppException('APP_DIR is not defined');
         }
 
-        [$this->dir, $this->env, $this->runtime, $this->config, $this->logger, $this->events] = [
-            APP_DIR, new Env(), new Runtime(), new Config(), new Logger(), new Events()];
+        [$this->dir, $this->env, $this->config, $this->logger, $this->events] = [
+            APP_DIR, new Env(), new Config(), new Logger(), new Events()];
 
         // Set default configs first.
         $this->applyConfigs($configs);
@@ -161,7 +154,7 @@ final class App
         // Set app as global (@see app()).
         set_global('app', $this);
 
-        // Load core app globals if exists.
+        // Load app globals if exists.
         if (file_exists($file = $this->dir .'/app/global/def.php')) {
             include $file;
         }
@@ -235,7 +228,7 @@ final class App
 
     /**
      * Env.
-     * @return froq\Env
+     * @return froq\app\Env
      */
     public function env(): Env
     {
@@ -244,15 +237,12 @@ final class App
 
     /**
      * Runtime.
-     * @return string
+     * @return float
      * @since  4.0 Replaced with loadTime().
      */
-    public function runtime(): string
+    public function runtime(): float
     {
-        $this->runtime->start(APP_START_TIME);
-        $this->runtime->end();
-
-        return $this->runtime->toString();
+        return round(microtime(true) - APP_START_TIME, 4);
     }
 
     /**
@@ -260,7 +250,7 @@ final class App
      * @param  string|array|null $key
      * @param  any|null          $valueDefault
      * @return any|null|froq\config\Config
-     * @throws froq\AppException If ket type not valid.
+     * @throws froq\app\AppException If ket type not valid.
      */
     public function config($key = null, $valueDefault = null)
     {
@@ -377,15 +367,15 @@ final class App
      * Run.
      * @param  array $options
      * @return void
-     * @throws froq\AppException
+     * @throws froq\app\AppException
      */
     public function run(array $options = null): void
     {
         // Apply run options (user options) (@see skeleton/pub/index.php).
         ['root' => $root, 'env' => $env, 'configs' => $configs] = $options;
 
-        $root && $this->root = $root;
-        $env && $this->env()->setName($env);
+        $root    && $this->root = $root;
+        $env     && $this->env()->setName($env);
         $configs && $this->applyConfigs($configs);
 
         if ($this->root == '' || $this->env->getName() == '') {
@@ -407,6 +397,7 @@ final class App
         // These options could be emptied by developer to disable session or database with 'null'
         // if app won't be using session & database.
         [$session, $database] = $this->config->getAll(['session', 'database']);
+
         isset($session) && $this->session = new Session((array) $session);
         isset($database) && $this->database = new Database($this);
 
@@ -444,7 +435,7 @@ final class App
      * @param  array|null  $callArgs
      * @param  bool        $prepareMethod
      * @return any
-     * @throws froq\AppException
+     * @throws froq\app\AppException
      */
     public function callService(string $call, array $callArgs = null, bool $prepareMethod = false)
     {
@@ -585,7 +576,7 @@ final class App
 
         $exposeAppRuntime = $this->config('exposeAppRuntime');
         if ($exposeAppRuntime === true || $exposeAppRuntime === $this->env()->getName()) {
-            $response->setHeader('X-App-Runtime', $this->runtime()->toString());
+            $response->setHeader('X-App-Runtime', sprintf('%.4f', $this->runtime()));
         }
 
         // The end..

@@ -5,7 +5,7 @@
 
 /**
  * Shortcut for global app address.
- * @return froq\App
+ * @return froq\app\App
  */
 function app()
 {
@@ -48,7 +48,7 @@ function app_env()
  */
 function app_runtime()
 {
-    return app()->runtime()->total();
+    return app()->runtime();
 }
 
 /**

@@ -24,11 +24,10 @@
  */
 declare(strict_types=1);
 
-use froq\AppError;
+use froq\app\AppError;
 
 /**
  * Shutdown handler.
- * @return callable
  */
 return function() {
     $app = app();

@@ -24,14 +24,14 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\app;
 
-use froq\core\throwables\Error;
+use froq\Error;
 
 /**
  * App Error.
- * @package froq
- * @object  froq\AppError
+ * @package froq\app
+ * @object  froq\app\AppError
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */

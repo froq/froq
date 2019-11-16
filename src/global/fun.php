@@ -3,61 +3,6 @@
  * Global functions. *
  *********************/
 
-use froq\util\Util;
-
-/**
- * Init Froq! global.
- */
-if (!isset($GLOBALS['@froq'])) {
-    $GLOBALS['@froq'] = [];
-}
-
-/**
- * Set global.
- * @param  string $key
- * @param  any    $value
- * @return void
- */
-function set_global($key, $value)
-{
-    $GLOBALS['@froq'][$key] = $value;
-}
-
-/**
- * Get global.
- * @param  string $key
- * @param  any    $value_default
- * @return any
- */
-function get_global($key, $value_default = null)
-{
-    $subs = ($key[-1] === '*'); // Is all?
-    if (!$subs) {
-        $value = $GLOBALS['@froq'][$key] ?? $value_default;
-    } else {
-        $values = [];
-        $search = substr($key, 0, -1);
-        foreach ($GLOBALS['@froq'] as $key => $value) {
-            if (strpos($key, $search) === 0) {
-                $values[$key] = $value;
-            }
-        }
-        $value = $values;
-    }
-    return $value;
-}
-
-/**
- * Delete global.
- * @param  string $key
- * @return void
- * @since  3.0
- */
-function delete_global($key)
-{
-    unset($GLOBALS['@froq'][$key]);
-}
-
 /**
  * No.
  * @param  ... $vars
@@ -86,28 +31,6 @@ function not(...$vars)
         }
     }
     return false;
-}
-
-/**
- * Env.
- * @param  string|array           $key
- * @param  string|array|null|none $value
- * @return string|array|null
- */
-function env($key, $value = none)
-{
-    if ($value === none) { // Set.
-        Util::setEnv($key, $value);
-    } else {               // Get.
-        if (is_array($key)) {
-            $values = [];
-            foreach ($key as $ke) {
-                $values[] = Util::getEnv($ke);
-            }
-            return $values;
-        }
-        return Util::getEnv($key);
-    }
 }
 
 /**
@@ -409,69 +332,6 @@ function replace($input, $search, $replacement, $remove = false)
     }
 
     return $input;
-}
-
-/**
- * Error function.
- */
-if (!function_exists('error')) {
-    /**
-     * Error.
-     * @param  bool $clear
-     * @return string|null
-     * @since  3.0
-     */
-    function error($clear = false)
-    {
-        $error = error_get_last();
-
-        if ($error !== null) {
-            $error = strtolower($error['message']);
-            if (strpos($error, '(')) {
-                $error = preg_replace('~(?:.*?:)?.*?:\s*(.+)~', '\1', $error);
-            }
-            $error = $error ?: 'unknown error';
-            $clear && error_clear_last();
-        }
-
-        return $error;
-    }
-}
-
-/**
- * Dirty debug (dump) tools.. :(
- */
-function _ps($s) {
-    if (is_null($s)) return 'NULL';
-    if (is_bool($s)) return $s ? 'TRUE' : 'FALSE';
-    return preg_replace('~\[(.+?):.+?:(private|protected)\]~', '[\1:\2]', print_r($s, true));
-}
-function _pd($s) {
-    ob_start();
-    var_dump($s);
-    return preg_replace('~\["?(.+?)"?(:(private|protected))?\]=>\s+~', '[\1\2] => ', _ps(trim(ob_get_clean())));
-}
-function pre($s, $e=false) {
-    echo "<pre>", _ps($s), "</pre>", "\n";
-    $e && exit;
-}
-function prs($s, $e=false) {
-    echo _ps($s), "\n";
-    $e && exit;
-}
-function prss(...$ss) {
-    foreach ($ss as $s) {
-        echo _ps($s), "\n";
-    }
-}
-function prd($s, $e=false) {
-    echo _pd($s), "\n";
-    $e && exit;
-}
-function prdd(...$dd) {
-    foreach ($dd as $s) {
-        echo _pd($s), "\n";
-    }
 }
 
 /**

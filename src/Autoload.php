@@ -24,14 +24,14 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\app;
 
 use RuntimeException;
 
 /**
  * Autoload.
- * @package froq
- * @object  froq\Autoload
+ * @package froq\app
+ * @object  froq\app\Autoload
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */
@@ -62,7 +62,7 @@ final class Autoload
     private function __construct()
     {
         if (!defined('APP_DIR')) {
-            throw new RuntimeException('APP_DIR is not defined!');
+            throw new RuntimeException('APP_DIR is not defined');
         }
     }
 
