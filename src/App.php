@@ -616,7 +616,7 @@ final class App
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($output == null || is_string($output)) {
-            $outputErrors = ini('display_errors', true);
+            $outputErrors = ini('display_errors', '', true);
             if ($outputErrors) {
                 $output = $error ."\n". $output;
             }
