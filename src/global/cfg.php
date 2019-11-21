@@ -43,7 +43,7 @@ return (function() {
     // $cfg['session'] = [];
     // $cfg['session']['name'] = 'SID';
     // $cfg['session']['hash'] = true;
-    // $cfg['session']['hashLength'] = 40; // ID length (32, 40, 64, 128)
+    // $cfg['session']['hashLength'] = 40; // ID length (32, 40)
     // $cfg['session']['savePath'] = null;
     // $cfg['session']['saveHandler'] = null;
     // // session cookie
