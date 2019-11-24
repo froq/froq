@@ -502,8 +502,8 @@ final class App
         }
 
         if ($encoding != null) {
-            mb_internal_encoding($encoding);
             ini_set('default_charset', $encoding);
+            ini_set('internal_encoding', $encoding);
         }
 
         if ($locales != null) {
