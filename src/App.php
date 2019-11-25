@@ -35,7 +35,7 @@ use froq\database\Database;
 use froq\http\{Http, Request, Response};
 use froq\service\{ServiceFactory, ServiceInterface};
 use froq\traits\SingletonTrait;
-use froq\Util;
+use froq\util\Util;
 use Throwable;
 
 /**
