@@ -91,47 +91,47 @@ final class App
 
     /**
      * Request.
-     * @var ?froq\http\Request
+     * @var froq\http\Request
      */
-    private ?Request $request;
+    private Request $request;
 
     /**
      * Response.
-     * @var ?froq\http\Response
+     * @var froq\http\Response
      */
-    private ?Response $response;
+    private Response $response;
 
     /**
      * Session.
-     * @var ?froq\session\Session
+     * @var froq\session\Session|null
      */
-    private ?Session $session;
+    private Session $session;
 
     /**
      * Database.
-     * @var ?froq\database\Database
+     * @var froq\database\Database|null
      */
-    private ?Database $database;
+    private Database $database;
 
     /**
      * Service.
-     * @var ?froq\service\ServiceInterface
+     * @var froq\service\ServiceInterface
      */
-    private ?ServiceInterface $service;
+    private ServiceInterface $service;
 
     /**
      * Called service.
-     * @var ?froq\service\ServiceInterface
+     * @var   froq\service\ServiceInterface|null
      * @since 4.0
      */
-    private ?ServiceInterface $calledService;
+    private ServiceInterface $calledService;
 
     /**
      * Caller service.
-     * @var ?froq\service\ServiceInterface
+     * @var   froq\service\ServiceInterface|null
      * @since 4.0
      */
-    private ?ServiceInterface $callerService;
+    private ServiceInterface $callerService;
 
     /**
      * Constructor.
@@ -293,7 +293,7 @@ final class App
      */
     public function request(): ?Request
     {
-        return ($this->request ?? null);
+        return $this->request ?? null;
     }
 
     /**
@@ -302,7 +302,7 @@ final class App
      */
     public function response(): ?Response
     {
-        return ($this->response ?? null);
+        return $this->response ?? null;
     }
 
     /**
@@ -312,7 +312,7 @@ final class App
      */
     public function session(): ?Session
     {
-        return ($this->session ?? null);
+        return $this->session ?? null;
     }
 
     /**
@@ -322,7 +322,7 @@ final class App
      */
     public function database(): ?Database
     {
-        return ($this->database ?? null);
+        return $this->database ?? null;
     }
 
     /**
@@ -340,7 +340,7 @@ final class App
      */
     public function service(): ?ServiceInterface
     {
-        return ($this->service ?? null);
+        return $this->service ?? null;
     }
 
     /**
@@ -350,7 +350,7 @@ final class App
      */
     public function calledService(): ?ServiceInterface
     {
-        return ($this->calledService ?? null);
+        return $this->calledService ?? null;
     }
 
     /**
@@ -360,7 +360,7 @@ final class App
      */
     public function callerService(): ?ServiceInterface
     {
-        return ($this->callerService ?? null);
+        return $this->callerService ?? null;
     }
 
     /**
