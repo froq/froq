@@ -388,14 +388,14 @@ final class App
             $this->halt($halt[1], $halt[0]);
         }
 
-        // Apply defaults (timezone, locales etc.)
+        // Apply defaults (timezone, locales etc.).
         $this->applyDefaults();
 
         $this->request = new Request($this);
         $this->response = new Response($this);
 
-        // These options could be emptied by developer to disable session or database with 'null'
-        // if app won't be using session & database.
+        // These options can be emptied by developer to disable session or database
+        // with 'null' if app won't be using session and/or database.
         [$session, $database] = $this->config->getAll(['session', 'database']);
 
         isset($session) && $this->session = new Session((array) $session);
@@ -426,7 +426,7 @@ final class App
      */
     public function isRoot(): bool
     {
-        return ($this->root == $this->request->uri()->get('path'));
+        return $this->root == $this->request->uri()->get('path');
     }
 
     /**
@@ -463,7 +463,7 @@ final class App
 
         $service = new $class($this, $className, $classMethod, $callArgs);
 
-        // Store called & caller service, so both could be used some app services for
+        // Store called & caller service, so both can be used some app services for
         // detecting which service called or caller at the moment (at serve time).
         $this->calledService = $service;
         $this->callerService = $this->service;
@@ -554,8 +554,7 @@ final class App
             // Pass, output comes from App.error() already.
             if ($isError) {
             }
-            // Service methods that use echo/print/view()/response.setBody()
-            // will return null.
+            // Service methods that use echo/print/view()/response.setBody() will return null.
             elseif ($output === null) {
                 $output = '';
                 while (ob_get_level()) {
@@ -657,8 +656,7 @@ final class App
 
         $this->logger->logFail(new AppException($xHaltMessage));
 
-        // Boom!
-        exit(1);
+        exit(1); // Whoops!
     }
 
     /**
