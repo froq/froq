@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace froq\app;
 
-use froq\app\{AppException, Env};
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
@@ -34,9 +33,10 @@ use froq\session\Session;
 use froq\database\Database;
 use froq\http\{Http, Request, Response};
 use froq\service\{ServiceFactory, ServiceInterface};
-use froq\traits\SingletonTrait;
+use froq\{traits\SingletonTrait, objects\Singletor};
 use froq\util\Util;
 use Throwable;
+use froq\app\{AppException, Env};
 
 /**
  * App.
@@ -398,8 +398,8 @@ final class App
         // with 'null' if app won't be using session and/or database.
         [$session, $database] = $this->config->getAll(['session', 'database']);
 
-        isset($session) && $this->session = new Session((array) $session);
-        isset($database) && $this->database = new Database($this);
+        isset($session) && $this->session = Singletor::init(Session::class, (array) $session);
+        isset($database) && $this->database = Singletor::init(Database::class, $this);
 
         // @override
         set_global('app', $this);

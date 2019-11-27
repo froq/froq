@@ -89,7 +89,7 @@ final class Env
      */
     public function isDev(): bool
     {
-        return ($this->name == self::DEV);
+        return $this->name == self::DEV;
     }
 
     /**
@@ -98,7 +98,7 @@ final class Env
      */
     public function isTest(): bool
     {
-        return ($this->name == self::TEST);
+        return $this->name == self::TEST;
     }
 
     /**
@@ -107,7 +107,7 @@ final class Env
      */
     public function isStage(): bool
     {
-        return ($this->name == self::STAGE);
+        return $this->name == self::STAGE;
     }
 
     /**
@@ -116,6 +116,6 @@ final class Env
      */
     public function isProduction(): bool
     {
-        return ($this->name == self::PRODUCTION);
+        return $this->name == self::PRODUCTION;
     }
 }
