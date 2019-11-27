@@ -44,11 +44,6 @@ if (local) {
 }
 
 /**
- * Register autoload and register.
- */
-(require __dir__ .'/Autoload.php')->register();
-
-/**
  * Load global base files.
  */
 require __dir__ .'/global/def.php';
