@@ -9,7 +9,7 @@
  */
 function app()
 {
-    return get_global('app');
+    return froq\Registry::get('app');
 }
 
 /**

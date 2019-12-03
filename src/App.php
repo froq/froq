@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace froq\app;
 
+use froq\{Factory, Registry, traits\SingletonTrait};
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
@@ -33,10 +34,9 @@ use froq\session\Session;
 use froq\database\Database;
 use froq\http\{Http, Request, Response};
 use froq\service\{ServiceFactory, ServiceInterface};
-use froq\{Factory, traits\SingletonTrait};
 use froq\util\Util;
-use Throwable;
 use froq\app\{AppException, Env};
+use Throwable;
 
 /**
  * App.
@@ -151,8 +151,8 @@ final class App
         // Set default configs first.
         $this->applyConfigs($configs);
 
-        // Set app as global (@see app()).
-        set_global('app', $this);
+        // Register app.
+        Registry::set('app', $this, true);
 
         // Load app globals if exists.
         if (file_exists($file = $this->dir .'/app/global/def.php')) {
@@ -402,7 +402,7 @@ final class App
         isset($database) && $this->database = Factory::initSingle(Database::class, $this);
 
         // @override
-        set_global('app', $this);
+        Registry::set('app', $this);
 
         // Create service.
         $this->service = ServiceFactory::create($this);
