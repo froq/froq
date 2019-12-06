@@ -9,7 +9,7 @@
  */
 function app()
 {
-    return froq\Registry::get('app');
+    return froq\common\Registry::get('app');
 }
 
 /**
