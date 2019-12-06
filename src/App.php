@@ -26,7 +26,8 @@ declare(strict_types=1);
 
 namespace froq\app;
 
-use froq\{Factory, Registry, traits\SingletonTrait};
+use froq\traits\SingletonTrait;
+use froq\common\{Factory, Registry};
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
@@ -175,16 +176,6 @@ final class App
     {
         restore_error_handler();
         restore_exception_handler();
-    }
-
-    /**
-     * Clone.
-     * @return void
-     * @since  4.0
-     */
-    public function __clone()
-    {
-        $this->calledService = $this->callerService = null;
     }
 
     /**
