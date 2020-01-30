@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace froq\app;
 
-use froq\traits\SingletonTrait;
-use froq\common\{Factory, Registry};
+use froq\common\traits\SingletonTrait;
+use froq\common\objects\{Factory, Registry};
 use froq\event\Events;
 use froq\config\Config;
 use froq\logger\Logger;
@@ -50,7 +50,7 @@ final class App
 {
     /**
      * Singleton trait.
-     * @object froq\traits\SingletonTrait
+     * @object froq\common\traits\SingletonTrait
      */
     use SingletonTrait;
 
