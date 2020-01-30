@@ -31,7 +31,7 @@ $_SERVER['REQUEST_SCHEME'] ??= 'http'. (($_SERVER['SERVER_PORT'] ?? '') == '443'
  * Used to detect local env.
  * @const bool
  */
-defined('local') or define('local', in_array(
+defined('local') || define('local', in_array(
     strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
 ));
 
