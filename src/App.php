@@ -37,6 +37,7 @@ use froq\http\{Http, Request, Response};
 use froq\service\{ServiceFactory, ServiceInterface};
 use froq\util\Util;
 use froq\app\{AppException, Env};
+use froq\{Handler};
 use Throwable;
 
 /**
@@ -149,24 +150,24 @@ final class App
         [$this->dir, $this->env, $this->config, $this->logger, $this->events] = [
             APP_DIR, new Env(), new Config(), new Logger(), new Events()];
 
-        // Set default configs first.
+        // Set default configs first. // @todo remove
         $this->applyConfigs($configs);
 
         // Register app.
         Registry::set('app', $this, true);
 
-        // Load app globals if exists.
-        if (file_exists($file = $this->dir .'/app/global/def.php')) {
+        // Load app globals if exists. // @todo move into "pub/index.php"
+        if (is_file($file = ($this->dir .'/app/global/def.php'))) {
             include $file;
         }
-        if (file_exists($file = $this->dir .'/app/global/fun.php')) {
+        if (is_file($file = ($this->dir .'/app/global/fun.php'))) {
             include $file;
         }
 
-        // Set handlers.
-        set_error_handler(include __dir__ .'/handler/error.php');
-        set_exception_handler(include __dir__ .'/handler/exception.php');
-        register_shutdown_function(include __dir__ .'/handler/shutdown.php');
+        // Register handlers.
+        Handler::registerErrorHandler();
+        Handler::registerExceptionHandler();
+        Handler::registerShutdownHandler();
     }
 
     /**
@@ -174,8 +175,8 @@ final class App
      */
     public function __destruct()
     {
-        restore_error_handler();
-        restore_exception_handler();
+        Handler::unregisterErrorHandler();
+        Handler::unregisterExceptionHandler();
     }
 
     /**
