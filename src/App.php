@@ -137,10 +137,9 @@ final class App
 
     /**
      * Constructor.
-     * @param  array $configs
      * @throws froq\app\AppException
      */
-    private function __construct(array $configs)
+    private function __construct()
     {
         // App dir is required (@see skeleton/pub/index.php).
         if (!defined('APP_DIR')) {
@@ -149,9 +148,6 @@ final class App
 
         [$this->dir, $this->env, $this->config, $this->logger, $this->events] = [
             APP_DIR, new Env(), new Config(), new Logger(), new Events()];
-
-        // Set default configs first. // @todo remove
-        $this->applyConfigs($configs);
 
         // Register app.
         Registry::set('app', $this, true);

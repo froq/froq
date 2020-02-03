@@ -22,36 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-ob_start();
 
 // Ensure request scheme.
-$_SERVER['REQUEST_SCHEME'] ??= 'http'. (($_SERVER['SERVER_PORT'] ?? '') == '443' ? 's' : '');
+$_SERVER['REQUEST_SCHEME'] ??= 'http'. (
+    (($_SERVER['SERVER_PORT'] ?? '') == '443') ? 's' : ''
+);
 
-/**
- * Used to detect local env.
- * @const bool
- */
+// Used to detect local env.
 defined('local') || define('local', in_array(
     strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
 ));
 
-/**
- * Show all errors if local.
- */
+// Show all errors if local.
 if (local) {
     ini_set('display_errors', 'on');
     ini_set('error_reporting', E_ALL);
 }
 
-/**
- * Load global base files.
- */
-require __dir__ .'/global/def.php';
-require __dir__ .'/global/fun.php';
+// Load global function files.
+require 'fun/fun.php';
+require 'fun/fun_app.php';
 
-/**
- * Init app with default configs (comes from cfg.php) and return it.
- */
-return froq\app\App::init(
-    require __dir__ .'/global/cfg.php'
-);
+// Init app and return it.
+return froq\app\App::init();

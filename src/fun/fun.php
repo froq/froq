@@ -236,8 +236,3 @@ function replace($input, $search, $replacement, $remove = false)
 
     return $input;
 }
-
-/**
- * Load app functions.
- */
-require_once __dir__ .'/fun_app.php';
