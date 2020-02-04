@@ -45,41 +45,40 @@ class Controller
      * Namespace.
      * @const string
      */
-    public const NAMESPACE = 'app\controller';
+    public const NAMESPACE     = 'app\controller';
 
     /**
      * Default.
      * @const string
      */
-    public const DEFAULT = 'app\controller\IndexController';
+    public const DEFAULT       = 'app\controller\IndexController';
 
     /**
      * Name defaults.
      * @const string
      */
-    public const NAME_DEFAULT = '@default',
-                 NAME_CLOSURE = '@closure';
+    public const NAME_DEFAULT  = '@default',
+                 NAME_CLOSURE  = '@closure';
 
     /**
      * Suffixes.
      * @const string
      */
-    public const SUFFIX = 'Controller',
+    public const SUFFIX        = 'Controller',
                  ACTION_SUFFIX = 'Action';
 
     /**
      * Default actions.
      * @const string
      */
-    public const INDEX_ACTION = 'index',
-                 ERROR_ACTION = 'error';
-
+    public const INDEX_ACTION  = 'index',
+                 ERROR_ACTION  = 'error';
 
     /**
      * App.
      * @var froq\App
      */
-    private App $app;
+    protected App $app;
 
     /**
      * Name.
