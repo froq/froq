@@ -245,7 +245,7 @@ class Controller
     public final function loadView(): void
     {
         if (empty($this->view)) {
-            $layout = $this->app->configuration()['viewLayout'] ?? null;
+            $layout = $this->app->config('view.layout');
             if (!$layout) {
                 throw new ControllerException('No "viewLayout" option found in configuration');
             }
