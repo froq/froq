@@ -106,7 +106,7 @@ final class Router
         // These generally comes from configuration.
         foreach ($routes as [$route, $call]) {
             if (is_array($call)) {
-                // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ...]]).
+                // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ..]]).
                 foreach ($call as $method => $call) {
                     $this->addRoute($route, $method, $call);
                 }
@@ -227,8 +227,8 @@ final class Router
             $methods = self::prepareMethods($methods);
 
             // Controller actions.
-            // eg: ["/book/:id", "Book.show", ...].
-            // eg: ["/book/:id", ["*" => "Book.show", "POST" => "Book.edit", ...]].
+            // eg: ["/book/:id", "Book.show", ..].
+            // eg: ["/book/:id", ["*" => "Book.show", "POST" => "Book.edit", ..]].
             if (is_string($action)) {
                 @ [$controller, $action] = self::prepare($action);
                 if (!$controller) {
@@ -240,8 +240,8 @@ final class Router
                 }
             }
             // Callable actions.
-            // eg: $app->get("/book/:id", function ($id) { ... }).
-            // eg: $app->route("/book/:id", "GET", function ($id) { ... }).
+            // eg: $app->get("/book/:id", function ($id) { .. }).
+            // eg: $app->route("/book/:id", "GET", function ($id) { .. }).
             elseif (is_callable($action)) {
                 foreach ($methods as $method) {
                     $actions[$method] = [Controller::DEFAULT, $action, $actionParams];

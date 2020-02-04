@@ -384,7 +384,7 @@ class Controller
         $this->action       = self::NAME_CLOSURE;
         $this->actionParams = $actionParams;
 
-        // Make "$this" and "$this->..." accessible in called action.
+        // Make "$this" and "$this->..." available in called action.
         $action = $action->bindTo($this, $this);
 
         return Action::callCallable($action, $actionParams);
