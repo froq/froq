@@ -236,7 +236,7 @@ class Controller
 
     /**
      * Loads (initializes) the view object for the owner controller if controller's `$useView`
-     * property set to true. Throws a `ControllerException` if no `viewLayout` option found in
+     * property set to true. Throws a `ControllerException` if no `view.layout` option found in
      * configuration.
      *
      * @return void
@@ -247,7 +247,7 @@ class Controller
         if (empty($this->view)) {
             $layout = $this->app->config('view.layout');
             if (!$layout) {
-                throw new ControllerException('No "viewLayout" option found in configuration');
+                throw new ControllerException('No "view.layout" option found in configuration');
             }
 
             $this->view = new View($this);
