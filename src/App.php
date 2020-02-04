@@ -24,7 +24,7 @@
  */
 declare(strict_types=1);
 
-namespace froq\app;
+namespace froq;
 
 use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
@@ -36,14 +36,13 @@ use froq\database\Database;
 use froq\http\{Http, Request, Response};
 use froq\service\{ServiceFactory, ServiceInterface};
 use froq\util\Util;
-use froq\app\{AppException, Env};
-use froq\{Handler};
+use froq\{AppException, Env, Handler, Router, Servicer};
 use Throwable;
 
 /**
  * App.
- * @package froq\app
- * @object  froq\app\App
+ * @package froq
+ * @object  froq\App
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */
@@ -69,7 +68,7 @@ final class App
 
     /**
      * Env.
-     * @var froq\app\Env
+     * @var froq\Env
      */
     private Env $env;
 
@@ -137,7 +136,7 @@ final class App
 
     /**
      * Constructor.
-     * @throws froq\app\AppException
+     * @throws froq\AppException
      */
     private function __construct()
     {
@@ -216,7 +215,7 @@ final class App
 
     /**
      * Env.
-     * @return froq\app\Env
+     * @return froq\Env
      */
     public function env(): Env
     {
@@ -238,7 +237,7 @@ final class App
      * @param  string|array|null $key
      * @param  any|null          $valueDefault
      * @return any|null|froq\config\Config
-     * @throws froq\app\AppException If ket type not valid.
+     * @throws froq\AppException If ket type not valid.
      */
     public function config($key = null, $valueDefault = null)
     {
@@ -355,7 +354,7 @@ final class App
      * Run.
      * @param  array $options
      * @return void
-     * @throws froq\app\AppException
+     * @throws froq\AppException
      */
     public function run(array $options = null): void
     {
@@ -423,7 +422,7 @@ final class App
      * @param  array|null  $callArgs
      * @param  bool        $prepareMethod
      * @return any
-     * @throws froq\app\AppException
+     * @throws froq\AppException
      */
     public function callService(string $call, array $callArgs = null, bool $prepareMethod = false)
     {

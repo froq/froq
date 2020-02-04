@@ -33,7 +33,7 @@ use RuntimeException;
  * @package froq\app
  * @object  froq\app\Autoloader
  * @author  Kerem Güneş <k-gun@mail.com>
- * @since   1.0, 4.0
+ * @since   1.0, 4.0 Refactored, renamed as Autoloader from Autoload.
  */
 final class Autoloader
 {

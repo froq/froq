@@ -44,4 +44,4 @@ require 'fun/fun.php';
 require 'fun/fun_app.php';
 
 // Init app and return it.
-return froq\app\App::init();
+return froq\App::init();
