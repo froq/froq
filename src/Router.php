@@ -122,11 +122,12 @@ final class Router
      * pairs, otherwise returns null that indicates no route found. Throws `RouterException` if no
      * routes provided yet or no pattern / no call directive provided for a route.
      *
-     * @param  string $uri
+     * @param  string      $uri
+     * @param  string|null $method
      * @return ?array
      * @throws froq\RouterException
      */
-    public function resolve(string $uri): ?array
+    public function resolve(string $uri, string $method = null): ?array
     {
         $routes = $this->getRoutes();
         if (empty($routes)) {
@@ -198,7 +199,9 @@ final class Router
                 $i++;
             }
 
-            return self::pack($calls, $callArgs);
+            $pack = self::pack($calls, $callArgs);
+
+            return ($method != null) ? $pack[$method] ?? $pack['*'] ?? null : $pack;
         }
 
         // Not found.
