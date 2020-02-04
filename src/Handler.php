@@ -89,7 +89,7 @@ final class Handler
             }
 
             // This can be used later to check error stuff.
-            app_fail('error', new AppError($error, $ecode));
+            app_fail('error', new AppError($error, null, $ecode));
 
             // @cancel Because error_get_last() should always work!
             // Dont not execute php internal error handler.
@@ -145,7 +145,7 @@ final class Handler
                 $error = sprintf("Shutdown in %s:%s\n%s", $error['file'], $error['line'], $error['message']);
 
                 // Call app error prosess (log etc.).
-                $app->error($e = new AppError($error, -1));
+                $app->error($e = new AppError($error, null, -1));
 
                 // This could be used later to check error stuff.
                 app_fail('shutdown', $e);
