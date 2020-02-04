@@ -29,9 +29,9 @@ namespace froq;
 use froq\ServicerException;
 
 /**
- * Router.
+ * Servicer.
  * @package froq
- * @object  froq\Router
+ * @object  froq\Servicer
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */

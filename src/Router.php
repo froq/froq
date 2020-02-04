@@ -63,9 +63,9 @@ final class Router
     /**
      * Adds a route to routes stack.
      *
-     * @param  string                       $route
-     * @param  string                       $methods
-     * @param  string|array<string, string> $call
+     * @param  string          $route
+     * @param  string          $methods
+     * @param  string|callable $call
      * @return void
      */
     public function addRoute(string $route, string $methods, $call): void
@@ -99,7 +99,7 @@ final class Router
     /**
      * Adds multiple routes to routes stack.
      *
-     * @param array<string>|array<array<string, string>> $routes
+     * @param array<string|callable>|array<array<string|callable>> $routes
      */
     public function addRoutes(array $routes): void
     {
