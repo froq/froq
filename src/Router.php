@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace froq;
 
 use froq\RouterException;
-use froq\mvc\{Controller};
+use froq\mvc\Controller;
 
 /**
  * Router.
