@@ -402,8 +402,8 @@ final class App
         $this->request = new Request($this);
         $this->response = new Response($this);
 
-        // These options can be emptied by developer to disable session or database
-        // with 'null' if app won't be using session and/or database.
+        // These options can be emptied by developer to disable session or database with "null"
+        // if app won't be using session or/and database.
         [$session, $database] = $this->config->getAll(['session', 'database']);
 
         if (isset($session)) {
