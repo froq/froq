@@ -410,7 +410,7 @@ final class App
             $this->session = Factory::initSingle(Session::class, $session);
         }
         if (isset($database)) {
-            $this->database = Factory::initSingle(Database::class, $this);
+            $this->database = Factory::initSingle(Database::class, $database);
         }
 
         // @override
