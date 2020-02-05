@@ -317,6 +317,7 @@ class Controller
      * `Action` suffixes eg: "Book.show", otherwise `index` method does not require that explicity.
      *
      * @param  string $call
+     * @param  array  $callArgs
      * @return void
      * @throws froq\mvc\ControllerException
      */
@@ -324,13 +325,16 @@ class Controller
     {
         @ [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
-        if (!$controller) {
-            throw new ControllerException('Invalid call directive given, use "Foo.bar" convention without '.
-                '"Controller" and "Action" suffixes', [], 404);
+        if ($controller == null || $action == null) {
+            throw new ControllerException('Invalid call directive given, use "Foo.bar" '.
+                'convention without "Controller" and "Action" suffixes',
+                null, 404);
         } elseif (!class_exists($controller)) {
-            throw new ControllerException('No controller found such "%s"', [$controller], 404);
+            throw new ControllerException('No controller found such "%s"',
+                [$controller], 404);
         } elseif (!method_exists($controller, $action)) {
-            throw new ControllerException('No controller action found such "%s::%s"', [$controller, $action], 404);
+            throw new ControllerException('No controller action found such "%s::%s"',
+                [$controller, $action], 404);
         }
 
         return (new $controller($this->app))->call($action, $actionParams);
