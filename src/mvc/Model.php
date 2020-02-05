@@ -87,7 +87,8 @@ class Model
 
         $db = $database ?? $controller->getApp()->database();
         if ($db == null) {
-            throw new ModelException('No database given to deal');
+            throw new ModelException('No database given to deal, be sure "db" option is exists '.
+                'in configuration');
         }
 
         $this->db = $db;
