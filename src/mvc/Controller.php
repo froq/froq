@@ -294,6 +294,7 @@ class Controller
             throw new ControllerException('App has no session object (check "session" option in '.
                 'configuration and be sure it is not null)');
         }
+
         $session->start();
     }
 
@@ -308,6 +309,11 @@ class Controller
      */
     public final function view(string $file, array $meta = null, array $data = null): void
     {
+        if (empty($this->view)) {
+            throw new ControllerException('No "$view" property set yet, be sure "$useView" is true '
+                .'in %s class', [static::class]);
+        }
+
         $this->view->render($file, ['meta' => $meta, 'data' => $data]);
     }
 
