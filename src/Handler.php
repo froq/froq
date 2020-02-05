@@ -110,7 +110,7 @@ final class Handler
                 set_global('app.displayErrors', ini_set('display_errors', 'off'));
             }
 
-            // This could be used later to check error stuff.
+            // This may be used later to check error stuff.
             app_fail('exception', $e);
 
             // This will be caught in shutdown handler.
@@ -147,7 +147,7 @@ final class Handler
                 // Call app error prosess (log etc.).
                 $app->error($e = new AppError($error, null, -1));
 
-                // This could be used later to check error stuff.
+                // This may be used later to check error stuff.
                 app_fail('shutdown', $e);
 
                 // Reset error display option (@see exception handler).
