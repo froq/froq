@@ -31,7 +31,6 @@ use froq\common\objects\{Factory, Registry};
 use froq\{config\Config, logger\Logger, event\Events};
 use froq\{session\Session, database\Database};
 use froq\http\{Http, Request, Response};
-use froq\util\Util;
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use Throwable;
 
@@ -154,6 +153,15 @@ final class App
     {
         Handler::unregisterErrorHandler();
         Handler::unregisterExceptionHandler();
+    }
+
+    /**
+     * Is root.
+     * @return bool
+     */
+    public function isRoot(): bool
+    {
+        return ($this->root == $this->request->uri()->get('path'));
     }
 
     /**
@@ -292,7 +300,7 @@ final class App
     }
 
     /**
-     * Defines a route for given method(s).
+     * Defines a route with given method(s).
      *
      * @param  string          $route
      * @param  string          $methods
@@ -307,7 +315,7 @@ final class App
     }
 
     /**
-     * Defines a route for GET method.
+     * Defines a route with GET method.
      *
      * @param  string          $route
      * @param  string|callable $call
@@ -319,7 +327,7 @@ final class App
     }
 
     /**
-     * Defines a route for POST method.
+     * Defines a route with POST method.
      *
      * @param  string          $route
      * @param  string|callable $call
@@ -331,7 +339,7 @@ final class App
     }
 
     /**
-     * Defines a route for PUT method.
+     * Defines a route with PUT method.
      *
      * @param  string          $route
      * @param  string|callable $call
@@ -343,7 +351,7 @@ final class App
     }
 
     /**
-     * Defines a route for GET method.
+     * Defines a route with GET method.
      *
      * @param  string          $route
      * @param  string|callable $call
@@ -370,14 +378,14 @@ final class App
 
     /**
      * Run.
-     * @param  array $options
+     * @param  array<string, any> $options
      * @return void
      * @throws froq\AppException
      */
     public function run(array $options = null): void
     {
         // Apply run options (user options) (@see skeleton/pub/index.php).
-        ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
+        @ ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
 
         $env     && $this->env  = $env;
         $root    && $this->root = $root;
@@ -414,13 +422,17 @@ final class App
         );
 
         if ($controller == null) {
-            throw new AppException('No controller route found for "%s %s" URI', [$method, htmlspecialchars($uri)], 404);
+            throw new AppException('No controller route found for "%s %s" URI',
+                [$method, htmlspecialchars($uri)], 404);
         } elseif ($action == null) {
-            throw new AppException('No action route found for "%s %s" URI', [$method, htmlspecialchars($uri)], 404);
+            throw new AppException('No action route found for "%s %s" URI',
+                [$method, htmlspecialchars($uri)], 404);
         } elseif (!class_exists($controller)) {
-            throw new AppException('No controller class found such "%s"', [$controller], 404);
+            throw new AppException('No controller class found such "%s"',
+                [$controller], 404);
         } elseif (!is_callable($action) && !method_exists($controller, $action)) {
-            throw new AppException('No controller action found such "%s::%s"', [$controller, $action], 404);
+            throw new AppException('No controller action found such "%s::%s"',
+                [$controller, $action], 404);
         }
 
         $this->startOutputBuffer();
@@ -437,15 +449,6 @@ final class App
         }
 
         $this->endOutputBuffer($return);
-    }
-
-    /**
-     * Is root.
-     * @return bool
-     */
-    public function isRoot(): bool
-    {
-        return ($this->root == $this->request->uri()->get('path'));
     }
 
     /**
@@ -472,7 +475,10 @@ final class App
             ob_end_clean();
         }
 
-        $output = (new Controller($this))->forward('@default.error', [$error]);
+        $output = null;
+        try {
+            $output = (new Controller($this))->forward('@default.error', [$error]);
+        } catch (Throwable $e) {}
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($output == null || is_string($output)) {
