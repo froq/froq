@@ -28,9 +28,9 @@ namespace froq;
 
 use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
+use froq\http\{Http, Request, Response};
 use froq\{config\Config, logger\Logger, event\Events};
 use froq\{session\Session, database\Database};
-use froq\http\{Http, Request, Response};
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use Throwable;
 
