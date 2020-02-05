@@ -387,13 +387,14 @@ final class App
         // Apply run options (user options) (@see skeleton/pub/index.php).
         @ ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
 
-        $env     && $this->env  = $env;
-        $root    && $this->root = $root;
-        $configs && $this->applyConfigs($configs);
-
-        if ($this->env == '' || $this->root == '') {
-            throw new AppException('App env or root cannot be empty');
+        if ($env == '' || $root == '') {
+            throw new AppException('App "env" or "root" cannot be empty');
         }
+
+        $this->env = $env;
+        $this->root = $root;
+
+        $configs && $this->applyConfigs($configs);
 
         // Apply defaults (timezone, locales etc.).
         $this->applyDefaults();
@@ -521,7 +522,6 @@ final class App
      */
     private function endOutputBuffer($output, bool $isError = null): void
     {
-
         $response = $this->response();
         if ($response == null) {
             throw new AppException('App has no response yet');
