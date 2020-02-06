@@ -479,9 +479,9 @@ final class App
         $this->events->fire('app.error', $error);
 
         // Status may change in @default.error().
-        try {
+        // try {
             $this->response->setStatusCode(500);
-        } catch (Throwable $e) {}
+        // } catch (Throwable $e) {}
 
         // Clear outputs (@default.error() will work below for output).
         while (ob_get_level()) {
@@ -489,9 +489,9 @@ final class App
         }
 
         $output = null;
-        try {
+        // try {
             $output = (new Controller($this))->forward('@default.error', [$error]);
-        } catch (Throwable $e) {}
+        // } catch (Throwable $e) {}
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($output == null || is_string($output)) {
