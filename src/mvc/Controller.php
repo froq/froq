@@ -361,7 +361,7 @@ class Controller
     public final function redirect(string $to, array $toArgs = null, int $code = 302,
         array $headers = null, array $cookies = null): void
     {
-        $toArgs && $to = vsprintf($to, $toArgs);
+        if ($toArgs) $to = vsprintf($to, $toArgs);
 
         $this->app->response()->redirect($to, $code, $headers, $cookies);
     }
