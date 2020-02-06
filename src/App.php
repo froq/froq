@@ -28,7 +28,7 @@ namespace froq;
 
 use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
-use froq\http\{Request, Response};
+use froq\http\{Request, Response, response\Cookie};
 use froq\{session\Session, database\Database};
 use froq\{config\Config, logger\Logger, event\Events};
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
@@ -136,6 +136,9 @@ final class App
 
         [$this->dir, $this->config, $this->logger, $this->events, $this->router, $this->servicer]
             = [APP_DIR, new Config(), new Logger(), new Events(), new Router($this), new Servicer($this)];
+
+        $this->request = new Request($this);
+        $this->response = new Response($this);
 
         // Register app.
         Registry::set('app', $this, true);
@@ -399,13 +402,22 @@ final class App
         // Apply defaults (timezone, locales etc.).
         $this->applyDefaults();
 
-        $this->request = new Request($this);
-        $this->response = new Response($this);
+        // Add headers & cookies if provided.
+        [$headers, $cookies] = $this->config(['headers', 'cookies']);
+        if ($headers) foreach ($headers as $name => $value) {
+            $this->response->addHeader($name, $value);
+        }
+        if ($cookies) foreach ($cookies as $name => $cookie) {
+            @ [$value, $options] = $cookie;
+            $this->response->addCookie($name, $value, $options);
+        }
+
+        // Generate URI segments by the root.
+        $this->request->uri()->generateSegments($this->root);
 
         // These options can be emptied by developer to disable session or database with "null"
         // if app won't be using session or/and database.
         [$session, $database] = $this->config->getAll(['session', 'database']);
-
         if (isset($session)) {
             $this->session = Factory::initSingle(Session::class, $session);
         }
