@@ -134,11 +134,11 @@ final class App
             throw new AppException('APP_DIR is not defined');
         }
 
-        [$this->dir, $this->config, $this->logger, $this->events, $this->router, $this->servicer]
-            = [APP_DIR, new Config(), new Logger(), new Events(), new Router($this), new Servicer($this)];
-
         $this->request = new Request($this);
         $this->response = new Response($this);
+
+        [$this->dir, $this->config, $this->logger, $this->events, $this->router, $this->servicer]
+            = [APP_DIR, new Config(), new Logger(), new Events(), new Router($this), new Servicer($this)];
 
         // Register app.
         Registry::set('app', $this, true);
