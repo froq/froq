@@ -576,7 +576,7 @@ final class App
         }
 
         $exposeAppRuntime = $this->config('exposeAppRuntime');
-        if ($exposeAppRuntime === true || $exposeAppRuntime === $this->env) {
+        if ($exposeAppRuntime && ($exposeAppRuntime === true || $exposeAppRuntime === $this->env)) {
             $response->setHeader('X-App-Runtime', sprintf('%.4f', $this->runtime()));
         }
 
