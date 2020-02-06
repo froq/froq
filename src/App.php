@@ -497,7 +497,7 @@ final class App
         if ($output == null || is_string($output)) {
             $outputErrors = ini('display_errors', '', true);
             if ($outputErrors) {
-                $output = trim($error ."\n\n". $output);
+                $output = trim($error->getMessage() ."\n\n". $output);
             }
         }
 
