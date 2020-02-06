@@ -135,8 +135,8 @@ final class Handler
                 ];
                 $errorCode = $error['type'];
             } elseif ($error = error_get_last()) {
-                $error = isset($error['type']) && ($error['type'] == E_ERROR) ? $error : null;
-                $errorCode = $error['type'];
+                $error     = ($error['type'] == E_ERROR) ? $error : null;
+                $errorCode = ($error['type'] ?? -1);
             }
 
             if ($error != null) {
