@@ -119,9 +119,10 @@ final class View
     }
 
     /**
-     * Gets a meta entry with given name.
+     * Gets a meta entry with given key, returns `$valueDefault` value if found no entry.
      *
      * @param  string $name
+     * @param  any|null $valueDefault
      * @return any
      */
     public final function getMeta(string $name, $valueDefault = null)
@@ -142,9 +143,10 @@ final class View
     }
 
     /**
-     * Gets a meta entry with given key. Returns `$valueDefault` value if found no entry.
+     * Gets a data entry with given key, returns `$valueDefault` value if found no entry.
      *
-     * @param  string $name
+     * @param  string   $name
+     * @param  any|null $valueDefault
      * @return any
      */
     public final function getData(string $key, $valueDefault = null)
