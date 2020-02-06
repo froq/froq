@@ -142,7 +142,7 @@ final class Handler
             if ($error != null) {
                 $error = sprintf("Shutdown in %s:%s\n%s", $error['file'], $error['line'], $error['message']);
 
-                // Call app error prosess (log etc.).
+                // Call app error process (log etc.).
                 $app->error($e = new AppError($error, null, $errorCode));
 
                 // This may be used later to check error stuff.
