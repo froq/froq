@@ -127,25 +127,23 @@ final class Handler
         register_shutdown_function(function() {
             $app = app();
 
-            $error = error_get_last();
-            $error = isset($error['type']) && ($error['type'] == E_ERROR) ? $error : null;
-
             // This will keep app running, even if a ParseError occurs.
-            if ($error == null) {
-                $error = app_fail('exception');
-                if ($error != null) {
-                    $error = [
-                        'type' => $error->getCode(), 'message' => get_class($error) .': '. $error->getMessage(),
-                        'file' => $error->getFile(), 'line' => $error->getLine()
-                    ];
-                }
+            if ($error = app_fail('exception')) {
+                $error = [
+                    'type' => $error->getCode(), 'message' => $error->__toString(),
+                    'file' => $error->getFile(), 'line'    => $error->getLine()
+                ];
+                $errorCode = $error['type'];
+            } elseif ($error = error_get_last()) {
+                $error = isset($error['type']) && ($error['type'] == E_ERROR) ? $error : null;
+                $errorCode = $error['type'];
             }
 
             if ($error != null) {
                 $error = sprintf("Shutdown in %s:%s\n%s", $error['file'], $error['line'], $error['message']);
 
                 // Call app error prosess (log etc.).
-                $app->error($e = new AppError($error, null, -1));
+                $app->error($e = new AppError($error, null, $errorCode));
 
                 // This may be used later to check error stuff.
                 app_fail('shutdown', $e);
