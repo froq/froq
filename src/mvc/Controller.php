@@ -28,6 +28,7 @@ namespace froq\mvc;
 
 use froq\{App, Router};
 use froq\mvc\{ControllerException, View, Model, Action};
+use Reflector, ReflectionMethod, ReflectionFunction;
 
 /**
  * Controller.
@@ -366,8 +367,8 @@ class Controller
     }
 
     /**
-     * Calls an action that defined in subclass or by App's `route()` method or other shortcut
-     * route methods like `get()`, `post()`, eg: `$app->get("/book/:id", "Book.show")`..
+     * Calls an action that defined in subclass or by `App.route()` method or other shortcut route
+     * methods like `get()`, `post()`, eg: `$app->get("/book/:id", "Book.show")`.
      *
      * @param  string $action
      * @param  array  $actionParams
@@ -376,14 +377,16 @@ class Controller
     public final function call(string $action, array $actionParams = [])
     {
         $this->action       = $action;
-        $this->actionParams = $actionParams;
+        $this->actionParams = $actionParams; // Keep originals.
 
-        return Action::call($this, $action, $actionParams);
+        $params = $this->prepareActionParams(new ReflectionMethod($this, $action), $actionParams);
+
+        return $this->{$action}(...$params);
     }
 
     /**
-     * Calls an callable (function) that defined by App's `route()` method or other shortcut
-     * route methods like `get()`, `post()`, eg: `$app->get("/book/:id", function ($id) { .. })`.
+     * Calls an callable (function) that defined by `App.route()` method or other shortcut route
+     * methods like `get()`, `post()`, eg: `$app->get("/book/:id", function ($id) { .. })`.
      *
      * @param  callable $action
      * @param  array    $actionParams
@@ -392,11 +395,35 @@ class Controller
     public final function callCallable(callable $action, array $actionParams = [])
     {
         $this->action       = self::NAME_CLOSURE;
-        $this->actionParams = $actionParams;
+        $this->actionParams = $actionParams; // Keep originals.
 
-        // Make "$this" and "$this->..." available in called action.
+        // Make "$this" available in called action.
         $action = $action->bindTo($this, $this);
 
-        return Action::callCallable($action, $actionParams);
+        $params = $this->prepareActionParams(new ReflectionFunction($action), $actionParams);
+
+        return $action(...$params);
+    }
+
+    /**
+     * Prepares an action's parameters to fulfill its required/non-required parameter need on
+     * calltime/runtime.
+     *
+     * @param  Reflector $reflector
+     * @param  array     $actionParams
+     * @return array
+     */
+    private final function prepareActionParams(Reflector $reflector, array $actionParams): array
+    {
+        $ret = [];
+
+        foreach ($reflector->getParameters() as $i => $param) {
+            // Action parameter can be named or indexed.
+            $ret[] = $actionParams[$param->name] ?? $actionParams[$i] ?? (
+                $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null
+            );
+        }
+
+        return $ret;
     }
 }
