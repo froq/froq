@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
+use froq\pager\Pager;
 use froq\mvc\{ModelException, Controller};
 use froq\database\{Database, Result, QueryBuilder};
 
@@ -315,14 +316,26 @@ class Model
     }
 
     /**
-     * Initializes a new query builder object using self `$db` property.
+     * Initializes a new pager object running it with `$totalRecords` argument if provided.
+     *
+     * @param  int|null $totalRecords
+     * @return froq\pager\Pager
+     */
+    public final function initPager(int $totalRecords = null): Pager
+    {
+        return $this->db->initPager($totalRecords);
+    }
+
+    /**
+     * Initializes a new query builder object using self `$db` property, setting its "table" query
+     * with `$table` argument if provided.
      *
      * @param  string $table
      * @return froq\database\QueryBuilder
      */
     public final function initQueryBuilder(string $table = null): QueryBuilder
     {
-        return new QueryBuilder($this->db, $table);
+        return $this->db->initQueryBuilder($table);
     }
 
     /**
