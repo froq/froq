@@ -554,18 +554,16 @@ final class App
             $contentAttributes = $body->getContentAttributes();
 
             // Pass, output comes from App.error() already.
-            if ($isError) {
-            }
+            if ($isError) {}
             // Actions that use echo/print/view()/response.setBody() will return null.
-            elseif ($output === null) {
-                $output = '';
+            elseif ($output == null || is_string($output)) {
                 while (ob_get_level()) {
                     $output .= ob_get_clean();
                 }
             }
 
             // Returned content from action or set on body.
-            $content = $content ?: $output;
+            $content = $content ?? $output;
 
             // Call user output handler if provided.
             if ($this->events->has('app.output')) {

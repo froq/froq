@@ -155,14 +155,14 @@ final class View
     }
 
     /**
-     * Renders a given view file instantly with given meta & data set and prints the rendered
+     * Renders a given view file instantly with given meta & data set and returns the rendered
      * contents. Throws `ViewException` if given file or layout file not found.
      *
      * @param  string                            $file
      * @param  array<string, array<string, any>> $fileMetaData
-     * @return void
+     * @return string
      */
-    public function render(string $file, array $fileMetaData): void
+    public function render(string $file, array $fileMetaData): string
     {
         $file       = $this->prepareFile($file);
         $fileLayout = $this->layout ?? '';
@@ -187,7 +187,7 @@ final class View
         $content = $this->renderFile($file, $data);
         $content = $this->renderFile($fileLayout, ['CONTENT' => $content]);
 
-        print $content;
+        return $content;
     }
 
     /**

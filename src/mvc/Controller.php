@@ -300,23 +300,23 @@ class Controller
     }
 
     /**
-     * Views (prints) a view file with given `$meta` and `$data` arguments if provided rendering
-     * the file in a wrapped output buffer.
+     * Views a view file with given `$meta` and `$data` arguments if provided rendering the file
+     * in a wrapped output buffer.
      *
      * @param  string     $file
      * @param  array|null $meta
      * @param  array|null $data
-     * @return void
+     * @return string
      * @throws froq\mvc\ControllerException
      */
-    public final function view(string $file, array $meta = null, array $data = null): void
+    public final function view(string $file, array $meta = null, array $data = null): string
     {
         if (empty($this->view)) {
             throw new ControllerException('No "$view" property set yet, be sure "$useView" is '.
                 'true in %s class', [static::class]);
         }
 
-        $this->view->render($file, ['meta' => $meta, 'data' => $data]);
+        return $this->view->render($file, ['meta' => $meta, 'data' => $data]);
     }
 
     /**
