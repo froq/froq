@@ -319,11 +319,12 @@ class Model
      * Initializes a new pager object running it with `$totalRecords` argument if provided.
      *
      * @param  int|null $totalRecords
+     * @param  int|null $limit
      * @return froq\pager\Pager
      */
-    public final function initPager(int $totalRecords = null): Pager
+    public final function initPager(int $totalRecords = null, int $limit = null): Pager
     {
-        return $this->db->initPager($totalRecords);
+        return $this->db->initPager($totalRecords, $limit);
     }
 
     /**
