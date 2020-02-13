@@ -41,7 +41,7 @@ function not(...$vars)
  */
 function upper($input)
 {
-    return is_string($input) ? strtoupper($input) : null;
+    return is_string($input) ? mb_strtoupper($input) : null;
 }
 
 /**
@@ -52,7 +52,7 @@ function upper($input)
  */
 function lower($input)
 {
-    return is_string($input) ? strtolower($input) : null;
+    return is_string($input) ? mb_strtolower($input) : null;
 }
 
 /**
@@ -74,8 +74,7 @@ function len($input)
 function size($input)
 {
     if (is_array($input))   return count($input);
-    if (is_string($input))  return strlen($input);
-    if (is_numeric($input)) return strlen((string) $input);
+    if (is_string($input))  return mb_strlen($input);
 
     if ($input && is_object($input)) {
         if ($input instanceof stdClass)       return count((array) $input);
@@ -97,17 +96,18 @@ function strip($input, $chars = null)
 {
     if ($chars != null) {
         // Regexp: only ~...~ patterns accepted.
-        $charsLen = strlen($chars);
-        if ($charsLen > 2 && $chars[0] == '~') {
+        $charslen = strlen($chars);
+        if ($charslen > 2 && $chars[0] == '~') {
             $rules = substr($chars, 1, ($pos = strrpos($chars, '~')) - 1);
             $modifiers = substr($chars, $pos + 1);
-            $pattern = sprintf('~^%s|%s$~%s', $rules, $rules, $modifiers);
 
-            return preg_replace($pattern, '', $input);
+            return preg_replace(sprintf('~^%s|%s$~%s', $rules, $rules, $modifiers), '', $input);
         }
+
+        return trim($input, $chars);
     }
 
-    return trim($input, $chars);
+    return trim($input);
 }
 
 /**
@@ -234,4 +234,24 @@ function replace($input, $search, $replacement, $remove = false)
     }
 
     return $input;
+}
+
+/**
+ * Slice.
+ * @param  array|string $input
+ * @param  int          $start
+ * @param  int|null     $end
+ * @return array|string|null
+ * @since  3.0, 4.0 Added back.
+ */
+function slice($input, $start, $end = null)
+{
+    if (is_array($input)) {
+        return array_slice($input, $start, $end);
+    }
+    if (is_string($input)) {
+        return mb_substr($input, $start, $end ?? mb_strlen($input));
+    }
+
+    return null; // No valid input.
 }
