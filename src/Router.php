@@ -124,10 +124,11 @@ final class Router
      *
      * @param  string      $uri
      * @param  string|null $method
+     * @param  array|null  $options
      * @return ?array
      * @throws froq\RouterException
      */
-    public function resolve(string $uri, string $method = null): ?array
+    public function resolve(string $uri, string $method = null, array $options = null): ?array
     {
         $routes = $this->getRoutes();
         if (empty($routes)) {
@@ -143,7 +144,7 @@ final class Router
             // Format named parameters if given.
             if (strpos($pattern, ':')) {
                 $pattern = preg_replace_callback(
-                    '~(?<!\?):(\w+)(?:(?<c>[\[\{])(.+?)[\]\}])?~',
+                    '~(?<!\?):(\w+)(?:(?<c>[\[\{])(.+)[\]\}])?~',
                     function ($match) {
                         $name = $match[1];
 
@@ -169,6 +170,10 @@ final class Router
 
         // Operator "x" is just for readability at debugging times.
         $pattern = "~^(?:\n". join(" |\n", $patterns) ."\n)$~xAJ";
+
+        // Apply options.
+        !empty($options['unicode']) && $pattern .= 'u';
+        !empty($options['decodeUri']) && $uri = rawurldecode($uri);
 
         // Normalize URI (removes repeating & ending slashes).
         $uri = '/'. preg_replace('~/+~', '/', trim($uri, '/'));

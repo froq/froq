@@ -430,8 +430,12 @@ final class App
 
         // Resolve route and dispatch.
         @ [$controller, $action, $actionParams] = $this->router->resolve(
-            $uri    = $this->request->uri()->getPath(),
-            $method = $this->request->method()->getName(),
+            $uri     = $this->request->uri()->getPath(),
+            $method  = $this->request->method()->getName(),
+            $options = [
+                'unicode'   => $this->config->get('route.unicode'),
+                'decodeUri' => $this->config->get('route.decodeUri'),
+            ]
         );
 
         if ($controller == null) {
