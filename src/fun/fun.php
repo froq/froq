@@ -155,14 +155,14 @@ function grep_all($input, $pattern) {
 function split($delim, $input, $limit = null, $flags = null)
 {
     // Regexp: only ~...~ patterns accepted.
-    $delim_len = strlen($delim);
-    if ($delim_len == 0) { // Split all.
+    $delimlen = strlen($delim);
+    if ($delimlen == 0) { // Split all.
         $delim = '~~u';
-        $delim_len = 3;
+        $delimlen = 3;
     }
 
-    if ($delim_len > 2 && $delim[0] == '~') { // Regexp.
-        $ret = (array) preg_split($delim, $input, $limit ?? -1, $flags ?? 1); // 1=no empty.
+    if ($delimlen > 2 && $delim[0] == '~') { // Regexp.
+        $ret = (array) preg_split($delim, $input, $limit ?? -1, $flags ?? 1); // 1=No empty.
     } else {
         $ret = (array) explode($delim, $input, $limit ?? PHP_INT_MAX);
         if ($flags === null) { // Null=no empty.
@@ -171,7 +171,7 @@ function split($delim, $input, $limit = null, $flags = null)
     }
 
     // Plus: prevent 'undefined index..' error.
-    if ($limit && $limit > 0 && $limit != count($ret)) {
+    if ($limit && $limit != count($ret)) {
         $ret = array_pad($ret, $limit, null);
     }
 
