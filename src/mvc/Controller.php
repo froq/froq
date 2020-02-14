@@ -306,14 +306,19 @@ class Controller
      * @param  string     $file
      * @param  array|null $meta
      * @param  array|null $data
+     * @param  int|null   $status
      * @return string
      * @throws froq\mvc\ControllerException
      */
-    public final function view(string $file, array $meta = null, array $data = null): string
+    public final function view(string $file, array $meta = null, array $data = null, int $status = null): string
     {
         if (empty($this->view)) {
             throw new ControllerException('No "$view" property set yet, be sure "$useView" is '.
                 'true in %s class', [static::class]);
+        }
+
+        if ($status) {
+            $this->app->response()->status($status);
         }
 
         return $this->view->render($file, ['meta' => $meta, 'data' => $data]);
