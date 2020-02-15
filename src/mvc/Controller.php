@@ -271,10 +271,8 @@ class Controller
 
             $class = sprintf('app\model\%sModel', $shortName);
             if (!class_exists($class)) {
-                throw new ControllerException(
-                    'Model class "%s" not found, be sure "app/system/%s/model/%sModel.php" exists',
-                    [$class, $name, $shortName]
-                );
+                throw new ControllerException( 'Model class "%s" not found, be sure file '.
+                    '"app/system/%s/model/%sModel.php" exists', [$class, $name, $shortName]);
             }
 
             $this->model = new $class($this);
@@ -327,7 +325,7 @@ class Controller
     /**
      * Forwards an internal call to other call (controller method) with given call arguments. The
      * `$call` parameter must be fully qualified for explicit methods without `Controller` and
-     * `Action` suffixes eg: "Book.show", otherwise `index` method does not require that explicity.
+     * `Action` suffixes eg: `Book.show`, otherwise `index` method does not require that explicity.
      *
      * @param  string $call
      * @param  array  $callArgs
@@ -340,14 +338,11 @@ class Controller
 
         if ($controller == null || $action == null) {
             throw new ControllerException('Invalid call directive given, use "Foo.bar" '.
-                'convention without "Controller" and "Action" suffixes',
-                null, 404);
+                'convention without "Controller" and "Action" suffixes', null, 404);
         } elseif (!class_exists($controller)) {
-            throw new ControllerException('No controller found such "%s"',
-                [$controller], 404);
+            throw new ControllerException('No controller found such "%s"', [$controller], 404);
         } elseif (!method_exists($controller, $action)) {
-            throw new ControllerException('No controller action found such "%s::%s"',
-                [$controller, $action], 404);
+            throw new ControllerException('No controller action found such "%s::%s()"', [$controller, $action], 404);
         }
 
         return (new $controller($this->app))->call($action, $actionParams);

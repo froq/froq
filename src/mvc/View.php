@@ -171,7 +171,7 @@ final class View
             throw new ViewException('View file "%s" is not exists', [$file]);
         }
         if (!is_file($fileLayout)) {
-            throw new ViewException('Layout file "%s" is not exists', [$fileLayout]);
+            throw new ViewException('View layout file "%s" is not exists', [$fileLayout]);
         }
 
         $meta = (array) ($fileMetaData['meta'] ?? []);

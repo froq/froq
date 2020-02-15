@@ -352,7 +352,7 @@ class Model
         $tablePrimary = $this->getTablePrimary();
 
         if (!$table || !$tablePrimary) {
-            throw new ModelException('Both "$table" and "$tablePrimary" properties must be '.
+            throw new ModelException('Both $table and $tablePrimary properties must be '.
                 'defined in class "%s" to use "%s()"', [static::class, $method]);
         }
 

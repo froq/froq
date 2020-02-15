@@ -132,7 +132,7 @@ final class Router
     {
         $routes = $this->getRoutes();
         if (empty($routes)) {
-            throw new RouterException('No route directives found to resolve');
+            throw new RouterException('No route directives exists to resolve');
         }
 
         $patterns = [];

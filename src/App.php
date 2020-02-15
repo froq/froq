@@ -224,8 +224,8 @@ final class App
             return $this->config->getAll($key, $valueDefault);
         }
 
-        throw new AppException(sprintf('Only string, array and null keys allowed for %s() '.
-            'method, %s given', __method__, gettype($key)));
+        throw new AppException('Only string, array and null keys allowed for "%s()" method, '.
+            '"%s" given', [__method__, gettype($key)]);
     }
 
     /**
@@ -391,7 +391,7 @@ final class App
         @ ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
 
         if ($env == '' || $root == '') {
-            throw new AppException('App "env" or "root" cannot be empty');
+            throw new AppException('Options "env" or "root" must not be empty');
         }
 
         $this->env = $env;
@@ -440,15 +440,15 @@ final class App
 
         if ($controller == null) {
             throw new AppException('No controller route found for "%s %s" URI',
-                [$method, htmlspecialchars($uri)], 404);
+                [$method, htmlspecialchars(rawurldecode($uri))], 404);
         } elseif ($action == null) {
             throw new AppException('No action route found for "%s %s" URI',
-                [$method, htmlspecialchars($uri)], 404);
+                [$method, htmlspecialchars(rawurldecode($uri))], 404);
         } elseif (!class_exists($controller)) {
             throw new AppException('No controller class found such "%s"',
                 [$controller], 404);
         } elseif (!is_callable($action) && !method_exists($controller, $action)) {
-            throw new AppException('No controller action found such "%s::%s"',
+            throw new AppException('No controller action found such "%s::%s()"',
                 [$controller, $action], 404);
         }
 

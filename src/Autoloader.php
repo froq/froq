@@ -162,8 +162,8 @@ final class Autoloader
     private function checkAppDir(): void
     {
         if (!defined('APP_DIR')) {
-            throw new RuntimeException('No APP_DIR defined yet, it’s required for "app\.." '.
-                'located files');
+            throw new RuntimeException('APP_DIR is not defined, it is required for "app\..." '.
+                'namespaced files');
         }
     }
 
