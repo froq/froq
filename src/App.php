@@ -28,7 +28,7 @@ namespace froq;
 
 use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
-use froq\http\{Request, Response};
+use froq\http\{Request, Response, response\Status};
 use froq\{session\Session, database\Database};
 use froq\{config\Config, logger\Logger, event\Events};
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
@@ -428,28 +428,39 @@ final class App
         // @override
         Registry::set('app', $this);
 
-        // Resolve route and dispatch.
-        @ [$controller, $action, $actionParams] = $this->router->resolve(
-            $uri     = $this->request->uri()->getPath(),
-            $method  = $this->request->method()->getName(),
+        // Resolve route.
+        $result = $this->router->resolve(
+            $uri     = $this->request->uri()->get('path'),
+            $method  = null, // To check below it is allowed or not.
             $options = [
                 'unicode'   => $this->config->get('route.unicode'),
                 'decodeUri' => $this->config->get('route.decodeUri'),
             ]
         );
 
+        $method = $this->request->method()->getName();
+
+        // Found but no method allowed?
+        if ($result != null && !isset($result[$method]) && !isset($result['*'])) {
+            throw new AppException('No method "%s" allowed for URI "%s"',
+                [$method, htmlspecialchars(rawurldecode($uri))], Status::METHOD_NOT_ALLOWED);
+        }
+
+        @ [$controller, $action, $actionParams] = $result[$method] ?? $result['*'] ?? null;
+
+        // Not found?
         if ($controller == null) {
             throw new AppException('No controller route found for "%s %s" URI',
-                [$method, htmlspecialchars(rawurldecode($uri))], 404);
+                [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
         } elseif ($action == null) {
             throw new AppException('No action route found for "%s %s" URI',
-                [$method, htmlspecialchars(rawurldecode($uri))], 404);
+                [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
         } elseif (!class_exists($controller)) {
             throw new AppException('No controller class found such "%s"',
-                [$controller], 404);
+                [$controller], Status::NOT_FOUND);
         } elseif (!is_callable($action) && !method_exists($controller, $action)) {
             throw new AppException('No controller action found such "%s::%s()"',
-                [$controller, $action], 404);
+                [$controller, $action], Status::NOT_FOUND);
         }
 
         $this->startOutputBuffer();
@@ -482,9 +493,9 @@ final class App
         // Call user error handler if provided.
         $this->events->fire('app.error', $error);
 
-        // Status may change in @default.error().
+        // Status may change later in @default.error().
         // try {
-            $this->response->setStatusCode(500);
+            $this->response->setStatusCode(Status::INTERNAL_SERVER_ERROR);
         // } catch (Throwable $e) {}
 
         // Clear outputs (@default.error() will work below for output).
