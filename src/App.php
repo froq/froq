@@ -370,7 +370,7 @@ final class App
      *
      * @param  string         $name
      * @param  array|callable $service
-     * @return ?object
+     * @return ?object|void
      */
     public function service(string $name, $service = null): ?object
     {
