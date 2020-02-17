@@ -105,7 +105,7 @@ final class Servicer
      * Gets a service from service stack if found, otherwise returns null.
      *
      * @param  string $name
-     * @return object|callable
+     * @return object|callable|null
      */
     public function getService(string $name)
     {
@@ -116,7 +116,6 @@ final class Servicer
      * Removes a service from service stack.
      *
      * @param  string $name
-     * @return object|callable
      * @return bool
      */
     public function removeService(string $name): bool
