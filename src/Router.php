@@ -144,7 +144,7 @@ final class Router
             // Format named parameters if given.
             if (strpos($pattern, ':')) {
                 $pattern = preg_replace_callback(
-                    '~(?<!\?):(\w+)(?:(?<c>[\[\{])(.+)[\]\}])?~',
+                    '~(?<!\?):(\w+)(?:(?<c>[\[\{])(.+?)[\]\}])?~',
                     function ($match) {
                         $name = $match[1];
 
