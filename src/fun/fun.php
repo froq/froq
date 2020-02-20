@@ -96,8 +96,7 @@ function strip($input, $chars = null)
 {
     if ($chars != null) {
         // Regexp: only ~...~ patterns accepted.
-        $charslen = strlen($chars);
-        if ($charslen > 2 && $chars[0] == '~') {
+        if (strlen($chars) >= 3 && $chars[0] == '~') {
             $rules = substr($chars, 1, ($pos = strrpos($chars, '~')) - 1);
             $modifiers = substr($chars, $pos + 1);
 
@@ -145,7 +144,7 @@ function grep_all($input, $pattern) {
 }
 
 /**
- * We missed you so much baby..
+ * Split (we missed you so much baby..).
  * @param  string   $delim
  * @param  string   $input
  * @param  int|null $limit
@@ -154,14 +153,14 @@ function grep_all($input, $pattern) {
  */
 function split($delim, $input, $limit = null, $flags = null)
 {
-    // Regexp: only ~...~ patterns accepted.
+    // Regexp: only "~...~" patterns accepted.
     $delimlen = strlen($delim);
-    if ($delimlen == 0) { // Split all.
-        $delim = '~~u';
+    if ($delimlen == 0) {
+        $delim = '~~u'; // Split all.
         $delimlen = 3;
     }
 
-    if ($delimlen > 2 && $delim[0] == '~') { // Regexp.
+    if ($delimlen >= 3 && $delim[0] == '~') { // Regexp.
         $ret = (array) preg_split($delim, $input, $limit ?? -1, $flags ?? 1); // 1=No empty.
     } else {
         $ret = (array) explode($delim, $input, $limit ?? PHP_INT_MAX);
@@ -222,7 +221,7 @@ function replace($input, $search, $replacement, $remove = false)
         }
     } elseif (is_string($input)) {
         $search = (string) $search;
-        if (strlen($search) > 2 && $search[0] == '~') { // Regexp.
+        if (strlen($search) >= 3 && $search[0] == '~') { // Regexp.
             $input = !is_callable($replacement)
                 ? preg_replace($search, $replacement, $input)
                 : preg_replace_callback($search, $replacement, $input);
@@ -254,4 +253,15 @@ function slice($input, $start, $end = null)
     }
 
     return null; // No valid input.
+}
+
+/**
+ * Strsrc (the ever most most most wanted function..).
+ * @param  string $str
+ * @param  string $src
+ * @return bool
+ * @since  4.0 Finally..
+ */
+function strsrc($str, $src) {
+    return strpos($str, $src) !== false;
 }
