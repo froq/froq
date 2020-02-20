@@ -86,6 +86,26 @@ function size($input)
 }
 
 /**
+ * Slice.
+ * @param  array|string $input
+ * @param  int          $start
+ * @param  int|null     $end
+ * @return array|string|null
+ * @since  3.0, 4.0 Added back.
+ */
+function slice($input, $start, $end = null)
+{
+    if (is_array($input)) {
+        return array_slice($input, $start, $end);
+    }
+    if (is_string($input)) {
+        return mb_substr($input, $start, $end ?? mb_strlen($input));
+    }
+
+    return null; // No valid input.
+}
+
+/**
  * Strip.
  * @param  string      $input
  * @param  string|null $chars
@@ -107,40 +127,6 @@ function strip($input, $chars = null)
     }
 
     return trim($input);
-}
-
-/**
- * Grep.
- * @param  string $input
- * @param  string $pattern
- * @return string|null
- * @since  3.0
- */
-function grep($input, $pattern)
-{
-    preg_match($pattern, $input, $match);
-    if (isset($match[1])) {
-        return $match[1];
-    }
-    return null;
-}
-
-/**
- * Grep all.
- * @param  string $input
- * @param  string $pattern
- * @return array|null
- * @since  3.15
- */
-function grep_all($input, $pattern) {
-    preg_match_all($pattern, $input, $matches);
-    if (isset($matches[1])) {
-        foreach (array_slice($matches, 1) as $match) {
-            $ret[] = $match[0] ?? null;
-        }
-        return $ret;
-    }
-    return null;
 }
 
 /**
@@ -235,23 +221,37 @@ function replace($input, $search, $replacement, $remove = false)
 }
 
 /**
- * Slice.
- * @param  array|string $input
- * @param  int          $start
- * @param  int|null     $end
- * @return array|string|null
- * @since  3.0, 4.0 Added back.
+ * Grep.
+ * @param  string $input
+ * @param  string $pattern
+ * @return string|null
+ * @since  3.0
  */
-function slice($input, $start, $end = null)
+function grep($input, $pattern)
 {
-    if (is_array($input)) {
-        return array_slice($input, $start, $end);
+    preg_match($pattern, $input, $match);
+    if (isset($match[1])) {
+        return $match[1];
     }
-    if (is_string($input)) {
-        return mb_substr($input, $start, $end ?? mb_strlen($input));
-    }
+    return null;
+}
 
-    return null; // No valid input.
+/**
+ * Grep all.
+ * @param  string $input
+ * @param  string $pattern
+ * @return array|null
+ * @since  3.15
+ */
+function grep_all($input, $pattern) {
+    preg_match_all($pattern, $input, $matches);
+    if (isset($matches[1])) {
+        foreach (array_slice($matches, 1) as $match) {
+            $ret[] = $match[0] ?? null;
+        }
+        return $ret;
+    }
+    return null;
 }
 
 /**
