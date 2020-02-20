@@ -638,8 +638,9 @@ final class App
         }
 
         if ($locales != null) {
-            foreach ($locales as $name => $value) {
-                setlocale($name, $value);
+            // Must be like eg: [LC_TIME => 'en_US' or 'en_US.utf-8'].
+            foreach ($locales as $category => $locale) {
+                setlocale($category, $locale);
             }
         }
     }
