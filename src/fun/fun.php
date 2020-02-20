@@ -73,8 +73,8 @@ function len($input)
  */
 function size($input)
 {
-    if (is_array($input))   return count($input);
-    if (is_string($input))  return mb_strlen($input);
+    if (is_string($input))    return mb_strlen($input);
+    if (is_countable($input)) return count($input);
 
     if ($input && is_object($input)) {
         if ($input instanceof stdClass)       return count((array) $input);
@@ -220,8 +220,7 @@ function replace($input, $search, $replacement, $remove = false)
             } else { $input[$key] = $replacement; }
         }
     } elseif (is_string($input)) {
-        $search = (string) $search;
-        if (strlen($search) >= 3 && $search[0] == '~') { // Regexp.
+        if (is_string($search) && strlen($search) >= 3 && $search[0] == '~') { // Regexp.
             $input = !is_callable($replacement)
                 ? preg_replace($search, $replacement, $input)
                 : preg_replace_callback($search, $replacement, $input);
