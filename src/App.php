@@ -465,16 +465,18 @@ final class App
 
         $this->startOutputBuffer();
 
+        // Call before event if exists.
+        $this->events->fire('app.before');
+
         $class = new $controller($this);
         if (is_string($action)) {
-            $this->events->fire('app.before');
             $return = $class->call($action, $actionParams);
-            $this->events->fire('app.after');
         } elseif (is_callable($action)) {
-            $this->events->fire('app.before');
             $return = $class->callCallable($action, $actionParams);
-            $this->events->fire('app.after');
         }
+
+        // Call after event if exists.
+        $this->events->fire('app.after');
 
         $this->endOutputBuffer($return);
     }
