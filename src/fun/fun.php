@@ -73,7 +73,7 @@ function len($input)
  */
 function size($input)
 {
-    if (is_string($input))    return mb_strlen($input);
+    if (is_string($input))    return strlen($input);
     if (is_countable($input)) return count($input);
 
     if ($input && is_object($input)) {
