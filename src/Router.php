@@ -164,6 +164,9 @@ final class Router
                 );
             }
 
+            // Escape delimiter.
+            $pattern = addcslashes($pattern, '~');
+
             // See http://www.pcre.org/pcre.txt for verbs.
             $patterns[] = ' (*MARK:'. $i .') '. $pattern;
         }
