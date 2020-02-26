@@ -41,7 +41,7 @@ function not(...$vars)
  */
 function upper($input)
 {
-    return is_string($input) ? mb_strtoupper($input) : null;
+    return is_string($input) ? mb_convert_case($input, MB_CASE_UPPER_SIMPLE) : null;
 }
 
 /**
@@ -52,7 +52,7 @@ function upper($input)
  */
 function lower($input)
 {
-    return is_string($input) ? mb_strtolower($input) : null;
+    return is_string($input) ? mb_convert_case($input, MB_CASE_LOWER_SIMPLE) : null;
 }
 
 /**
