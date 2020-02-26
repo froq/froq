@@ -240,10 +240,11 @@ function grep($input, $pattern)
  * Grep all.
  * @param  string $input
  * @param  string $pattern
- * @return array|null
+ * @return array<string>|null
  * @since  3.15
  */
-function grep_all($input, $pattern) {
+function grep_all($input, $pattern)
+{
     preg_match_all($pattern, $input, $matches);
     if (isset($matches[1])) {
         foreach (array_slice($matches, 1) as $match) {
@@ -252,15 +253,4 @@ function grep_all($input, $pattern) {
         return $ret;
     }
     return null;
-}
-
-/**
- * Strsrc (the ever most most most wanted function..).
- * @param  string $str
- * @param  string $src
- * @return bool
- * @since  4.0 Finally..
- */
-function strsrc($str, $src) {
-    return strpos($str, $src) !== false;
 }
