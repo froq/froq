@@ -217,11 +217,8 @@ final class App
         if ($key === null) {
             return $this->config;
         }
-        if (is_string($key)) {
+        if (is_string($key) || is_array($key)) {
             return $this->config->get($key, $valueDefault);
-        }
-        if (is_array($key)) {
-            return $this->config->getAll($key, $valueDefault);
         }
 
         throw new AppException('Only string, array and null keys allowed for "%s()" method, '.
@@ -415,9 +412,9 @@ final class App
         // Generate URI segments by the root.
         $this->request->uri()->generateSegments($this->root);
 
-        // These options can be emptied by developer to disable session or database with "null"
-        // if app won't be using session or/and database.
-        [$session, $database] = $this->config->getAll(['session', 'database']);
+        // These options can be emptied by developer to disable session or database with "null" if
+        // app won't be using session or/and database. Also remove sensitive config  data after using.
+        [$session, $database] = $this->config->pull(['session', 'database']);
         if (isset($session)) {
             $this->session = Factory::initSingle(Session::class, $session);
         }
@@ -610,7 +607,7 @@ final class App
 
         // Set/reset logger options.
         @ [['level' => $level, 'directory' => $directory], $routes, $services]
-            = $this->config->getAll(['logger', 'routes', 'services']);
+            = $this->config->get(['logger', 'routes', 'services']);
 
         $level     && $this->logger->setOption('level', $level);
         $directory && $this->logger->setOption('directory', $directory);
@@ -626,7 +623,7 @@ final class App
     private function applyDefaults(): void
     {
         [$timezone, $encoding, $locales]
-            = $this->config->getAll(['timezone', 'encoding', 'locales']);
+            = $this->config->get(['timezone', 'encoding', 'locales']);
 
         if ($timezone != null) {
             date_default_timezone_set($timezone);
