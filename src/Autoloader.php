@@ -61,14 +61,18 @@ final class Autoloader
 
     /**
      * Constructor.
-     * @param string|null $directory
+     * @param  string|null $directory
+     * @throws RuntimeException
      */
     private function __construct(string $directory = null)
     {
-        $this->directory = $directory ?? realpath(__DIR__ .'/../../../../vendor/froq');
-        if (!is_dir($this->directory)) {
+        $directory = $directory ?? realpath(__dir__ .'/../../../../vendor/froq');
+
+        if (!$directory || !is_dir($directory)) {
             throw new RuntimeException('Froq folder not found');
         }
+
+        $this->directory = $directory;
     }
 
     /**
