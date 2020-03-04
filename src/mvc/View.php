@@ -205,9 +205,7 @@ final class View
 
         ob_start();
         include $file;
-        $output = ob_get_clean();
-
-        return $output;
+        return (string) ob_get_clean();
     }
 
     /**
