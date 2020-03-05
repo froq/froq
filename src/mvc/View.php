@@ -216,9 +216,8 @@ final class View
      */
     private function prepareFile(string $file): string
     {
-        $appDir         = $this->controller->getApp()->dir();
-        $controllerName = $this->controller->getName();
-
-        return sprintf('%s/app/system/%s/view/%s.php', $appDir, $controllerName, $file);
+        return sprintf(
+            '%s/app/system/%s/view/%s.php',
+            APP_DIR, $this->controller->getShortName(), $file);
     }
 }
