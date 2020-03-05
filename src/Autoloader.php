@@ -148,7 +148,7 @@ final class Autoloader
             }
         }
         // Most objects loaded by Composer, but in case this part is just a fallback.
-        elseif (strpos($name, 'froq') === 0) {
+        elseif (strpos($name, 'froq/') === 0) {
             [$pkg, $src] = $this->resolve($name);
 
             $file = $this->directory .'/'. $pkg .'/src/'. $src .'.php';
