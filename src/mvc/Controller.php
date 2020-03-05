@@ -266,13 +266,11 @@ class Controller
     public final function loadModel(): void
     {
         if (empty($this->model)) {
-            $name      = $this->getName();
-            $shortName = $this->getShortName();
-
-            $class = sprintf('app\model\%sModel', $shortName);
+            $name  = $this->getShortName();
+            $class = sprintf('app\model\%sModel', $name);
             if (!class_exists($class)) {
                 throw new ControllerException( 'Model class "%s" not found, be sure file '.
-                    '"app/system/%s/model/%sModel.php" exists', [$class, $name, $shortName]);
+                    '"app/system/%s/model/%sModel.php" exists', [$class, $name, $name]);
             }
 
             $this->model = new $class($this);

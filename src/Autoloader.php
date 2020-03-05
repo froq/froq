@@ -116,27 +116,27 @@ final class Autoloader
         $name = strtr($name, '\\', '/');
         $file = null;
 
-        if (strpos($name, 'app') === 0) {
-            // User controller objects (eg: FooController => app/system/FooController/FooController.php).
+        if (strpos($name, 'app/') === 0) {
+            // User controller objects (eg: FooController => app/system/Foo/FooController.php).
             if (strpos($name, $this->locations[0][0]) === 0) {
                 $this->checkAppDir();
 
-                $controller = substr($name, strrpos($name, '/') + 1);
-                $file       = APP_DIR . sprintf($this->locations[0][1], $controller, $controller);
+                preg_match('~([A-Z][a-zA-Z0-9]+)Controller$~', $name, $match);
+                if ($match) {
+                    $file = APP_DIR . sprintf($this->locations[0][1], $match[1], $match[0]);
+                }
             }
-            // User model objects (eg: FooModel => app/system/FooController/model/FooModel.php).
+            // User model objects (eg: FooModel => app/system/Foo/model/FooModel.php).
             elseif (strpos($name, $this->locations[1][0]) === 0) {
+                $this->checkAppDir();
+
                 // A model folder checked for only these objects, eg: Model, FooModel, FooEntity, FooEntityArray.
                 // So any other objects must be loaded in other ways. Besides, "Model" for only the "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
                 // to eg: $app->get("/book/:id", function ($id) { ... }).
-                preg_match('~([A-Z][a-zA-Z0-9]+)?(Model|Entity|EntityArray)$~', $name, $match);
+                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|Entity|EntityArray)$~', $name, $match);
                 if ($match) {
-                    $this->checkAppDir();
-
-                    $controller = $match[1] .'Controller';
-                    $model      = $match[0];
-                    $file       = APP_DIR . sprintf($this->locations[1][1], $controller, $model);
+                    $file = APP_DIR . sprintf($this->locations[1][1], $match[1], $match[0]);
                 }
             }
             // User library objects (eg: Foo => app/library/Foo.php).
