@@ -29,12 +29,12 @@ $_SERVER['REQUEST_SCHEME'] ??= 'http'. (
 );
 
 // Used to detect local env.
-defined('local') || define('local', in_array(
+defined('__local__') || define('__local__', in_array(
     strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
 ));
 
 // Show all errors if local.
-if (local) {
+if (__local__) {
     ini_set('display_errors', 'on');
     ini_set('error_reporting', E_ALL);
 }

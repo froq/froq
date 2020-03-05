@@ -106,7 +106,7 @@ final class Handler
     {
         set_exception_handler(function(Throwable $e) {
             // If not local no error display (set & store old option).
-            if (!local) {
+            if (!__local__) {
                 set_global('app.displayErrors', ini_set('display_errors', 'off'));
             }
 
