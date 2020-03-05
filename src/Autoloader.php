@@ -149,9 +149,9 @@ final class Autoloader
         }
         // Most objects loaded by Composer, but in case this part is just a fallback.
         elseif (strpos($name, 'froq') === 0) {
-            [$package, $source] = $this->resolve($name);
+            [$pkg, $src] = $this->resolve($name);
 
-            $file = $this->directory .'/'. $package .'/src/'. $source .'.php';
+            $file = $this->directory .'/'. $pkg .'/src/'. $src .'.php';
         }
 
         if ($file && is_file($file)) {
@@ -162,6 +162,7 @@ final class Autoloader
     /**
      * Check app dir.
      * @return void
+     * @throws RuntimeException
      */
     private function checkAppDir(): void
     {
@@ -174,7 +175,7 @@ final class Autoloader
     /**
      * Resolve.
      * @param  string $name
-     * @return array<string, string>
+     * @return array<string>
      */
     private function resolve(string $name): array
     {
@@ -194,12 +195,12 @@ final class Autoloader
             }
         }
 
-        $package = substr($dir, 0, $dirlen);
-        $source  = substr($name, strlen($package) + 1);
+        $pkg = substr($dir, 0, $dirlen);
+        $src = substr($name, strlen($pkg) + 1);
 
         // Eg: "froq/database" to "froq-database".
-        $package = strtr($package, '/', '-');
+        $pkg = strtr($pkg, '/', '-');
 
-        return [$package, $source];
+        return [$pkg, $src];
     }
 }
