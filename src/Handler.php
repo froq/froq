@@ -59,12 +59,12 @@ final class Handler
             switch ($ecode) {
                 case E_ERROR:
                 case E_PARSE:
+                case E_STRICT:
                 case E_CORE_ERROR:
                 case E_CORE_WARNING:
                 case E_COMPILE_ERROR:
                 case E_COMPILE_WARNING:
-                case E_STRICT:
-                    $error = sprintf('Runtime error in %s:%s ecode[%s] emesg[%s]',
+                    $error = sprintf('Fatal error in %s:%s ecode[%s] emesg[%s]',
                         $efile, $eline,  $ecode, $emesg);
                     break;
                 case E_RECOVERABLE_ERROR:
