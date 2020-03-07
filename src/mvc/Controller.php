@@ -296,6 +296,29 @@ class Controller
     }
 
     /**
+     * Env.
+     * @param  string   $name
+     * @param  any|null $valueDefault
+     * @return any
+     */
+    public final function env(string $name, $valueDefault = null)
+    {
+        // Uppers for nginx (in some cases).
+        $value = $_ENV[$name] ?? $_ENV[strtoupper($name)] ??
+                 $_SERVER[$name] ?? $_SERVER[strtoupper($name)] ?? null;
+
+        if ($value === null) {
+            if (($value = getenv($name)) === false) {
+                if (($value = getenv(strtoupper($name))) === false) {
+                    unset($value);
+                }
+            }
+        }
+
+        return $value ?? $valueDefault;
+    }
+
+    /**
      * Views a view file with given `$meta` and `$data` arguments if provided rendering the file
      * in a wrapped output buffer.
      *
@@ -395,7 +418,7 @@ class Controller
      * @param  any|null $valueDefault
      * @return any|null
      */
-    public function getParam(string $name, $valueDefault = null)
+    public final function getParam(string $name, $valueDefault = null)
     {
         return $this->app->response()->getParam($name, $valueDefault);
     }
@@ -407,7 +430,7 @@ class Controller
      * @param  any|null           $valuesDefault
      * @return array
      */
-    public function getParams(array $names = null, $valuesDefault = null): array
+    public final function getParams(array $names = null, $valuesDefault = null): array
     {
         return $this->app->response()->getParams($names, $valuesDefault);
     }
@@ -419,7 +442,7 @@ class Controller
      * @param  any|null $valueDefault
      * @return any|null
      */
-    public function postParam(string $name, $valueDefault = null)
+    public final function postParam(string $name, $valueDefault = null)
     {
         return $this->app->response()->postParam($name, $valueDefault);
     }
@@ -431,7 +454,7 @@ class Controller
      * @param  any|null           $valuesDefault
      * @return array
      */
-    public function postParams(array $names = null, $valuesDefault = null): array
+    public final function postParams(array $names = null, $valuesDefault = null): array
     {
         return $this->app->response()->postParams($names, $valuesDefault);
     }
@@ -443,7 +466,7 @@ class Controller
      * @param  any|null $valueDefault
      * @return any|null
      */
-    public function cookieParam(string $name, $valueDefault = null)
+    public final function cookieParam(string $name, $valueDefault = null)
     {
         return $this->app->response()->cookieParam($name, $valueDefault);
     }
@@ -455,7 +478,7 @@ class Controller
      * @param  any|null           $valuesDefault
      * @return array
      */
-    public function cookieParams(array $names = null, $valuesDefault = null): array
+    public final function cookieParams(array $names = null, $valuesDefault = null): array
     {
         return $this->app->response()->cookieParams($names, $valuesDefault);
     }
