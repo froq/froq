@@ -28,10 +28,12 @@ $_SERVER['REQUEST_SCHEME'] ??= 'http'. (
     (($_SERVER['SERVER_PORT'] ?? '') == '443') ? 's' : ''
 );
 
-// Used to detect local env.
-defined('__local__') || define('__local__', in_array(
-    strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
-));
+// Used to detect local environment.
+defined('__local__') || define('__local__',
+    ($_SERVER['SERVER_NAME'] ?? '') == 'localhost' || in_array(
+        strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
+    )
+);
 
 // Show all errors if local.
 if (__local__) {
