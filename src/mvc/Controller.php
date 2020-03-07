@@ -27,7 +27,6 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\{App, Router};
-use froq\http\common\ParamTrait;
 use froq\mvc\{ControllerException, View, Model, Action};
 use Reflector, ReflectionMethod, ReflectionFunction;
 
@@ -43,12 +42,6 @@ use Reflector, ReflectionMethod, ReflectionFunction;
  */
 class Controller
 {
-    /**
-     * Param trait.
-     * @see froq\http\common\ParamTrait
-     */
-    use ParamTrait;
-
     /**
      * Namespace.
      * @const string
@@ -393,6 +386,78 @@ class Controller
     public final function responseStatus(int $code): void
     {
         $this->app->response()->setStatus($code);
+    }
+
+    /**
+     * Get a get parameter.
+     *
+     * @param  string   $name
+     * @param  any|null $valueDefault
+     * @return any|null
+     */
+    public function getParam(string $name, $valueDefault = null)
+    {
+        return $this->app->response()->getParam($name, $valueDefault);
+    }
+
+    /**
+     * Gets all get parameters or given names only.
+     *
+     * @param  array<string>|null $names
+     * @param  any|null           $valuesDefault
+     * @return array
+     */
+    public function getParams(array $names = null, $valuesDefault = null): array
+    {
+        return $this->app->response()->getParams($names, $valuesDefault);
+    }
+
+    /**
+     * Gets all post parameter.
+     *
+     * @param  string   $name
+     * @param  any|null $valueDefault
+     * @return any|null
+     */
+    public function postParam(string $name, $valueDefault = null)
+    {
+        return $this->app->response()->postParam($name, $valueDefault);
+    }
+
+    /**
+     * Gets all post parameters or given names only.
+     *
+     * @param  array<string>|null $names
+     * @param  any|null           $valuesDefault
+     * @return array
+     */
+    public function postParams(array $names = null, $valuesDefault = null): array
+    {
+        return $this->app->response()->postParams($names, $valuesDefault);
+    }
+
+    /**
+     * Gets a cookie parameter.
+     *
+     * @param  string   $name
+     * @param  any|null $valueDefault
+     * @return any|null
+     */
+    public function cookieParam(string $name, $valueDefault = null)
+    {
+        return $this->app->response()->cookieParam($name, $valueDefault);
+    }
+
+    /**
+     * Gets all cookie parameters or given names only.
+     *
+     * @param  array<string>|null $names
+     * @param  any|null           $valuesDefault
+     * @return array
+     */
+    public function cookieParams(array $names = null, $valuesDefault = null): array
+    {
+        return $this->app->response()->cookieParams($names, $valuesDefault);
     }
 
     /**
