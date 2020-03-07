@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\{App, Router};
+use froq\http\common\ParamTrait;
 use froq\mvc\{ControllerException, View, Model, Action};
 use Reflector, ReflectionMethod, ReflectionFunction;
 
@@ -42,6 +43,12 @@ use Reflector, ReflectionMethod, ReflectionFunction;
  */
 class Controller
 {
+    /**
+     * Param trait.
+     * @see froq\http\common\ParamTrait
+     */
+    use ParamTrait;
+
     /**
      * Namespace.
      * @const string
@@ -362,6 +369,30 @@ class Controller
         if ($toArgs) $to = vsprintf($to, $toArgs);
 
         $this->app->response()->redirect($to, $code, $headers, $cookies);
+    }
+
+    /**
+     * Sets response status & body content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $contentAttributes
+     * @return void
+     */
+    public final function response(int $code, $content, array $contentAttributes = null): void
+    {
+        $this->app->response()->setStatus($code)->setBody($content, $contentAttributes);
+    }
+
+    /**
+     * Sets response status.
+     *
+     * @param  int $code
+     * @return void
+     */
+    public final function responseStatus(int $code): void
+    {
+        $this->app->response()->setStatus($code);
     }
 
     /**
