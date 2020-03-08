@@ -401,12 +401,12 @@ class Controller
     }
 
     /**
-     * Sets response status (code).
+     * Sets response (status) code.
      *
      * @param  int $code
      * @return self
      */
-    public final function setResponseStatus(int $code): self
+    public final function setResponseCode(int $code): self
     {
         $this->app->response()->setStatus($code);
 
