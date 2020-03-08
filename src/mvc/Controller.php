@@ -427,7 +427,7 @@ class Controller
     }
 
     /**
-     * Get a get parameter.
+     * Gets a get parameter.
      *
      * @param  string   $name
      * @param  any|null $valueDefault
@@ -451,7 +451,7 @@ class Controller
     }
 
     /**
-     * Gets all post parameter.
+     * Gets a post parameter.
      *
      * @param  string   $name
      * @param  any|null $valueDefault
