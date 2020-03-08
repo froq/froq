@@ -421,7 +421,7 @@ class Controller
      */
     public final function setResponseType(string $type): self
     {
-        $this->app->response()->setContentType($code);
+        $this->app->response()->setContentType($type);
 
         return $this;
     }
