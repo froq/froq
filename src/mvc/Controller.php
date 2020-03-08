@@ -401,14 +401,25 @@ class Controller
     }
 
     /**
-     * Sets response status.
+     * Sets response status (code).
      *
      * @param  int $code
      * @return void
      */
-    public final function responseStatus(int $code): void
+    public final function setResponseStatus(int $code): void
     {
         $this->app->response()->setStatus($code);
+    }
+
+    /**
+     * Sets response (content) type.
+     *
+     * @param  string $type
+     * @return void
+     */
+    public final function setResponseType(string $type): void
+    {
+        $this->app->response()->setContentType($code);
     }
 
     /**
