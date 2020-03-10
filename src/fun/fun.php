@@ -4,21 +4,6 @@
  *********************/
 
 /**
- * No.
- * @param  ... $ins
- * @return bool
- */
-function no(...$ins)
-{
-    foreach ($ins as $in) {
-        if (!$in || ($in instanceof stdClass && !((array) $in))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
  * Not.
  * @param  ... $ins
  * @return bool
