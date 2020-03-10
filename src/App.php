@@ -498,9 +498,9 @@ final class App
         // } catch (Throwable $e) {}
 
         // Clear outputs (@default.error() will work below for output).
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
+        // while (ob_get_level()) {
+        //     ob_end_clean();
+        // }
 
         $output = null;
         // try {
