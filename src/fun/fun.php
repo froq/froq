@@ -41,7 +41,7 @@ function not(...$ins)
  */
 function upper($in)
 {
-    return is_string($in) ? mb_convert_case($in, MB_CASE_UPPER_SIMPLE) : null;
+    return is_string($in) ? strtoupper($in) : null;
 }
 
 /**
@@ -52,7 +52,7 @@ function upper($in)
  */
 function lower($in)
 {
-    return is_string($in) ? mb_convert_case($in, MB_CASE_LOWER_SIMPLE) : null;
+    return is_string($in) ? strtolower($in) : null;
 }
 
 /**
@@ -60,20 +60,21 @@ function lower($in)
  * @aliasOf size()
  * @since   3.0
  */
-function len($in)
+function len($in, $mb = false)
 {
-    return size($in);
+    return size($in, $mb);
 }
 
 /**
  * Size.
- * @param  any $in
+ * @param  any  $in
+ * @param  bool $mb
  * @return int|null
  * @since  3.0
  */
-function size($in)
+function size($in, $mb = false)
 {
-    if (is_string($in))    return strlen($in);
+    if (is_string($in))    return !$mb ? strlen($in) : mb_strlen($in);
     if (is_countable($in)) return count($in);
 
     if ($in && is_object($in)) {
