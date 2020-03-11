@@ -218,7 +218,7 @@ function replace($in, $search, $replacement, $remove = false)
  */
 function grep($in, $pattern)
 {
-    preg_match($pattern, $in, $match);
+    preg_match($pattern, $in, $match, PREG_UNMATCHED_AS_NULL);
     if (isset($match[1])) {
         return $match[1];
     }
@@ -234,9 +234,12 @@ function grep($in, $pattern)
  */
 function grep_all($in, $pattern)
 {
-    preg_match_all($pattern, $in, $matches);
+    preg_match_all($pattern, $in, $matches, PREG_UNMATCHED_AS_NULL);
     if (isset($matches[1])) {
         foreach (array_slice($matches, 1) as $match) {
+            // Filter for non-nulls.
+            $match = array_values(array_filter($match, 'strlen'));
+
             $ret[] = $match[0] ?? null;
         }
         return $ret;
