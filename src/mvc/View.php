@@ -216,6 +216,10 @@ final class View
      */
     private function prepareFile(string $file): string
     {
+        if (substr($file, -4) == '.php') {
+            $file = substr($file, 0, -4);
+        }
+
         return sprintf(
             '%s/app/system/%s/view/%s.php',
             APP_DIR, $this->controller->getShortName(), $file);
