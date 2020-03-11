@@ -326,7 +326,7 @@ class Controller
      */
     public final function status(int $code): self
     {
-        return $this->setResponseCode();
+        return $this->setResponseCode($code);
     }
 
     /**
