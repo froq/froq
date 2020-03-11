@@ -319,6 +319,17 @@ class Controller
     }
 
     /**
+     * Status (alias of setResponseCode()).
+     *
+     * @param  int $code
+     * @return self
+     */
+    public final function status(int $code): self
+    {
+        return $this->setResponseCode();
+    }
+
+    /**
      * Views a view file with given `$meta` and `$data` arguments if provided rendering the file
      * in a wrapped output buffer.
      *
