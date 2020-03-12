@@ -119,7 +119,7 @@ final class View
     }
 
     /**
-     * Gets a meta entry with given key, returns `$valueDefault` value if found no entry.
+     * Gets a meta entry with given name, returns `$valueDefault` value if found no entry.
      *
      * @param  string $name
      * @param  any|null $valueDefault
@@ -145,7 +145,7 @@ final class View
     /**
      * Gets a data entry with given key, returns `$valueDefault` value if found no entry.
      *
-     * @param  string   $name
+     * @param  string   $key
      * @param  any|null $valueDefault
      * @return any
      */
