@@ -245,7 +245,7 @@ class Controller
      */
     public final function loadView(): void
     {
-        if (!isset($this->view)) {
+        if (empty($this->view)) {
             $layout = $this->app->config('view.layout');
             if (!$layout) {
                 throw new ControllerException('No "view.layout" option found in configuration');
@@ -265,7 +265,7 @@ class Controller
      */
     public final function loadModel(): void
     {
-        if (!isset($this->model)) {
+        if (empty($this->model)) {
             $name  = $this->getShortName();
             $class = sprintf('app\model\%sModel', $name);
             if (!class_exists($class)) {
