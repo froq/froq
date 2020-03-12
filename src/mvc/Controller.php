@@ -245,7 +245,7 @@ class Controller
      */
     public final function loadView(): void
     {
-        if (empty($this->view)) {
+        if (!isset($this->view)) {
             $layout = $this->app->config('view.layout');
             if (!$layout) {
                 throw new ControllerException('No "view.layout" option found in configuration');
@@ -265,7 +265,7 @@ class Controller
      */
     public final function loadModel(): void
     {
-        if (empty($this->model)) {
+        if (!isset($this->model)) {
             $name  = $this->getShortName();
             $class = sprintf('app\model\%sModel', $name);
             if (!class_exists($class)) {
@@ -342,7 +342,7 @@ class Controller
      */
     public final function view(string $file, array $meta = null, array $data = null, int $status = null): string
     {
-        if (empty($this->view)) {
+        if (!isset($this->view)) {
             throw new ControllerException('No "$view" property set yet, be sure "$useView" is '.
                 'true in %s class', [static::class]);
         }
