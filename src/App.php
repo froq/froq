@@ -526,7 +526,7 @@ final class App
      */
     public function errorLog($error): void
     {
-        $this->logger->logFail($error);
+        $this->logger->logError($error);
     }
 
     /**
