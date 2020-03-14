@@ -28,7 +28,7 @@ namespace froq\mvc;
 
 use froq\{App, Router};
 use froq\mvc\{ControllerException, View, Model, Action};
-use Reflector, ReflectionMethod, ReflectionFunction;
+use Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
 
 /**
  * Controller.
@@ -516,13 +516,20 @@ class Controller
      * @param  string $action
      * @param  array  $actionParams
      * @return any
+     * @throws froq\mvc\ControllerException
      */
     public final function call(string $action, array $actionParams = [])
     {
         $this->action       = $action;
         $this->actionParams = $actionParams; // Keep originals.
 
-        $params = $this->prepareActionParams(new ReflectionMethod($this, $action), $actionParams);
+        try {
+            $ref = new ReflectionMethod($this, $action);
+        } catch (ReflectionException $e) {
+            throw new ControllerException($e);
+        }
+
+        $params = $this->prepareActionParams($ref, $actionParams);
 
         return $this->{$action}(...$params);
     }
@@ -534,6 +541,7 @@ class Controller
      * @param  callable $action
      * @param  array    $actionParams
      * @return any
+     * @throws froq\mvc\ControllerException
      */
     public final function callCallable(callable $action, array $actionParams = [])
     {
@@ -543,7 +551,13 @@ class Controller
         // Make "$this" available in called action.
         $action = $action->bindTo($this, $this);
 
-        $params = $this->prepareActionParams(new ReflectionFunction($action), $actionParams);
+        try {
+            $ref = new ReflectionFunction($action);
+        } catch (ReflectionException $e) {
+            throw new ControllerException($e);
+        }
+
+        $params = $this->prepareActionParams($ref, $actionParams);
 
         return $action(...$params);
     }
