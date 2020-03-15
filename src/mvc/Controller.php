@@ -515,11 +515,17 @@ class Controller
      *
      * @param  string $action
      * @param  array  $actionParams
+     * @param  bool   $suffix
      * @return any
      * @throws froq\mvc\ControllerException
      */
-    public final function call(string $action, array $actionParams = [])
+    public final function call(string $action, array $actionParams = [], bool $suffix = false)
     {
+        // For short calls (eg: call('foo') instead call('fooAction')).
+        if ($suffix && !in_array($action, [self::INDEX_ACTION, self::ERROR_ACTION])) {
+            $action .= self::ACTION_SUFFIX;
+        }
+
         $this->action       = $action;
         $this->actionParams = $actionParams; // Keep originals.
 
