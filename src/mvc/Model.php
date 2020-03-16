@@ -259,7 +259,7 @@ class Model
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
 
         return $this->initQueryBuilder($table)->select('*')
-                    ->whereEqual($tablePrimary, [$id])
+                    ->whereEqual($tablePrimary, $id)
                     ->get($fetchOptions);
     }
 
@@ -275,7 +275,7 @@ class Model
 
         return $this->db->transaction(function () use ($table, $tablePrimary, $id) {
             return $this->initQueryBuilder($table)->delete()
-                        ->whereEqual($tablePrimary, [$id])
+                        ->whereEqual($tablePrimary, $id)
                         ->run()->count();
         });
     }
@@ -300,7 +300,7 @@ class Model
         // Get id if exists.
         $id = $data[$tablePrimary] ?? null;
 
-        if (is_null($id)) {
+        if ($id === null) {
             // Insert action.
             return $this->db->transaction(function () use ($data, $table, $tablePrimary) {
                 $id = $this->initQueryBuilder($table)->insert($data)
@@ -309,7 +309,7 @@ class Model
                 // Set primary value with new id.
                 $this->data[$tablePrimary] = $id;
 
-                return $id;
+                return (int) $id;
             });
         } else {
             // Update action.
@@ -318,7 +318,7 @@ class Model
                 unset($data[$tablePrimary]);
 
                 return $this->initQueryBuilder($table)->update($data)
-                            ->whereEqual($tablePrimary, [(int) $id])
+                            ->whereEqual($tablePrimary, (int) $id)
                             ->run()->count();
             });
         }
