@@ -157,7 +157,7 @@ class Model
      * Gets a data value with given key if set in data, otherwise returns `$valueDefault` value.
      *
      * @param string $key
-     * @param any    $value
+     * @param any    $valueDefault
      */
     public final function get(string $key, $valueDefault = null)
     {
