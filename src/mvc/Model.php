@@ -75,8 +75,8 @@ class Model
     /**
      * Constructor.
      *
-     * Creates a new `Database` object if not already given.
-     * Calls `init()` method if defined in subclass.
+     * Creates a new `Database` object if not already given and calls `init()` method if
+     * defined in subclass.
      *
      * @param  froq\mvc\Controller         $controller
      * @param  froq\database\Database|null $database
