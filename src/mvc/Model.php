@@ -68,9 +68,9 @@ class Model
 
     /**
      * Data.
-     * @var array
+     * @var ?array<string, any>
      */
-    private array $data;
+    private ?array $data = null;
 
     /**
      * Constructor.
@@ -189,7 +189,7 @@ class Model
     /**
      * Sets the data property.
      *
-     * @param  array $data
+     * @param  array<string, any> $data
      * @return void
      */
     public final function setData(array $data): void
@@ -200,11 +200,38 @@ class Model
     /**
      * Gets the data property if set, otherwise returns null.
      *
-     * @return array<string, any>
+     * @return ?array<string, any>
      */
     public final function getData(): ?array
     {
-        return $this->data ?? null;
+        return $this->data;
+    }
+
+    /**
+     * Loads the given data set into `$data` property.
+     *
+     * @param  array<string, any> $data
+     * @return self
+     */
+    public final function load(array $data): self
+    {
+        foreach ($data as $key => $value) {
+            $this->set($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Unloads `$data` property.
+     *
+     * @return self
+     */
+    public final function unload(): self
+    {
+        $this->data = null;
+
+        return $this;
     }
 
     /**
