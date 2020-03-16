@@ -66,18 +66,21 @@ final class Router
      * @param  string          $route
      * @param  string          $methods
      * @param  string|callable $call
+     * @param  array|null      $callArgs
      * @return void
      */
-    public function addRoute(string $route, string $methods, $call): void
+    public function addRoute(string $route, string $methods, $call, array $callArgs = null): void
     {
-        $route = trim($route);
+        $route  = trim($route);
+        $routes = $this->getRoutes();
+
+        // Chop "/" from end.
         if ($route != '/') {
             $route = rtrim($route, '/');
         }
 
-        $routes = $this->getRoutes();
-
         $i = count($routes);
+
         // Find current route index if exists.
         foreach ($routes as $_i => [$_route]) {
             if ($route === $_route) {
@@ -93,26 +96,28 @@ final class Router
             $calls[$method] = $call;
         }
 
-        $this->routes[$i] = [$route, $calls];
+        $this->routes[$i] = [$route, $calls, $callArgs];
     }
 
     /**
      * Adds multiple routes to routes stack.
      *
-     * @param array<string|callable>|array<array<string|callable>> $routes
+     * @param array $routes
      */
     public function addRoutes(array $routes): void
     {
         // These generally comes from configuration.
-        foreach ($routes as [$route, $call]) {
+        foreach ($routes as $route) {
+            @ [$route, $call, $callArgs] = (array) $route;
+
             if (is_array($call)) {
                 // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ..]]).
                 foreach ($call as $method => $call) {
-                    $this->addRoute($route, $method, $call);
+                    $this->addRoute($route, $method, $call, $callArgs);
                 }
             } else {
                 // Single directive (eg: ["/book/:id", "Book.show"]).
-                $this->addRoute($route, '*', $call);
+                $this->addRoute($route, '*', $call, $callArgs);
             }
         }
     }
@@ -206,6 +211,11 @@ final class Router
                     $i--;
                 }
                 $i++;
+            }
+
+            // Add extra call arguments if provided.
+            if (isset($routes[$mark][2])) {
+                $callArgs = array_merge($callArgs, (array) $routes[$mark][2]);
             }
 
             $pack = self::pack($calls, $callArgs);
