@@ -140,6 +140,10 @@ final class Router
             throw new RouterException('No route directives exists to resolve');
         }
 
+        // Default options.
+        $options = array_replace(['unicode' => false, 'decodeUri' => false, 'endingSlashes' => true],
+            $options ?? []);
+
         $patterns = [];
         foreach ($routes as $i => [$pattern]) {
             if (empty($pattern)) {
@@ -172,6 +176,9 @@ final class Router
 
             // Escape delimiter.
             $pattern = addcslashes($pattern, '~');
+
+            // Add optional slash to end.
+            !empty($options['endingSlashes']) && $pattern .= '/?';
 
             // See http://www.pcre.org/pcre.txt for verbs.
             $patterns[] = ' (*MARK:'. $i .') '. $pattern;

@@ -429,10 +429,7 @@ final class App
         $result = $this->router->resolve(
             $uri     = $this->request->uri()->get('path'),
             $method  = null, // To check below it is allowed or not.
-            $options = [
-                'unicode'   => $this->config->get('route.unicode'),
-                'decodeUri' => $this->config->get('route.decodeUri'),
-            ]
+            $options = $this->config->get('route'),
         );
 
         $method = $this->request->method()->getName();
