@@ -28,7 +28,7 @@ namespace froq\mvc;
 
 use froq\pager\Pager;
 use froq\mvc\{ModelException, Controller};
-use froq\database\{Database, Result, QueryBuilder};
+use froq\database\{Database, Result, Query};
 
 /**
  * Model.
@@ -258,8 +258,8 @@ class Model
     {
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
 
-        return $this->initQueryBuilder($table)->select('*')
-                    ->whereEqual($tablePrimary, $id)
+        return $this->initQuery($table)->select('*')
+                    ->equal($tablePrimary, $id)
                     ->get($fetchOptions);
     }
 
@@ -274,8 +274,8 @@ class Model
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
 
         return $this->db->transaction(function () use ($table, $tablePrimary, $id) {
-            return $this->initQueryBuilder($table)->delete()
-                        ->whereEqual($tablePrimary, $id)
+            return $this->initQuery($table)->delete()
+                        ->equal($tablePrimary, $id)
                         ->run()->count();
         });
     }
@@ -303,7 +303,7 @@ class Model
         if ($id === null) {
             // Insert action.
             return $this->db->transaction(function () use ($data, $table, $tablePrimary) {
-                $id = $this->initQueryBuilder($table)->insert($data)
+                $id = $this->initQuery($table)->insert($data)
                            ->run()->id();
 
                 // Set primary value with new id.
@@ -317,8 +317,8 @@ class Model
                 // Not needed in data set.
                 unset($data[$tablePrimary]);
 
-                return $this->initQueryBuilder($table)->update($data)
-                            ->whereEqual($tablePrimary, (int) $id)
+                return $this->initQuery($table)->update($data)
+                            ->equal($tablePrimary, (int) $id)
                             ->run()->count();
             });
         }
@@ -355,15 +355,15 @@ class Model
     }
 
     /**
-     * Initializes a new query builder object using self `$db` property, setting its "table" query
+     * Initializes a new query object using self `$db` property, setting its "table" query
      * with `$table` argument if provided.
      *
      * @param  string $table
-     * @return froq\database\QueryBuilder
+     * @return froq\database\Query
      */
-    public final function initQueryBuilder(string $table = null): QueryBuilder
+    public final function initQuery(string $table = null): Query
     {
-        return $this->db->initQueryBuilder($table);
+        return $this->db->initQuery($table);
     }
 
     /**
