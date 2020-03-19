@@ -72,6 +72,25 @@ function size($in, $mb = false)
 }
 
 /**
+ * Concat.
+ * @param  array|string $in
+ * @param  any          $ins
+ * @return array|string|null
+ * @since  4.0
+ */
+function concat($in, ...$ins)
+{
+    if (is_array($in)) {
+        return array_merge($in, ...array_map(fn($v) => (array) $v, $ins));
+    }
+    if (is_string($in)) {
+        return $in . join('', array_map(fn($v) => (string) $v, $ins));
+    }
+
+    return null; // No valid input.
+}
+
+/**
  * Slice.
  * @param  array|string $in
  * @param  int          $start
