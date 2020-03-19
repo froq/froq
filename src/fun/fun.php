@@ -175,14 +175,14 @@ function remove($in, $search)
 
 /**
  * Replace.
- * @param  string|array $in
- * @param  any          $search
- * @param  any          $replacement
- * @param  bool         $remove
+ * @param  string|array               $in
+ * @param  string|array               $search
+ * @param  string|array|callable|null $replacement
+ * @param  bool                       $remove
  * @return string|array|null
  * @since  3.0
  */
-function replace($in, $search, $replacement, $remove = false)
+function replace($in, $search, $replacement = null, $remove = false)
 {
     if (is_string($in)) {
         // RegExp: only ~...~ patterns accepted.
@@ -196,14 +196,18 @@ function replace($in, $search, $replacement, $remove = false)
     }
 
     if (is_array($in)) {
-        $key = array_search($search, $in, true);
-        if ($key !== false) {
-            $in[$key] = $replacement;
-            if ($remove) {
-                unset($in[$key]);
+        if (is_string($search)) {
+            $key = array_search($search, $in, true);
+            if ($key !== false) {
+                $in[$key] = $replacement;
+                if ($remove) unset($in[$key]);
             }
+            return $in;
         }
-        return $in;
+
+        if (is_array($search)) {
+            return array_replace($in, $search);
+        }
     }
 
     return null; // No valid input.
