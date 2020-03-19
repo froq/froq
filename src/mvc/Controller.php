@@ -287,7 +287,7 @@ class Controller
     public final function loadSession(): void
     {
         $session = $this->app->session();
-        if ($session == null) {
+        if (!$session) {
             throw new ControllerException('App has no session object (check "session" option in '.
                 'configuration and be sure it is not null)');
         }
@@ -368,7 +368,7 @@ class Controller
     {
         @ [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
-        if ($controller == null || $action == null) {
+        if (!$controller || !$action) {
             throw new ControllerException('Invalid call directive given, use "Foo.bar" '.
                 'convention without "Controller" and "Action" suffixes', null, 404);
         } elseif (!class_exists($controller)) {
@@ -377,7 +377,7 @@ class Controller
             throw new ControllerException('No controller action found such "%s::%s()"', [$controller, $action], 404);
         }
 
-        return (new $controller($this->app))->call($action, $actionParams);
+        return (new $controller($this->app))->call($action, (array) $actionParams);
     }
 
     /**

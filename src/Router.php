@@ -108,7 +108,7 @@ final class Router
     {
         // These generally comes from configuration.
         foreach ($routes as $route) {
-            @ [$route, $call, $callArgs] = (array) $route;
+            [$route, $call, $callArgs] = array_pad((array) $route, 3, null);
 
             if (is_array($call)) {
                 // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ..]]).
@@ -294,7 +294,7 @@ final class Router
     public static function prepare(string $call, array $callArgs = []): array
     {
         // Suffixes ("Controller" and "Action") must not be used in call directives.
-        @ [$controller, $action] = explode('.', $call, 2);
+        [$controller, $action] = array_pad(explode('.', $call), 2, null);
         if (!$controller) {
             return [];
         }
