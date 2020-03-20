@@ -45,6 +45,12 @@ final class Router
     private array $routes;
 
     /**
+     * Debug.
+     * @var array
+     */
+    private array $debug;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -58,6 +64,16 @@ final class Router
     public function getRoutes(): array
     {
         return $this->routes ?? [];
+    }
+
+    /**
+     * Gets the debug property.
+     *
+     * @return array
+     */
+    public function getDebug(): array
+    {
+        return $this->debug ?? [];
     }
 
     /**
@@ -194,7 +210,12 @@ final class Router
         // Normalize URI (removes repeating & ending slashes).
         $uri = '/'. preg_replace('~/+~', '/', trim($uri, '/'));
 
+        $this->debug['uri'] = $uri;
+        $this->debug['pattern'] = $pattern;
+
         if (preg_match($pattern, $uri, $match, PREG_UNMATCHED_AS_NULL)) {
+            $this->debug['match'] = $match;
+
             $mark = (int) $match['MARK'];
             if (empty($routes[$mark][1])) {
                 throw new RouterException('No call directives found for route "%s"', [$mark]);
@@ -229,6 +250,8 @@ final class Router
 
             return ($method != null) ? $pack[$method] ?? $pack['*'] ?? null : $pack;
         }
+
+        $this->debug['match'] = $match;
 
         // Not found.
         return null;
