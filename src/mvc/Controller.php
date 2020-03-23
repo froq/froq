@@ -532,7 +532,7 @@ class Controller
         try {
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e);
+            throw new ControllerException($e, null, 404);
         }
 
         $params = $this->prepareActionParams($ref, $actionParams);
@@ -560,7 +560,7 @@ class Controller
         try {
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e);
+            throw new ControllerException($e, null, 500);
         }
 
         $params = $this->prepareActionParams($ref, $actionParams);
