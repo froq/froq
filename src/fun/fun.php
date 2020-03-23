@@ -225,6 +225,9 @@ function replace($in, $search, $replacement = null, $remove = false)
         }
 
         if (is_array($search)) {
+            if ($replacement && is_array($replacement)) {
+                return str_replace($search, $replacement, $in);
+            }
             return array_replace($in, $search);
         }
     }
