@@ -322,26 +322,47 @@ final class Router
             return [];
         }
 
-        // Make controller fully named & namespaced.
-        if ($controller == Controller::NAME_DEFAULT) {
-            $controller = Controller::DEFAULT; // For callables, @default directives and App.error().
-        } else {
-            $controller = sprintf('%s\%s%s', Controller::NAMESPACE, $controller, Controller::SUFFIX); // Methods.
-        }
-
-        // Make action default as index.
-        $action = $action ?: Controller::INDEX_ACTION;
-
-        // Add "Action" suffix if available.
-        if ($action != Controller::INDEX_ACTION && $action != Controller::ERROR_ACTION) {
-            $action .= Controller::ACTION_SUFFIX;
-        }
+        $controller = self::prepareControllerName($controller);
+        $action     = $action ?: Controller::INDEX_ACTION; // Make action default as index.
+        $action     = self::prepareControllerActionName($action);
 
         return [$controller, $action, ($actionParams = $callArgs)];
     }
 
     /**
-     * Prepares calls for a routes.
+     * Prepares a controller name.
+     *
+     * @param  string $controller
+     * @return string
+     */
+    public static function prepareControllerName(string $controller): string
+    {
+        // Make controller fully named & namespaced.
+        if ($controller == Controller::NAME_DEFAULT) {
+            return Controller::DEFAULT; // For callables, @default directives and App.error().
+        }
+
+        return sprintf('%s\%s%s', Controller::NAMESPACE, $controller, Controller::SUFFIX); // For methods.
+    }
+
+    /**
+     * Prepares a controller action name.
+     *
+     * @param  string $action
+     * @return string
+     */
+    public static function prepareControllerActionName(string $action): string
+    {
+        // Add "Action" suffix if available.
+        if ($action != Controller::INDEX_ACTION && $action != Controller::ERROR_ACTION) {
+            $action .= Controller::ACTION_SUFFIX;
+        }
+
+        return $action;
+    }
+
+    /**
+     * Prepares calls for a route.
      *
      * @param  array $routes
      * @param  int   $i
