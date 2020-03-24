@@ -353,8 +353,11 @@ final class Router
      */
     public static function prepareControllerActionName(string $action): string
     {
-        // Add "Action" suffix if available.
+        // Add "Action" suffix if available & convert dashes to camel-case.
         if ($action != Controller::INDEX_ACTION && $action != Controller::ERROR_ACTION) {
+            if (strpos($action, '-')) {
+                $action = preg_replace_callback('~-([a-z])~i', fn($m) => ucfirst($m[1]), $action);
+            }
             $action .= Controller::ACTION_SUFFIX;
         }
 
