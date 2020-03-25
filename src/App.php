@@ -371,9 +371,8 @@ final class App
      */
     public function service(string $name, $service = null): ?object
     {
-        return !$service
-            ? $this->servicer->getService($name)
-            : $this->servicer->addService($name, $service);
+        return !$service ? $this->servicer->getService($name)
+                         : $this->servicer->addService($name, $service);
     }
 
     /**
@@ -499,20 +498,20 @@ final class App
         //     ob_end_clean();
         // }
 
-        $output = null;
+        $return = null;
         // try {
-            $output = (new Controller($this))->forward('@default.error', [$error]);
+            $return = (new Controller($this))->forward('@default.error', [$error]);
         // } catch (Throwable $e) {}
 
         // Prepend error top of the output (if ini.display_errors is on).
-        if ($output == null || is_string($output)) {
-            $outputErrors = ini('display_errors', '', true);
-            if ($outputErrors) {
-                $output = trim($error ."\n\n". $output);
+        if ($return == null || is_string($return)) {
+            $displayErrors = ini('display_errors', '', true);
+            if ($displayErrors) {
+                $return = trim($error ."\n\n". $return);
             }
         }
 
-        $this->endOutputBuffer($output, true);
+        $this->endOutputBuffer($return, true);
     }
 
     /**
@@ -539,11 +538,11 @@ final class App
 
     /**
      * End output buffer.
-     * @param  any       $output
+     * @param  any       $return
      * @param  bool|null $isError @internal (@see Message.setBody())
      * @return void
      */
-    private function endOutputBuffer($output, bool $isError = null): void
+    private function endOutputBuffer($return, bool $isError = null): void
     {
         $response = $this->response();
         if ($response == null) {
@@ -564,17 +563,17 @@ final class App
             $content = $body->getContent();
             $contentAttributes = $body->getContentAttributes();
 
-            // Pass, output comes from App.error() already.
+            // Pass, return comes from App.error() already.
             if ($isError) {}
             // Actions that use echo/print/view()/response.setBody() will return null.
-            elseif ($output == null || is_string($output)) {
+            elseif ($return == null || is_string($return)) {
                 while (ob_get_level()) {
-                    $output .= ob_get_clean();
+                    $return .= ob_get_clean();
                 }
             }
 
             // Returned content from action or set on body.
-            $content = $content ?? $output;
+            $content = $content ?? $return;
 
             // Call user output handler if provided.
             if ($this->events->has('app.output')) {
