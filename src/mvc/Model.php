@@ -237,12 +237,12 @@ class Model
     /**
      * Runs a query command.
      *
-     * @param  string     $query
-     * @param  array|null $queryParams
-     * @param  array|null $fetchOptions
+     * @param  string                    $query
+     * @param  array|null                $queryParams
+     * @param  string|array<string>|null $fetchOptions
      * @return froq\database\Result
      */
-    public function query(string $query, array $queryParams = null, array $fetchOptions = null): Result
+    public function query(string $query, array $queryParams = null, $fetchOptions = null): Result
     {
         return $this->db->query($query, $queryParams, $fetchOptions);
     }
@@ -250,11 +250,11 @@ class Model
     /**
      * Finds a row entry by given primary value if exists, otherwise returns null.
      *
-     * @param  int        $id
-     * @param  array|null $fetchOptions
+     * @param  int                       $id
+     * @param  string|array<string>|null $fetchOptions
      * @return ?array|?object
      */
-    public function find(int $id, array $fetchOptions = null)
+    public function find(int $id, $fetchOptions = null)
     {
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
 
