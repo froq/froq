@@ -446,7 +446,7 @@ class Controller
      */
     public final function getParam(string $name, $valueDefault = null)
     {
-        return $this->app->response()->getParam($name, $valueDefault);
+        return $this->app->request()->getParam($name, $valueDefault);
     }
 
     /**
@@ -458,7 +458,7 @@ class Controller
      */
     public final function getParams(array $names = null, $valuesDefault = null): array
     {
-        return $this->app->response()->getParams($names, $valuesDefault);
+        return $this->app->request()->getParams($names, $valuesDefault);
     }
 
     /**
@@ -470,7 +470,7 @@ class Controller
      */
     public final function postParam(string $name, $valueDefault = null)
     {
-        return $this->app->response()->postParam($name, $valueDefault);
+        return $this->app->request()->postParam($name, $valueDefault);
     }
 
     /**
@@ -482,7 +482,7 @@ class Controller
      */
     public final function postParams(array $names = null, $valuesDefault = null): array
     {
-        return $this->app->response()->postParams($names, $valuesDefault);
+        return $this->app->request()->postParams($names, $valuesDefault);
     }
 
     /**
@@ -494,7 +494,7 @@ class Controller
      */
     public final function cookieParam(string $name, $valueDefault = null)
     {
-        return $this->app->response()->cookieParam($name, $valueDefault);
+        return $this->app->request()->cookieParam($name, $valueDefault);
     }
 
     /**
@@ -506,7 +506,7 @@ class Controller
      */
     public final function cookieParams(array $names = null, $valuesDefault = null): array
     {
-        return $this->app->response()->cookieParams($names, $valuesDefault);
+        return $this->app->request()->cookieParams($names, $valuesDefault);
     }
 
     /**
