@@ -388,30 +388,6 @@ class Controller
     }
 
     /**
-     * Status (alias of setResponseCode()).
-     *
-     * @param  int $code
-     * @return self
-     */
-    public final function status(int $code): self
-    {
-        return $this->setResponseCode($code);
-    }
-
-    /**
-     * Sets response status & body content, also content attributes if provided.
-     *
-     * @param  int        $code
-     * @param  any        $content
-     * @param  array|null $contentAttributes
-     * @return void
-     */
-    public final function response(int $code, $content, array $contentAttributes = null): void
-    {
-        $this->app->response()->setStatus($code)->setBody($content, $contentAttributes);
-    }
-
-    /**
      * Sets response (status) code.
      *
      * @param  int $code
@@ -435,6 +411,30 @@ class Controller
         $this->app->response()->setContentType($type);
 
         return $this;
+    }
+
+    /**
+     * Status (alias of setResponseCode()).
+     *
+     * @param  int $code
+     * @return self
+     */
+    public final function status(int $code): self
+    {
+        return $this->setResponseCode($code);
+    }
+
+    /**
+     * Sets response status & body content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $contentAttributes
+     * @return void
+     */
+    public final function response(int $code, $content, array $contentAttributes = null): void
+    {
+        $this->app->response()->setStatus($code)->setBody($content, $contentAttributes);
     }
 
     /**
