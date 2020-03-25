@@ -319,17 +319,6 @@ class Controller
     }
 
     /**
-     * Status (alias of setResponseCode()).
-     *
-     * @param  int $code
-     * @return self
-     */
-    public final function status(int $code): self
-    {
-        return $this->setResponseCode($code);
-    }
-
-    /**
      * Views a view file with given `$meta` and `$data` arguments if provided rendering the file
      * in a wrapped output buffer.
      *
@@ -396,6 +385,17 @@ class Controller
         if ($toArgs) $to = vsprintf($to, $toArgs);
 
         $this->app->response()->redirect($to, $code, $headers, $cookies);
+    }
+
+    /**
+     * Status (alias of setResponseCode()).
+     *
+     * @param  int $code
+     * @return self
+     */
+    public final function status(int $code): self
+    {
+        return $this->setResponseCode($code);
     }
 
     /**
