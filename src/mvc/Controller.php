@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\{App, Router};
+use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
 use froq\mvc\{ControllerException, View, Model, Action};
 use Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
 
@@ -337,7 +338,7 @@ class Controller
         }
 
         if ($status) {
-            $this->app->response()->status($status);
+            $this->app->response()->setStatus($status);
         }
 
         return $this->view->render($file, ['meta' => $meta, 'data' => $data]);
@@ -435,6 +436,84 @@ class Controller
     public final function response(int $code, $content, array $contentAttributes = null): void
     {
         $this->app->response()->setStatus($code)->setBody($content, $contentAttributes);
+    }
+
+    /**
+     * Yields a payload with given status & content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\Payload
+     */
+    public final function payload(int $code, $content, array $attributes = null): Payload
+    {
+        return new Payload($code, $content, $attributes);
+    }
+
+    /**
+     * Yields a JSON payload with given status & content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\JsonPayload
+     */
+    public final function jsonPayload(int $code, $content, array $attributes = null): JsonPayload
+    {
+        return new JsonPayload($code, $content, $attributes);
+    }
+
+    /**
+     * Yields a XML payload with given status & content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\XmlPayload
+     */
+    public final function xmlPayload(int $code, $content, array $attributes = null): XmlPayload
+    {
+        return new XmlPayload($code, $content, $attributes);
+    }
+
+    /**
+     * Yields a HTML payload with given status & content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\HtmlPayload
+     */
+    public final function htmlPayload(int $code, $content, array $attributes = null): HtmlPayload
+    {
+        return new HtmlPayload($code, $content, $attributes);
+    }
+
+    /**
+     * Yields a file payload with given status & content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\FilePayload
+     */
+    public final function filePayload(int $code, $content, array $attributes = null): FilePayload
+    {
+        return new FilePayload($code, $content, $attributes);
+    }
+
+    /**
+     * Yields an image payload with given status & content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\ImagePayload
+     */
+    public final function imagePayload(int $code, $content, array $attributes = null): ImagePayload
+    {
+        return new ImagePayload($code, $content, $attributes);
     }
 
     /**
