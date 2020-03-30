@@ -53,12 +53,6 @@ final class View
     private string $layout;
 
     /**
-     * Meta.
-     * @var array<string, any>
-     */
-    private array $meta;
-
-    /**
      * Data.
      * @var array<string, any>
      */
@@ -107,30 +101,6 @@ final class View
     }
 
     /**
-     * Sets a meta entry with given name.
-     *
-     * @param  string $name
-     * @param  any    $value
-     * @return void
-     */
-    public final function setMeta(string $name, $value): void
-    {
-        $this->meta[$name] = $value;
-    }
-
-    /**
-     * Gets a meta entry with given name, returns `$valueDefault` value if found no entry.
-     *
-     * @param  string $name
-     * @param  any|null $valueDefault
-     * @return any
-     */
-    public final function getMeta(string $name, $valueDefault = null)
-    {
-        return $this->meta[$name] ?? $valueDefault;
-    }
-
-    /**
      * Sets a data entry with given key.
      *
      * @param  string $key
@@ -155,14 +125,14 @@ final class View
     }
 
     /**
-     * Renders a given view file instantly with given meta & data set and returns the rendered
+     * Renders a given view file instantly with given data set and returns the rendered
      * contents. Throws `ViewException` if given file or layout file not found.
      *
-     * @param  string                            $file
-     * @param  array<string, array<string, any>> $fileMetaData
+     * @param  string                  $file
+     * @param  array<string, any>|null $fileData
      * @return string
      */
-    public function render(string $file, array $fileMetaData): string
+    public function render(string $file, array $fileData = null): string
     {
         $file       = $this->prepareFile($file);
         $fileLayout = $this->layout ?? '';
@@ -174,17 +144,12 @@ final class View
             throw new ViewException('View layout file "%s" is not exists', [$fileLayout]);
         }
 
-        $meta = (array) ($fileMetaData['meta'] ?? []);
-        $data = (array) ($fileMetaData['data'] ?? []);
-
-        foreach ($meta as $name => $value) {
-            $this->setMeta($name, $value);
-        }
-        foreach ($data as $key => $value) {
+        $fileData ??= [];
+        foreach ($fileData as $key => $value) {
             $this->setData($key, $value);
         }
 
-        $content = $this->renderFile($file, $data);
+        $content = $this->renderFile($file, $fileData);
         $content = $this->renderFile($fileLayout, ['CONTENT' => $content]);
 
         return $content;
@@ -192,16 +157,21 @@ final class View
 
     /**
      * Wraps the render operation in an output buffer that run by `render()` method extracting
-     * `$data` argument if not empty and returns the rendered file's contents.
+     * `$fileData` argument if not empty and returns the rendered file's contents.
      *
      * @param  string             $file
-     * @param  array<string, any> $data
+     * @param  array<string, any> $fileData
      * @return string
      */
-    private function renderFile(string $file, array $data): string
+    private function renderFile(string $file, array $fileData): string
     {
-        // Extract data & make accessible in included file.
-        $data && extract($data);
+        // Extract file data & make items accessible in included file.
+        if ($fileData) {
+            extract($fileData);
+        }
+
+        // Not needed anymore.
+        unset($fileData);
 
         ob_start();
         include $file;

@@ -246,7 +246,7 @@ class Controller
      */
     public final function loadView(): void
     {
-        if (empty($this->view)) {
+        if (!isset($this->view)) {
             $layout = $this->app->config('view.layout');
             if (!$layout) {
                 throw new ControllerException('No "view.layout" option found in configuration');
@@ -266,7 +266,7 @@ class Controller
      */
     public final function loadModel(): void
     {
-        if (empty($this->model)) {
+        if (!isset($this->model)) {
             $name  = $this->getShortName();
             $class = sprintf('app\model\%sModel', $name);
             if (!class_exists($class)) {
@@ -320,17 +320,16 @@ class Controller
     }
 
     /**
-     * Views a view file with given `$meta` and `$data` arguments if provided rendering the file
+     * Views a view file with given `$fileData` arguments if provided rendering the file
      * in a wrapped output buffer.
      *
      * @param  string     $file
-     * @param  array|null $meta
-     * @param  array|null $data
+     * @param  array|null $fileData
      * @param  int|null   $status
      * @return string
      * @throws froq\mvc\ControllerException
      */
-    public final function view(string $file, array $meta = null, array $data = null, int $status = null): string
+    public final function view(string $file, array $fileData = null, int $status = null): string
     {
         if (!isset($this->view)) {
             throw new ControllerException('No "$view" property set yet, be sure "$useView" is '.
@@ -341,7 +340,7 @@ class Controller
             $this->app->response()->setStatus($status);
         }
 
-        return $this->view->render($file, ['meta' => $meta, 'data' => $data]);
+        return $this->view->render($file, $fileData);
     }
 
     /**
