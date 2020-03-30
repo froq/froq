@@ -4,13 +4,33 @@
  *********************/
 
 /**
- * Not.
+ * No.
+ * @param  any $in
  * @param  ... $ins
  * @return bool
  */
-function not(...$ins)
+function no($in, ...$ins)
 {
-    foreach ($ins as $in) {
+    foreach ([$in, ...$ins] as $in) {
+        if (!$in) {
+            return true;
+        }
+        if ($in instanceof stdClass && !((array) $in)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Not.
+ * @param  any $in
+ * @param  ... $ins
+ * @return bool
+ */
+function not($in, ...$ins)
+{
+    foreach ([$in, ...$ins] as $in) {
         if ($in === false) {
             return true;
         }
