@@ -265,9 +265,11 @@ function replace($in, $search, $replacement = null, $remove = false)
 function grep($in, $pattern)
 {
     preg_match($pattern, $in, $match, PREG_UNMATCHED_AS_NULL);
+
     if (isset($match[1])) {
         return $match[1];
     }
+
     return null;
 }
 
@@ -275,20 +277,29 @@ function grep($in, $pattern)
  * Grep all.
  * @param  string $in
  * @param  string $pattern
- * @return array<string>|null
+ * @return array<string|null>|null
  * @since  3.15
  */
 function grep_all($in, $pattern)
 {
     preg_match_all($pattern, $in, $matches, PREG_UNMATCHED_AS_NULL);
-    if (isset($matches[1])) {
-        foreach (array_slice($matches, 1) as $match) {
-            // Filter for non-nulls.
-            $match = array_values(array_filter($match, 'strlen'));
 
-            $ret[] = $match[0] ?? null;
+    if (isset($matches[1])) {
+        unset($matches[0]); // Drop input.
+
+        $ret = [];
+        if (count($matches) == 1) {
+            $ret = $matches[1];
+        } else {
+            foreach ($matches as $i => $match) {
+                $match = array_map( // Nullify all empty strings.
+                    fn($m) => ($m !== '') ? $m : null, $match);
+
+                $ret[$i] = (count($match) == 1) ? $match[0] : $match;
+            }
         }
         return $ret;
     }
+
     return null;
 }
