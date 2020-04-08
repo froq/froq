@@ -277,10 +277,11 @@ function grep($in, $pattern)
  * Grep all.
  * @param  string $in
  * @param  string $pattern
+ * @param  bool   $uniform
  * @return array<string|null>|null
  * @since  3.15
  */
-function grep_all($in, $pattern)
+function grep_all($in, $pattern, $uniform = false)
 {
     preg_match_all($pattern, $in, $matches, PREG_UNMATCHED_AS_NULL);
 
@@ -296,6 +297,18 @@ function grep_all($in, $pattern)
                     fn($m) => ($m !== '') ? $m : null, $match);
 
                 $ret[$i] = (count($match) == 1) ? $match[0] : $match;
+            }
+
+            if ($uniform) {
+                foreach ($ret as $i => &$re) {
+                    $re = array_filter($re, 'strlen');
+                    if (count($re) == 1) {
+                        $re = current($re);
+                    }
+                }
+
+                // Maintain keys (so reset to 0-N).
+                $ret = array_slice($ret, 0);
             }
         }
         return $ret;
