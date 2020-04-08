@@ -299,6 +299,7 @@ function grep_all($in, $pattern, $uniform = false)
                 $ret[$i] = (count($match) == 1) ? $match[0] : $match;
             }
 
+            // Useful for in case '~href="(.+?)"|">(.+?)</~' etc.
             if ($uniform) {
                 foreach ($ret as $i => &$re) {
                     $re = array_filter($re, 'strlen');
