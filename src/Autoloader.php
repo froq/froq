@@ -155,8 +155,7 @@ final class Autoloader
         }
 
         if ($file && is_file($file)) {
-            // Scope inclusion with a static function.
-            (static function () use ($file) { require $file; })();
+            require $file;
         }
     }
 
