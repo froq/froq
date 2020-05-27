@@ -10,10 +10,10 @@
     "require": {
         "php": "^7.4",
         "froq/froq-common": "^4.0",
-        "froq/froq-http": "^4.0",
         "froq/froq-config": "^4.0",
         "froq/froq-logger": "^4.0",
-        "froq/froq-event": "^4.0"
+        "froq/froq-event": "^4.0",
+        "froq/froq-http": "^4.0"
     },
     "autoload": {
         "classmap": ["src/"]
