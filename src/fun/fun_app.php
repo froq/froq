@@ -3,13 +3,15 @@
  * Global app functions. *
  *************************/
 
+use froq\common\objects\Registry;
+
 /**
  * Shortcut for global app address.
- * @return froq\app\App
+ * @return froq\App
  */
 function app()
 {
-    return froq\common\Registry::get('app');
+    return Registry::get('app');
 }
 
 /**
@@ -38,7 +40,7 @@ function app_dir()
  */
 function app_env()
 {
-    return app()->env()->getName();
+    return app()->env();
 }
 
 /**

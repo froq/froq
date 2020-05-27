@@ -24,21 +24,18 @@
  */
 declare(strict_types=1);
 
-namespace froq\app;
+namespace froq;
+
+use froq\common\objects\Enum;
 
 /**
  * Env.
- *
- * Represents an environment entity, used for detecting application environment that decide
- * such stuff which database would be connected to, etc. More information could be fould at
- * https://en.wikipedia.org/wiki/Deployment_environment.
- *
- * @package froq\app
- * @object  froq\app\Env
+ * @package froq
+ * @object  froq\Env
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */
-final class Env
+final class Env extends Enum
 {
     /**
      * Names.
@@ -48,74 +45,4 @@ final class Env
                  TEST       = 'test',
                  STAGE      = 'stage',
                  PRODUCTION = 'production';
-
-    /**
-     * Name.
-     * @var string
-     */
-    private string $name;
-
-    /**
-     * Constructor.
-     * @param string $name
-     */
-    public function __construct(string $name = self::DEV)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * Set name.
-     * @param  string $name
-     * @return void
-     */
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * Get name.
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * Is dev.
-     * @return bool
-     */
-    public function isDev(): bool
-    {
-        return $this->name == self::DEV;
-    }
-
-    /**
-     * Is test.
-     * @return bool
-     */
-    public function isTest(): bool
-    {
-        return $this->name == self::TEST;
-    }
-
-    /**
-     * Is stage.
-     * @return bool
-     */
-    public function isStage(): bool
-    {
-        return $this->name == self::STAGE;
-    }
-
-    /**
-     * Is production.
-     * @return bool
-     */
-    public function isProduction(): bool
-    {
-        return $this->name == self::PRODUCTION;
-    }
 }

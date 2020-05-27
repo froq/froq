@@ -24,16 +24,16 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\mvc;
 
-use froq\common\Error;
+use froq\common\Exception;
 
 /**
- * App Error.
- * @package froq
- * @object  froq\AppError
+ * Controller Exception.
+ * @package froq\mvc
+ * @object  froq\mvc\ControllerException
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */
-final class AppError extends Error
+final class ControllerException extends Exception
 {}

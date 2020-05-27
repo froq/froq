@@ -24,41 +24,16 @@
  */
 declare(strict_types=1);
 
-use froq\app\AppError;
+namespace froq\mvc;
+
+use froq\common\Exception;
 
 /**
- * Shutdown handler.
+ * Model Exception.
+ * @package froq\mvc
+ * @object  froq\mvc\ModelException
+ * @author  Kerem Güneş <k-gun@mail.com>
+ * @since   4.0
  */
-return function() {
-    $app = app();
-
-    $error = error_get_last();
-    $error = isset($error['type']) && ($error['type'] == E_ERROR) ? $error : null;
-
-    // This will keep app running, even if a ParseError occurs.
-    if ($error == null) {
-        $error = app_fail('exception');
-        if ($error != null) {
-            $error = [
-                'type' => $error->getCode(), 'message' => get_class($error) .': '. $error->getMessage(),
-                'file' => $error->getFile(), 'line' => $error->getLine()
-            ];
-        }
-    }
-
-    if ($error != null) {
-        $error = sprintf("Shutdown in %s:%s\n%s", $error['file'], $error['line'], $error['message']);
-
-        // Call app error prosess (log etc.).
-        $app->error($e = new AppError($error, -1));
-
-        // This could be used later to check error stuff.
-        app_fail('shutdown', $e);
-
-        // Reset error display option (@see exception handler).
-        $opt = get_global('app.displayErrors');
-        if ($opt !== null) {
-            ini_set('display_errors', strval($opt));
-        }
-    }
-};
+final class ModelException extends Exception
+{}

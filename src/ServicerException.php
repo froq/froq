@@ -26,14 +26,14 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\common\Error;
+use froq\common\Exception;
 
 /**
- * App Error.
+ * Servicer Exception.
  * @package froq
- * @object  froq\AppError
+ * @object  froq\ServicerException
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */
-final class AppError extends Error
+final class ServicerException extends Exception
 {}

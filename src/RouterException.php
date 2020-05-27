@@ -24,18 +24,16 @@
  */
 declare(strict_types=1);
 
+namespace froq;
+
+use froq\common\Exception;
+
 /**
- * Exception handler.
+ * Router Exception.
+ * @package froq
+ * @object  froq\RouterException
+ * @author  Kerem Güneş <k-gun@mail.com>
+ * @since   4.0
  */
-return function(Throwable $e) {
-    // If not local no error display (set & store old option).
-    if (!is_local()) {
-        set_global('app.displayErrors', ini_set('display_errors', 'off'));
-    }
-
-    // This could be used later to check error stuff.
-    app_fail('exception', $e);
-
-    // This will be caught in shutdown handler.
-    throw $e;
-};
+final class RouterException extends Exception
+{}
