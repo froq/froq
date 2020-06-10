@@ -30,9 +30,8 @@ $_SERVER['REQUEST_SCHEME'] ??= 'http'. (
 
 // Used to detect local environment.
 defined('__local__') || define('__local__',
-    ($_SERVER['SERVER_NAME'] ?? '') == 'localhost' || in_array(
-        strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost']
-    )
+       in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1'], true)
+    || in_array(strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost'], true)
 );
 
 // Show all errors if local.
