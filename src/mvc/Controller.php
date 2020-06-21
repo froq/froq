@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\{App, Router};
+use froq\http\{Request, Response};
 use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
 use froq\mvc\{ControllerException, View, Model, Action};
 use Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
@@ -336,6 +337,7 @@ class Controller
                 'true in %s class', [static::class]);
         }
 
+        // Shortcut for status (if given).
         if ($status) {
             $this->app->response()->setStatus($status);
         }
@@ -425,16 +427,33 @@ class Controller
     }
 
     /**
-     * Sets response status & body content, also content attributes if provided.
+     * Request (gets request object).
      *
-     * @param  int        $code
-     * @param  any        $content
-     * @param  array|null $contentAttributes
-     * @return void
+     * @return froq\http\Request
      */
-    public final function response(int $code, $content, array $contentAttributes = null): void
+    public final function request(): Request
     {
-        $this->app->response()->setStatus($code)->setBody($content, $contentAttributes);
+        return $this->app->request();
+    }
+
+    /**
+     * Gets response object, sets response status & body content, also content attributes if provided.
+     *
+     * @param  int|null   $code
+     * @param  any|null   $content
+     * @param  array|null $contentAttributes
+     * @return froq\http\Response
+     */
+    public final function response(int $code = null, $content = null, array $contentAttributes = null): Response
+    {
+        $response = $this->app->response();
+
+        // Content can be null, but not code.
+        if ($code !== null) {
+            $response->setStatus($code)->setBody($content, $contentAttributes);
+        }
+
+        return $response;
     }
 
     /**
