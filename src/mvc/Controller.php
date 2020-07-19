@@ -563,7 +563,7 @@ class Controller
     }
 
     /**
-     * Gets a segment value from URI's Segments object.
+     * Gets a segment value.
      *
      * @param  int|string $key
      * @param  any        $valueDefault
@@ -684,7 +684,11 @@ class Controller
             throw new ControllerException($e, null, Status::NOT_FOUND);
         }
 
-        $params = $this->prepareActionParams($ref, $actionParams);
+        $params     = $this->prepareActionParams($ref, $actionParams);
+        $paramsRest = array_values($actionParams);
+
+        // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
+        $params = [...$params, ...$paramsRest];
 
         return $this->{$action}(...$params);
     }
@@ -712,7 +716,11 @@ class Controller
             throw new ControllerException($e, null, Status::INTERNAL_SERVER_ERROR);
         }
 
-        $params = $this->prepareActionParams($ref, $actionParams);
+        $params     = $this->prepareActionParams($ref, $actionParams);
+        $paramsRest = array_values($actionParams);
+
+        // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
+        $params = [...$params, ...$paramsRest];
 
         return $action(...$params);
     }
@@ -730,6 +738,9 @@ class Controller
         $ret = [];
 
         foreach ($reflector->getParameters() as $i => $param) {
+            if ($param->isVariadic()) {
+                continue;
+            }
             // Action parameter can be named or indexed.
             $ret[] = $actionParams[$param->name] ?? $actionParams[$i] ?? (
                 $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null
