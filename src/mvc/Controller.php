@@ -27,7 +27,8 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\{App, Router};
-use froq\http\{Request, Response};
+use froq\http\{Request, Response, request\Segments, response\Status};
+use froq\{session\Session, database\Database};
 use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
 use froq\mvc\{ControllerException, View, Model, Action};
 use Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
@@ -51,10 +52,11 @@ class Controller
     public const NAMESPACE     = 'app\controller';
 
     /**
-     * Default.
+     * Defaults.
      * @const string
      */
-    public const DEFAULT       = 'app\controller\IndexController';
+    public const DEFAULT       = 'app\controller\IndexController',
+                 DEFAULT_NAME  = 'IndexController';
 
     /**
      * Name defaults.
@@ -361,11 +363,14 @@ class Controller
 
         if (!$controller || !$action) {
             throw new ControllerException('Invalid call directive given, use "Foo.bar" '.
-                'convention without "Controller" and "Action" suffixes', null, 404);
+                'convention without "Controller" and "Action" suffixes', null,
+                Status::NOT_FOUND);
         } elseif (!class_exists($controller)) {
-            throw new ControllerException('No controller found such "%s"', [$controller], 404);
+            throw new ControllerException('No controller found such "%s"', [$controller],
+                Status::NOT_FOUND);
         } elseif (!method_exists($controller, $action)) {
-            throw new ControllerException('No controller action found such "%s::%s()"', [$controller, $action], 404);
+            throw new ControllerException('No controller action found such "%s::%s()"', [$controller, $action],
+                Status::NOT_FOUND);
         }
 
         return (new $controller($this->app))->call($action, (array) $actionParams);
@@ -381,7 +386,7 @@ class Controller
      * @param  array|null $cookies
      * @return void
      */
-    public final function redirect(string $to, array $toArgs = null, int $code = 302,
+    public final function redirect(string $to, array $toArgs = null, int $code = Status::FOUND,
         array $headers = null, array $cookies = null): void
     {
         if ($toArgs) $to = vsprintf($to, $toArgs);
@@ -430,6 +435,7 @@ class Controller
      * Request (gets request object).
      *
      * @return froq\http\Request
+     * @since  4.1
      */
     public final function request(): Request
     {
@@ -454,6 +460,28 @@ class Controller
         }
 
         return $response;
+    }
+
+    /**
+     * Gets App's Session object.
+     *
+     * @return ?froq\session\Session
+     * @since  4.2
+     */
+    public final function session(): ?Session
+    {
+        return $this->app->session();
+    }
+
+    /**
+     * Gets App's Database object.
+     *
+     * @return ?froq\database\Database
+     * @since  4.2
+     */
+    public final function database(): ?Database
+    {
+        return $this->app->database();
     }
 
     /**
@@ -532,6 +560,30 @@ class Controller
     public final function imagePayload(int $code, $content, array $attributes = null): ImagePayload
     {
         return new ImagePayload($code, $content, $attributes);
+    }
+
+    /**
+     * Gets a segment value from URI's Segments object.
+     *
+     * @param  int|string $key
+     * @param  any        $valueDefault
+     * @return any
+     * @since  4.2
+     */
+    public final function segment($key, $valueDefault = null)
+    {
+        return $this->app->request()->uri()->segment($key, $valueDefault);
+    }
+
+    /**
+     * Gets URI's Segments object.
+     *
+     * @return ?froq\http\request\Segments
+     * @since  4.2
+     */
+    public final function segments(): ?Segments
+    {
+        return $this->app->request()->uri()->segments();
     }
 
     /**
@@ -629,7 +681,7 @@ class Controller
         try {
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, null, 404);
+            throw new ControllerException($e, null, Status::NOT_FOUND);
         }
 
         $params = $this->prepareActionParams($ref, $actionParams);
@@ -657,7 +709,7 @@ class Controller
         try {
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, null, 500);
+            throw new ControllerException($e, null, Status::INTERNAL_SERVER_ERROR);
         }
 
         $params = $this->prepareActionParams($ref, $actionParams);

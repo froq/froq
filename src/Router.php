@@ -330,38 +330,68 @@ final class Router
     }
 
     /**
+     * Prepares a controller & controller action name.
+     *
+     * @param  string $name
+     * @param  string $suffix
+     * @return string
+     * @since  4.2
+     */
+    private static function prepareName(string $name, string $suffix): string
+    {
+        // Titleize.
+        if (strpos($name, '-')) {
+            $name = implode('', array_map('ucfirst', explode('-', $name)));
+        }
+
+        if ($suffix) {
+            $name = ($suffix == Controller::SUFFIX) ? ucfirst($name) : lcfirst($name);
+
+            // Drop suffix.
+            if (strpos($name, $suffix)) {
+                $name = substr($name, 0, -strlen($suffix));
+            }
+        }
+
+        return $name;
+    }
+
+    /**
      * Prepares a controller name.
      *
      * @param  string $controller
+     * @param  bool   $full
      * @return string
      */
-    public static function prepareControllerName(string $controller): string
+    public static function prepareControllerName(string $name, bool $full = true): string
     {
-        // Make controller fully named & namespaced.
-        if ($controller == Controller::NAME_DEFAULT) {
-            return Controller::DEFAULT; // For callables, @default directives and App.error().
+        $name = self::prepareName($name, Controller::SUFFIX);
+
+        if ($full) {
+            // Make controller fully named & namespaced.
+            $name = sprintf('%s\%s%s', Controller::NAMESPACE, $name, Controller::SUFFIX);
         }
 
-        return sprintf('%s\%s%s', Controller::NAMESPACE, $controller, Controller::SUFFIX); // For methods.
+        return $name;
     }
 
     /**
      * Prepares a controller action name.
      *
-     * @param  string $action
+     * @param  string $name
+     * @param  bool   $full
      * @return string
      */
-    public static function prepareControllerActionName(string $action): string
+    public static function prepareControllerActionName(string $name, bool $full = true): string
     {
-        // Add "Action" suffix if available & convert dashes to camel-case.
-        if ($action != Controller::INDEX_ACTION && $action != Controller::ERROR_ACTION) {
-            if (strpos($action, '-')) {
-                $action = preg_replace_callback('~-([a-z])~i', fn($m) => ucfirst($m[1]), $action);
-            }
-            $action .= Controller::ACTION_SUFFIX;
+        $name = self::prepareName($name, Controller::ACTION_SUFFIX);
+
+        if ($full && ($name != Controller::INDEX_ACTION && $name != Controller::ERROR_ACTION)) {
+            // Make action suffixed, skipping default actions (index && error).
+            $name .= Controller::ACTION_SUFFIX;
         }
 
-        return $action;
+        return $name;
     }
 
     /**
