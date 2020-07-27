@@ -49,7 +49,7 @@ final class Handler
      */
     public static function registerErrorHandler(): void
     {
-        set_error_handler(function($ecode, $emesg, $efile, $eline) {
+        set_error_handler(function ($ecode, $emesg, $efile, $eline) {
             // @cancel Because error_get_last() should always work!
             // Error was suppressed with the @ operator.
             // if (!$ecode || !($ecode & error_reporting())) {
