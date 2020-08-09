@@ -86,6 +86,18 @@ class Controller
     protected App $app;
 
     /**
+     * Request.
+     * @var froq\http\Request
+     */
+    protected Request $request;
+
+    /**
+     * Response.
+     * @var froq\http\Response
+     */
+    protected Response $response;
+
+    /**
      * Name.
      * @var string
      */
@@ -146,10 +158,15 @@ class Controller
     {
         $this->app = $app;
 
+        // Copy as a shortcut for child classes.
+        $this->request = $app->request();
+        $this->response = $app->response();
+
         $this->useView && $this->loadView();
         $this->useModel && $this->loadModel();
         $this->useSession && $this->loadSession();
 
+        // Call init() method if defined in child classes.
         if (method_exists($this, 'init')) {
             $this->init();
         }
@@ -439,7 +456,7 @@ class Controller
      */
     public final function request(): Request
     {
-        return $this->app->request();
+        return $this->request;
     }
 
     /**
@@ -452,7 +469,7 @@ class Controller
      */
     public final function response(int $code = null, $content = null, array $contentAttributes = null): Response
     {
-        $response = $this->app->response();
+        $response = $this->response;
 
         // Content can be null, but not code.
         if ($code !== null) {
