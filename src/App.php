@@ -284,6 +284,7 @@ final class App
     /**
      * Router.
      * @return froq\Router
+     * @since  4.0
      */
     public function router(): Router
     {
@@ -293,6 +294,7 @@ final class App
     /**
      * Servicer.
      * @return froq\Servicer
+     * @since  4.0
      */
     public function servicer(): Servicer
     {
@@ -306,6 +308,7 @@ final class App
      * @param  string          $methods
      * @param  string|callable $call
      * @return self
+     * @since  4.0
      */
     public function route(string $route, string $methods, $call): self
     {
@@ -320,6 +323,7 @@ final class App
      * @param  string          $route
      * @param  string|callable $call
      * @return self
+     * @since  4.0
      */
     public function get(string $route, $call): self
     {
@@ -332,6 +336,7 @@ final class App
      * @param  string          $route
      * @param  string|callable $call
      * @return self
+     * @since  4.0
      */
     public function post(string $route, $call): self
     {
@@ -344,6 +349,7 @@ final class App
      * @param  string          $route
      * @param  string|callable $call
      * @return self
+     * @since  4.0
      */
     public function put(string $route, $call): self
     {
@@ -351,11 +357,12 @@ final class App
     }
 
     /**
-     * Defines a route with GET method.
+     * Defines a route with DELETE method.
      *
      * @param  string          $route
      * @param  string|callable $call
      * @return self
+     * @since  4.0
      */
     public function delete(string $route, $call): self
     {
@@ -368,6 +375,7 @@ final class App
      * @param  string         $name
      * @param  array|callable $service
      * @return ?object|void
+     * @since  4.0
      */
     public function service(string $name, $service = null): ?object
     {

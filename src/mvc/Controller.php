@@ -113,7 +113,7 @@ class Controller
      * Action params.
      * @var array<any>
      */
-    private array  $actionParams;
+    private array $actionParams;
 
     /**
      * View.
