@@ -41,7 +41,7 @@ final class Servicer
      * Services.
      * @var array
      */
-    private array $services;
+    private array $services = [];
 
     /**
      * Constructor.
@@ -56,7 +56,7 @@ final class Servicer
      */
     public function getServices(): array
     {
-        return $this->services ?? [];
+        return $this->services;
     }
 
     /**

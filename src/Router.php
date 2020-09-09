@@ -42,13 +42,13 @@ final class Router
      * Routes.
      * @var array
      */
-    private array $routes;
+    private array $routes = [];
 
     /**
      * Debug.
      * @var array
      */
-    private array $debug;
+    private array $debug = [];
 
     /**
      * Constructor.
@@ -63,7 +63,7 @@ final class Router
      */
     public function getRoutes(): array
     {
-        return $this->routes ?? [];
+        return $this->routes;
     }
 
     /**
@@ -73,7 +73,7 @@ final class Router
      */
     public function getDebug(): array
     {
-        return $this->debug ?? [];
+        return $this->debug;
     }
 
     /**
