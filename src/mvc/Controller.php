@@ -604,6 +604,19 @@ class Controller
     }
 
     /**
+     * Gets URI's Segments object as list.
+     *
+     * @return ?array
+     * @since  4.4
+     */
+    public final function segmentsList(): ?array
+    {
+        $segments = $this->app->request()->uri()->segments();
+
+        return $segments ? $segments->toList() : null;
+    }
+
+    /**
      * Gets a get parameter.
      *
      * @param  string   $name
