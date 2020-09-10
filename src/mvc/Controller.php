@@ -606,14 +606,20 @@ class Controller
     /**
      * Gets URI's Segments object as list.
      *
+     * @param  ?int $offset
      * @return ?array
      * @since  4.4
      */
-    public final function segmentsList(): ?array
+    public final function segmentsList(?int $offset = 0): ?array
     {
         $segments = $this->app->request()->uri()->segments();
 
-        return $segments ? $segments->toList() : null;
+        if ($segments) {
+            return !$offset ? $segments->toList()
+                : array_slice($segments->toList(), $offset);
+        }
+
+        return null;
     }
 
     /**
