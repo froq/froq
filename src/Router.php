@@ -365,6 +365,10 @@ final class Router
      */
     public static function prepareControllerName(string $name, bool $full = true): string
     {
+        if (strpos($name, Controller::NAME_DEFAULT) === 0) {
+            $name = Controller::DEFAULT_NAME;
+        }
+
         $name = self::prepareName($name, Controller::SUFFIX);
 
         if ($full) {
@@ -384,6 +388,10 @@ final class Router
      */
     public static function prepareControllerActionName(string $name, bool $full = true): string
     {
+        if (strpos($name, Controller::NAME_DEFAULT) === 0) {
+            $name = Controller::INDEX_ACTION;
+        }
+
         $name = self::prepareName($name, Controller::ACTION_SUFFIX);
 
         if ($full && ($name != Controller::INDEX_ACTION && $name != Controller::ERROR_ACTION)) {
