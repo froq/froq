@@ -248,6 +248,18 @@ class Model
     }
 
     /**
+     * Execute.
+     * @param  string     $query
+     * @param  array|null $queryParams
+     * @return ?int
+     * @since  4.5
+     */
+    public function execute(string $query, array $queryParams = null): ?int
+    {
+        return $this->db->execute($query, $queryParams);
+    }
+
+    /**
      * Finds a row entry by given primary value if exists, otherwise returns null.
      *
      * @param  int                       $id
