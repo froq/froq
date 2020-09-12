@@ -248,7 +248,8 @@ class Model
     }
 
     /**
-     * Execute.
+     * Executes a query command.
+     *
      * @param  string     $query
      * @param  array|null $queryParams
      * @return ?int
@@ -257,6 +258,21 @@ class Model
     public function execute(string $query, array $queryParams = null): ?int
     {
         return $this->db->execute($query, $queryParams);
+    }
+
+    /**
+     * Counts the rows of a table (by where / where params if provided).
+     *
+     * @param  string|null $where
+     * @param  array|null  $whereParams
+     * @return int
+     * @since  4.6
+     */
+    public function count(string $where = null, array $whereParams = null): int
+    {
+        [$table] = $this->packTableStuff(__method__);
+
+        return $this->db->count($table, $where, $whereParams);
     }
 
     /**
