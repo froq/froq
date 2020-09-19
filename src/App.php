@@ -496,7 +496,7 @@ final class App
         // Call user error handler if provided.
         $this->events->fire('app.error', $error);
 
-        // Status may change later in @default.error().
+        // Status may be changed later in @default.error().
         // try {
             $this->response->setStatusCode(Status::INTERNAL_SERVER_ERROR);
         // } catch (Throwable $e) {}
