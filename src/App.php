@@ -547,7 +547,7 @@ final class App
     /**
      * End output buffer.
      * @param  any       $return
-     * @param  bool|null $isError @internal (@see Message.setBody())
+     * @param  bool|null $isError @internal (@see Message.setBody()) @cancel
      * @return void
      */
     private function endOutputBuffer($return, bool $isError = null): void
