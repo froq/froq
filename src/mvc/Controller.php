@@ -162,6 +162,7 @@ class Controller
         $this->request = $app->request();
         $this->response = $app->response();
 
+        // Load usings.
         $this->useView && $this->loadView();
         $this->useModel && $this->loadModel();
         $this->useSession && $this->loadSession();
@@ -173,13 +174,53 @@ class Controller
     }
 
     /**
-     * Gets the app property.
+     * Get app.
      *
      * @return froq\App
      */
     public final function getApp(): App
     {
         return $this->app;
+    }
+
+    /**
+     * Get request.
+     *
+     * @return froq\http\Request
+     */
+    public final function getRequest(): Request
+    {
+        return $this->request;
+    }
+
+    /**
+     * Get response.
+     *
+     * @return froq\http\Response
+     */
+    public final function getResponse(): Response
+    {
+        return $this->response;
+    }
+
+    /**
+     * Get view.
+     *
+     * @return ?froq\mvc\View
+     */
+    public final function getView(): ?View
+    {
+        return $this->view ?? null;
+    }
+
+    /**
+     * Get model.
+     *
+     * @return ?froq\mvc\Model
+     */
+    public final function getModel(): ?Model
+    {
+        return $this->model ?? null;
     }
 
     /**
