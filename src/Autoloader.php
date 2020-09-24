@@ -134,7 +134,7 @@ final class Autoloader
                 // So any other objects must be loaded in other ways. Besides, "Model" for only the "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
                 // to eg: $app->get("/book/:id", function ($id) { ... }).
-                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|Entity|EntityArray)$~', $name, $match);
+                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|ModelException|Entity|EntityArray)$~', $name, $match);
                 if ($match) {
                     $file = APP_DIR . sprintf($this->locations[1][1], $match[1], $match[0]);
                 }
