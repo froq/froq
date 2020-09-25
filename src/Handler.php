@@ -104,7 +104,7 @@ final class Handler
      */
     public static function registerExceptionHandler(): void
     {
-        set_exception_handler(function(Throwable $e) {
+        set_exception_handler(function (Throwable $e) {
             // If not local no error display (set & store old option).
             if (!__local__) {
                 set_global('app.displayErrors', ini_set('display_errors', 'off'));
@@ -124,7 +124,7 @@ final class Handler
      */
     public static function registerShutdownHandler(): void
     {
-        register_shutdown_function(function() {
+        register_shutdown_function(function () {
             $app = app();
 
             // This will keep app running, even if a ParseError occurs.
