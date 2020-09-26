@@ -242,7 +242,7 @@ class Model
      * @param  string|array<string>|null $fetchOptions
      * @return froq\database\Result
      */
-    public function query(string $query, array $queryParams = null, $fetchOptions = null): Result
+    public final function query(string $query, array $queryParams = null, $fetchOptions = null): Result
     {
         return $this->db->query($query, $queryParams, $fetchOptions);
     }
@@ -255,7 +255,7 @@ class Model
      * @return ?int
      * @since  4.5
      */
-    public function execute(string $query, array $queryParams = null): ?int
+    public final function execute(string $query, array $queryParams = null): ?int
     {
         return $this->db->execute($query, $queryParams);
     }
@@ -268,7 +268,7 @@ class Model
      * @return int
      * @since  4.6
      */
-    public function count(string $where = null, array $whereParams = null): int
+    public final function count(string $where = null, array $whereParams = null): int
     {
         [$table] = $this->packTableStuff(__method__);
 
