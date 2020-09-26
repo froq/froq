@@ -29,6 +29,7 @@ namespace froq\mvc;
 use froq\pager\Pager;
 use froq\mvc\{ModelException, Controller};
 use froq\database\{Database, Result, Query};
+use froq\validation\Validation;
 
 /**
  * Model.
@@ -104,7 +105,7 @@ class Model
      *
      * @return froq\mvc\Controller
      */
-    public function getController(): Controller
+    public final function getController(): Controller
     {
         return $this->controller;
     }
@@ -286,6 +287,45 @@ class Model
     public final function transaction(callable $call, callable $callError = null)
     {
         return $this->db->transaction($call, $callError);
+    }
+
+    /**
+     * Validates given data getting rules by key from validation file, also modifies given `$data`
+     * and fills `$fails` if validation not passes.
+     *
+     * @param  string       $key
+     * @param  array       &$data
+     * @param  array|null  &$fails
+     * @param  bool         $dropUndefinedFields
+     * @param  array|null   $validationOptions
+     * @return bool
+     * @throws froq\mvc\ModelException
+     * @since  4.8
+     */
+    public final function validate(string $key, array &$data = null, array &$fails = null,
+        bool $dropUndefinedFields = true, array $validationOptions = null): bool
+    {
+        $data = $data ?? $this->getData();
+        if (!$data) {
+            throw new ModelException('Non-empty data required for validation');
+        }
+
+        $file = APP_DIR .'/app/config/validations.php';
+        if (!is_file($file)) {
+            throw new ModelException('No validations file "%s" exists', [$file]);
+        }
+
+        $rules = include $file;
+        if (empty($rules[$key])) {
+            throw new ModelException('No rules found for "%s"', [$key]);
+        }
+
+        // Validation options can be also defined in child models.
+        $validation = new Validation($rules, (
+            $validationOptions ?? $this->validationOptions ?? null
+        ));
+
+        return $validation->validate($key, $data, $fails);
     }
 
     /**
