@@ -210,8 +210,7 @@ final class Router
         // Normalize URI (removes repeating & ending slashes).
         $uri = '/'. preg_replace('~/+~', '/', trim($uri, '/'));
 
-        $this->debug['uri'] = $uri;
-        $this->debug['pattern'] = $pattern;
+        $this->debug = ['uri' => $uri, 'pattern' => $pattern, 'mark' => null];
 
         if (preg_match($pattern, $uri, $match, PREG_UNMATCHED_AS_NULL)) {
             $this->debug['match'] = $match;
@@ -220,6 +219,8 @@ final class Router
             if (empty($routes[$mark][1])) {
                 throw new RouterException('No call directives found for route "%s"', [$mark]);
             }
+
+            $this->debug['mark'] = $mark;
 
             $calls    = (array) $routes[$mark][1];
             $callArgs = [];
