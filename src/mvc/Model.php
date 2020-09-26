@@ -335,17 +335,16 @@ class Model
     /**
      * Finds a row entry by given primary value if exists, otherwise returns null.
      *
-     * @param  int                       $id
-     * @param  string|array<string>|null $fetchOptions
+     * @param  int $id
      * @return ?array|?object
      */
-    public function find(int $id, $fetchOptions = null)
+    public function find(int $id)
     {
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
 
         return $this->initQuery($table)->select('*')
                     ->equal($tablePrimary, $id)
-                    ->get($fetchOptions);
+                    ->get();
     }
 
     /**
