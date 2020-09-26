@@ -276,6 +276,19 @@ class Model
     }
 
     /**
+     * Wraps a transaction.
+     *
+     * @param  callable      $call
+     * @param  callable|null $callError
+     * @return any
+     * @since  4.7
+     */
+    public final function transaction(callable $call, callable $callError = null)
+    {
+        return $this->db->transaction($call, $callError);
+    }
+
+    /**
      * Finds a row entry by given primary value if exists, otherwise returns null.
      *
      * @param  int                       $id
@@ -392,6 +405,18 @@ class Model
     public final function initQuery(string $table = null): Query
     {
         return $this->db->initQuery($table);
+    }
+
+    /**
+     * Logs an error via App's errorLog().
+     *
+     * @param  string|Throwable $message
+     * @return void
+     * @since  4.7
+     */
+    public final function logError($error): void
+    {
+        $this->controller->getApp()->errorLog($error);
     }
 
     /**

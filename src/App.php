@@ -524,7 +524,7 @@ final class App
 
     /**
      * Error log.
-     * @param  any $error
+     * @param  string|Throwable $error
      * @return void
      * @since  4.0
      */
