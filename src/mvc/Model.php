@@ -289,39 +289,6 @@ class Model
     }
 
     /**
-     * Finds a row entry by given primary value if exists, otherwise returns null.
-     *
-     * @param  int                       $id
-     * @param  string|array<string>|null $fetchOptions
-     * @return ?array|?object
-     */
-    public function find(int $id, $fetchOptions = null)
-    {
-        [$table, $tablePrimary] = $this->packTableStuff(__method__);
-
-        return $this->initQuery($table)->select('*')
-                    ->equal($tablePrimary, $id)
-                    ->get($fetchOptions);
-    }
-
-    /**
-     * Removes a row entry by given primary value and returns affected rows count.
-     *
-     * @param  int $id
-     * @return int
-     */
-    public function remove(int $id): int
-    {
-        [$table, $tablePrimary] = $this->packTableStuff(__method__);
-
-        return $this->db->transaction(function () use ($table, $tablePrimary, $id) {
-            return $this->initQuery($table)->delete()
-                        ->equal($tablePrimary, $id)
-                        ->run()->count();
-        });
-    }
-
-    /**
      * Save a row entry with given data set. If primary provided in data set, returns new primary
      * value updating current row, otherwise returns affected rows count inserting new data set.
      * Throws a `ModelException` if empty data set given.
@@ -363,6 +330,39 @@ class Model
                             ->run()->count();
             });
         }
+    }
+
+    /**
+     * Finds a row entry by given primary value if exists, otherwise returns null.
+     *
+     * @param  int                       $id
+     * @param  string|array<string>|null $fetchOptions
+     * @return ?array|?object
+     */
+    public function find(int $id, $fetchOptions = null)
+    {
+        [$table, $tablePrimary] = $this->packTableStuff(__method__);
+
+        return $this->initQuery($table)->select('*')
+                    ->equal($tablePrimary, $id)
+                    ->get($fetchOptions);
+    }
+
+    /**
+     * Removes a row entry by given primary value and returns affected rows count.
+     *
+     * @param  int $id
+     * @return int
+     */
+    public function remove(int $id): int
+    {
+        [$table, $tablePrimary] = $this->packTableStuff(__method__);
+
+        return $this->db->transaction(function () use ($table, $tablePrimary, $id) {
+            return $this->initQuery($table)->delete()
+                        ->equal($tablePrimary, $id)
+                        ->run()->count();
+        });
     }
 
     /**
