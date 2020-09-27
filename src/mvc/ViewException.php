@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\common\Exception;
+use froq\AppException;
 
 /**
  * View Exception.
@@ -35,5 +35,5 @@ use froq\common\Exception;
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */
-final class ViewException extends Exception
+class ViewException extends AppException
 {}

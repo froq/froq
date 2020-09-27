@@ -35,5 +35,5 @@ use froq\common\Exception;
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   1.0
  */
-final class AppException extends Exception
+class AppException extends Exception
 {}

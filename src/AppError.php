@@ -35,5 +35,5 @@ use froq\common\Error;
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */
-final class AppError extends Error
+class AppError extends Error
 {}
