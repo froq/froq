@@ -414,7 +414,7 @@ class Model
      */
     public final function initModel(string $name, Controller $controller = null): Model
     {
-        $class = sprintf('app\model\%sModel', $name);
+        $class = sprintf('app\model\%sModel', ucfirst($name));
         if (!class_exists($class)) {
             throw new ModelException(sprintf('Model class "%s" not found', $class));
         }
