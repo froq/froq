@@ -182,24 +182,25 @@ final class Autoloader
         // Base stuffs that stay in "froq/froq".
         static $bases = ['mvc'];
 
-        $dir    = dirname($name);
-        $dirlen = strlen($dir);
-
+        $dir = dirname($name);
         sscanf($dir, 'froq/%[^/]', $base);
-        if (in_array($base, $bases)) {
-            $dirlen -= strlen($base) + 1;
+
+        $isBase = in_array($base, $bases, true);
+        if ($isBase) {
+            $pkg = 'froq';
         } else {
+            $dirlen = strlen($dir);
+
             // Check the calls not for "froq/froq" (4 = strlen("froq")).
-            if (strlen($dir) > 4) {
+            if ($dirlen > 4) {
                 $dirlen = strlen($base) + 4 + 1;
             }
+
+            $pkg = substr($dir, 0, $dirlen);
         }
 
-        $pkg = substr($dir, 0, $dirlen);
+        $pkg = strtr($pkg, '/', '-'); // Eg: "froq/acl" => "froq-acl".
         $src = substr($name, strlen($pkg) + 1);
-
-        // Eg: "froq/database" to "froq-database".
-        $pkg = strtr($pkg, '/', '-');
 
         return [$pkg, $src];
     }
