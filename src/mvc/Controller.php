@@ -146,6 +146,13 @@ class Controller
     public bool $useSession = false;
 
     /**
+     * Before/after.
+     * @var bool,bool
+     * @since 4.9
+     */
+    private bool $before = false, $after = false;
+
+    /**
      * Constructor.
      *
      * Calls `loadView()` method if `$useView` set to true.
@@ -167,10 +174,14 @@ class Controller
         $this->useModel && $this->loadModel();
         $this->useSession && $this->loadSession();
 
-        // Call init() method if defined in child classes.
+        // Call init() method if defined in child class.
         if (method_exists($this, 'init')) {
             $this->init();
         }
+
+        // Set before/after ticks these called in call() method.
+        $this->before = method_exists($this, 'before');
+        $this->after = method_exists($this, 'after');
     }
 
     /**
@@ -399,7 +410,7 @@ class Controller
 
         // Shortcut for status (if given).
         if ($status) {
-            $this->app->response()->setStatus($status);
+            $this->response->setStatus($status);
         }
 
         return $this->view->render($file, $fileData);
@@ -449,7 +460,7 @@ class Controller
     {
         if ($toArgs) $to = vsprintf($to, $toArgs);
 
-        $this->app->response()->redirect($to, $code, $headers, $cookies);
+        $this->response->redirect($to, $code, $headers, $cookies);
     }
 
     /**
@@ -460,7 +471,7 @@ class Controller
      */
     public final function setResponseCode(int $code): self
     {
-        $this->app->response()->setStatus($code);
+        $this->response->setStatus($code);
 
         return $this;
     }
@@ -473,7 +484,7 @@ class Controller
      */
     public final function setResponseType(string $type): self
     {
-        $this->app->response()->setContentType($type);
+        $this->response->setContentType($type);
 
         return $this;
     }
@@ -630,7 +641,7 @@ class Controller
      */
     public final function segment($key, $valueDefault = null)
     {
-        return $this->app->request()->uri()->segment($key, $valueDefault);
+        return $this->request->uri()->segment($key, $valueDefault);
     }
 
     /**
@@ -641,7 +652,7 @@ class Controller
      */
     public final function segments(): ?Segments
     {
-        return $this->app->request()->uri()->segments();
+        return $this->request->uri()->segments();
     }
 
     /**
@@ -653,7 +664,7 @@ class Controller
      */
     public final function segmentsList(int $offset = 0): ?array
     {
-        $segments = $this->app->request()->uri()->segments();
+        $segments = $this->request->uri()->segments();
 
         return $segments ? $segments->toList($offset) : null;
     }
@@ -667,7 +678,7 @@ class Controller
      */
     public final function getParam(string $name, $valueDefault = null)
     {
-        return $this->app->request()->getParam($name, $valueDefault);
+        return $this->request->getParam($name, $valueDefault);
     }
 
     /**
@@ -679,7 +690,7 @@ class Controller
      */
     public final function getParams(array $names = null, $valuesDefault = null): array
     {
-        return $this->app->request()->getParams($names, $valuesDefault);
+        return $this->request->getParams($names, $valuesDefault);
     }
 
     /**
@@ -691,7 +702,7 @@ class Controller
      */
     public final function postParam(string $name, $valueDefault = null)
     {
-        return $this->app->request()->postParam($name, $valueDefault);
+        return $this->request->postParam($name, $valueDefault);
     }
 
     /**
@@ -703,7 +714,7 @@ class Controller
      */
     public final function postParams(array $names = null, $valuesDefault = null): array
     {
-        return $this->app->request()->postParams($names, $valuesDefault);
+        return $this->request->postParams($names, $valuesDefault);
     }
 
     /**
@@ -715,7 +726,7 @@ class Controller
      */
     public final function cookieParam(string $name, $valueDefault = null)
     {
-        return $this->app->request()->cookieParam($name, $valueDefault);
+        return $this->request->cookieParam($name, $valueDefault);
     }
 
     /**
@@ -727,7 +738,7 @@ class Controller
      */
     public final function cookieParams(array $names = null, $valuesDefault = null): array
     {
-        return $this->app->request()->cookieParams($names, $valuesDefault);
+        return $this->request->cookieParams($names, $valuesDefault);
     }
 
     /**
@@ -762,7 +773,15 @@ class Controller
         // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
         $params = [...$params, ...$paramsRest];
 
-        return $this->{$action}(...$params);
+        // Call before() method if defined in child class.
+        $this->before && $this->before();
+
+        $ret = $this->{$action}(...$params);
+
+        // Call after() method if defined in child class.
+        $this->after && $this->after();
+
+        return $ret;
     }
 
     /**
@@ -794,7 +813,15 @@ class Controller
         // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
         $params = [...$params, ...$paramsRest];
 
-        return $action(...$params);
+        // Call before() method if defined in child class.
+        $this->before && $this->before();
+
+        $ret = $action(...$params);
+
+        // Call after() method if defined in child class.
+        $this->after && $this->after();
+
+        return $ret;
     }
 
     /**
