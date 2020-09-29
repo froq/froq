@@ -338,7 +338,7 @@ final class Router
      * @return string
      * @since  4.2
      */
-    private static function prepareName(string $name, string $suffix): string
+    public static function prepareName(string $name, string $suffix): string
     {
         // Titleize.
         if (strpos($name, '-')) {
