@@ -31,7 +31,7 @@ use froq\http\{Request, Response, request\Segments, response\Status};
 use froq\{session\Session, database\Database};
 use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
 use froq\mvc\{ControllerException, View, Model, Action};
-use Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
+use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
 
 /**
  * Controller.
@@ -773,13 +773,13 @@ class Controller
         // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
         $params = [...$params, ...$paramsRest];
 
-        // Call before() method if defined in child class.
-        $this->before && $this->before();
-
-        $ret = $this->{$action}(...$params);
-
-        // Call after() method if defined in child class.
-        $this->after && $this->after();
+        try {
+            $this->before && $this->before(); // Call if defined in child.
+            $ret = $this->{$action}(...$params);
+            $this->after && $this->after(); // Call if defined in child.
+        } catch (Throwable $e) {
+            $ret = $this->error($e);
+        }
 
         return $ret;
     }
@@ -813,13 +813,13 @@ class Controller
         // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
         $params = [...$params, ...$paramsRest];
 
-        // Call before() method if defined in child class.
-        $this->before && $this->before();
-
-        $ret = $action(...$params);
-
-        // Call after() method if defined in child class.
-        $this->after && $this->after();
+        try {
+            $this->before && $this->before(); // Call if defined in child.
+            $ret = $action(...$params);
+            $this->after && $this->after(); // Call if defined in child.
+        } catch (Throwable $e) {
+            $ret = $this->error($e);
+        }
 
         return $ret;
     }
