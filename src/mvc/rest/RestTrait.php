@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace froq\mvc\rest;
 
+use froq\http\response\Status;
 use froq\mvc\rest\RestException;
 
 /**
@@ -64,6 +65,6 @@ trait RestTrait
         }
 
         throw new RestException('No "%s()" method defined on "%s" class for "%s" calls',
-                [strtolower($method), get_class($this), strtoupper($method)]);
+                [strtolower($method), get_class($this), strtoupper($method)], Status::NOT_FOUND);
     }
 }
