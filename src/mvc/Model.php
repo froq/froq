@@ -68,6 +68,18 @@ class Model
     protected string $tablePrimary;
 
     /**
+     * Validation rules.
+     * @var ?array
+     */
+    protected ?array $validationRules;
+
+    /**
+     * Validation options.
+     * @var ?array
+     */
+    protected ?array $validationOptions;
+
+    /**
      * Data.
      * @var ?array<string, any>
      */
@@ -297,33 +309,37 @@ class Model
      * @param  array       &$data
      * @param  array|null  &$fails
      * @param  bool         $dropUndefinedFields
-     * @param  array|null   $validationOptions
+     * @param  array|null   $options
      * @return bool
      * @throws froq\mvc\ModelException
      * @since  4.8
      */
     public final function validate(string $key, array &$data = null, array &$fails = null,
-        bool $dropUndefinedFields = true, array $validationOptions = null): bool
+        bool $dropUndefinedFields = true, array $options = null): bool
     {
         $data = $data ?? $this->getData();
         if (!$data) {
             throw new ModelException('Non-empty data required for validation');
         }
 
-        $file = APP_DIR .'/app/config/validations.php';
-        if (!is_file($file)) {
-            throw new ModelException('No validations file "%s" exists', [$file]);
+        // Validation rules & options can be also defined in child models.
+        $validationRules = $this->validationRules ?? null;
+        $validationOptions = $options ?? $this->validationOptions ?? null;
+
+        if (!$validationRules) {
+            $file = APP_DIR .'/app/config/validations.php';
+            if (!is_file($file)) {
+                throw new ModelException('No validations file "%s" exists', [$file]);
+            }
+
+            $validationRules = include $file;
         }
 
-        $rules = include $file;
-        if (empty($rules[$key])) {
+        if (empty($validationRules[$key])) {
             throw new ModelException('No rules found for "%s"', [$key]);
         }
 
-        // Validation options can be also defined in child models.
-        $validation = new Validation($rules, (
-            $validationOptions ?? $this->validationOptions ?? null
-        ));
+        $validation = new Validation($validationRules, $validationOptions);
 
         return $validation->validate($key, $data, $fails);
     }
