@@ -70,12 +70,14 @@ class Model
     /**
      * Validation rules.
      * @var ?array
+     * @since 4.9
      */
     protected ?array $validationRules;
 
     /**
      * Validation options.
      * @var ?array
+     * @since 4.9
      */
     protected ?array $validationOptions;
 
