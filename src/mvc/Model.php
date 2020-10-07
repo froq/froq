@@ -456,11 +456,14 @@ class Model
      * Initializes a new query object using self `$db` property, setting its "table" query
      * with `$table` argument if provided.
      *
-     * @param  string $table
+     * @param  string|null $table
      * @return froq\database\Query
      */
     public final function initQuery(string $table = null): Query
     {
+        // Try to get caller model table.
+        $table ??= $this->table ?? null;
+
         return $this->db->initQuery($table);
     }
 
