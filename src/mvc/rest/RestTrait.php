@@ -58,7 +58,7 @@ trait RestTrait
      */
     protected final function rest(...$params)
     {
-        $method = $this->request->method()->toString();
+        $method = $this->request->method()->getName();
 
         if (method_exists($this, $method)) {
             return $this->call($method, $params, false);
