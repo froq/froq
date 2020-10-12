@@ -82,7 +82,7 @@ final class Autoloader
      */
     public static function init(string $directory = null): self
     {
-        return self::$instance ?? (self::$instance = new self($directory));
+        return self::$instance ??= new self($directory);
     }
 
     /**

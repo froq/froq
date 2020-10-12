@@ -241,9 +241,7 @@ class Controller
      */
     public final function getName(): string
     {
-        return $this->name ?? (
-               $this->name = substr(strrchr(static::class, '\\'), 1)
-        );
+        return $this->name ??= substr(strrchr(static::class, '\\'), 1);
     }
 
     /**
@@ -840,6 +838,7 @@ class Controller
             if ($param->isVariadic()) {
                 continue;
             }
+
             // Action parameter can be named or indexed.
             $ret[] = $actionParams[$param->name] ?? $actionParams[$i] ?? (
                 $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null
