@@ -30,7 +30,7 @@ use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
 use froq\http\{Request, Response, response\Status};
 use froq\{config\Config, logger\Logger, event\Events};
-use froq\{session\Session, database\Database, cache\Cache};
+use froq\{session\Session, database\Database, cache\Cache, cache\CacheFactory};
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use Throwable;
 
@@ -479,8 +479,8 @@ final class App
         }
 
         // Cache is a "static" instance as default.
-        if (isset($cache['agent'])) {
-            $this->cache = new Cache($cache['agent'], $cache['options'] ?? null);
+        if (isset($cache)) {
+            $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
         }
 
         // @override
