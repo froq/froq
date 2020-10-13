@@ -29,8 +29,8 @@ namespace froq;
 use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
 use froq\http\{Request, Response, response\Status};
-use froq\{session\Session, database\Database};
 use froq\{config\Config, logger\Logger, event\Events};
+use froq\{session\Session, database\Database, cache\Cache};
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use Throwable;
 
@@ -100,14 +100,23 @@ final class App
     /**
      * Session.
      * @var froq\session\Session|null
+     * @since 3.18
      */
     private Session $session;
 
     /**
      * Database.
      * @var froq\database\Database|null
+     * @since 4.0
      */
     private Database $database;
+
+    /**
+     * Cache.
+     * @var froq\cache\Cache|null
+     * @since 4.10
+     */
+    private Cache $cache;
 
     /**
      * Router.
@@ -282,6 +291,46 @@ final class App
     }
 
     /**
+     * Cache.
+     * @param  string|int|array<string|int>|null $key
+     * @param  any                               $value
+     * @param  int|null                          $ttl
+     * @return any|null|froq\cache\agent\Cache
+     * @throws froq\AppException
+     * @since  4.10
+     */
+    public function cache($key = null, $value = null, int $ttl = null)
+    {
+        if (!isset($this->cache)) {
+            throw new AppException('No cache agent initiated yet, be sure "cache" field is '.
+                'not empty in config');
+        }
+
+        switch (func_num_args()) {
+             case 0: return $this->cache; // None given.
+             case 1: return $this->cache->read($key);
+            default: return $this->cache->write($key, $value, $ttl);
+        }
+    }
+
+    /**
+     * Uncache.
+     * @param  string|int|array<string|int> $key
+     * @return bool
+     * @throws froq\AppException
+     * @since  4.10
+     */
+    public function uncache($key): bool
+    {
+        if (!isset($this->cache)) {
+            throw new AppException('No cache agent initiated yet, be sure "cache" field is '.
+                'not empty in config');
+        }
+
+        return $this->cache->remove($key);
+    }
+
+    /**
      * Router.
      * @return froq\Router
      * @since  4.0
@@ -419,14 +468,19 @@ final class App
         // Generate URI segments by the root.
         $this->request->uri()->generateSegments($this->root);
 
-        // These options can be emptied by developer to disable session or database with "null" if
-        // app won't be using session or/and database. Also remove sensitive config  data after using.
-        [$session, $database] = $this->config->pull(['session', 'database']);
+        // These options can be emptied by developer to disable all with "null" if app won't
+        // be using session/database/cache. Also remove sensitive config data after using.
+        [$session, $database, $cache] = $this->config->pull(['session', 'database', 'cache']);
         if (isset($session)) {
             $this->session = Factory::initSingle(Session::class, $session);
         }
         if (isset($database)) {
             $this->database = Factory::initSingle(Database::class, $database);
+        }
+
+        // Cache is a "static" instance as default.
+        if (isset($cache['agent'])) {
+            $this->cache = new Cache($cache['agent'], $cache['options'] ?? null);
         }
 
         // @override
