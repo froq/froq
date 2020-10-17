@@ -334,14 +334,19 @@ class Model
     /**
      * Counts the rows of a table (by where / where params if provided).
      *
+     * @param  string|null $table
      * @param  string|null $where
      * @param  array|null  $whereParams
      * @return int
      * @since  4.6
      */
-    public final function count(string $where = null, array $whereParams = null): int
+    public final function count(string $table = null, string $where = null, array $whereParams = null): int
     {
-        [$table] = $this->packTableStuff(__method__);
+        $table ??= $this->getTable();
+        if (!$table) {
+            throw new ModelException('No table to count from $table argument or model object(%s)',
+                [static::class]);
+        }
 
         return $this->db->count($table, $where, $whereParams);
     }
