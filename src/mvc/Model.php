@@ -276,21 +276,6 @@ class Model
     }
 
     /**
-     * Counts the rows of a table (by where / where params if provided).
-     *
-     * @param  string|null $where
-     * @param  array|null  $whereParams
-     * @return int
-     * @since  4.6
-     */
-    public final function count(string $where = null, array $whereParams = null): int
-    {
-        [$table] = $this->packTableStuff(__method__);
-
-        return $this->db->count($table, $where, $whereParams);
-    }
-
-    /**
      * Wraps a transaction.
      *
      * @param  callable      $call
@@ -344,6 +329,21 @@ class Model
         $validation = new Validation($validationRules, $validationOptions);
 
         return $validation->validate($key, $data, $fails);
+    }
+
+    /**
+     * Counts the rows of a table (by where / where params if provided).
+     *
+     * @param  string|null $where
+     * @param  array|null  $whereParams
+     * @return int
+     * @since  4.6
+     */
+    public final function count(string $where = null, array $whereParams = null): int
+    {
+        [$table] = $this->packTableStuff(__method__);
+
+        return $this->db->count($table, $where, $whereParams);
     }
 
     /**
