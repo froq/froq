@@ -468,18 +468,6 @@ class Model
     }
 
     /**
-     * Logs an error via App's errorLog().
-     *
-     * @param  string|Throwable $message
-     * @return void
-     * @since  4.7
-     */
-    public final function logError($error): void
-    {
-        $this->controller->getApp()->errorLog($error);
-    }
-
-    /**
      * Packs table stuff with table name and table primary. Throws a `ModelException` if no
      * `$table` or `$tablePrimary` property defined in subclass.
      *
