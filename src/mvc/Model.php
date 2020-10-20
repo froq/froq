@@ -44,6 +44,12 @@ use froq\mvc\{ModelException, Controller};
 class Model
 {
     /**
+     * Suffix.
+     * @const string
+     */
+    public const SUFFIX = 'Model';
+
+    /**
      * Controller.
      * @var froq\mvc\Controller
      */
