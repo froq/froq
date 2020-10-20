@@ -156,6 +156,41 @@ final class Autoloader
 
         if ($file && is_file($file)) {
             require $file;
+        } else {
+            $dir = defined('APP_DIR') ? APP_DIR .'/' : '';
+
+            static $autoload;
+
+            // Memoize autoload data.
+            if ($autoload !== false) {
+                $composerFile = $dir ? $dir .'composer.json' : '';
+                if ($composerFile && is_file($composerFile)) {
+                    $composerFileData =@ json_decode(file_get_contents($composerFile), true);
+                    // Both "psr-4" & "dirs" accepted.
+                    if (empty($composerFileData['autoload']['psr-4'])
+                        && empty($composerFileData['autoload']['dirs'])) {
+                        $autoload = false; // Tick.
+                    } else {
+                        $autoload = $composerFileData['autoload']['psr-4']
+                                 ?? $composerFileData['autoload']['dirs'];
+                    }
+                }
+            }
+
+            // Try to load via autoload.
+            if ($autoload) {
+                $nameOrig = strtr($name, '/', '\\');
+                foreach ($autoload as $ns => $np) {
+                    $name = preg_replace('~^'. preg_quote($ns) .'~', $np, $nameOrig);
+                    $name = strtr($name, '\\', '/');
+
+                    $file = $dir . $name .'.php';
+                    if (is_file($file)) {
+                        require $file;
+                        return;
+                    }
+                }
+            }
         }
     }
 
