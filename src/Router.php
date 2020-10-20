@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace froq;
 
 use froq\RouterException;
-use froq\mvc\Controller;
+use froq\mvc\{Controller, Model};
 
 /**
  * Router.
@@ -333,25 +333,27 @@ final class Router
     /**
      * Prepares a controller & controller action name.
      *
-     * @param  string $name
-     * @param  string $suffix
+     * @param  string      $name
+     * @param  string|null $suffix
+     * @param  bool        $suffixed
      * @return string
      * @since  4.2
      */
-    public static function prepareName(string $name, string $suffix): string
+    public static function prepareName(string $name, string $suffix = null, bool $suffixed = false): string
     {
         // Titleize.
         if (strpos($name, '-')) {
             $name = implode('', array_map('ucfirst', explode('-', $name)));
         }
 
-        if ($suffix) {
-            $name = ($suffix == Controller::SUFFIX) ? ucfirst($name) : lcfirst($name);
+        if ($suffix != null) {
+            $name = ($suffix == Controller::SUFFIX || $suffix == Model::SUFFIX)
+                  ? ucfirst($name) : lcfirst($name);
 
-            // Drop suffix.
-            if (strpos($name, $suffix)) {
-                $name = substr($name, 0, -strlen($suffix));
-            }
+            // Add/drop suffix.
+            $name = !$suffixed
+                  ? (strsfx($name, $suffix) ? strsub($name, 0, -strlen($suffix)) : $name)
+                  : ($name . $suffix);
         }
 
         return $name;
