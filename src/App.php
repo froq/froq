@@ -150,7 +150,7 @@ final class App
             = [APP_DIR, new Config(), new Logger(), new Events(), new Router($this), new Servicer($this)];
 
         // Register app.
-        Registry::set('app', $this, true);
+        Registry::set('@app', $this, true);
 
         // Register handlers.
         Handler::registerErrorHandler();
@@ -484,7 +484,7 @@ final class App
         }
 
         // @override
-        Registry::set('app', $this);
+        Registry::set('@app', $this);
 
         // Resolve route.
         $result = $this->router->resolve(
@@ -523,11 +523,14 @@ final class App
         // Call before event if exists.
         $this->events->fire('app.before');
 
-        $class = new $controller($this);
+        $controller = new $controller($this);
+
+        Registry::set('@app.controller', $controller);
+
         if (is_string($action)) {
-            $return = $class->call($action, $actionParams);
+            $return = $controller->call($action, $actionParams);
         } elseif (is_callable($action)) {
-            $return = $class->callCallable($action, $actionParams);
+            $return = $controller->callCallable($action, $actionParams);
         }
 
         // Call after event if exists.

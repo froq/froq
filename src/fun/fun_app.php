@@ -11,7 +11,7 @@ use froq\common\objects\Registry;
  */
 function app()
 {
-    return Registry::get('app');
+    return Registry::get('@app');
 }
 
 /**
