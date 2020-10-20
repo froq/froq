@@ -525,9 +525,6 @@ final class App
 
         $controller = new $controller($this);
 
-        // Store app (last) controller.
-        Registry::set('@app.controller', $controller);
-
         if (is_string($action)) {
             $return = $controller->call($action, $actionParams);
         } elseif (is_callable($action)) {

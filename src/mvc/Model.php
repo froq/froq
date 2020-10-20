@@ -26,10 +26,10 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\pager\Pager;
-use froq\mvc\{ModelException, Controller};
+use froq\common\objects\Registry;
 use froq\database\{Database, Result, Query};
-use froq\validation\Validation;
+use froq\{pager\Pager, validation\Validation};
+use froq\mvc\{ModelException, Controller};
 
 /**
  * Model.
@@ -112,6 +112,9 @@ class Model
         if (method_exists($this, 'init')) {
             $this->init();
         }
+
+        // Store (last) model.
+        Registry::set('@model', $this, true);
     }
 
     /**

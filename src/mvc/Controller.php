@@ -27,8 +27,9 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\{App, Router};
-use froq\http\{Request, Response, request\Segments, response\Status};
+use froq\common\objects\Registry;
 use froq\{session\Session, database\Database};
+use froq\http\{Request, Response, request\Segments, response\Status};
 use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
 use froq\mvc\{ControllerException, View, Model, Action};
 use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
@@ -178,6 +179,9 @@ class Controller
         if (method_exists($this, 'init')) {
             $this->init();
         }
+
+        // Store (last) controller.
+        Registry::set('@controller', $this, true);
 
         // Set before/after ticks these called in call() method.
         $this->before = method_exists($this, 'before');
