@@ -65,9 +65,9 @@ function lower($in)
  * @aliasOf size()
  * @since   3.0
  */
-function len($in, $mb = false)
+function len(...$args)
 {
-    return size($in, $mb);
+    return size(...$args);
 }
 
 /**
