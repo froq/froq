@@ -166,13 +166,13 @@ final class Autoloader
                 $composerFile = $dir ? $dir .'composer.json' : '';
                 if ($composerFile && is_file($composerFile)) {
                     $composerFileData =@ json_decode(file_get_contents($composerFile), true);
-                    // Both "psr-4" & "dirs" accepted.
+                    // Both "psr-4" & "froq" accepted.
                     if (empty($composerFileData['autoload']['psr-4'])
-                        && empty($composerFileData['autoload']['dirs'])) {
+                        && empty($composerFileData['autoload']['froq'])) {
                         $autoload = false; // Tick.
                     } else {
                         $autoload = $composerFileData['autoload']['psr-4']
-                                 ?? $composerFileData['autoload']['dirs'];
+                                 ?? $composerFileData['autoload']['froq'];
                     }
                 }
             }
