@@ -37,7 +37,7 @@ use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionExcept
 /**
  * Controller.
  *
- * Represents a controller entity which is a part of MVC pattern.
+ * Represents a controller entity which is a part of MVC stack.
  *
  * @package froq\mvc
  * @object  froq\mvc\Controller
@@ -50,35 +50,36 @@ class Controller
      * Namespace.
      * @const string
      */
-    public const NAMESPACE     = 'app\controller';
+    public const NAMESPACE      = 'app\controller';
 
     /**
      * Defaults.
      * @const string
      */
-    public const DEFAULT       = 'app\controller\IndexController',
-                 DEFAULT_NAME  = 'IndexController';
-
-    /**
-     * Name defaults.
-     * @const string
-     */
-    public const NAME_DEFAULT  = '@default',
-                 NAME_CLOSURE  = '@closure';
+    public const DEFAULT        = 'app\controller\IndexController',
+                 DEFAULT_SHORT  = 'IndexController',
+                 ACTION_DEFAULT = 'index';
 
     /**
      * Suffixes.
      * @const string
      */
-    public const SUFFIX        = 'Controller',
-                 ACTION_SUFFIX = 'Action';
+    public const SUFFIX         = 'Controller',
+                 ACTION_SUFFIX  = 'Action';
 
     /**
-     * Default actions.
+     * Special actions.
      * @const string
      */
-    public const INDEX_ACTION  = 'index',
-                 ERROR_ACTION  = 'error';
+    public const INDEX_ACTION   = 'index',
+                 ERROR_ACTION   = 'error';
+
+    /**
+     * Name ids.
+     * @const string
+     */
+    public const NAME_DEFAULT   = '@default',
+                 NAME_CLOSURE   = '@closure';
 
     /**
      * App.
@@ -257,8 +258,8 @@ class Controller
     {
         $name = $this->getName();
 
-        if (strpos($name, self::SUFFIX)) {
-            $name = substr($name, 0, -strlen(self::SUFFIX));
+        if (strsfx($name, self::SUFFIX)) {
+            $name = strsub($name, 0, -strlen(self::SUFFIX));
         }
 
         return $name;
@@ -283,8 +284,8 @@ class Controller
     {
         $action = $this->getActionName();
 
-        if (strpos($action, self::ACTION_SUFFIX)) {
-            $action = substr($action, 0, -strlen(self::ACTION_SUFFIX));
+        if (strsfx($action, self::ACTION_SUFFIX)) {
+            $action = strsub($action, 0, -strlen(self::ACTION_SUFFIX));
         }
 
         return $action;
@@ -430,7 +431,7 @@ class Controller
      */
     public final function forward(string $call, array $callArgs = [])
     {
-        @ [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
+        [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
         if (!$controller || !$action) {
             throw new ControllerException('Invalid call directive given, use "Foo.bar" '.

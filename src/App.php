@@ -147,7 +147,7 @@ final class App
         $this->response = new Response($this);
 
         [$this->dir, $this->config, $this->logger, $this->events, $this->router, $this->servicer]
-            = [APP_DIR, new Config(), new Logger(), new Events(), new Router($this), new Servicer($this)];
+            = [APP_DIR, new Config(), new Logger(), new Events(), new Router(), new Servicer()];
 
         // Register app.
         Registry::set('@app', $this, true);
@@ -487,33 +487,33 @@ final class App
         Registry::set('@app', $this);
 
         // Resolve route.
-        $result = $this->router->resolve(
+        $route = $this->router->resolve(
             $uri     = $this->request->uri()->get('path'),
             $method  = null, // To check below it is allowed or not.
-            $options = $this->config->get('route'),
+            $options = $this->config->get('router'),
         );
 
         $method = $this->request->method()->getName();
 
         // Found but no method allowed?
-        if ($result != null && !isset($result[$method]) && !isset($result['*'])) {
-            throw new AppException('No method "%s" allowed for URI "%s"',
+        if ($route != null && !isset($route[$method]) && !isset($route['*'])) {
+            throw new AppException('No method "%s" allowed for URI: "%s"',
                 [$method, htmlspecialchars(rawurldecode($uri))], Status::METHOD_NOT_ALLOWED);
         }
 
-        @ [$controller, $action, $actionParams] = $result[$method] ?? $result['*'] ?? null;
+        @ [$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
 
         // Not found?
         if ($controller == null) {
-            throw new AppException('No controller route found for "%s %s" URI',
+            throw new AppException('No controller route found for URI: "%s %s"',
                 [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
         } elseif ($action == null) {
-            throw new AppException('No action route found for "%s %s" URI',
+            throw new AppException('No action route found for URI: "%s %s"',
                 [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
         } elseif (!class_exists($controller)) {
             throw new AppException('No controller class found such "%s"',
                 [$controller], Status::NOT_FOUND);
-        } elseif (!is_callable($action) && !method_exists($controller, $action)) {
+        } elseif (!is_callable($action) && !is_callable([$controller, $action])) {
             throw new AppException('No controller action found such "%s::%s()"',
                 [$controller, $action], Status::NOT_FOUND);
         }

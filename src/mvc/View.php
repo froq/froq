@@ -31,7 +31,7 @@ use froq\mvc\{ViewException, Controller};
 /**
  * View.
  *
- * Represents a view entity which is a part of MVC pattern.
+ * Represents a view entity which is a part of MVC stack.
  *
  * @package froq\mvc
  * @object  froq\mvc\View

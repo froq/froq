@@ -34,7 +34,7 @@ use froq\mvc\{ModelException, Controller};
 /**
  * Model.
  *
- * Represents a model entity which is a part of MVC pattern.
+ * Represents a model entity which is a part of MVC stack.
  *
  * @package froq\mvc
  * @object  froq\mvc\Model

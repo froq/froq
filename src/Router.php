@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\RouterException;
 use froq\mvc\{Controller, Model};
+use froq\RouterException;
 
 /**
  * Router.
@@ -51,10 +51,33 @@ final class Router
     private array $debug = [];
 
     /**
-     * Constructor.
+     * Options.
+     * @var array
+     * @since 4.12
      */
-    public function __construct()
-    {}
+    private static array $options = [];
+
+    /**
+     * Options default.
+     * @var array
+     * @since 4.12
+     */
+    private static array $optionsDefault = [
+        'defaultController' => Controller::DEFAULT,
+        'defaultAction'     => Controller::ACTION_DEFAULT,
+        'unicode'           => false,
+        'decodeUri'         => false,
+        'endingSlashes'     => true,
+    ];
+
+    /**
+     * Constructor.
+     * @param array|null $options
+     */
+    public function __construct(array $options = null)
+    {
+        self::$options = array_replace(self::$optionsDefault, $options ?? []);
+    }
 
     /**
      * Gets the routes property.
@@ -152,13 +175,14 @@ final class Router
     public function resolve(string $uri, string $method = null, array $options = null): ?array
     {
         $routes = $this->getRoutes();
-        if (empty($routes)) {
-            throw new RouterException('No route directives exists to resolve');
+        if ($routes == null) {
+            throw new RouterException('No route directives exists yet to resolve');
         }
 
-        // Default options.
-        $options = array_replace(['unicode' => false, 'decodeUri' => false, 'endingSlashes' => true],
-            $options ?? []);
+        // Update options.
+        if ($options != null) {
+            self::$options = array_replace(self::$optionsDefault, $options);
+        }
 
         $patterns = [];
         foreach ($routes as $i => [$pattern]) {
@@ -194,7 +218,7 @@ final class Router
             $pattern = addcslashes($pattern, '~');
 
             // Add optional slash to end.
-            !empty($options['endingSlashes']) && $pattern .= '/?';
+            self::$options['endingSlashes'] && $pattern .= '/?';
 
             // See http://www.pcre.org/pcre.txt for verbs.
             $patterns[] = ' (*MARK:'. $i .') '. $pattern;
@@ -204,8 +228,8 @@ final class Router
         $pattern = "~^(?:\n". join(" |\n", $patterns) ."\n)$~xAJ";
 
         // Apply options.
-        !empty($options['unicode']) && $pattern .= 'u';
-        !empty($options['decodeUri']) && $uri = rawurldecode($uri);
+        self::$options['unicode'] && $pattern .= 'u';
+        self::$options['decodeUri'] && $uri = rawurldecode($uri);
 
         // Normalize URI (removes repeating & ending slashes).
         $uri = '/'. preg_replace('~/+~', '/', trim($uri, '/'));
@@ -228,6 +252,7 @@ final class Router
             // Drop input & mark fields.
             $match = array_slice($match, 1, -1);
 
+            // Fill call arguments.
             $i = 0;
             foreach ($match as $key => $value) {
                 if (is_string($key)) {
@@ -242,14 +267,16 @@ final class Router
                 $i++;
             }
 
-            // Add extra call arguments if provided.
+            // Add extra call arguments if provided (in config as third field).
             if (isset($routes[$mark][2])) {
                 $callArgs = array_merge($callArgs, (array) $routes[$mark][2]);
             }
 
             $pack = self::pack($calls, $callArgs);
 
-            return ($method != null) ? $pack[$method] ?? $pack['*'] ?? null : $pack;
+            // Try to return defined method or all (*) methods.
+            return $method ? $pack[$method] ?? $pack['*'] ?? null
+                           : $pack;
         }
 
         $this->debug['match'] = $match;
@@ -273,14 +300,15 @@ final class Router
         $actions      = [];
         $actionParams = $callArgs;
 
-        foreach ($calls as $methods => $action) {
+        foreach ($calls as $methods => $call) {
             $methods = self::prepareMethods($methods);
 
             // Controller actions.
             // eg: ["/book/:id", "Book.show", ..].
             // eg: ["/book/:id", ["*" => "Book.show", "POST" => "Book.edit", ..]].
-            if (is_string($action)) {
-                @ [$controller, $action] = self::prepare($action);
+            if (is_string($call)) {
+                [$controller, $action] = self::prepare($call);
+
                 if (!$controller) {
                     throw new RouterException('No controller given in route');
                 }
@@ -292,9 +320,11 @@ final class Router
             // Callable actions.
             // eg: $app->get("/book/:id", function ($id) { .. }).
             // eg: $app->route("/book/:id", "GET", function ($id) { .. }).
-            elseif (is_callable($action)) {
+            elseif (is_callable($call)) {
+                [$controller, $action] = [self::$options['defaultController'], $call];
+
                 foreach ($methods as $method) {
-                    $actions[$method] = [Controller::DEFAULT, $action, $actionParams];
+                    $actions[$method] = [$controller, $action, $actionParams];
                 }
             }
             // No valid route options.
@@ -313,21 +343,23 @@ final class Router
      *
      * @param  string $call
      * @param  array  $callArgs
-     * @return array<string, string, array<string>>|array<void>
+     * @return array<string, string, array<string>>|array<null, null, null>
      */
     public static function prepare(string $call, array $callArgs = []): array
     {
-        // Suffixes ("Controller" and "Action") must not be used in call directives.
-        [$controller, $action] = array_pad(explode('.', $call), 2, null);
+        // Note: suffixes ("Controller" and "Action") must not be used in call directives (
+        // eg: Index for IndexController, Index.foo for IndexController.fooAction).
+        @ [$controller, $action] = explode('.', $call);
         if (!$controller) {
-            return [];
+            return [null, null, null];
         }
 
-        $controller = self::prepareControllerName($controller);
-        $action     = $action ?: Controller::INDEX_ACTION; // Make action default as index.
-        $action     = self::prepareControllerActionName($action);
-
-        return [$controller, $action, ($actionParams = $callArgs)];
+        // Return controller, action, actionParams.
+        return [
+            self::prepareControllerName($controller),
+            self::prepareActionName($action ?: self::$options['defaultAction']),
+            $callArgs
+        ];
     }
 
     /**
@@ -368,37 +400,42 @@ final class Router
      */
     public static function prepareControllerName(string $name, bool $full = true): string
     {
-        if (strpos($name, Controller::NAME_DEFAULT) === 0) {
-            $name = Controller::DEFAULT_NAME;
+        if ($name == Controller::NAME_DEFAULT) {
+            $name = self::$options['defaultController'];
         }
 
         $name = self::prepareName($name, Controller::SUFFIX);
 
+        // Fix namespaced name.
+        if ($pos = strrpos($name, '\\')) {
+            $name = strsub($name, $pos + 1);
+        }
+
+        // Make controller fully named & namespaced.
         if ($full) {
-            // Make controller fully named & namespaced.
-            $name = sprintf('%s\%s%s', Controller::NAMESPACE, $name, Controller::SUFFIX);
+            $name = Controller::NAMESPACE .'\\'. $name . Controller::SUFFIX;
         }
 
         return $name;
     }
 
     /**
-     * Prepares a controller action name.
+     * Prepares a (controller) action name.
      *
      * @param  string $name
      * @param  bool   $full
      * @return string
      */
-    public static function prepareControllerActionName(string $name, bool $full = true): string
+    public static function prepareActionName(string $name, bool $full = true): string
     {
-        if (strpos($name, Controller::NAME_DEFAULT) === 0) {
-            $name = Controller::INDEX_ACTION;
+        if ($name == Controller::NAME_DEFAULT) {
+            $name = self::$options['defaultAction'];
         }
 
         $name = self::prepareName($name, Controller::ACTION_SUFFIX);
 
+        // Make action suffixed, skipping special actions (index & error).
         if ($full && ($name != Controller::INDEX_ACTION && $name != Controller::ERROR_ACTION)) {
-            // Make action suffixed, skipping default actions (index && error).
             $name .= Controller::ACTION_SUFFIX;
         }
 
