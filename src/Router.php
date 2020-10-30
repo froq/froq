@@ -147,16 +147,16 @@ final class Router
     {
         // These generally comes from configuration.
         foreach ($routes as $route) {
-            [$route, $call, $callArgs] = array_pad((array) $route, 3, null);
+            @ [$route, $call, $callArgs] = (array) $route;
 
             if (is_array($call)) {
                 // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ..]]).
                 foreach ($call as $method => $call) {
-                    $this->addRoute($route, $method, $call, $callArgs);
+                    $this->addRoute($route, $method, $call, (array) $callArgs);
                 }
             } else {
                 // Single directive (eg: ["/book/:id", "Book.show"]).
-                $this->addRoute($route, '*', $call, $callArgs);
+                $this->addRoute($route, '*', $call, (array) $callArgs);
             }
         }
     }
