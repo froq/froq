@@ -443,6 +443,9 @@ final class App
         // Apply run options (user options) (@see skeleton/pub/index.php).
         @ ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
 
+        // Set router options first (for proper error() process).
+        isset($configs['router']) && $this->router->setOptions($configs['router']);
+
         if ($env == '' || $root == '') {
             throw new AppException('Options "env" or "root" must not be empty');
         }
@@ -450,10 +453,18 @@ final class App
         $this->env = $env;
         $this->root = $root;
 
-        $configs && $this->applyConfigs($configs);
+        if ($configs != null) {
+            // Apply dotenv configs.
+            if (pluck($configs, 'dotenv', $dotenv)) {
+                $this->applyDotenvConfigs(
+                    Config::parseDotenv($dotenv['file']),
+                    !!($dotenv['global'] ?? false), // @default
+                );
+            }
 
-        // Apply defaults (timezone, locales etc.).
-        $this->applyDefaults();
+            // Apply app configs.
+            $this->applyConfigs($configs);
+        }
 
         // Add headers & cookies if provided.
         [$headers, $cookies] = $this->config(['headers', 'cookies']);
@@ -490,7 +501,7 @@ final class App
         $route = $this->router->resolve(
             $uri     = $this->request->uri()->get('path'),
             $method  = null, // To check below it is allowed or not.
-            $options = $this->config->get('router'),
+            $options = $this->config->get('router')
         );
 
         $method = $this->request->method()->getName();
@@ -552,19 +563,27 @@ final class App
         $this->events->fire('app.error', $error);
 
         // Status may be changed later in @default.error().
-        // try {
-            $this->response->setStatusCode(Status::INTERNAL_SERVER_ERROR);
-        // } catch (Throwable $e) {}
+        $this->response->setStatusCode(Status::INTERNAL_SERVER_ERROR);
 
         // Clear outputs (@default.error() will work below for output).
         // while (ob_get_level()) {
         //     ob_end_clean();
         // }
 
-        $return = null;
-        // try {
-            $return = (new Controller($this))->forward('@default.error', [$error]);
-        // } catch (Throwable $e) {}
+        [$controller, $method]
+            = [$this->router->getOptions()['defaultController'], Controller::ERROR_ACTION];
+
+        if (!class_exists($controller)) {
+            throw new AppException('No default controller exists such "%s"',
+                [$controller]);
+        }
+        if (!method_exists($controller, $method)) {
+            throw new AppException('No default controller method exists such "%s::%s"',
+                [$controller, $method]);
+        }
+
+        // Call default error method of default controller.
+        $return = (new $controller($this))->{$method}($error);
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($return == null || is_string($return)) {
@@ -664,23 +683,7 @@ final class App
     {
         $this->config->update($configs);
 
-        // Set/reset logger options.
-        @ [['level' => $level, 'directory' => $directory], $routes, $services]
-            = $this->config->get(['logger', 'routes', 'services']);
-
-        $level     && $this->logger->setOption('level', $level);
-        $directory && $this->logger->setOption('directory', $directory);
-
-        $routes    && $this->router->addRoutes($routes);
-        $services  && $this->servicer->addServices($services);
-    }
-
-    /**
-     * Apply defaults.
-     * @return void
-     */
-    private function applyDefaults(): void
-    {
+        // Set timezone, encoding, locale options.
         [$timezone, $encoding, $locales]
             = $this->config->get(['timezone', 'encoding', 'locales']);
 
@@ -697,6 +700,33 @@ final class App
             // Must be like eg: [LC_TIME => 'en_US' or 'en_US.utf-8'].
             foreach ($locales as $category => $locale) {
                 setlocale($category, $locale);
+            }
+        }
+
+        // Set/reset logger options.
+        @ [['level' => $level, 'directory' => $directory], $routes, $services]
+            = $this->config->get(['logger', 'routes', 'services']);
+
+        $level     && $this->logger->setOption('level', $level);
+        $directory && $this->logger->setOption('directory', $directory);
+
+        $routes    && $this->router->addRoutes($routes);
+        $services  && $this->servicer->addServices($services);
+    }
+
+    /**
+     * Apply dotenv configs.
+     * @param  array $configs
+     * @param  bool  $global
+     * @return void
+     * @since  4.14
+     */
+    private function applyDotenvConfigs(array $configs, bool $global): void
+    {
+        foreach ($configs as $name => $value) {
+            putenv($name .'='. $value);
+            if ($global) {
+                $_ENV[$name] = $value;
             }
         }
     }

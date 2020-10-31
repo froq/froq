@@ -76,7 +76,7 @@ final class Router
      */
     public function __construct(array $options = null)
     {
-        self::$options = array_replace(self::$optionsDefault, $options ?? []);
+        self::setOptions($options ?? []);
     }
 
     /**
@@ -97,6 +97,29 @@ final class Router
     public function getDebug(): array
     {
         return $this->debug;
+    }
+
+    /**
+     * Set options.
+     * @param  array $options
+     * @return self
+     * @since  4.14
+     */
+    public final function setOptions(array $options): self
+    {
+        self::$options = array_replace(self::$optionsDefault, $options);
+
+        return $this;
+    }
+
+    /**
+     * Get options.
+     * @return array
+     * @since  4.14
+     */
+    public final function getOptions(): array
+    {
+        return self::$options;
     }
 
     /**
