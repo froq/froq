@@ -828,6 +828,38 @@ class Controller
     }
 
     /**
+     * Initializes a model object by given model/model class name. Throws a `ControllerException`
+     * if no such model class exists.
+     *
+     * @param  string                      $name
+     * @param  froq\mvc\Controller|null    $controller
+     * @param  froq\database\Database|null $database
+     * @return froq\mvc\Model (static)
+     * @since  4.13
+     */
+    public final function initModel(string $name, Controller $controller = null, Database $database = null): Model
+    {
+        $class = trim($name, '\\');
+
+        // If no full class name given.
+        if (!strpos($name, '\\')) {
+            $class = 'app\model\\'. ucfirst($name) . Model::SUFFIX;
+        }
+
+        if (!class_exists($class)) {
+            throw new ControllerException('Model class "%s" not exists',
+                $class);
+        }
+
+        if (!class_extends($class, Model::class)) {
+            throw new ControllerException('Model class "%s" must subclass of "%s" class',
+                [$class, Model::class]);
+        }
+
+        return new $class($controller ?? $this, $database ?? $this->database());
+    }
+
+    /**
      * Prepares an action's parameters to fulfill its required/non-required parameter need on
      * calltime/runtime.
      *

@@ -110,7 +110,7 @@ class Model
         $db = $database ?? $controller->getApp()->database();
         if ($db == null) {
             throw new ModelException('No database given to deal, be sure "database" option '.
-                'exists in configuration');
+                'exists in app configuration');
         }
 
         $this->db = $db;
@@ -437,8 +437,7 @@ class Model
     }
 
     /**
-     * Initializes a new model object by given model name. Throws a `ModelException` if no such
-     * model class exists.
+     * Initializes a model object by given model/model class name.
      *
      * @param  string                   $name
      * @param  froq\mvc\Controller|null $controller
@@ -446,12 +445,7 @@ class Model
      */
     public final function initModel(string $name, Controller $controller = null): Model
     {
-        $class = sprintf('app\model\%sModel', ucfirst($name));
-        if (!class_exists($class)) {
-            throw new ModelException(sprintf('Model class "%s" not found', $class));
-        }
-
-        return new $class($controller ?? $this->controller, $this->db);
+        return $this->controller->initModel($name, $controller, $this->db);
     }
 
     /**
@@ -476,7 +470,7 @@ class Model
     public final function initQuery(string $table = null): Query
     {
         // Try to get caller model table.
-        $table ??= $this->table ?? null;
+        $table ??= $this->getTable();
 
         return $this->db->initQuery($table);
     }
