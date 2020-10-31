@@ -79,13 +79,14 @@ function len(...$args)
  */
 function size($in, $mb = false)
 {
-    if (is_string($in))    return !$mb ? strlen($in) : mb_strlen($in);
-    if (is_countable($in)) return count($in);
-
-    if ($in && is_object($in)) {
-        if ($in instanceof stdClass)       return count((array) $in);
-        if (method_exists($in, 'count'))   return $in->count();
-        if (method_exists($in, 'toArray')) return count($in->toArray());
+    if (is_string($in)) {
+        return !$mb ? strlen($in) : mb_strlen($in);
+    }
+    if (is_countable($in)) {
+        return count($in);
+    }
+    if ($in instanceof stdClass) {
+        return count((array) $in);
     }
 
     return null; // No valid input.
@@ -93,8 +94,8 @@ function size($in, $mb = false)
 
 /**
  * Concat.
- * @param  array|string $in
- * @param  any          $ins
+ * @param  array|string    $in
+ * @param  array|string ...$ins
  * @return array|string|null
  * @since  4.0
  */
@@ -104,7 +105,7 @@ function concat($in, ...$ins)
         return array_merge($in, ...array_map(fn($v) => (array) $v, $ins));
     }
     if (is_string($in)) {
-        return $in . join('', array_map(fn($v) => (string) $v, $ins));
+        return $in . join('', $ins);
     }
 
     return null; // No valid input.
