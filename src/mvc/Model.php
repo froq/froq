@@ -91,7 +91,7 @@ class Model
      * Data.
      * @var ?array<string, any>
      */
-    private ?array $data = null;
+    private ?array $data;
 
     /**
      * Constructor.
@@ -228,7 +228,7 @@ class Model
      */
     public final function getData(): ?array
     {
-        return $this->data;
+        return $this->data ?? null;
     }
 
     /**
@@ -240,7 +240,7 @@ class Model
     public final function load(array $data): self
     {
         foreach ($data as $key => $value) {
-            $this->set($key, $value);
+            $this->data[$key] = $value;
         }
 
         return $this;
@@ -365,14 +365,16 @@ class Model
      * value updating current row, otherwise returns affected rows count inserting new data set.
      * Throws a `ModelException` if empty data set given.
      *
+     * Note: @param/@return not given here to method to free user from "Holy Method Signature" stuff.
+     *
      * @param  array|null $data
      * @return int
      */
-    public function save(array $data = null): int
+    public function save()
     {
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
 
-        $data = $data ?? $this->getData();
+        $data =@ (array) (func_get_arg(0) ?: $this->getData());
         if (!$data) {
             throw new ModelException('Non-empty data required to use "%s()"', [__method__]);
         }
@@ -407,12 +409,19 @@ class Model
     /**
      * Finds a row entry by given primary value if exists, otherwise returns null.
      *
+     * Note: @param/@return not given here to method to free user from "Holy Method Signature" stuff.
+     *
      * @param  int $id
      * @return ?array|?object
      */
-    public function find(int $id)
+    public function find()
     {
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
+
+        $id =@ (int) func_get_arg(0);
+        if (!$id) {
+            throw new ModelException('Non-empty primary required to use "%s()"', [__method__]);
+        }
 
         return $this->initQuery($table)->select('*')
                     ->equal($tablePrimary, $id)
@@ -422,12 +431,19 @@ class Model
     /**
      * Removes a row entry by given primary value and returns affected rows count.
      *
+     * Note: @param/@return not given here to method to free user from "Holy Method Signature" stuff.
+     *
      * @param  int $id
      * @return int
      */
-    public function remove(int $id): int
+    public function remove()
     {
         [$table, $tablePrimary] = $this->packTableStuff(__method__);
+
+        $id =@ (int) func_get_arg(0);
+        if (!$id) {
+            throw new ModelException('Non-empty primary required to use "%s()"', [__method__]);
+        }
 
         return $this->db->transaction(function () use ($table, $tablePrimary, $id) {
             return $this->initQuery($table)->delete()
