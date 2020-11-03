@@ -44,20 +44,20 @@ final class Autoloader
     private static self $instance;
 
     /**
-     * Directory.
-     * @var string
-     */
-    private string $directory;
-
-    /**
-     * Locations.
+     * Directives.
      * @var array<int, array<string>>
      */
-    private array $locations = [
+    private static array $directives = [
         0 => ['app/controller', '/app/system/%s/%s.php'],
         1 => ['app/model'     , '/app/system/%s/model/%s.php'],
         2 => ['app/library'   , '/app/library/%s.php'],
     ];
+
+    /**
+     * Directory.
+     * @var string
+     */
+    private string $directory;
 
     /**
      * Constructor.
@@ -118,16 +118,16 @@ final class Autoloader
 
         if (strpos($name, 'app/') === 0) {
             // User controller objects (eg: FooController => app/system/Foo/FooController.php).
-            if (strpos($name, $this->locations[0][0]) === 0) {
+            if (strpos($name, self::$directives[0][0]) === 0) {
                 $this->checkAppDir();
 
                 preg_match('~([A-Z][a-zA-Z0-9]+)Controller$~', $name, $match);
                 if ($match) {
-                    $file = APP_DIR . sprintf($this->locations[0][1], $match[1], $match[0]);
+                    $file = APP_DIR . sprintf(self::$directives[0][1], $match[1], $match[0]);
                 }
             }
             // User model objects (eg: FooModel => app/system/Foo/model/FooModel.php).
-            elseif (strpos($name, $this->locations[1][0]) === 0) {
+            elseif (strpos($name, self::$directives[1][0]) === 0) {
                 $this->checkAppDir();
 
                 // A model folder checked for only these objects, eg: Model, FooModel, FooEntity, FooEntityArray.
@@ -136,15 +136,15 @@ final class Autoloader
                 // to eg: $app->get("/book/:id", function ($id) { ... }).
                 preg_match('~([A-Z][a-zA-Z0-9]+)(Model|ModelException|Entity|EntityArray)$~', $name, $match);
                 if ($match) {
-                    $file = APP_DIR . sprintf($this->locations[1][1], $match[1], $match[0]);
+                    $file = APP_DIR . sprintf(self::$directives[1][1], $match[1], $match[0]);
                 }
             }
             // User library objects (eg: Foo => app/library/Foo.php).
-            elseif (strpos($name, $this->locations[2][0]) === 0) {
+            elseif (strpos($name, self::$directives[2][0]) === 0) {
                 $this->checkAppDir();
 
-                $base = substr($name, strlen($this->locations[2][0]) + 1);
-                $file = APP_DIR . sprintf($this->locations[2][1], $base);
+                $base = substr($name, strlen(self::$directives[2][0]) + 1);
+                $file = APP_DIR . sprintf(self::$directives[2][1], $base);
             }
         }
         // Most objects loaded by Composer, but in case this part is just a fallback.

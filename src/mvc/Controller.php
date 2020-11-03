@@ -323,6 +323,7 @@ class Controller
     {
         if (!isset($this->view)) {
             $layout = $this->app->config('view.layout');
+
             if (!$layout) {
                 throw new ControllerException('No "view.layout" option found in configuration');
             }
@@ -342,11 +343,19 @@ class Controller
     public final function loadModel(): void
     {
         if (!isset($this->model)) {
-            $name  = $this->getShortName();
-            $class = sprintf('app\model\%sModel', $name);
+            $name = $this->getShortName();
+            $namespace = $this->app->config('model.namespace'); // Eg: "foo\bar\model".
+
+            $class = ($namespace ?? Model::NAMESPACE) .'\\'. $name . Model::SUFFIX;
+
             if (!class_exists($class)) {
-                throw new ControllerException( 'Model class "%s" not found, be sure file '.
-                    '"app/system/%s/model/%sModel.php" exists', [$class, $name, $name]);
+                throw new ControllerException("Model class '%s' not found, be sure file ".
+                    "'app/system/%s/model/%sModel.php' exists or option 'model.namespace' fully ".
+                    "qualifies namespace resolution when given in configuration",
+                    [$class, $name, $name]);
+            } elseif (!class_extends($class, Model::class)) {
+                throw new ControllerException('Model "%s" class must be subclass of "%s" class',
+                    [$class, Model::class]);
             }
 
             $this->model = new $class($this);
@@ -363,6 +372,7 @@ class Controller
     public final function loadSession(): void
     {
         $session = $this->app->session();
+
         if (!$session) {
             throw new ControllerException('App has no session object (check "session" option in '.
                 'configuration and be sure it is not null)');
@@ -843,16 +853,13 @@ class Controller
 
         // If no full class name given.
         if (!strpos($name, '\\')) {
-            $class = 'app\model\\'. ucfirst($name) . Model::SUFFIX;
+            $class = Model::NAMESPACE .'\\'. $name . Model::SUFFIX;
         }
 
         if (!class_exists($class)) {
-            throw new ControllerException('Model class "%s" not exists',
-                $class);
-        }
-
-        if (!class_extends($class, Model::class)) {
-            throw new ControllerException('Model class "%s" must subclass of "%s" class',
+            throw new ControllerException('Model class "%s" not exists', [$class]);
+        } elseif (!class_extends($class, Model::class)) {
+            throw new ControllerException('Model "%s" class must be subclass of "%s" class',
                 [$class, Model::class]);
         }
 

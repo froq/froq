@@ -44,10 +44,16 @@ use froq\mvc\{ModelException, Controller};
 class Model
 {
     /**
+     * Namespace.
+     * @const string
+     */
+    public const NAMESPACE  = 'app\model';
+
+    /**
      * Suffix.
      * @const string
      */
-    public const SUFFIX = 'Model';
+    public const SUFFIX     = 'Model';
 
     /**
      * Controller.
