@@ -75,29 +75,22 @@ class Model
 
     /**
      * Validation rules.
-     * @var ?array
+     * @var array
      * @since 4.9
      */
-    protected ?array $validationRules;
+    protected array $validationRules;
 
     /**
      * Validation options.
-     * @var ?array
+     * @var array
      * @since 4.9
      */
-    protected ?array $validationOptions;
-
-    /**
-     * Data.
-     * @var ?array<string, any>
-     */
-    private ?array $data;
+    protected array $validationOptions;
 
     /**
      * Constructor.
      *
-     * Creates a new `Database` object if not already given and calls `init()` method if
-     * defined in subclass.
+     * Creates a new `Model` and calls `init()` method if defined in subclass.
      *
      * @param  froq\mvc\Controller         $controller
      * @param  froq\database\Database|null $database
@@ -119,6 +112,15 @@ class Model
             $this->init();
         }
 
+        // @todo: For 5.0 version.
+        // // If one of these provided in child model, then will be used by Record object.
+        // $this->record = new Record($db, [
+        //     'table'             => $this->table ?? null,
+        //     'tablePrimary'      => $this->tablePrimary ?? null,
+        //     'validationRules'   => $this->validationRules ?? null,
+        //     'validationOptions' => $this->validationOptions ?? null,
+        // ]);
+
         // Store (last) model.
         Registry::set('@model', $this, true);
     }
@@ -138,7 +140,7 @@ class Model
      *
      * @return froq\database\Database
      */
-    public final function getDb(): Database
+    public final function db(): Database
     {
         return $this->db;
     }
@@ -148,7 +150,7 @@ class Model
      *
      * @return ?string
      */
-    public final function getTable(): ?string
+    public final function table(): ?string
     {
         return $this->table ?? null;
     }
@@ -158,298 +160,72 @@ class Model
      *
      * @return ?string
      */
-    public final function getTablePrimary(): ?string
+    public final function tablePrimary(): ?string
     {
         return $this->tablePrimary ?? null;
     }
 
     /**
-     * Sets a data value with given key.
+     * Validates given data by key given rules, also modifies given `$data` and fills `$fails`
+     * if validation not passes.
      *
-     * @param  string $key
-     * @param  any    $value
-     * @return self
-     */
-    public final function set(string $key, $value): self
-    {
-        $this->data[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Gets a data value with given key if set in data, otherwise returns `$valueDefault` value.
-     *
-     * @param string $key
-     * @param any    $valueDefault
-     */
-    public final function get(string $key, $valueDefault = null)
-    {
-        return $this->data[$key] ?? $valueDefault;
-    }
-
-    /**
-     * Checks a data value is set or not.
-     *
-     * @param  string $key
-     * @return bool
-     */
-    public final function isset(string $key): bool
-    {
-        return isset($this->data[$key]);
-    }
-
-    /**
-     * Removes a data value with given key from data array.
-     *
-     * @param  string $key
-     * @return void
-     */
-    public final function unset(string $key): void
-    {
-        unset($this->data[$key]);
-    }
-
-    /**
-     * Sets the data property.
-     *
-     * @param  array<string, any> $data
-     * @return void
-     */
-    public final function setData(array $data): void
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * Gets the data property if set, otherwise returns null.
-     *
-     * @return ?array<string, any>
-     */
-    public final function getData(): ?array
-    {
-        return $this->data ?? null;
-    }
-
-    /**
-     * Loads the given data set into `$data` property.
-     *
-     * @param  array<string, any> $data
-     * @return self
-     */
-    public final function load(array $data): self
-    {
-        foreach ($data as $key => $value) {
-            $this->data[$key] = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Unloads `$data` property.
-     *
-     * @return self
-     */
-    public final function unload(): self
-    {
-        $this->data = null;
-
-        return $this;
-    }
-
-    /**
-     * Runs a query command.
-     *
-     * @param  string                    $query
-     * @param  array|null                $queryParams
-     * @param  string|array<string>|null $fetchOptions
-     * @return froq\database\Result
-     */
-    public final function query(string $query, array $queryParams = null, $fetchOptions = null): Result
-    {
-        return $this->db->query($query, $queryParams, $fetchOptions);
-    }
-
-    /**
-     * Executes a query command.
-     *
-     * @param  string     $query
-     * @param  array|null $queryParams
-     * @return ?int
-     * @since  4.5
-     */
-    public final function execute(string $query, array $queryParams = null): ?int
-    {
-        return $this->db->execute($query, $queryParams);
-    }
-
-    /**
-     * Wraps a transaction.
-     *
-     * @param  callable      $call
-     * @param  callable|null $callError
-     * @return any
-     * @since  4.7
-     */
-    public final function transaction(callable $call, callable $callError = null)
-    {
-        return $this->db->transaction($call, $callError);
-    }
-
-    /**
-     * Validates given data getting rules by key from validation file, also modifies given `$data`
-     * and fills `$fails` if validation not passes.
-     *
-     * @param  string       $key
      * @param  array       &$data
+     * @param  array        $rules
      * @param  array|null  &$fails
-     * @param  bool         $dropUndefinedFields
      * @param  array|null   $options
      * @return bool
-     * @throws froq\mvc\ModelException
      * @since  4.8
      */
-    public final function validate(string $key, array &$data = null, array &$fails = null,
-        bool $dropUndefinedFields = true, array $options = null): bool
+    public final function validate(array &$data, array $rules, array &$fails = null, array $options = null): bool
     {
-        $data = $data ?? $this->getData();
-        if (!$data) {
-            throw new ModelException('Non-empty data required for validation');
-        }
-
         // Validation rules & options can be also defined in child models.
-        $validationRules = $this->validationRules ?? null;
-        $validationOptions = $options ?? $this->validationOptions ?? null;
+        $rules ??= $this->validationRules ?? null;
+        $options ??= $this->validationOptions ?? null;
 
-        if (!$validationRules) {
-            $file = APP_DIR .'/app/config/validations.php';
-            if (!is_file($file)) {
-                throw new ModelException('No validations file "%s" exists', [$file]);
-            }
+        $validation = new Validation($rules, $options);
 
-            $validationRules = include $file;
-        }
-
-        if (empty($validationRules[$key])) {
-            throw new ModelException('No rules found for "%s"', [$key]);
-        }
-
-        $validation = new Validation($validationRules, $validationOptions);
-
-        return $validation->validate($key, $data, $fails);
+        return $validation->validate($data, $fails);
     }
 
     /**
-     * Counts the rows of a table (by where / where params if provided).
+     * Load validations rules from given file.
      *
-     * @param  string|null $table
-     * @param  string|null $where
-     * @param  array|null  $whereParams
-     * @return int
-     * @since  4.6
+     * @param  string|null $file
+     * @param  string      $key
+     * @return array
+     * @throws froq\mvc\ModelException
+     * @since  4.15
      */
-    public final function count(string $table = null, string $where = null, array $whereParams = null): int
+    public final function loadValidations(string $file = null): array
     {
-        $table ??= $this->getTable();
-        if (!$table) {
-            throw new ModelException('No table to count from $table argument or model object(%s)',
-                [static::class]);
+        // Try to load default file from config directory (or directory, eg: config/user/add).
+        $file = APP_DIR .'/app/config/'. ($file ?: 'validations') .'.php';
+
+        if (!is_file($file)) {
+            throw new ModelException('No validations file "%s" exists', [$file]);
         }
 
-        return $this->db->count($table, $where, $whereParams);
+        return include $file;
     }
 
     /**
-     * Save a row entry with given data set. If primary provided in data set, returns new primary
-     * value updating current row, otherwise returns affected rows count inserting new data set.
-     * Throws a `ModelException` if empty data set given.
+     * Load validations rules (from given file if provided) with given key.
      *
-     * Note: @param/@return not given here to method to free user from "Holy Method Signature" stuff.
-     *
-     * @param  array|null $data
-     * @return int
+     * @param  string|null $file
+     * @param  string      $key
+     * @return array
+     * @throws froq\mvc\ModelException
+     * @since  4.15
      */
-    public function save()
+    public final function loadValidationRules(string $file = null, string $key): array
     {
-        [$table, $tablePrimary] = $this->packTableStuff(__method__);
+        $validations = $this->loadValidations($file);
 
-        $data =@ (array) (func_get_arg(0) ?: $this->getData());
-        if (!$data) {
-            throw new ModelException('Non-empty data required to use "%s()"', [__method__]);
+        if (empty($validations[$key])) {
+            throw new ModelException('No rules found for "%s" key', [$key]);
         }
 
-        // Get id if exists.
-        $id = $data[$tablePrimary] ?? null;
-
-        if ($id === null) {
-            // Insert action.
-            return $this->db->transaction(function () use ($data, $table, $tablePrimary) {
-                $id = $this->initQuery($table)->insert($data)
-                           ->run()->id();
-
-                // Set primary value with new id.
-                $this->data[$tablePrimary] = $id;
-
-                return (int) $id;
-            });
-        } else {
-            // Update action.
-            return $this->db->transaction(function () use ($data, $table, $tablePrimary, $id) {
-                // Not needed in data set.
-                unset($data[$tablePrimary]);
-
-                return $this->initQuery($table)->update($data)
-                            ->equal($tablePrimary, (int) $id)
-                            ->run()->count();
-            });
-        }
-    }
-
-    /**
-     * Finds a row entry by given primary value if exists, otherwise returns null.
-     *
-     * Note: @param/@return not given here to method to free user from "Holy Method Signature" stuff.
-     *
-     * @param  int $id
-     * @return ?array|?object
-     */
-    public function find()
-    {
-        [$table, $tablePrimary] = $this->packTableStuff(__method__);
-
-        $id =@ (int) func_get_arg(0);
-        if (!$id) {
-            throw new ModelException('Non-empty primary required to use "%s()"', [__method__]);
-        }
-
-        return $this->initQuery($table)->select('*')
-                    ->equal($tablePrimary, $id)
-                    ->get();
-    }
-
-    /**
-     * Removes a row entry by given primary value and returns affected rows count.
-     *
-     * Note: @param/@return not given here to method to free user from "Holy Method Signature" stuff.
-     *
-     * @param  int $id
-     * @return int
-     */
-    public function remove()
-    {
-        [$table, $tablePrimary] = $this->packTableStuff(__method__);
-
-        $id =@ (int) func_get_arg(0);
-        if (!$id) {
-            throw new ModelException('Non-empty primary required to use "%s()"', [__method__]);
-        }
-
-        return $this->db->transaction(function () use ($table, $tablePrimary, $id) {
-            return $this->initQuery($table)->delete()
-                        ->equal($tablePrimary, $id)
-                        ->run()->count();
-        });
+        return $validations[$key];
     }
 
     /**
@@ -485,29 +261,6 @@ class Model
      */
     public final function initQuery(string $table = null): Query
     {
-        // Try to get caller model table.
-        $table ??= $this->getTable();
-
-        return $this->db->initQuery($table);
-    }
-
-    /**
-     * Packs table stuff with table name and table primary. Throws a `ModelException` if no
-     * `$table` or `$tablePrimary` property defined in subclass.
-     *
-     * @param  string $method
-     * @return array<string>
-     */
-    private final function packTableStuff(string $method): array
-    {
-        $table        = $this->getTable();
-        $tablePrimary = $this->getTablePrimary();
-
-        if (!$table || !$tablePrimary) {
-            throw new ModelException('Both $table and $tablePrimary properties must be '.
-                'defined in class "%s" to use "%s()"', [static::class, $method]);
-        }
-
-        return [$table, $tablePrimary];
+        return $this->db->initQuery($table ?? $this->table ?? null);
     }
 }
