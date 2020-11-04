@@ -157,15 +157,18 @@ final class Autoloader
         if ($file && is_file($file)) {
             require $file;
         } else {
-            $dir = defined('APP_DIR') ? APP_DIR .'/' : '';
+            // Note: this part is for only local development purporses, normally Composer will
+            // do it's job until here.
+
+            $this->checkAppDir();
 
             static $autoload;
 
             // Memoize autoload data.
             if ($autoload !== false) {
-                $composerFile = $dir ? $dir .'composer.json' : '';
-                if ($composerFile && is_file($composerFile)) {
-                    $composerFileData =@ json_decode(file_get_contents($composerFile), true);
+                $composerFile = APP_DIR .'/composer.json';
+                if (is_file($composerFile)) {
+                    $composerFileData = json_decode(file_get_contents($composerFile), true);
                     // Both "psr-4" & "froq" accepted.
                     if (empty($composerFileData['autoload']['psr-4'])
                         && empty($composerFileData['autoload']['froq'])) {
@@ -180,11 +183,14 @@ final class Autoloader
             // Try to load via autoload.
             if ($autoload) {
                 $nameOrig = strtr($name, '/', '\\');
-                foreach ($autoload as $ns => $np) {
-                    $name = preg_replace('~^'. preg_quote($ns) .'~', $np, $nameOrig);
-                    $name = strtr($name, '\\', '/');
+                foreach ($autoload as $ns => $dir) {
+                    if (strpos($nameOrig, $ns) === false) {
+                        continue;
+                    }
 
-                    $file = $dir . $name .'.php';
+                    $name = strtr(substr($nameOrig, strlen($ns)), '\\', '/');
+                    $file = APP_DIR .'/'. $dir .'/'. $name .'.php';
+
                     if (is_file($file)) {
                         require $file;
                         return;
