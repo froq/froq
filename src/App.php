@@ -570,8 +570,7 @@ final class App
         //     ob_end_clean();
         // }
 
-        [$controller, $method]
-            = [$this->router->getOptions()['defaultController'], Controller::ERROR_ACTION];
+        [$controller, $method] = [$this->router->getOptions()['defaultController'], Controller::ERROR_ACTION];
 
         if (!class_exists($controller)) {
             throw new AppException('No default controller exists such "%s"',
