@@ -119,8 +119,8 @@ class Model
         }
 
         // @todo: For 5.0 version.
-        // // If one of these provided in child model, then will be used by Record object.
-        // $this->record = new Record($db, [
+        // // If one of these provided in child model, then will be used by Recorder object.
+        // $this->recorder = new Recorder($db, [
         //     'table'             => $this->table ?? null,
         //     'tablePrimary'      => $this->tablePrimary ?? null,
         //     'validationRules'   => $this->validationRules ?? null,
