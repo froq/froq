@@ -150,7 +150,7 @@ final class App
             = [APP_DIR, new Config(), new Logger(), new Events(), new Router(), new Servicer()];
 
         // Register app.
-        Registry::set('@app', $this, true);
+        Registry::set('@app', $this, false);
 
         // Register handlers.
         Handler::registerErrorHandler();
@@ -495,7 +495,7 @@ final class App
         }
 
         // @override
-        Registry::set('@app', $this);
+        Registry::set('@app', $this, true);
 
         // Resolve route.
         $route = $this->router->resolve(
