@@ -128,7 +128,7 @@ class Model
         // ]);
 
         // Store (last) model.
-        Registry::set('@model', $this, true);
+        Registry::set('@model', $this, false);
     }
 
     /**

@@ -182,7 +182,7 @@ class Controller
         }
 
         // Store (last) controller.
-        Registry::set('@controller', $this, true);
+        Registry::set('@controller', $this, false);
 
         // Set before/after ticks these called in call() method.
         $this->before = method_exists($this, 'before');
