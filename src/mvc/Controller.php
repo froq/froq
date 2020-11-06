@@ -344,21 +344,22 @@ class Controller
     {
         if (!isset($this->model)) {
             $name = $this->getShortName();
-            $namespace = $this->app->config('model.namespace'); // Eg: "foo\bar\model".
+            $config = $this->app->config('model');
 
-            $class = ($namespace ?? Model::NAMESPACE) .'\\'. $name . Model::SUFFIX;
-
-            if (!class_exists($class)) {
-                throw new ControllerException("Model class '%s' not found, be sure file ".
-                    "'app/system/%s/model/%sModel.php' exists or option 'model.namespace' fully ".
-                    "qualifies namespace resolution when given in configuration",
-                    [$class, $name, $name]);
-            } elseif (!class_extends($class, Model::class)) {
-                throw new ControllerException('Model "%s" class must be subclass of "%s" class',
-                    [$class, Model::class]);
+            // Map can be defined in config (eg: ["Foo" => "app\foo\FooModel"])
+            if (!empty($config['map'])) {
+                foreach ($config['map'] as $controllerName => $class) {
+                    if ($controllerName == $name) {
+                        break;
+                    }
+                }
             }
 
-            $this->model = new $class($this);
+            // Use found name in config map or self name.
+            $class ??= ($config['namespace'] ?? Model::NAMESPACE)
+                .'\\'. $name . Model::SUFFIX;
+
+            $this->model = $this->initModel($class);
         }
     }
 
@@ -853,7 +854,8 @@ class Controller
 
         // If no full class name given.
         if (!strpos($name, '\\')) {
-            $class = Model::NAMESPACE .'\\'. $name . Model::SUFFIX;
+            $class = $this->app->config('model.namespace', Model::NAMESPACE)
+                .'\\'. $name . Model::SUFFIX;
         }
 
         if (!class_exists($class)) {
