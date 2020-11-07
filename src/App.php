@@ -702,15 +702,13 @@ final class App
             }
         }
 
-        // Set/reset logger options.
-        @ [['level' => $level, 'directory' => $directory], $routes, $services]
+        // Set/reset options.
+        [$logger, $routes, $services]
             = $this->config->get(['logger', 'routes', 'services']);
 
-        $level     && $this->logger->setOption('level', $level);
-        $directory && $this->logger->setOption('directory', $directory);
-
-        $routes    && $this->router->addRoutes($routes);
-        $services  && $this->servicer->addServices($services);
+        $logger   && $this->logger->setOptions($logger);
+        $routes   && $this->router->addRoutes($routes);
+        $services && $this->servicer->addServices($services);
     }
 
     /**
