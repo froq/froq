@@ -160,9 +160,8 @@ final class Autoloader
             // Note: this part is for only local development purporses, normally Composer will
             // do it's job until here.
 
-            $this->checkAppDir();
-
             static $autoload;
+            $autoload ??= defined('APP_DIR');
 
             // Memoize autoload data.
             if ($autoload !== false) {
