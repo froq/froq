@@ -259,7 +259,7 @@ class Controller
         $name = $this->getName();
 
         if (strsfx($name, self::SUFFIX)) {
-            $name = strsub($name, 0, -strlen(self::SUFFIX));
+            $name = substr($name, 0, -strlen(self::SUFFIX));
         }
 
         return $name;
@@ -285,7 +285,7 @@ class Controller
         $action = $this->getActionName();
 
         if (strsfx($action, self::ACTION_SUFFIX)) {
-            $action = strsub($action, 0, -strlen(self::ACTION_SUFFIX));
+            $action = substr($action, 0, -strlen(self::ACTION_SUFFIX));
         }
 
         return $action;

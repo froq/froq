@@ -407,7 +407,7 @@ final class Router
 
             // Add/drop suffix.
             $name = !$suffixed
-                  ? (strsfx($name, $suffix) ? strsub($name, 0, -strlen($suffix)) : $name)
+                  ? (strsfx($name, $suffix) ? substr($name, 0, -strlen($suffix)) : $name)
                   : ($name . $suffix);
         }
 
@@ -431,7 +431,7 @@ final class Router
 
         // Fix namespaced name.
         if ($pos = strrpos($name, '\\')) {
-            $name = strsub($name, $pos + 1);
+            $name = substr($name, $pos + 1);
         }
 
         // Make controller fully named & namespaced.
