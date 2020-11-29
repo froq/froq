@@ -3,17 +3,14 @@
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 <https://opensource.org/licenses/apache-2.0>
  */
-
-// Ensure request scheme.
-$_SERVER['REQUEST_SCHEME'] ??= 'http'. (
-    (($_SERVER['SERVER_PORT'] ?? '') == '443') ? 's' : ''
-);
+declare(strict_types=0);
 
 // Used to detect local environment.
 defined('__local__') || define('__local__',
        in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1'], true)
     || in_array(strrchr($_SERVER['SERVER_NAME'] ?? '', '.'), ['.local', '.localhost'], true)
 );
+defined('__LOCAL__') || define('__LOCAL__', __local__);
 
 // Show all errors if local.
 if (__local__) {
