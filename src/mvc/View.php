@@ -119,10 +119,10 @@ final class View
         $fileLayout = $this->layout ?? '';
 
         if (!is_file($file)) {
-            throw new ViewException('View file "%s" is not exists', [$file]);
+            throw new ViewException("View file '%s' is not exist", $file);
         }
         if (!is_file($fileLayout)) {
-            throw new ViewException('View layout file "%s" is not exists', [$fileLayout]);
+            throw new ViewException("View layout file '%s' is not exist", $fileLayout);
         }
 
         $fileData ??= [];
@@ -167,12 +167,11 @@ final class View
      */
     private function prepareFile(string $file): string
     {
-        if (substr($file, -4) == '.php') {
+        if (strsfx($file, '.php')) {
             $file = substr($file, 0, -4);
         }
 
-        return sprintf(
-            '%s/app/system/%s/view/%s.php',
+        return sprintf('%s/app/system/%s/view/%s.php',
             APP_DIR, $this->controller->getShortName(), $file);
     }
 }

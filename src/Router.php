@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\mvc\{Controller, Model};
 use froq\RouterException;
+use froq\mvc\{Controller, Model};
 
 /**
  * Router.
@@ -192,7 +192,7 @@ final class Router
         $patterns = [];
         foreach ($routes as $i => [$pattern]) {
             if (empty($pattern)) {
-                throw new RouterException('No pattern given for route "%s"', [$i]);
+                throw new RouterException("No pattern given for route '%s'", $i);
             }
 
             // Format named parameters if given.
@@ -246,7 +246,7 @@ final class Router
 
             $mark = (int) $match['MARK'];
             if (empty($routes[$mark][1])) {
-                throw new RouterException('No call directives found for route "%s"', [$mark]);
+                throw new RouterException("No call directives found for route '%s'", $mark);
             }
 
             $this->debug['mark'] = $mark;

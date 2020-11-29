@@ -7,12 +7,12 @@ declare(strict_types=1);
 
 namespace froq;
 
+use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
+use froq\{config\Config, logger\Logger, event\Events, session\Session, database\Database};
+use froq\http\{Request, Response, response\Status};
+use froq\cache\{Cache, cache\CacheFactory};
 use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
-use froq\http\{Request, Response, response\Status};
-use froq\{config\Config, logger\Logger, event\Events};
-use froq\{session\Session, database\Database, cache\Cache, cache\CacheFactory};
-use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use Throwable;
 
 /**
@@ -212,8 +212,8 @@ final class App
             return $this->config->get($key, $valueDefault);
         }
 
-        throw new AppException('Only string, array and null keys allowed for "%s()" method, '.
-            '"%s" given', [__method__, gettype($key)]);
+        throw new AppException("Only string, array and null keys allowed for '%s()', %s given",
+            [__method__, gettype($key)]);
     }
 
     /**
@@ -284,8 +284,8 @@ final class App
     public function cache($key = null, $value = null, int $ttl = null)
     {
         if (!isset($this->cache)) {
-            throw new AppException('No cache agent initiated yet, be sure "cache" field is '.
-                'not empty in config');
+            throw new AppException("No cache agent initiated yet, be sure 'cache' field is "
+                . "not empty in config");
         }
 
         switch (func_num_args()) {
@@ -305,8 +305,8 @@ final class App
     public function uncache($key): bool
     {
         if (!isset($this->cache)) {
-            throw new AppException('No cache agent initiated yet, be sure "cache" field is '.
-                'not empty in config');
+            throw new AppException("No cache agent initiated yet, be sure 'cache' field is "
+                . "not empty in config");
         }
 
         return $this->cache->remove($key);
@@ -429,7 +429,7 @@ final class App
         isset($configs['router']) && $this->router->setOptions($configs['router']);
 
         if ($env == '' || $root == '') {
-            throw new AppException('Options "env" or "root" must not be empty');
+            throw new AppException("Options 'env' or 'root' must not be empty");
         }
 
         $this->env = $env;
@@ -490,7 +490,7 @@ final class App
 
         // Found but no method allowed?
         if ($route != null && !isset($route[$method]) && !isset($route['*'])) {
-            throw new AppException('No method "%s" allowed for URI: "%s"',
+            throw new AppException("No method '%s' allowed for URI: '%s'",
                 [$method, htmlspecialchars(rawurldecode($uri))], Status::METHOD_NOT_ALLOWED);
         }
 
@@ -498,16 +498,16 @@ final class App
 
         // Not found?
         if ($controller == null) {
-            throw new AppException('No controller route found for URI: "%s %s"',
+            throw new AppException("No controller route found for URI: '%s %s'",
                 [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
         } elseif ($action == null) {
-            throw new AppException('No action route found for URI: "%s %s"',
+            throw new AppException("No action route found for URI: '%s %s'",
                 [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
         } elseif (!class_exists($controller)) {
-            throw new AppException('No controller class found such "%s"',
+            throw new AppException("No controller class found such '%s'",
                 [$controller], Status::NOT_FOUND);
         } elseif (!is_callable($action) && !is_callable([$controller, $action])) {
-            throw new AppException('No controller action found such "%s::%s()"',
+            throw new AppException("No controller action found such '%s::%s()'",
                 [$controller, $action], Status::NOT_FOUND);
         }
 
@@ -552,14 +552,15 @@ final class App
         //     ob_end_clean();
         // }
 
-        [$controller, $method] = [$this->router->getOptions()['defaultController'], Controller::ERROR_ACTION];
+        [$controller, $method] =
+            [$this->router->getOptions()['defaultController'], Controller::ERROR_ACTION];
 
         if (!class_exists($controller)) {
-            throw new AppException('No default controller exists such "%s"',
+            throw new AppException("No default controller exists such '%s'",
                 [$controller]);
         }
         if (!method_exists($controller, $method)) {
-            throw new AppException('No default controller method exists such "%s::%s"',
+            throw new AppException("No default controller method exists such '%s::%s'",
                 [$controller, $method]);
         }
 
@@ -570,7 +571,7 @@ final class App
         if ($return == null || is_string($return)) {
             $displayErrors = ini('display_errors', '', true);
             if ($displayErrors) {
-                $return = trim($error ."\n\n". $return);
+                $return = trim($error . "\n\n" . $return);
             }
         }
 

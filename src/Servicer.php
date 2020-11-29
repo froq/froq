@@ -54,19 +54,19 @@ final class Servicer
     {
         if (is_array($service)) {
             @ [$class, $classArgs] = $service;
-            if (!$class) {
-                throw new ServicerException('Service class must be provided and fully namespaced '.
-                    'for array-ed service registrations');
+            if ($class == null) {
+                throw new ServicerException('Service class must be provided and fully namespaced '
+                    . 'for array-ed service registrations');
             } elseif (!class_exists($class)) {
-                throw new ServicerException('Service class "%s" not found', [$class]);
+                throw new ServicerException("Service class '%s' not found", $class);
             }
 
             $this->services[$name] = !$classArgs ? new $class()
                 : new $class(...array_values((array) $classArgs));
-        } elseif (is_callable($service)) {
+        } elseif (is_object($service) || is_callable($service)) {
             $this->services[$name] = $service;
         } else {
-            throw new ServicerException('Only array and callable service registrations are allowed');
+            throw new ServicerException('Only array, object and callable service registrations are allowed');
         }
     }
 

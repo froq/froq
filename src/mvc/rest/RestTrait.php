@@ -45,7 +45,7 @@ trait RestTrait
             return $this->call($method, $params, false);
         }
 
-        throw new RestException('No "%s()" method defined on "%s" class for "%s" calls',
+        throw new RestException("No '%s()' method defined on '%s' class for '%s' calls",
                 [strtolower($method), get_class($this), strtoupper($method)], Status::NOT_FOUND);
     }
 }

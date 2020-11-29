@@ -7,12 +7,10 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\{App, Router};
-use froq\common\objects\Registry;
-use froq\{session\Session, database\Database};
+use froq\mvc\{ControllerException, View, Model};
 use froq\http\{Request, Response, request\Segments, response\Status};
 use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
-use froq\mvc\{ControllerException, View, Model, Action};
+use froq\{App, Router, session\Session, database\Database, common\objects\Registry};
 use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
 
 /**
@@ -306,7 +304,7 @@ class Controller
             $layout = $this->app->config('view.layout');
 
             if (!$layout) {
-                throw new ControllerException('No "view.layout" option found in configuration');
+                throw new ControllerException("No 'view.layout' option found in config");
             }
 
             $this->view = new View($this);
@@ -337,8 +335,7 @@ class Controller
             }
 
             // Use found name in config map or self name.
-            $class ??= ($config['namespace'] ?? Model::NAMESPACE)
-                .'\\'. $name . Model::SUFFIX;
+            $class ??= ($config['namespace'] ?? Model::NAMESPACE) . '\\' . $name . Model::SUFFIX;
 
             $this->model = $this->initModel($class);
         }
@@ -356,20 +353,21 @@ class Controller
         $session = $this->app->session();
 
         if (!$session) {
-            throw new ControllerException('App has no session object (check "session" option in '.
-                'configuration and be sure it is not null)');
+            throw new ControllerException("App has no session object (check 'session' option in "
+                . "config and be sure it is not null)");
         }
 
         $session->start();
     }
 
     /**
-     * Env.
+     * Gets an environment or a server var or returns default.
+     *
      * @param  string   $name
-     * @param  any|null $valueDefault
+     * @param  any|null $default
      * @return any
      */
-    public final function env(string $name, $valueDefault = null)
+    public final function env(string $name, $default = null)
     {
         // Uppers for nginx (in some cases).
         $value = $_ENV[$name] ?? $_ENV[strtoupper($name)] ??
@@ -383,7 +381,7 @@ class Controller
             }
         }
 
-        return $value ?? $valueDefault;
+        return $value ?? $default;
     }
 
     /**
@@ -399,8 +397,8 @@ class Controller
     public final function view(string $file, array $fileData = null, int $status = null): string
     {
         if (!isset($this->view)) {
-            throw new ControllerException('No "$view" property set yet, be sure "$useView" is '.
-                'true in %s class', [static::class]);
+            throw new ControllerException("No '\$view' property set yet, be sure '\$useView' is "
+                . "true in '%s' class", static::class);
         }
 
         // Shortcut for status (if given).
@@ -426,18 +424,16 @@ class Controller
         [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
         if (!$controller || !$action) {
-            throw new ControllerException('Invalid call directive given, use "Foo.bar" '.
-                'convention without "Controller" and "Action" suffixes', null,
-                Status::NOT_FOUND);
+            throw new ControllerException("Invalid call directive given, use 'Foo.bar' "
+                . "convention without 'Controller' and 'Action' suffixes", null, Status::NOT_FOUND);
         } elseif (!class_exists($controller)) {
-            throw new ControllerException('No controller found such "%s"', [$controller],
-                Status::NOT_FOUND);
+            throw new ControllerException("No controller found such '%s'", $controller, Status::NOT_FOUND);
         } elseif (!method_exists($controller, $action)) {
-            throw new ControllerException('No controller action found such "%s::%s()"', [$controller, $action],
+            throw new ControllerException("No controller action found such '%s::%s()'", [$controller, $action],
                 Status::NOT_FOUND);
         }
 
-        return (new $controller($this->app))->call($action, (array) $actionParams);
+        return (new $controller($this->app))->call($action, $actionParams ?? []);
     }
 
     /**
@@ -630,13 +626,13 @@ class Controller
      * Gets a segment value.
      *
      * @param  int|string $key
-     * @param  any        $valueDefault
+     * @param  any        $default
      * @return any
      * @since  4.2
      */
-    public final function segment($key, $valueDefault = null)
+    public final function segment($key, $default = null)
     {
-        return $this->request->uri()->segment($key, $valueDefault);
+        return $this->request->uri()->segment($key, $default);
     }
 
     /**
@@ -799,7 +795,7 @@ class Controller
         try {
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, null, Status::INTERNAL_SERVER_ERROR);
+            throw new ControllerException($e, null, Status::NOT_FOUND);
         }
 
         $params     = $this->prepareActionParams($ref, $actionParams);
@@ -836,21 +832,20 @@ class Controller
         // If no full class name given.
         if (!strpos($name, '\\')) {
             $class = $this->app->config('model.namespace', Model::NAMESPACE)
-                .'\\'. $name . Model::SUFFIX;
+                . '\\' . $name . Model::SUFFIX;
         }
 
         if (!class_exists($class)) {
-            throw new ControllerException('Model class "%s" not exists', [$class]);
+            throw new ControllerException("Model class '%s' not exists", $class);
         } elseif (!class_extends($class, Model::class)) {
-            throw new ControllerException('Model "%s" class must be subclass of "%s" class',
-                [$class, Model::class]);
+            throw new ControllerException("Model '%s' class must be subclass of '%s' class", [$class, Model::class]);
         }
 
         return new $class($controller ?? $this, $database ?? $this->database());
     }
 
     /**
-     * Prepares an action's parameters to fulfill its required/non-required parameter need on
+     * Prepares an action's parameters to fulfill its required/non-required parameters needed on
      * calltime/runtime.
      *
      * @param  Reflector $reflector

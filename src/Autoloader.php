@@ -48,7 +48,7 @@ final class Autoloader
      */
     private function __construct(string $directory = null)
     {
-        $directory = $directory ?? realpath(__dir__ .'/../../../../vendor/froq');
+        $directory = $directory ?? realpath(__dir__ . '/../../../../vendor/froq');
 
         if (!$directory || !is_dir($directory)) {
             throw new RuntimeException('Froq folder not found');
@@ -133,7 +133,7 @@ final class Autoloader
         elseif (strpos($name, 'froq/') === 0) {
             [$pkg, $src] = $this->resolve($name);
 
-            $file = $this->directory .'/'. $pkg .'/src/'. $src .'.php';
+            $file = $this->directory . '/' . $pkg . '/src/' . $src . '.php';
         }
 
         if ($file && is_file($file)) {
@@ -170,7 +170,7 @@ final class Autoloader
                     }
 
                     $name = strtr(substr($nameOrig, strlen($ns)), '\\', '/');
-                    $file = APP_DIR .'/'. $dir .'/'. $name .'.php';
+                    $file = APP_DIR . '/' . $dir . '/' . $name . '.php';
 
                     if (is_file($file)) {
                         require $file;
@@ -189,8 +189,8 @@ final class Autoloader
     private function checkAppDir(): void
     {
         if (!defined('APP_DIR')) {
-            throw new RuntimeException('APP_DIR is not defined, it is required for "app\..." '.
-                'namespaced files');
+            throw new RuntimeException("APP_DIR is not defined, it is required for 'app\...' "
+                . 'namespaced files');
         }
     }
 

@@ -7,10 +7,9 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\common\objects\Registry;
-use froq\database\{Database, Result, Query};
-use froq\{pager\Pager, validation\Validation};
 use froq\mvc\{ModelException, Controller};
+use froq\database\{Database, Result, Query};
+use froq\{pager\Pager, validation\Validation, common\objects\Registry};
 
 /**
  * Model.
@@ -89,8 +88,8 @@ class Model
 
         $db = $database ?? $controller->getApp()->database();
         if ($db == null) {
-            throw new ModelException('No database given to deal, be sure "database" option '.
-                'exists in app configuration');
+            throw new ModelException("No database given to deal, be sure 'database' option "
+                . "exists in app config");
         }
 
         $this->db = $db;
@@ -186,10 +185,10 @@ class Model
     public final function loadValidations(string $file = null): array
     {
         // Try to load default file from config directory (or directory, eg: config/user/add).
-        $file = APP_DIR .'/app/config/'. ($file ?: 'validations') .'.php';
+        $file = APP_DIR . '/app/config/' . ($file ?: 'validations') . '.php';
 
         if (!is_file($file)) {
-            throw new ModelException('No validations file "%s" exists', [$file]);
+            throw new ModelException("No validations file '%s' exists", $file);
         }
 
         return include $file;
@@ -209,7 +208,7 @@ class Model
         $validations = $this->loadValidations($file);
 
         if (empty($validations[$key])) {
-            throw new ModelException('No rules found for "%s" key', [$key]);
+            throw new ModelException("No rules found for '%s' key", $key);
         }
 
         return $validations[$key];
