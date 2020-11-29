@@ -1,10 +1,17 @@
 <?php
+/**
+ * Copyright (c) 2015 · Kerem Güneş
+ * Apache License 2.0 <https://opensource.org/licenses/apache-2.0>
+ */
+declare(strict_types=0);
+
 /*********************
  * Global functions. *
  *********************/
 
 /**
- * No.
+ * Empty var checker.
+ *
  * @param  any $in
  * @param  ... $ins
  * @return bool
@@ -23,7 +30,8 @@ function no($in, ...$ins)
 }
 
 /**
- * Not.
+ * False var checker.
+ *
  * @param  any $in
  * @param  ... $ins
  * @return bool
@@ -39,7 +47,8 @@ function not($in, ...$ins)
 }
 
 /**
- * Upper.
+ * Upper-caser.
+ *
  * @param  any $in
  * @return string|null
  * @since  3.0
@@ -50,7 +59,8 @@ function upper($in)
 }
 
 /**
- * Lower.
+ * Lower-caser.
+ *
  * @param  any $in
  * @return string|null
  * @since  3.0
@@ -61,9 +71,10 @@ function lower($in)
 }
 
 /**
- * Len
- * @aliasOf size()
- * @since   3.0
+ * Length getter.
+ *
+ * @alias of size()
+ * @since 3.0
  */
 function len(...$args)
 {
@@ -71,7 +82,8 @@ function len(...$args)
 }
 
 /**
- * Size.
+ * Size (length) getter.
+ *
  * @param  any  $in
  * @param  bool $mb
  * @return int|null
@@ -81,11 +93,9 @@ function size($in, $mb = false)
 {
     if (is_string($in)) {
         return !$mb ? strlen($in) : mb_strlen($in);
-    }
-    if (is_countable($in)) {
+    } elseif (is_countable($in)) {
         return count($in);
-    }
-    if ($in instanceof stdClass) {
+    } elseif ($in instanceof stdClass) {
         return count((array) $in);
     }
 
@@ -93,7 +103,8 @@ function size($in, $mb = false)
 }
 
 /**
- * Concat.
+ * Concat an array or string.
+ *
  * @param  array|string    $in
  * @param  array|string ...$ins
  * @return array|string|null
@@ -103,8 +114,7 @@ function concat($in, ...$ins)
 {
     if (is_array($in)) {
         return array_merge($in, ...array_map(fn($v) => (array) $v, $ins));
-    }
-    if (is_string($in)) {
+    } elseif (is_string($in)) {
         return $in . join('', $ins);
     }
 
@@ -112,7 +122,8 @@ function concat($in, ...$ins)
 }
 
 /**
- * Slice.
+ * Slice an array or string.
+ *
  * @param  array|string $in
  * @param  int          $start
  * @param  int|null     $end
@@ -123,8 +134,7 @@ function slice($in, $start, $end = null)
 {
     if (is_array($in)) {
         return array_slice($in, $start, $end);
-    }
-    if (is_string($in)) {
+    } elseif (is_string($in)) {
         return mb_substr($in, $start, $end ?? mb_strlen($in));
     }
 
@@ -132,7 +142,8 @@ function slice($in, $start, $end = null)
 }
 
 /**
- * Strip.
+ * Strip a string, with RegExp (~) option.
+ *
  * @param  string      $in
  * @param  string|null $chars
  * @return string
@@ -156,7 +167,8 @@ function strip($in, $chars = null)
 }
 
 /**
- * Split (we missed you so much baby..).
+ * Split, missed you so much baby..
+ *
  * @param  string   $sep
  * @param  string   $in
  * @param  int|null $limit
@@ -190,7 +202,8 @@ function split($sep, $in, $limit = null, $flags = null)
 }
 
 /**
- * Unsplit (fun function).
+ * Unsplit, a fun function.
+ *
  * @param  string $sep
  * @param  array  $in
  * @return string
@@ -202,7 +215,8 @@ function unsplit($sep, $in)
 }
 
 /**
- * Remove.
+ * Remove something(s) from an array or string.
+ *
  * @param  array|string $in
  * @param  any          $search
  * @return array|string|null
@@ -214,7 +228,8 @@ function remove($in, $search)
 }
 
 /**
- * Replace.
+ * Replace something(s) on an array or string.
+ *
  * @param  string|array               $in
  * @param  string|array               $search
  * @param  string|array|callable|null $replacement
@@ -228,8 +243,8 @@ function replace($in, $search, $replacement = null, $remove = false)
         // RegExp: only ~...~ patterns accepted.
         if (is_string($search) && strlen($search) >= 3 && $search[0] == '~') {
             return !is_callable($replacement)
-                ? preg_replace($search, $replacement, $in)
-                : preg_replace_callback($search, $replacement, $in);
+                 ? preg_replace($search, $replacement, $in)
+                 : preg_replace_callback($search, $replacement, $in);
         }
 
         return str_replace($search, $replacement, $in);
@@ -257,7 +272,8 @@ function replace($in, $search, $replacement = null, $remove = false)
 }
 
 /**
- * Grep.
+ * Grep, actually grabs something from given input.
+ *
  * @param  string $in
  * @param  string $pattern
  * @return string|null
@@ -275,7 +291,8 @@ function grep($in, $pattern)
 }
 
 /**
- * Grep all.
+ * Grep all, actually grabs somethings from given input.
+ *
  * @param  string $in
  * @param  string $pattern
  * @param  bool   $uniform
@@ -294,8 +311,11 @@ function grep_all($in, $pattern, $uniform = false)
             $ret = $matches[1];
         } else {
             foreach ($matches as $i => $match) {
-                $match = array_map( // Nullify all empty strings.
-                    fn($m) => ($m !== '') ? $m : null, $match);
+                // Nullify all empty strings.
+                $match = array_map(
+                    fn($m) => ($m !== '') ? $m : null,
+                    $match
+                );
 
                 $ret[$i] = (count($match) == 1) ? $match[0] : $match;
             }

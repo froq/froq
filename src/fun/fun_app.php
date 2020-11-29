@@ -1,4 +1,10 @@
 <?php
+/**
+ * Copyright (c) 2015 · Kerem Güneş
+ * Apache License 2.0 <https://opensource.org/licenses/apache-2.0>
+ */
+declare(strict_types=0);
+
 /*************************
  * Global app functions. *
  *************************/
@@ -6,7 +12,8 @@
 use froq\common\objects\Registry;
 
 /**
- * Shortcut for global app address.
+ * Shortcut for global app object.
+ *
  * @return froq\App
  */
 function app()
@@ -15,7 +22,8 @@ function app()
 }
 
 /**
- * App root.
+ * get app root.
+ *
  * @return string
  * @since  4.0
  */
@@ -25,7 +33,8 @@ function app_root()
 }
 
 /**
- * App dir.
+ * Get app dir.
+ *
  * @return string
  */
 function app_dir()
@@ -34,7 +43,8 @@ function app_dir()
 }
 
 /**
- * App env.
+ * Get app env.
+ *
  * @return string
  * @since  4.0
  */
@@ -44,7 +54,8 @@ function app_env()
 }
 
 /**
- * App runtime.
+ * Get app runtime result.
+ *
  * @return float
  * @since  4.0 Replaced with app_load_time().
  */
@@ -54,19 +65,21 @@ function app_runtime()
 }
 
 /**
- * App config.
+ * Get app config or default.
+ *
  * @param  string|array $key
- * @param  any          $value_default
+ * @param  any          $default
  * @return any|froq\config\Config
  * @since  4.0
  */
-function app_config($key, $value_default = null)
+function app_config($key, $default = null)
 {
-    return app()->config($key, $value_default);
+    return app()->config($key, $default);
 }
 
 /**
- * App fail.
+ * Get/set an app failure.
+ *
  * @param  string   $name
  * @param  any|null $value
  * @return any|null
@@ -75,12 +88,13 @@ function app_config($key, $value_default = null)
 function app_fail($name, $value = null)
 {
     return (func_num_args() == 1)
-        ? get_global('app.fail.'. $name)
-        : set_global('app.fail.'. $name, $value);
+         ? get_global('app.fail.'. $name)
+         : set_global('app.fail.'. $name, $value);
 }
 
 /**
- * App fails.
+ * Get app failures.
+ *
  * @return array
  * @since  4.0
  */

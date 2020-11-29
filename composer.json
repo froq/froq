@@ -3,7 +3,7 @@
     "homepage": "https://github.com/froq/froq",
     "description":  "Froq! App & MVC.",
     "keywords": ["froq", "app", "mvc"],
-    "license": "MIT",
+    "license": "Apache-2.0",
     "authors": [
         {"name": "Kerem Güneş", "email": "k-gun@mail.com"}
     ],
