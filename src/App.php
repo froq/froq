@@ -422,7 +422,7 @@ final class App
      */
     public function run(array $options = null): void
     {
-        // Apply run options (user options) (@see skeleton/pub/index.php).
+        // Apply run options (user options) (@see pub/index.php).
         @ ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
 
         // Set router options first (for proper error() process).
