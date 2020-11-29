@@ -87,7 +87,7 @@ final class Router
      * @return self
      * @since  4.14
      */
-    public final function setOptions(array $options): self
+    public function setOptions(array $options): self
     {
         self::$options = array_replace(self::$optionsDefault, $options);
 
@@ -99,7 +99,7 @@ final class Router
      * @return array
      * @since  4.14
      */
-    public final function getOptions(): array
+    public function getOptions(): array
     {
         return self::$options;
     }
