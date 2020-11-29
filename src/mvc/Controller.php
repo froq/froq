@@ -857,7 +857,7 @@ class Controller
      * @param  array     $actionParams
      * @return array
      */
-    private final function prepareActionParams(Reflector $reflector, array $actionParams): array
+    private function prepareActionParams(Reflector $reflector, array $actionParams): array
     {
         $ret = [];
 
