@@ -88,7 +88,7 @@ final class View
      * @param  any    $value
      * @return void
      */
-    public final function setData(string $key, $value): void
+    public function setData(string $key, $value): void
     {
         $this->data[$key] = $value;
     }
@@ -100,7 +100,7 @@ final class View
      * @param  any|null $valueDefault
      * @return any
      */
-    public final function getData(string $key, $valueDefault = null)
+    public function getData(string $key, $valueDefault = null)
     {
         return $this->data[$key] ?? $valueDefault;
     }
