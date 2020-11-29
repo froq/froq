@@ -17,5 +17,5 @@ use froq\AppException;
  * @author  Kerem Güneş <k-gun@mail.com>
  * @since   4.0
  */
-final class RouterException extends AppException
+class RouterException extends AppException
 {}
