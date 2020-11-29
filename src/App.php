@@ -120,7 +120,7 @@ final class App
      */
     private function __construct()
     {
-        // App dir is required (@see skeleton/pub/index.php).
+        // App dir is required (@see pub/index.php).
         if (!defined('APP_DIR')) {
             throw new AppException('APP_DIR is not defined');
         }
