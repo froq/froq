@@ -22,16 +22,7 @@ use froq\common\objects\Enum;
 final class Env extends Enum
 {
     /**
-     * Short names.
-     * @const string
-     */
-    public const DEV   = 'dev',
-                 TEST  = 'test',
-                 STAGE = 'stage',
-                 PROD  = 'prod';
-
-    /**
-     * Long names.
+     * Names.
      * @const string
      */
     public const DEVELOPMENT = 'development',
