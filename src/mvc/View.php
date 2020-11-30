@@ -94,15 +94,15 @@ final class View
     }
 
     /**
-     * Gets a data entry with given key, returns `$valueDefault` value if found no entry.
+     * Gets a data entry with given key, returns `$default` value if found no entry.
      *
      * @param  string   $key
-     * @param  any|null $valueDefault
+     * @param  any|null $default
      * @return any
      */
-    public function getData(string $key, $valueDefault = null)
+    public function getData(string $key, $default = null)
     {
-        return $this->data[$key] ?? $valueDefault;
+        return $this->data[$key] ?? $default;
     }
 
     /**
