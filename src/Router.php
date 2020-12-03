@@ -146,7 +146,8 @@ final class Router
     /**
      * Adds multiple routes to routes stack.
      *
-     * @param array $routes
+     * @param  array $routes
+     * @return void
      */
     public function addRoutes(array $routes): void
     {

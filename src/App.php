@@ -13,7 +13,7 @@ use froq\http\{Request, Response, response\Status};
 use froq\cache\{Cache, cache\CacheFactory};
 use froq\common\traits\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
-use Throwable;
+use Throwable, Closure;
 
 /**
  * App.
@@ -506,7 +506,7 @@ final class App
         } elseif (!class_exists($controller)) {
             throw new AppException("No controller class found such '%s'",
                 [$controller], Status::NOT_FOUND);
-        } elseif (!is_callable($action) && !is_callable([$controller, $action])) {
+        } elseif (!method_exists($controller, $action) && !($action instanceof Closure)) {
             throw new AppException("No controller action found such '%s::%s()'",
                 [$controller, $action], Status::NOT_FOUND);
         }
@@ -596,7 +596,7 @@ final class App
     private function startOutputBuffer(): void
     {
         ob_start();
-        ob_implicit_flush(0);
+        ob_implicit_flush(false);
         ini_set('implicit_flush', 'off');
     }
 
