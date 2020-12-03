@@ -9,6 +9,9 @@ namespace froq;
 
 use RuntimeException;
 
+// Prevent static return collision etc.
+function load($file) { require $file; }
+
 /**
  * Autoloader.
  *
@@ -137,7 +140,7 @@ final class Autoloader
         }
 
         if ($file && is_file($file)) {
-            require $file;
+            load($file);
         } else {
             // Note: this part is for only local development purporses, normally Composer will
             // do it's job until here.
@@ -173,7 +176,7 @@ final class Autoloader
                     $file = APP_DIR . '/' . $dir . '/' . $name . '.php';
 
                     if (is_file($file)) {
-                        require $file;
+                        load($file);
                         return;
                     }
                 }
