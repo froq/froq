@@ -110,7 +110,7 @@ final class Servicer
     }
 
     /**
-     * Checks a service if exists or not.
+     * Checks whether a service exists.
      *
      * @param  string $name
      * @return bool
