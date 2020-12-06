@@ -765,11 +765,11 @@ class Controller
         $params = [...$params, ...$paramsRest];
 
         try {
-            $this->before && $this->before(); // Call if defined in child.
+            $this->before && $this->before();   // Call if defined in child.
             $ret = $this->{$action}(...$params);
-            $this->after && $this->after(); // Call if defined in child.
+            $this->after && $this->after();     // Call if defined in child.
         } catch (Throwable $e) {
-            $ret = $this->error($e);
+            $ret = method_exists($this, 'error') ? $this->error($e) : $this->app->error($e);
         }
 
         return $ret;
@@ -805,11 +805,11 @@ class Controller
         $params = [...$params, ...$paramsRest];
 
         try {
-            $this->before && $this->before(); // Call if defined in child.
+            $this->before && $this->before();   // Call if defined in child.
             $ret = $action(...$params);
-            $this->after && $this->after(); // Call if defined in child.
+            $this->after && $this->after();     // Call if defined in child.
         } catch (Throwable $e) {
-            $ret = $this->error($e);
+            $ret = method_exists($this, 'error') ? $this->error($e) : $this->app->error($e);
         }
 
         return $ret;
