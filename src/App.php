@@ -625,7 +625,7 @@ final class App
         else {
             $body = $response->getBody();
             $content = $body->getContent();
-            $attributes = $body->getContentAttributes();
+            $attributes = $body->getAttributes();
 
             // Pass, return comes from App.error() already.
             if ($isError) {}
