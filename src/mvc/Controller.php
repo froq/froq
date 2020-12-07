@@ -507,16 +507,16 @@ class Controller
      *
      * @param  int|null   $code
      * @param  any|null   $content
-     * @param  array|null $contentAttributes
+     * @param  array|null $attributes
      * @return froq\http\Response
      */
-    public final function response(int $code = null, $content = null, array $contentAttributes = null): Response
+    public final function response(int $code = null, $content = null, array $attributes = null): Response
     {
         $response = $this->response;
 
         // Content can be null, but not code.
         if ($code !== null) {
-            $response->setStatus($code)->setBody($content, $contentAttributes);
+            $response->setStatus($code)->setBody($content, $attributes);
         }
 
         return $response;

@@ -625,7 +625,7 @@ final class App
         else {
             $body = $response->getBody();
             $content = $body->getContent();
-            $contentAttributes = $body->getContentAttributes();
+            $attributes = $body->getContentAttributes();
 
             // Pass, return comes from App.error() already.
             if ($isError) {}
@@ -644,7 +644,7 @@ final class App
                 $content = $this->events->fire('app.output', $content);
             }
 
-            $response->setBody($content, $contentAttributes, $isError);
+            $response->setBody($content, $attributes, $isError);
         }
 
         $exposeAppRuntime = $this->config('exposeAppRuntime');
