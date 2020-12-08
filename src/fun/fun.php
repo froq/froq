@@ -82,66 +82,6 @@ function len(...$args)
 }
 
 /**
- * Size (length) getter.
- *
- * @param  any  $in
- * @param  bool $mb
- * @return int|null
- * @since  3.0
- */
-function size($in, $mb = false)
-{
-    if (is_string($in)) {
-        return !$mb ? strlen($in) : mb_strlen($in);
-    } elseif (is_countable($in)) {
-        return count($in);
-    } elseif ($in instanceof stdClass) {
-        return count((array) $in);
-    }
-
-    return null; // No valid input.
-}
-
-/**
- * Concat an array or string.
- *
- * @param  array|string    $in
- * @param  array|string ...$ins
- * @return array|string|null
- * @since  4.0
- */
-function concat($in, ...$ins)
-{
-    if (is_array($in)) {
-        return array_merge($in, ...array_map(fn($v) => (array) $v, $ins));
-    } elseif (is_string($in)) {
-        return $in . join('', $ins);
-    }
-
-    return null; // No valid input.
-}
-
-/**
- * Slice an array or string.
- *
- * @param  array|string $in
- * @param  int          $start
- * @param  int|null     $end
- * @return array|string|null
- * @since  3.0, 4.0 Added back.
- */
-function slice($in, $start, $end = null)
-{
-    if (is_array($in)) {
-        return array_slice($in, $start, $end);
-    } elseif (is_string($in)) {
-        return mb_substr($in, $start, $end ?? mb_strlen($in));
-    }
-
-    return null; // No valid input.
-}
-
-/**
  * Strip a string, with RegExp (~) option.
  *
  * @param  string      $in
@@ -152,7 +92,7 @@ function slice($in, $start, $end = null)
 function strip($in, $chars = null)
 {
     if ($chars) {
-        // RegExp: only ~...~ patterns accepted.
+        // RegExp: only ~..~ patterns accepted.
         if (strlen($chars) >= 3 && $chars[0] == '~') {
             $rules = substr($chars, 1, ($pos = strrpos($chars, '~')) - 1);
             $modifiers = substr($chars, $pos + 1);
@@ -177,7 +117,7 @@ function strip($in, $chars = null)
  */
 function split($sep, $in, $limit = null, $flags = null)
 {
-    // RegExp: only "~...~" patterns accepted.
+    // RegExp: only "~..~" patterns accepted.
     $seplen = strlen($sep);
     if ($seplen == 0) {
         $sep = '~~u'; // Split all.
@@ -240,7 +180,7 @@ function remove($in, $search)
 function replace($in, $search, $replacement = null, $remove = false)
 {
     if (is_string($in)) {
-        // RegExp: only ~...~ patterns accepted.
+        // RegExp: only ~..~ patterns accepted.
         if (is_string($search) && strlen($search) >= 3 && $search[0] == '~') {
             return !is_callable($replacement)
                  ? preg_replace($search, $replacement, $in)
