@@ -581,12 +581,12 @@ final class App
     /**
      * Error log.
      * @param  string|Throwable $error
-     * @return void
+     * @return bool
      * @since  4.0
      */
-    public function errorLog($error): void
+    public function errorLog($error): bool
     {
-        $this->logger->logError($error);
+        return $this->logger->setLevel(Logger::ERROR)->logError($error);
     }
 
     /**
