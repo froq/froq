@@ -121,15 +121,19 @@ final class App
     private function __construct()
     {
         // App dir is required (@see pub/index.php).
-        if (!defined('APP_DIR')) {
-            throw new AppException('APP_DIR is not defined');
-        }
+        defined('APP_DIR') || throw new AppException('No APP_DIR defined');
+
+        // Init logger with default options.
+        $this->logger = new Logger([
+            'level'     => Logger::ERROR,
+            'directory' => APP_DIR . '/tmp/log'
+        ]);
 
         $this->request = new Request($this);
         $this->response = new Response($this);
 
-        [$this->dir, $this->config, $this->logger, $this->events, $this->router, $this->servicer]
-            = [APP_DIR, new Config(), new Logger(), new Events(), new Router(), new Servicer()];
+        [$this->dir, $this->config, $this->events, $this->router, $this->servicer]
+            = [APP_DIR, new Config(), new Events(), new Router(), new Servicer()];
 
         // Register app.
         Registry::set('@app', $this, false);
