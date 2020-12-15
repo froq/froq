@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\{ModelException, Controller};
-use froq\database\{Database, Result, Query};
-use froq\{pager\Pager, validation\Validation, common\objects\Registry};
+use froq\database\{Database, Result, Query, trait\DbTrait, trait\TableTrait, trait\ValidationTrait};
+use froq\{pager\Pager, common\objects\Registry};
 
 /**
  * Model.
@@ -24,16 +24,24 @@ use froq\{pager\Pager, validation\Validation, common\objects\Registry};
 class Model
 {
     /**
+     * @see froq\database\trait\DbTrait
+     * @see froq\database\trait\TableTrait
+     * @see froq\database\record\ValidationTrait
+     * @since 5.0
+     */
+    use DbTrait, TableTrait, ValidationTrait;
+
+    /**
      * Namespace.
      * @const string
      */
-    public const NAMESPACE  = 'app\model';
+    public const NAMESPACE = 'app\model';
 
     /**
      * Suffix.
      * @const string
      */
-    public const SUFFIX     = 'Model';
+    public const SUFFIX = 'Model';
 
     /**
      * Controller.
@@ -42,41 +50,7 @@ class Model
     protected Controller $controller;
 
     /**
-     * Db.
-     * @var froq\database\Database
-     */
-    protected Database $db;
-
-    /**
-     * Table.
-     * @var string
-     */
-    protected string $table;
-
-    /**
-     * Table primary.
-     * @var string
-     */
-    protected string $tablePrimary;
-
-    /**
-     * Validation rules.
-     * @var array
-     * @since 4.9
-     */
-    protected array $validationRules;
-
-    /**
-     * Validation options.
-     * @var array
-     * @since 4.9
-     */
-    protected array $validationOptions;
-
-    /**
      * Constructor.
-     *
-     * Creates a new `Model` and calls `init()` method if defined in subclass.
      *
      * @param  froq\mvc\Controller         $controller
      * @param  froq\database\Database|null $database
@@ -88,26 +62,18 @@ class Model
 
         $db = $database ?? $controller->getApp()->database();
         if ($db == null) {
-            throw new ModelException("No database given to deal, be sure 'database' option "
-                . "exists in app config");
+            throw new ModelException('No database given to deal, be sure `database` option '
+                . 'exists in app config');
         }
 
         $this->db = $db;
 
+        // When defined on child class.
         if (method_exists($this, 'init')) {
             $this->init();
         }
 
-        // @todo: For 5.0 version.
-        // // If one of these provided in child model, then will be used by Recorder object.
-        // $this->recorder = new Recorder($db, [
-        //     'table'             => $this->table ?? null,
-        //     'tablePrimary'      => $this->tablePrimary ?? null,
-        //     'validationRules'   => $this->validationRules ?? null,
-        //     'validationOptions' => $this->validationOptions ?? null,
-        // ]);
-
-        // Store (last) model.
+        // Store (as last) model.
         Registry::set('@model', $this, false);
     }
 
@@ -122,120 +88,65 @@ class Model
     }
 
     /**
-     * Gets the db property.
+     * Alias of initQuery().
      *
-     * @return froq\database\Database
+     * @since 5.0
      */
-    public final function db(): Database
+    public final function query(...$args)
     {
-        return $this->db;
+        return $this->initQuery(...$args);
     }
 
     /**
-     * Gets the table property if set in subclass, otherwise returns null.
-     *
-     * @return ?string
-     */
-    public final function table(): ?string
-    {
-        return $this->table ?? null;
-    }
-
-    /**
-     * Gets the table primary property if set in subclass, otherwise returns null.
-     *
-     * @return ?string
-     */
-    public final function tablePrimary(): ?string
-    {
-        return $this->tablePrimary ?? null;
-    }
-
-    /**
-     * Validates given data by key given rules, also modifies given `$data` and fills `$fails`
-     * if validation not passes.
+     * Validate given data by key given rules or self rules, modifying given `$data` and filling `$errors`
+     * if validation fails.
      *
      * @param  array       &$data
-     * @param  array        $rules
-     * @param  array|null  &$fails
+     * @param  array|null   $rules
+     * @param  array|null  &$errors
      * @param  array|null   $options
      * @return bool
      * @since  4.8
      */
-    public final function validate(array &$data, array $rules, array &$fails = null, array $options = null): bool
+    public final function validate(array &$data, array $rules = null, array &$errors = null, array $options = null): bool
     {
         // Validation rules & options can be also defined in child models.
-        $rules ??= $this->validationRules ?? null;
-        $options ??= $this->validationOptions ?? null;
+        $rules ??= $this->getValidationRules();
+        $options ??= $this->getValidationOptions();
 
-        $validation = new Validation($rules, $options);
-
-        return $validation->validate($data, $fails);
-    }
-
-    /**
-     * Load validations rules from given file.
-     *
-     * @param  string|null $file
-     * @param  string      $key
-     * @return array
-     * @throws froq\mvc\ModelException
-     * @since  4.15
-     */
-    public final function loadValidations(string $file = null): array
-    {
-        // Try to load default file from config directory (or directory, eg: config/user/add).
-        $file = APP_DIR . '/app/config/' . ($file ?: 'validations') . '.php';
-
-        if (!is_file($file)) {
-            throw new ModelException("No validations file '%s' exists", $file);
+        if (empty($data)) {
+            throw new ModelException('Empty data given for validation');
+        }
+        if (empty($rules)) {
+            throw new ModelException('No validation rules set yet, call setValidationRules() or pass $rules argument'
+                . ' or define $validationRules property on %s class', static::class);
         }
 
-        return include $file;
-    }
-
-    /**
-     * Load validations rules (from given file if provided) with given key.
-     *
-     * @param  string|null $file
-     * @param  string      $key
-     * @return array
-     * @throws froq\mvc\ModelException
-     * @since  4.15
-     */
-    public final function loadValidationRules(string $file = null, string $key): array
-    {
-        $validations = $this->loadValidations($file);
-
-        if (empty($validations[$key])) {
-            throw new ModelException("No rules found for '%s' key", $key);
-        }
-
-        return $validations[$key];
+        return $this->runValidation($data, $rules, $options, $errors);
     }
 
     /**
      * Initializes a model object by given model/model class name.
      *
-     * @param  string                   $name
+     * @param  string                   $class
      * @param  froq\mvc\Controller|null $controller
      * @return froq\mvc\Model (static)
      */
-    public final function initModel(string $name, Controller $controller = null): Model
+    public final function initModel(string $class, Controller $controller = null): Model
     {
-        return $this->controller->initModel($name, $controller, $this->db);
+        return $this->controller->initModel($class, $controller, $this->db);
     }
 
     /**
-     * Initializes a new pager object running it with `$totalRecords` argument if provided.
+     * Initialize a new pager object running it with `$count` and `$limit` arguments if provided.
      *
-     * @param  int|null $totalRecords
+     * @param  int|null $count
      * @param  int|null $limit
      * @return froq\pager\Pager
      */
-    public final function initPager(int $totalRecords = null, int $limit = null): Pager
+    public final function initPager(int $count = null, int $limit = null): Pager
     {
-        return $this->db->initPager($totalRecords, $limit);
+        return $this->db->initPager($count, $limit);
     }
 
     /**
