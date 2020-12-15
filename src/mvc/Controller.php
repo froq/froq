@@ -136,10 +136,6 @@ class Controller
     /**
      * Constructor.
      *
-     * Calls `loadView()` method if `$useView` set to true.
-     * Calls `loadModel()` method if `$useModel` set to true.
-     * Calls `init()` method if defined in subclass.
-     *
      * @param froq\App $app
      */
     public final function __construct(App $app)
@@ -160,7 +156,7 @@ class Controller
             $this->init();
         }
 
-        // Store (last) controller.
+        // Store (as last) controller.
         Registry::set('@controller', $this, false);
 
         // Set before/after ticks these called in call() method.
@@ -325,7 +321,7 @@ class Controller
             $name = $this->getShortName();
             $config = $this->app->config('model');
 
-            // Map can be defined in config (eg: ["Foo" => "app\foo\FooModel"])
+            // Map may be defined in config (eg: ["Foo" => "app\foo\FooModel"])
             if (!empty($config['map'])) {
                 foreach ($config['map'] as $controllerName => $class) {
                     if ($controllerName == $name) {
@@ -825,20 +821,20 @@ class Controller
      * @return froq\mvc\Model (static)
      * @since  4.13
      */
-    public final function initModel(string $name, Controller $controller = null, Database $database = null): Model
+    public final function initModel(string $class, Controller $controller = null, Database $database = null): Model
     {
-        $class = trim($name, '\\');
+        $class = trim($class, '\\');
 
         // If no full class name given.
-        if (!strpos($name, '\\')) {
+        if (!str_contains($class, '\\')) {
             $class = $this->app->config('model.namespace', Model::NAMESPACE)
-                . '\\' . $name . Model::SUFFIX;
+                . '\\' . $class . Model::SUFFIX;
         }
 
         if (!class_exists($class)) {
-            throw new ControllerException("Model class '%s' not exists", $class);
+            throw new ControllerException('Model class `%s` not exists', $class);
         } elseif (!class_extends($class, Model::class)) {
-            throw new ControllerException("Model '%s' class must be subclass of '%s' class", [$class, Model::class]);
+            throw new ControllerException('Model class `%s` must extend class `%s`', [$class, Model::class]);
         }
 
         return new $class($controller ?? $this, $database ?? $this->database());
