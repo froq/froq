@@ -826,10 +826,10 @@ class Controller
         $class = trim($class, '\\');
 
         // If no full class name given.
-        if (!str_contains($class, '\\')) {
+        str_contains($class, '\\') || (
             $class = $this->app->config('model.namespace', Model::NAMESPACE)
-                . '\\' . $class . Model::SUFFIX;
-        }
+                . '\\' . $class . Model::SUFFIX
+        );
 
         if (!class_exists($class)) {
             throw new ControllerException('Model class `%s` not exists', $class);
