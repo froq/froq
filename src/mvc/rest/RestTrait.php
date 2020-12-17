@@ -39,13 +39,13 @@ trait RestTrait
      */
     protected final function rest(...$params)
     {
-        $method = $this->request->method()->getName();
+        $method = $this->request->getMethod();
 
         if (method_exists($this, $method)) {
             return $this->call($method, $params, false);
         }
 
-        throw new RestException("No '%s()' method defined on '%s' class for '%s' calls",
-                [strtolower($method), get_class($this), strtoupper($method)], Status::NOT_FOUND);
+        throw new RestException('No %s() method defined on %s class for %s calls',
+            [strtolower($method), $this::class, strtoupper($method)], Status::NOT_FOUND);
     }
 }
