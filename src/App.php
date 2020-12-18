@@ -206,18 +206,14 @@ final class App
      * @return any|null|froq\config\Config
      * @throws froq\AppException If ket type not valid.
      */
-    public function config($key = null, $default = null)
+    public function config(string|array $key = null, $default = null)
     {
-        // Set is not allowed, so config readonly and set available in cfg.php files only.
         if ($key === null) {
             return $this->config;
         }
-        if (is_string($key) || is_array($key)) {
-            return $this->config->get($key, $default);
-        }
 
-        throw new AppException("Only string, array and null keys allowed for '%s()', %s given",
-            [__method__, gettype($key)]);
+        // Set is not allowed, so config readonly and set available with config.php only.
+        return $this->config->get($key, $default);
     }
 
     /**
