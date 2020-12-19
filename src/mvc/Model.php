@@ -9,7 +9,7 @@ namespace froq\mvc;
 
 use froq\mvc\{ModelException, Controller};
 use froq\database\{Database, Result, Query, trait\DbTrait, trait\TableTrait, trait\ValidationTrait};
-use froq\{pager\Pager, common\objects\Registry};
+use froq\{pager\Pager, common\object\Registry};
 
 /**
  * Model.

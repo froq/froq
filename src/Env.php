@@ -7,12 +7,12 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\common\objects\Enum;
+use froq\common\object\Enum;
 
 /**
  * Env.
  *
- * Represents an enum entity holding App environment types.
+ * Represents an enum entity which carries App environment names.
  *
  * @package froq
  * @object  froq\Env

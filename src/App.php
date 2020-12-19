@@ -12,7 +12,7 @@ use froq\{config\Config, logger\Logger, event\Events, session\Session, database\
 use froq\http\{Request, Response, response\Status};
 use froq\cache\{Cache, cache\CacheFactory};
 use froq\common\trait\SingletonTrait;
-use froq\common\objects\{Factory, Registry};
+use froq\common\object\{Factory, Registry};
 use Throwable, Closure;
 
 /**

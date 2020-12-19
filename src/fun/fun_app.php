@@ -9,7 +9,7 @@ declare(strict_types=0);
  * Global app functions. *
  *************************/
 
-use froq\common\objects\Registry;
+use froq\common\object\Registry;
 
 /**
  * Shortcut for global app object.

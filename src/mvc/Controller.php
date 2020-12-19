@@ -10,7 +10,7 @@ namespace froq\mvc;
 use froq\mvc\{ControllerException, View, Model};
 use froq\http\{Request, Response, request\Segments, response\Status};
 use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
-use froq\{App, Router, session\Session, database\Database, common\objects\Registry};
+use froq\{App, Router, session\Session, database\Database, common\object\Registry};
 use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
 
 /**
