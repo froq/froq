@@ -32,22 +32,13 @@ class Model
      */
     use DbTrait, TableTrait, ValidationTrait;
 
-    /**
-     * Namespace.
-     * @const string
-     */
+    /** @const string */
     public const NAMESPACE = 'app\model';
 
-    /**
-     * Suffix.
-     * @const string
-     */
+    /** @const string */
     public const SUFFIX = 'Model';
 
-    /**
-     * Controller.
-     * @var froq\mvc\Controller
-     */
+    /** @var froq\mvc\Controller */
     protected Controller $controller;
 
     /**
@@ -79,7 +70,7 @@ class Model
     }
 
     /**
-     * Gets the controller property.
+     * Get controller property.
      *
      * @return froq\mvc\Controller
      */
@@ -119,15 +110,15 @@ class Model
             throw new ModelException('Empty data given for validation');
         }
         if (empty($rules)) {
-            throw new ModelException('No validation rules set yet, call setValidationRules() or pass $rules argument'
-                . ' or define $validationRules property on %s class', static::class);
+            throw new ModelException('No validation rules set yet, call setValidationRules() or pass $rules'
+                . ' argument or define $validationRules property on %s class', static::class);
         }
 
         return $this->runValidation($data, $rules, $options, $errors);
     }
 
     /**
-     * Initializes a model object by given model/model class name.
+     * Initialize a model object by given model/model class name.
      *
      * @param  string                   $class
      * @param  froq\mvc\Controller|null $controller
@@ -151,7 +142,7 @@ class Model
     }
 
     /**
-     * Initializes a new query object using self `$db` property, setting its "table" query
+     * Initialize a new query object using self `$db` property, setting its "table" query
      * with `$table` argument if provided.
      *
      * @param  string|null $table
