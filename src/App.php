@@ -11,7 +11,7 @@ use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use froq\{config\Config, logger\Logger, event\Events, session\Session, database\Database};
 use froq\http\{Request, Response, response\Status};
 use froq\cache\{Cache, cache\CacheFactory};
-use froq\common\traits\SingletonTrait;
+use froq\common\trait\SingletonTrait;
 use froq\common\objects\{Factory, Registry};
 use Throwable, Closure;
 
@@ -26,8 +26,7 @@ use Throwable, Closure;
 final class App
 {
     /**
-     * Singleton trait.
-     * @see froq\common\traits\SingletonTrait
+     * @see froq\common\trait\SingletonTrait
      */
     use SingletonTrait;
 
