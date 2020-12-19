@@ -25,112 +25,60 @@ use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionExcept
  */
 class Controller
 {
-    /**
-     * Namespace.
-     * @const string
-     */
+    /** @const string */
     public const NAMESPACE      = 'app\controller';
 
-    /**
-     * Defaults.
-     * @const string
-     */
+    /** @const string */
     public const DEFAULT        = 'app\controller\IndexController',
                  DEFAULT_SHORT  = 'IndexController',
                  ACTION_DEFAULT = 'index';
 
-    /**
-     * Suffixes.
-     * @const string
-     */
+    /** @const string */
     public const SUFFIX         = 'Controller',
                  ACTION_SUFFIX  = 'Action';
 
-    /**
-     * Special actions.
-     * @const string
-     */
+    /** @const string */
     public const INDEX_ACTION   = 'index',
                  ERROR_ACTION   = 'error';
 
-    /**
-     * Name ids.
-     * @const string
-     */
+    /** @const string */
     public const NAME_DEFAULT   = '@default',
                  NAME_CLOSURE   = '@closure';
 
-    /**
-     * App.
-     * @var froq\App
-     */
+    /** @var froq\App */
     protected App $app;
 
-    /**
-     * Request.
-     * @var froq\http\Request
-     */
+    /** @var froq\http\Request */
     protected Request $request;
 
-    /**
-     * Response.
-     * @var froq\http\Response
-     */
+    /** @var froq\http\Response */
     protected Response $response;
 
-    /**
-     * Name.
-     * @var string
-     */
+    /** @var string */
     private string $name;
 
-    /**
-     * Action.
-     * @var string
-     */
+    /** @var string */
     private string $action;
 
-    /**
-     * Action params.
-     * @var array<any>
-     */
+    /** @var array<any> */
     private array $actionParams;
 
-    /**
-     * View.
-     * @var froq\mvc\View
-     */
+    /** @var froq\mvc\View */
     protected View $view;
 
-    /**
-     * Model.
-     * @var froq\mvc\Model
-     */
+    /** @var froq\mvc\Model */
     protected Model $model;
 
-    /**
-     * Use view.
-     * @var bool
-     */
+    /** @var bool */
     public bool $useView = false;
 
-    /**
-     * Use model.
-     * @var bool
-     */
+    /** @var bool */
     public bool $useModel = false;
 
-    /**
-     * Use session.
-     * @var bool
-     */
+    /** @var bool */
     public bool $useSession = false;
 
-    /**
-     * Before/after.
-     * @var bool,bool
-     * @since 4.9
-     */
+    /** @var bool, bool @since 4.9 */
     private bool $before = false, $after = false;
 
     /**
@@ -197,9 +145,9 @@ class Controller
     /**
      * Get view.
      *
-     * @return ?froq\mvc\View
+     * @return froq\mvc\View|null
      */
-    public final function getView(): ?View
+    public final function getView(): View|null
     {
         return $this->view ?? null;
     }
@@ -207,15 +155,15 @@ class Controller
     /**
      * Get model.
      *
-     * @return ?froq\mvc\Model
+     * @return froq\mvc\Model|null
      */
-    public final function getModel(): ?Model
+    public final function getModel(): Model|null
     {
         return $this->model ?? null;
     }
 
     /**
-     * Gets the name of controller that run at the time, creating if not set yet.
+     * Get name of controller that run at the time, creating if not set yet.
      *
      * @return string
      */
@@ -225,7 +173,7 @@ class Controller
     }
 
     /**
-     * Gets the short name of controller that run at the time.
+     * Get short name of controller that run at the time.
      *
      * @return string
      */
@@ -241,7 +189,7 @@ class Controller
     }
 
     /**
-     * Gets the action name that called at the time.
+     * Get action name that called at the time.
      *
      * @return string
      */
@@ -251,7 +199,7 @@ class Controller
     }
 
     /**
-     * Gets the action short name that called at the time.
+     * Get action short name that called at the time.
      *
      * @return string
      */
@@ -267,7 +215,7 @@ class Controller
     }
 
     /**
-     * Gets the action params that called at the time.
+     * Get action params that called at the time.
      *
      * @return array
      */
@@ -277,19 +225,19 @@ class Controller
     }
 
     /**
-     * Gets the current controller path built with action that called at the time.
+     * Get current controller path built with action that called at the time.
      *
      * @return string
      */
     public final function getPath(): string
     {
-        return $this->getShortName() .'.'. $this->getActionShortName();
+        return $this->getShortName() . '.' . $this->getActionShortName();
     }
 
     /**
-     * Loads (initializes) the view object for the owner controller if controller's `$useView`
-     * property set to true. Throws a `ControllerException` if no `view.layout` option found in
-     * configuration.
+     * Load (initialize) the view object for the owner controller if controller's `$useView` property
+     * set to true and `$view` property is not set yet, throw a `ControllerException` if no `view.layout`
+     * option found in configuration.
      *
      * @return void
      * @throws froq\mvc\ControllerException
@@ -300,7 +248,7 @@ class Controller
             $layout = $this->app->config('view.layout');
 
             if (!$layout) {
-                throw new ControllerException("No 'view.layout' option found in config");
+                throw new ControllerException('No `view.layout` option found in config');
             }
 
             $this->view = new View($this);
@@ -309,16 +257,15 @@ class Controller
     }
 
     /**
-     * Loads (initializes) the model object for the owner controller if controller's `$useModel`
-     * property set to true. Throws a `ControllerException` if no such model class found.
+     * Load (initialize) the model object for the owner controller if controller's `$useModel` property
+     * set to true and `$model` property is not set yet.
      *
      * @return void
-     * @throws froq\mvc\ControllerException
      */
     public final function loadModel(): void
     {
         if (!isset($this->model)) {
-            $name = $this->getShortName();
+            $name   = $this->getShortName();
             $config = $this->app->config('model');
 
             // Map may be defined in config (eg: ["Foo" => "app\foo\FooModel"])
@@ -338,8 +285,8 @@ class Controller
     }
 
     /**
-     * Loads (starts) the session object for the owner controller if controller's `$useSession`
-     * property set to true. Throws a `ControllerException` if App has no session.
+     * Load (starts) the session object for the owner controller if controller's `$useSession` property
+     * set to true, throw a `ControllerException` if App has no session.
      *
      * @return void
      * @throws froq\mvc\ControllerException
@@ -348,16 +295,16 @@ class Controller
     {
         $session = $this->app->session();
 
-        if (!$session) {
-            throw new ControllerException("App has no session object (check 'session' option in "
-                . "config and be sure it is not null)");
+        if ($session == null) {
+            throw new ControllerException('App has no session object [tip: check `session` option in'
+                . ' config and be sure it is not null]');
         }
 
         $session->start();
     }
 
     /**
-     * Gets an environment or a server var or returns default.
+     * Get an environment or a server var or return default.
      *
      * @param  string   $name
      * @param  any|null $default
@@ -381,8 +328,7 @@ class Controller
     }
 
     /**
-     * Views a view file with given `$fileData` arguments if provided rendering the file
-     * in a wrapped output buffer.
+     * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output buffer.
      *
      * @param  string     $file
      * @param  array|null $fileData
@@ -393,22 +339,20 @@ class Controller
     public final function view(string $file, array $fileData = null, int $status = null): string
     {
         if (!isset($this->view)) {
-            throw new ControllerException("No '\$view' property set yet, be sure '\$useView' is "
-                . "true in '%s' class", static::class);
+            throw new ControllerException('No `$view` property set yet, be sure `$useView` is true on'
+                . ' class %s', static::class);
         }
 
-        // Shortcut for status (if given).
-        if ($status) {
-            $this->response->setStatus($status);
-        }
+        // Shortcut for status.
+        $status && $this->status($status);
 
         return $this->view->render($file, $fileData);
     }
 
     /**
-     * Forwards an internal call to other call (controller method) with given call arguments. The
-     * `$call` parameter must be fully qualified for explicit methods without `Controller` and
-     * `Action` suffixes eg: `Book.show`, otherwise `index` method does not require that explicity.
+     * Forward an internal call to other call (controller method) with given call arguments. The `$call`
+     * parameter must be fully qualified for explicit methods without `Controller` and `Action` suffixes
+     * eg: `Book.show`, otherwise `index` method does not require that explicity.
      *
      * @param  string $call
      * @param  array  $callArgs
@@ -420,12 +364,12 @@ class Controller
         [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
         if (!$controller || !$action) {
-            throw new ControllerException("Invalid call directive given, use 'Foo.bar' "
-                . "convention without 'Controller' and 'Action' suffixes", null, Status::NOT_FOUND);
+            throw new ControllerException('Invalid call directive %s, use `Foo.bar`'
+                . ' convention without `Controller` and `Action` suffixes', $call, Status::NOT_FOUND);
         } elseif (!class_exists($controller)) {
-            throw new ControllerException("No controller found such '%s'", $controller, Status::NOT_FOUND);
+            throw new ControllerException('No controller found such `%s`', $controller, Status::NOT_FOUND);
         } elseif (!method_exists($controller, $action)) {
-            throw new ControllerException("No controller action found such '%s::%s()'", [$controller, $action],
+            throw new ControllerException('No controller action found such `%s::%s()`', [$controller, $action],
                 Status::NOT_FOUND);
         }
 
@@ -433,7 +377,7 @@ class Controller
     }
 
     /**
-     * Redirects to given location applying `$toArgs` if provided, with given headers & cookies.
+     * Redirect clien to given location applying `$toArgs` if provided, with given headers & cookies.
      *
      * @param  string     $to
      * @param  array|null $toArgs
@@ -445,13 +389,13 @@ class Controller
     public final function redirect(string $to, array $toArgs = null, int $code = Status::FOUND,
         array $headers = null, array $cookies = null): void
     {
-        if ($toArgs) $to = vsprintf($to, $toArgs);
+        $toArgs && $to = vsprintf($to, $toArgs);
 
         $this->response->redirect($to, $code, $headers, $cookies);
     }
 
     /**
-     * Sets response (status) code.
+     * Set response (status) code.
      *
      * @param  int $code
      * @return self
@@ -464,7 +408,7 @@ class Controller
     }
 
     /**
-     * Sets response (content) type.
+     * Set response (content) type.
      *
      * @param  string $type
      * @return self
@@ -477,7 +421,7 @@ class Controller
     }
 
     /**
-     * Status (alias of setResponseCode()).
+     * Alias of setResponseCode().
      *
      * @param  int $code
      * @return self
@@ -488,7 +432,7 @@ class Controller
     }
 
     /**
-     * Request (gets request object).
+     * Get request object.
      *
      * @return froq\http\Request
      * @since  4.1
@@ -499,7 +443,7 @@ class Controller
     }
 
     /**
-     * Gets response object, sets response status & body content, also content attributes if provided.
+     * Get response object, set response status & body content, also content attributes when provided.
      *
      * @param  int|null   $code
      * @param  any|null   $content
@@ -508,40 +452,39 @@ class Controller
      */
     public final function response(int $code = null, $content = null, array $attributes = null): Response
     {
-        $response = $this->response;
-
         // Content can be null, but not code.
         if ($code !== null) {
-            $response->setStatus($code)->setBody($content, $attributes);
+            $this->response->setStatus($code)
+                           ->setBody($content, $attributes);
         }
 
-        return $response;
+        return $this->response;
     }
 
     /**
-     * Gets App's Session object.
+     * Get app session object.
      *
-     * @return ?froq\session\Session
+     * @return froq\session\Session|null
      * @since  4.2
      */
-    public final function session(): ?Session
+    public final function session(): Session|null
     {
         return $this->app->session();
     }
 
     /**
-     * Gets App's Database object.
+     * Gets app database object.
      *
-     * @return ?froq\database\Database
+     * @return froq\database\Database|null
      * @since  4.2
      */
-    public final function database(): ?Database
+    public final function database(): Database|null
     {
         return $this->app->database();
     }
 
     /**
-     * Yields a payload with given status & content, also content attributes if provided.
+     * Yield a payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -554,7 +497,7 @@ class Controller
     }
 
     /**
-     * Yields a JSON payload with given status & content, also content attributes if provided.
+     * Yield a JSON payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -567,7 +510,7 @@ class Controller
     }
 
     /**
-     * Yields a XML payload with given status & content, also content attributes if provided.
+     * Yield a XML payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -580,7 +523,7 @@ class Controller
     }
 
     /**
-     * Yields a HTML payload with given status & content, also content attributes if provided.
+     * Yield a HTML payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -593,7 +536,7 @@ class Controller
     }
 
     /**
-     * Yields a file payload with given status & content, also content attributes if provided.
+     * Yield a file payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -606,7 +549,7 @@ class Controller
     }
 
     /**
-     * Yields an image payload with given status & content, also content attributes if provided.
+     * Yield an image payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -619,7 +562,7 @@ class Controller
     }
 
     /**
-     * Gets a segment value.
+     * Get a segment value.
      *
      * @param  int|string $key
      * @param  any        $default
@@ -632,24 +575,24 @@ class Controller
     }
 
     /**
-     * Gets URI's Segments object.
+     * Get URI segments object.
      *
-     * @return ?froq\http\request\Segments
+     * @return froq\http\request\Segments|null
      * @since  4.2
      */
-    public final function segments(): ?Segments
+    public final function segments(): Segments|null
     {
         return $this->request->uri()->segments();
     }
 
     /**
-     * Gets URI's Segments object as list.
+     * Get URI segments object as list.
      *
      * @param  int $offset
-     * @return ?array
+     * @return array|null
      * @since  4.4
      */
-    public final function segmentsList(int $offset = 0): ?array
+    public final function segmentsList(int $offset = 0): array|null
     {
         $segments = $this->request->uri()->segments();
 
@@ -657,7 +600,7 @@ class Controller
     }
 
     /**
-     * Gets a get parameter.
+     * Get a get parameter.
      *
      * @param  string   $name
      * @param  any|null $default
@@ -669,7 +612,7 @@ class Controller
     }
 
     /**
-     * Gets all get parameters or given names only.
+     * Get all get parameters or by given names only.
      *
      * @param  array<string>|null $names
      * @param  any|null           $default
@@ -681,7 +624,7 @@ class Controller
     }
 
     /**
-     * Gets a post parameter.
+     * Get a post parameter.
      *
      * @param  string   $name
      * @param  any|null $default
@@ -693,7 +636,7 @@ class Controller
     }
 
     /**
-     * Gets all post parameters or given names only.
+     * Get all post parameters or by given names only.
      *
      * @param  array<string>|null $names
      * @param  any|null           $default
@@ -705,7 +648,7 @@ class Controller
     }
 
     /**
-     * Gets a cookie parameter.
+     * Get a cookie parameter.
      *
      * @param  string   $name
      * @param  any|null $default
@@ -717,7 +660,7 @@ class Controller
     }
 
     /**
-     * Gets all cookie parameters or given names only.
+     * Get all cookie parameters or by given names only.
      *
      * @param  array<string>|null $names
      * @param  any|null           $default
@@ -729,7 +672,7 @@ class Controller
     }
 
     /**
-     * Calls an action that defined in subclass or by `App.route()` method or other shortcut route
+     * Call an action that defined in subclass or by `App.route()` method or other shortcut route
      * methods like `get()`, `post()`, eg: `$app->get("/book/:id", "Book.show")`.
      *
      * @param  string $action
@@ -772,7 +715,7 @@ class Controller
     }
 
     /**
-     * Calls an callable (function) that defined by `App.route()` method or other shortcut route
+     * Call an callable (function) that defined by `App.route()` method or other shortcut route
      * methods like `get()`, `post()`, eg: `$app->get("/book/:id", function ($id) { .. })`.
      *
      * @param  callable $action
@@ -812,8 +755,8 @@ class Controller
     }
 
     /**
-     * Initializes a model object by given model/model class name. Throws a `ControllerException`
-     * if no such model class exists.
+     * Initialize a model object by given model/model class name, throws a `ControllerException` if no
+     * such model class exists.
      *
      * @param  string                      $name
      * @param  froq\mvc\Controller|null    $controller
@@ -841,8 +784,7 @@ class Controller
     }
 
     /**
-     * Prepares an action's parameters to fulfill its required/non-required parameters needed on
-     * calltime/runtime.
+     * Prepare an action's parameters to fulfill its required/non-required parameters needed on calltime/runtime.
      *
      * @param  Reflector $reflector
      * @param  array     $actionParams
