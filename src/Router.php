@@ -159,8 +159,8 @@ final class Router
     }
 
     /**
-     * Resolve the given URI onto a defined route if possible and returns a packed action/controller
-     * pairs, otherwise returns null that indicates no route found. Throws `RouterException` if no
+     * Resolve the given URI onto a defined route if possible and return a packed action/controller
+     * pairs, otherwise return null that indicates no route found. Throws `RouterException` if no
      * routes provided yet or no pattern / no call directive provided for a route.
      *
      * @param  string      $uri
@@ -330,7 +330,7 @@ final class Router
 
     /**
      * Prepare a short call directive converting the call to a fully qualified controller/action
-     * pairs and appending action parameters to the returning array. Returns an empty array if an
+     * pairs and appending action parameters to the returning array. Return an empty array if an
      * invalid call directive given.
      *
      * @param  string $call
