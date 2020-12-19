@@ -13,6 +13,8 @@ use froq\mvc\{Controller, Model};
 /**
  * Router.
  *
+ * Represents a route stack entity that able to do such ops add/pack and resolve using RegExp utilities.
+ *
  * @package froq
  * @object  froq\Router
  * @author  Kerem Güneş <k-gun@mail.com>
@@ -20,30 +22,16 @@ use froq\mvc\{Controller, Model};
  */
 final class Router
 {
-    /**
-     * Routes.
-     * @var array
-     */
+    /** @var array */
     private array $routes = [];
 
-    /**
-     * Debug.
-     * @var array
-     */
+    /** @var array */
     private array $debug = [];
 
-    /**
-     * Options.
-     * @var array
-     * @since 4.12
-     */
+    /** @var array @since 4.12 */
     private static array $options = [];
 
-    /**
-     * Options default.
-     * @var array
-     * @since 4.12
-     */
+    /** @var array @since 4.12 */
     private static array $optionsDefault = [
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,
@@ -54,6 +42,7 @@ final class Router
 
     /**
      * Constructor.
+     *
      * @param array|null $options
      */
     public function __construct(array $options = null)
@@ -62,7 +51,7 @@ final class Router
     }
 
     /**
-     * Gets the routes property.
+     * Get routes property.
      *
      * @return array
      */
@@ -72,7 +61,7 @@ final class Router
     }
 
     /**
-     * Gets the debug property.
+     * Get debug property.
      *
      * @return array
      */
@@ -83,6 +72,7 @@ final class Router
 
     /**
      * Set options.
+     *
      * @param  array $options
      * @return self
      * @since  4.14
@@ -96,6 +86,7 @@ final class Router
 
     /**
      * Get options.
+     *
      * @return array
      * @since  4.14
      */
@@ -105,7 +96,7 @@ final class Router
     }
 
     /**
-     * Adds a route to routes stack.
+     * Add a route to stack preparing its methods & calls with call arguments.
      *
      * @param  string          $route
      * @param  string          $methods
@@ -144,7 +135,7 @@ final class Router
     }
 
     /**
-     * Adds multiple routes to routes stack.
+     * Add multiple routes to stack.
      *
      * @param  array $routes
      * @return void
@@ -153,7 +144,7 @@ final class Router
     {
         // These generally comes from configuration.
         foreach ($routes as $route) {
-            @ [$route, $call, $callArgs] = (array) $route;
+            [$route, $call, $callArgs] = array_select((array) $route, [0, 1, 2]);
 
             if (is_array($call)) {
                 // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ..]]).
@@ -168,7 +159,7 @@ final class Router
     }
 
     /**
-     * Resolves the given URI onto a defined route if possible and returns a packed action/controller
+     * Resolve the given URI onto a defined route if possible and returns a packed action/controller
      * pairs, otherwise returns null that indicates no route found. Throws `RouterException` if no
      * routes provided yet or no pattern / no call directive provided for a route.
      *
@@ -181,9 +172,7 @@ final class Router
     public function resolve(string $uri, string $method = null, array $options = null): ?array
     {
         $routes = $this->getRoutes();
-        if ($routes == null) {
-            throw new RouterException('No route directives exists yet to resolve');
-        }
+        $routes || throw new RouterException('No route directives exists yet to resolve');
 
         // Update options.
         if ($options != null) {
@@ -192,12 +181,10 @@ final class Router
 
         $patterns = [];
         foreach ($routes as $i => [$pattern]) {
-            if (empty($pattern)) {
-                throw new RouterException("No pattern given for route '%s'", $i);
-            }
+            $pattern || throw new RouterException('No pattern given for route `%s`', $i);
 
             // Format named parameters if given.
-            if (strpos($pattern, ':')) {
+            if (str_contains($pattern, ':')) {
                 $pattern = preg_replace_callback(
                     // Eg: /:id[\d] or /:tab{show|hide}
                     '~(?<!\?):(\w+)(?:(?<c>[\[\{])(.+?)[\]\}])?~',
@@ -231,14 +218,14 @@ final class Router
         }
 
         // Operator "x" is just for readability at debugging times.
-        $pattern = "~^(?:\n". join(" |\n", $patterns) ."\n)$~xAJ";
+        $pattern = "~^(?:\n" . join(" |\n", $patterns) . "\n)$~xAJ";
 
         // Apply options.
-        self::$options['unicode'] && $pattern .= 'u';
+        self::$options['unicode']   && $pattern .= 'u';
         self::$options['decodeUri'] && $uri = rawurldecode($uri);
 
         // Normalize URI (removes repeating & ending slashes).
-        $uri = '/'. preg_replace('~/+~', '/', trim($uri, '/'));
+        $uri = '/' . preg_replace('~/+~', '/', trim($uri, '/'));
 
         $this->debug = ['uri' => $uri, 'pattern' => $pattern, 'mark' => null];
 
@@ -247,7 +234,7 @@ final class Router
 
             $mark = (int) $match['MARK'];
             if (empty($routes[$mark][1])) {
-                throw new RouterException("No call directives found for route '%s'", $mark);
+                throw new RouterException('No call directives found for route `%s`', $mark);
             }
 
             $this->debug['mark'] = $mark;
@@ -292,7 +279,7 @@ final class Router
     }
 
     /**
-     * Packs given calls with call arguments into an array structure by HTTP method or * that means
+     * Pack given calls with call arguments into an array structure by HTTP method or * that means
      * accapting all HTTP methods. Throws a `RouterException` if no valid action given or no controller
      * given for controller based routes.
      *
@@ -315,9 +302,7 @@ final class Router
             if (is_string($call)) {
                 [$controller, $action] = self::prepare($call);
 
-                if (!$controller) {
-                    throw new RouterException('No controller given in route');
-                }
+                $controller || throw new RouterException('No controller given in route');
 
                 foreach ($methods as $method) {
                     $actions[$method] = [$controller, $action, $actionParams];
@@ -335,7 +320,8 @@ final class Router
             }
             // No valid route options.
             else {
-                throw new RouterException('Only string and callable actions are allowed');
+                throw new RouterException('Only string and callable actions are allowed, %s given',
+                    get_type($call));
             }
         }
 
@@ -343,7 +329,7 @@ final class Router
     }
 
     /**
-     * Prepares a short call directive converting the call to a fully qualified controller/action
+     * Prepare a short call directive converting the call to a fully qualified controller/action
      * pairs and appending action parameters to the returning array. Returns an empty array if an
      * invalid call directive given.
      *
@@ -355,21 +341,18 @@ final class Router
     {
         // Note: suffixes ("Controller" and "Action") must not be used in call directives (
         // eg: Index for IndexController, Index.foo for IndexController.fooAction).
-        @ [$controller, $action] = explode('.', $call);
-        if (!$controller) {
-            return [null, null, null];
-        }
+        [$controller, $action] = array_select((array) explode('.', $call), [0, 1]);
 
         // Return controller, action, actionParams.
-        return [
+        return $controller ? [
             self::prepareControllerName($controller),
             self::prepareActionName($action ?: self::$options['defaultAction']),
             $callArgs
-        ];
+        ] : [null, null, null];
     }
 
     /**
-     * Prepares a controller & controller action name.
+     * Prepare a controller & controller action name.
      *
      * @param  string      $name
      * @param  string|null $suffix
@@ -380,7 +363,7 @@ final class Router
     public static function prepareName(string $name, string $suffix = null, bool $suffixed = false): string
     {
         // Titleize.
-        if (strpos($name, '-')) {
+        if (str_contains($name, '-')) {
             $name = implode('', array_map('ucfirst', explode('-', $name)));
         }
 
@@ -398,7 +381,7 @@ final class Router
     }
 
     /**
-     * Prepares a controller name.
+     * Prepare a controller name.
      *
      * @param  string $controller
      * @param  bool   $full
@@ -411,6 +394,7 @@ final class Router
         }
 
         $name = self::prepareName($name, Controller::SUFFIX);
+        $name = trim($name, '\\');
 
         // Fix namespaced name.
         if ($pos = strrpos($name, '\\')) {
@@ -419,14 +403,14 @@ final class Router
 
         // Make controller fully named & namespaced.
         if ($full) {
-            $name = Controller::NAMESPACE .'\\'. $name . Controller::SUFFIX;
+            $name = Controller::NAMESPACE . '\\' . $name . Controller::SUFFIX;
         }
 
         return $name;
     }
 
     /**
-     * Prepares a (controller) action name.
+     * Prepare a (controller) action name.
      *
      * @param  string $name
      * @param  bool   $full
@@ -449,7 +433,7 @@ final class Router
     }
 
     /**
-     * Prepares calls for a route.
+     * Prepare calls for a route.
      *
      * @param  array $routes
      * @param  int   $i
@@ -461,7 +445,7 @@ final class Router
     }
 
     /**
-     * Prepares methods for a route.
+     * Prepare methods for a route.
      *
      * @param  string $methods
      * @return array<string>
