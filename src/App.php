@@ -282,16 +282,16 @@ final class App
      */
     public function cache($key = null, $value = null, int $ttl = null)
     {
-        if (!isset($this->cache)) {
-            throw new AppException("No cache agent initiated yet, be sure 'cache' field is "
-                . "not empty in config");
+        if (isset($this->cache)) {
+            return match (func_num_args()) {
+                      0 => $this->cache, // None given.
+                      1 => $this->cache->read($key),
+                default => $this->cache->write($key, $value, $ttl)
+            };
         }
 
-        switch (func_num_args()) {
-             case 0: return $this->cache; // None given.
-             case 1: return $this->cache->read($key);
-            default: return $this->cache->write($key, $value, $ttl);
-        }
+        throw new AppException('No cache agent initiated yet, be sure `cache` field is '
+            . 'not empty in config');
     }
 
     /**
@@ -303,12 +303,12 @@ final class App
      */
     public function uncache($key): bool
     {
-        if (!isset($this->cache)) {
-            throw new AppException("No cache agent initiated yet, be sure 'cache' field is "
-                . "not empty in config");
+        if (isset($this->cache)) {
+            return $this->cache->remove($key);
         }
 
-        return $this->cache->remove($key);
+        throw new AppException('No cache agent initiated yet, be sure `cache` field is '
+            . 'not empty in config');
     }
 
     /**
