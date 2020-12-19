@@ -8,7 +8,8 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\{ModelException, Controller};
-use froq\database\{Database, Result, Query, trait\DbTrait, trait\TableTrait, trait\ValidationTrait};
+use froq\database\{Database, Result, Query};
+use froq\database\trait\{DbTrait, TableTrait, ValidationTrait};
 use froq\{pager\Pager, common\object\Registry};
 
 /**
