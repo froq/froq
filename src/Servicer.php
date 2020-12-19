@@ -46,41 +46,46 @@ final class Servicer
      * type given, service argument is an array and no service class given or service class not
      * found.
      *
-     * @param string                        $name
-     * @param callable|array<string, array> $service
+     * @param  string                        $name
+     * @param  callable|array<string, array> $service
+     * @return self
      * @throws froq\ServicerException
      */
-    public function addService(string $name, $service): void
+    public function addService(string $name, $service): self
     {
         if (is_array($service)) {
-            @ [$class, $classArgs] = $service;
+            [$class, $classArgs] = array_select($service, [0, 1]);
+
             if ($class == null) {
-                throw new ServicerException('Service class must be provided and fully namespaced '
-                    . 'for array-ed service registrations');
+                throw new ServicerException('Service class must be provided and fully namespaced for'
+                    . ' array-ed service registrations');
             } elseif (!class_exists($class)) {
                 throw new ServicerException("Service class '%s' not found", $class);
             }
 
-            $this->services[$name] = !$classArgs ? new $class()
-                : new $class(...array_values((array) $classArgs));
+            $this->services[$name] = !$classArgs ? new $class() : new $class(...array_values((array) $classArgs));
         } elseif (is_object($service) || is_callable($service)) {
             $this->services[$name] = $service;
         } else {
             throw new ServicerException('Only array, object and callable service registrations are allowed');
         }
+
+        return $this;
     }
 
     /**
      * Adds services to services stack.
      *
      * @param  array $services
-     * @return void
+     * @return self
      */
-    public function addServices(array $services): void
+    public function addServices(array $services): self
     {
         foreach ($services as $name => $service) {
             $this->addService($name, $service);
         }
+
+        return $this;
     }
 
     /**
@@ -89,7 +94,7 @@ final class Servicer
      * @param  string $name
      * @return object|callable|null
      */
-    public function getService(string $name)
+    public function getService(string $name): object|callable|null
     {
         return $this->services[$name] ?? null;
     }
