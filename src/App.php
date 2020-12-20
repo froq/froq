@@ -9,7 +9,7 @@ namespace froq;
 
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use froq\{config\Config, logger\Logger, event\Events, session\Session, database\Database};
-use froq\common\{trait\SingletonTrait, object\Factory, object\Registry};
+use froq\common\{trait\InstanceTrait, object\Factory, object\Registry};
 use froq\http\{Request, Response, response\Status};
 use froq\cache\{Cache, cache\CacheFactory};
 use Throwable;
@@ -24,8 +24,8 @@ use Throwable;
  */
 final class App
 {
-    /** @see froq\common\trait\SingletonTrait */
-    use SingletonTrait;
+    /** @see froq\common\trait\InstanceTrait */
+    use InstanceTrait;
 
     /**
      * Root (provides options like "app.local/v1/book/1" for versioning etc.).
