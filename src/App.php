@@ -17,6 +17,14 @@ use Throwable;
 /**
  * App.
  *
+ * Represents an application entity which is responsible with all application logics;
+ * - Creating needed object instances such as Logger, Router, Servicer or Session, Database etc. those used all over
+ * the application cycle.
+ * - Registering/unregistering error handlers, handling and logging errors.
+ * - Applying user-defined configuration options and starting/ending output buffer.
+ * - Adding routes or resolving routes from requested URI or errorizing when no route, route controller or method found.
+ * - Creating controllers, dispatching and getting action returns, sending those returns response object.
+ *
  * @package froq
  * @object  froq\App
  * @author  Kerem Güneş <k-gun@mail.com>
