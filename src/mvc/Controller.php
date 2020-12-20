@@ -91,12 +91,12 @@ class Controller
         $this->app = $app;
 
         // Copy as a shortcut for child classes.
-        $this->request = $app->request();
+        $this->request  = $app->request();
         $this->response = $app->response();
 
         // Load usings.
-        $this->useView && $this->loadView();
-        $this->useModel && $this->loadModel();
+        $this->useView    && $this->loadView();
+        $this->useModel   && $this->loadModel();
         $this->useSession && $this->loadSession();
 
         // Call init() method if defined in child class.
@@ -109,7 +109,7 @@ class Controller
 
         // Set before/after ticks these called in call() method.
         $this->before = method_exists($this, 'before');
-        $this->after = method_exists($this, 'after');
+        $this->after  = method_exists($this, 'after');
     }
 
     /**
@@ -308,7 +308,7 @@ class Controller
      *
      * @param  string   $name
      * @param  any|null $default
-     * @return any
+     * @return any|null
      */
     public final function env(string $name, $default = null)
     {
@@ -565,11 +565,11 @@ class Controller
      * Get a segment value.
      *
      * @param  int|string $key
-     * @param  any        $default
-     * @return any
+     * @param  any|null   $default
+     * @return any|null
      * @since  4.2
      */
-    public final function segment($key, $default = null)
+    public final function segment(int|string $key, $default = null)
     {
         return $this->request->uri()->segment($key, $default);
     }
@@ -594,9 +594,7 @@ class Controller
      */
     public final function segmentsList(int $offset = 0): array|null
     {
-        $segments = $this->request->uri()->segments();
-
-        return $segments ? $segments->toList($offset) : null;
+        return $this->request->uri()->segments()?->toList($offset);
     }
 
     /**
@@ -704,11 +702,12 @@ class Controller
         $params = [...$params, ...$paramsRest];
 
         try {
-            $this->before && $this->before();   // Call if defined in child.
+            $this->before && $this->before();
             $ret = $this->{$action}(...$params);
-            $this->after && $this->after();     // Call if defined in child.
+            $this->after  && $this->after();
         } catch (Throwable $e) {
-            $ret = method_exists($this, 'error') ? $this->error($e) : $this->app->error($e);
+            $ret = method_exists($this, 'error')
+                 ? $this->error($e) : $this->app->error($e);
         }
 
         return $ret;
@@ -744,11 +743,12 @@ class Controller
         $params = [...$params, ...$paramsRest];
 
         try {
-            $this->before && $this->before();   // Call if defined in child.
+            $this->before && $this->before();
             $ret = $action(...$params);
-            $this->after && $this->after();     // Call if defined in child.
+            $this->after  && $this->after();
         } catch (Throwable $e) {
-            $ret = method_exists($this, 'error') ? $this->error($e) : $this->app->error($e);
+            $ret = method_exists($this, 'error')
+                 ? $this->error($e) : $this->app->error($e);
         }
 
         return $ret;
@@ -784,7 +784,8 @@ class Controller
     }
 
     /**
-     * Prepare an action's parameters to fulfill its required/non-required parameters needed on calltime/runtime.
+     * Prepare an action's parameters to fulfill its required/non-required parameters needed on
+     * calltime/runtime.
      *
      * @param  Reflector $reflector
      * @param  array     $actionParams
