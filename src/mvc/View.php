@@ -146,7 +146,7 @@ final class View
      */
     private function prepareFile(string $file): string
     {
-        if (strsfx($file, '.php')) {
+        if (str_ends_with($file, '.php')) {
             $file = substr($file, 0, -4);
         }
 

@@ -372,9 +372,11 @@ final class Router
                   ? ucfirst($name) : lcfirst($name);
 
             // Add/drop suffix.
-            $name = !$suffixed
-                  ? (strsfx($name, $suffix) ? substr($name, 0, -strlen($suffix)) : $name)
-                  : ($name . $suffix);
+            $name = !$suffixed ? (
+                str_ends_with($name, $suffix)
+                    ? substr($name, 0, -strlen($suffix))
+                    : $name
+            ) : ($name . $suffix);
         }
 
         return $name;
