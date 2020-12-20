@@ -34,7 +34,7 @@ trait RestTrait
      *
      * Note: this method must be called in `index()` method.
      *
-     * @param  ... $params
+     * @param  any ...$params
      * @return any
      */
     protected final function rest(...$params)
