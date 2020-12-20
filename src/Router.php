@@ -104,7 +104,7 @@ final class Router
      * @param  array|null      $callArgs
      * @return void
      */
-    public function addRoute(string $route, string $methods, $call, array $callArgs = null): void
+    public function addRoute(string $route, string $methods, string|callable $call, array $callArgs = null): void
     {
         $route  = trim($route);
         $routes = $this->getRoutes();
