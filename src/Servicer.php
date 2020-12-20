@@ -46,12 +46,12 @@ final class Servicer
      * type given, service argument is an array and no service class given or service class not
      * found.
      *
-     * @param  string                        $name
-     * @param  callable|array<string, array> $service
+     * @param  string                $name
+     * @param  object|callable|array $service
      * @return self
      * @throws froq\ServicerException
      */
-    public function addService(string $name, $service): self
+    public function addService(string $name, object|callable|array $service): self
     {
         if (is_array($service)) {
             [$class, $classArgs] = array_select($service, [0, 1]);
@@ -64,10 +64,8 @@ final class Servicer
             }
 
             $this->services[$name] = !$classArgs ? new $class() : new $class(...(array) $classArgs);
-        } elseif (is_object($service) || is_callable($service)) {
-            $this->services[$name] = $service;
         } else {
-            throw new ServicerException('Only array, object and callable service registrations are allowed');
+            $this->services[$name] = $service;
         }
 
         return $this;
