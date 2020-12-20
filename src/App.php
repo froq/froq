@@ -85,11 +85,12 @@ final class App
             'directory' => APP_DIR . '/tmp/log'
         ]);
 
-        $this->request = new Request($this);
+        $this->request  = new Request($this);
         $this->response = new Response($this);
 
-        [$this->dir, $this->config, $this->events, $this->router, $this->servicer]
-            = [APP_DIR, new Config(), new Events(), new Router(), new Servicer()];
+        [$this->dir, $this->config, $this->events, $this->router, $this->servicer] = [
+            APP_DIR, new Config(), new Events(), new Router(), new Servicer()
+        ];
 
         // Register app.
         Registry::set('@app', $this, false);
@@ -116,7 +117,7 @@ final class App
      */
     public function isRoot(): bool
     {
-        return ($this->root == $this->request->uri()->get('path'));
+        return $this->root == $this->request->uri()->get('path');
     }
 
     /**
@@ -293,7 +294,7 @@ final class App
     }
 
     /**
-     * Get rervicer.
+     * Get servicer.
      *
      * @return froq\Servicer
      * @since  4.0
@@ -374,12 +375,12 @@ final class App
     /**
      * Set/get a service.
      *
-     * @param  string         $name
-     * @param  array|callable $service
+     * @param  string                $name
+     * @param  object|callable|array $service
      * @return object|callable|null
      * @since  4.0
      */
-    public function service(string $name, $service = null): object|callable|null
+    public function service(string $name, object|callable|array $service = null): object|callable|null
     {
         return (func_num_args() == 1)
              ? $this->servicer->getService($name)
@@ -562,7 +563,7 @@ final class App
      * @return bool
      * @since  4.0
      */
-    public function errorLog($error): bool
+    public function errorLog(string|Throwable $error): bool
     {
         return $this->logger->setLevel(Logger::ERROR)->logError($error);
     }
@@ -626,8 +627,8 @@ final class App
         }
 
         $exposeAppRuntime = $this->config('exposeAppRuntime');
-        if ($exposeAppRuntime && ($exposeAppRuntime === true || $exposeAppRuntime === $this->env)) {
-            $response->setHeader('X-App-Runtime', sprintf('%.4f', $this->runtime()));
+        if ($exposeAppRuntime && ($exposeAppRuntime === true || $exposeAppRuntime === $this->env())) {
+            $response->setHeader('X-App-Runtime', sprintf('%.4F', $this->runtime()));
         }
 
         // The end..
