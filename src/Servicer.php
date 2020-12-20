@@ -32,11 +32,11 @@ final class Servicer
     {}
 
     /**
-     * Gets the services property.
+     * Get services.
      *
      * @return array
      */
-    public function getServices(): array
+    public function services(): array
     {
         return $this->services;
     }

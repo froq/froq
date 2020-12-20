@@ -51,21 +51,21 @@ final class Router
     }
 
     /**
-     * Get routes property.
+     * Get routes.
      *
      * @return array
      */
-    public function getRoutes(): array
+    public function routes(): array
     {
         return $this->routes;
     }
 
     /**
-     * Get debug property.
+     * Get debug.
      *
      * @return array
      */
-    public function getDebug(): array
+    public function debug(): array
     {
         return $this->debug;
     }
@@ -107,7 +107,7 @@ final class Router
     public function addRoute(string $route, string $methods, string|callable $call, array $callArgs = null): void
     {
         $route  = trim($route);
-        $routes = $this->getRoutes();
+        $routes = $this->routes();
 
         // Chop "/" from end.
         if ($route != '/') {
@@ -159,9 +159,9 @@ final class Router
     }
 
     /**
-     * Resolve the given URI onto a defined route if possible and return a packed action/controller
-     * pairs, otherwise return null that indicates no route found. Throws `RouterException` if no
-     * routes provided yet or no pattern / no call directive provided for a route.
+     * Resolve given URI onto a defined route if possible and return a packed action/controller pairs,
+     * otherwise return null that indicates no route found. Throws `RouterException` if no routes provided
+     * yet or no pattern / no call directive provided for a route.
      *
      * @param  string      $uri
      * @param  string|null $method
@@ -171,7 +171,7 @@ final class Router
      */
     public function resolve(string $uri, string $method = null, array $options = null): ?array
     {
-        $routes = $this->getRoutes();
+        $routes = $this->routes();
         $routes || throw new RouterException('No route directives exists yet to resolve');
 
         // Update options.
