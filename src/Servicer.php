@@ -19,10 +19,7 @@ use froq\ServicerException;
  */
 final class Servicer
 {
-    /**
-     * Services.
-     * @var array
-     */
+    /** @var array */
     private array $services = [];
 
     /**

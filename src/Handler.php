@@ -13,8 +13,8 @@ use Throwable;
 /**
  * Handler.
  *
- * Represents an handler entity that registers / unregisters `error`, `exception` and `shutdown`
- * handlers. This is an internal class and all handlers are constantified internally.
+ * Represents an handler entity that registers / unregisters `error`, `exception` and `shutdown` handlers.
+ * This is an internal class and all handlers are constantified internally.
  *
  * @package froq
  * @object  froq\Handler
@@ -26,6 +26,7 @@ final class Handler
 {
     /**
      * Register error handler.
+     *
      * @return void
      */
     public static function registerErrorHandler(): void
@@ -81,6 +82,7 @@ final class Handler
 
     /**
      * Register exception handler.
+     *
      * @return void
      */
     public static function registerExceptionHandler(): void
@@ -101,6 +103,7 @@ final class Handler
 
     /**
      * Register shutdown handler.
+     *
      * @return void
      */
     public static function registerShutdownHandler(): void
@@ -121,7 +124,8 @@ final class Handler
             }
 
             if ($error != null) {
-                $error = sprintf("Shutdown in %s:%s\n%s", $error['file'], $error['line'], $error['message']);
+                $error = sprintf("Shutdown in %s:%s\n%s",
+                    $error['file'], $error['line'], $error['message']);
 
                 // Call app error process (log etc.).
                 $app->error($e = new AppError($error, null, $errorCode));
@@ -140,6 +144,7 @@ final class Handler
 
     /**
      * Unregister error handler.
+     *
      * @return void
      */
     public static function unregisterErrorHandler(): void
@@ -149,6 +154,7 @@ final class Handler
 
     /**
      * Unregister exception handler.
+     *
      * @return void
      */
     public static function unregisterExceptionHandler(): void
