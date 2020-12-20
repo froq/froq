@@ -54,11 +54,13 @@ final class View
      * Set the layout property, that will be used as final output file.
      *
      * @param  string $layout
-     * @return void
+     * @return self
      */
-    public function setLayout(string $layout): void
+    public function setLayout(string $layout): self
     {
         $this->layout = $layout;
+
+        return $this;
     }
 
     /**
@@ -76,11 +78,13 @@ final class View
      *
      * @param  string $key
      * @param  any    $value
-     * @return void
+     * @return self
      */
-    public function setData(string $key, $value): void
+    public function setData(string $key, $value): self
     {
         $this->data[$key] = $value;
+
+        return $this;
     }
 
     /**
