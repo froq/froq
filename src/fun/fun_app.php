@@ -3,12 +3,13 @@
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 <https://opensource.org/licenses/apache-2.0>
  */
-declare(strict_types=0);
+declare(strict_types=1);
 
 /*************************
  * Global app functions. *
  *************************/
 
+use froq\App;
 use froq\common\object\Registry;
 
 /**
@@ -16,18 +17,18 @@ use froq\common\object\Registry;
  *
  * @return froq\App
  */
-function app()
+function app(): App
 {
     return Registry::get('@app');
 }
 
 /**
- * get app root.
+ * Get app root.
  *
  * @return string
  * @since  4.0
  */
-function app_root()
+function app_root(): string
 {
     return app()->root();
 }
@@ -37,7 +38,7 @@ function app_root()
  *
  * @return string
  */
-function app_dir()
+function app_dir(): string
 {
     return app()->dir();
 }
@@ -48,7 +49,7 @@ function app_dir()
  * @return string
  * @since  4.0
  */
-function app_env()
+function app_env(): string
 {
     return app()->env();
 }
@@ -59,7 +60,7 @@ function app_env()
  * @return float
  * @since  4.0 Replaced with app_load_time().
  */
-function app_runtime()
+function app_runtime(): float
 {
     return app()->runtime();
 }
@@ -68,11 +69,11 @@ function app_runtime()
  * Get app config or default.
  *
  * @param  string|array $key
- * @param  any          $default
- * @return any|froq\config\Config
+ * @param  any|null     $default
+ * @return any|null|froq\config\Config
  * @since  4.0
  */
-function app_config($key, $default = null)
+function app_config(string|array $key, $default = null)
 {
     return app()->config($key, $default);
 }
@@ -85,7 +86,7 @@ function app_config($key, $default = null)
  * @return any|null
  * @since  4.0
  */
-function app_fail($name, $value = null)
+function app_fail(string $name, $value = null)
 {
     return (func_num_args() == 1)
          ? get_global('app.fail.'. $name)
@@ -95,19 +96,16 @@ function app_fail($name, $value = null)
 /**
  * Get app failures.
  *
- * @return array
+ * @return array|null
  * @since  4.0
  */
-function app_fails()
+function app_fails(): array|null
 {
-    $ret = [];
-
-    $fails = get_global('app.fail.*');
-    if ($fails) {
+    if ($fails = get_global('app.fail.*')) {
         foreach ($fails as $name => $fail) {
             $ret[$name] = $fail;
         }
     }
 
-    return $ret;
+    return $ret ?? null;
 }

@@ -3,7 +3,7 @@
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 <https://opensource.org/licenses/apache-2.0>
  */
-declare(strict_types=0);
+declare(strict_types=1);
 
 /*********************
  * Global functions. *
@@ -12,8 +12,8 @@ declare(strict_types=0);
 /**
  * Empty var checker.
  *
- * @param  any $in
- * @param  ... $ins
+ * @param  any    $in
+ * @param  any ...$ins
  * @return bool
  */
 function no($in, ...$ins)
@@ -32,8 +32,8 @@ function no($in, ...$ins)
 /**
  * False var checker.
  *
- * @param  any $in
- * @param  ... $ins
+ * @param  any    $in
+ * @param  any ...$ins
  * @return bool
  */
 function not($in, ...$ins)
@@ -62,10 +62,10 @@ function len(...$args)
  *
  * @param  array|string $in
  * @param  any          $search
- * @return array|string|null
+ * @return array|string
  * @since  3.0
  */
-function remove($in, $search)
+function remove(array|string $in, $search): array|string
 {
     return replace($in, $search, '', true);
 }
@@ -76,11 +76,12 @@ function remove($in, $search)
  * @param  string|array               $in
  * @param  string|array               $search
  * @param  string|array|callable|null $replacement
- * @param  bool                       $remove
- * @return string|array|null
+ * @param  bool                       $remove @internal
+ * @return string|array
  * @since  3.0
  */
-function replace($in, $search, $replacement = null, $remove = false)
+function replace(array|string $in, array|string $search, array|string|callable $replacement = null,
+    bool $remove = false): array|string
 {
     if (is_string($in)) {
         // RegExp: only ~..~ patterns accepted.
