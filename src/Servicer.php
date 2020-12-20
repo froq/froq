@@ -63,7 +63,7 @@ final class Servicer
                 throw new ServicerException("Service class '%s' not found", $class);
             }
 
-            $this->services[$name] = !$classArgs ? new $class() : new $class(...array_values((array) $classArgs));
+            $this->services[$name] = !$classArgs ? new $class() : new $class(...(array) $classArgs);
         } elseif (is_object($service) || is_callable($service)) {
             $this->services[$name] = $service;
         } else {

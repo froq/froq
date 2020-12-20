@@ -445,7 +445,6 @@ final class App
         isset($database) && (
             $this->database = Factory::initSingle(Database::class, $database)
         );
-
         // Cache is a "static" instance as default.
         isset($cache) && (
             $this->cache = CacheFactory::init($cache['id'], $cache['agent'])
