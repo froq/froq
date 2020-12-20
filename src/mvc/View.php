@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\{ViewException, Controller};
+use froq\mvc\trait\ControllerTrait;
 
 /**
  * View.
@@ -21,8 +22,8 @@ use froq\mvc\{ViewException, Controller};
  */
 final class View
 {
-    /** @var froq\mvc\Controller */
-    private Controller $controller;
+    /** @see froq\mvc\trait\ControllerTrait */
+    use ControllerTrait;
 
     /** @var string */
     private string $layout;
@@ -41,17 +42,7 @@ final class View
     }
 
     /**
-     * Get the controller property.
-     *
-     * @return froq\mvc\Controller
-     */
-    public function getController(): Controller
-    {
-        return $this->controller;
-    }
-
-    /**
-     * Set the layout property, that will be used as final output file.
+     * Set layout property, that will be used as final output file.
      *
      * @param  string $layout
      * @return self
@@ -64,7 +55,7 @@ final class View
     }
 
     /**
-     * Get the layout property.
+     * Get layout.
      *
      * @return string|null
      */

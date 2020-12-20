@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\{ModelException, Controller};
+use froq\mvc\trait\ControllerTrait;
 use froq\database\{Database, Result, Query};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait};
 use froq\{pager\Pager, common\object\Registry};
@@ -24,6 +25,9 @@ use froq\{pager\Pager, common\object\Registry};
  */
 class Model
 {
+    /** @see froq\mvc\trait\ControllerTrait */
+    use ControllerTrait;
+
     /**
      * @see froq\database\trait\DbTrait
      * @see froq\database\trait\TableTrait
@@ -38,9 +42,6 @@ class Model
     /** @const string */
     public const SUFFIX = 'Model';
 
-    /** @var froq\mvc\Controller */
-    protected Controller $controller;
-
     /**
      * Constructor.
      *
@@ -50,15 +51,14 @@ class Model
      */
     public final function __construct(Controller $controller, Database $database = null)
     {
-        $this->controller = $controller;
-
         $db = $database ?? $controller->getApp()->database();
         if ($db == null) {
             throw new ModelException('No database given to deal, be sure `database` option exists in'
                 . ' app config');
         }
 
-        $this->db = $db;
+        $this->db         = $db;
+        $this->controller = $controller;
 
         // When defined on child class.
         if (method_exists($this, 'init')) {
@@ -67,16 +67,6 @@ class Model
 
         // Store (as last) model.
         Registry::set('@model', $this, false);
-    }
-
-    /**
-     * Get controller property.
-     *
-     * @return froq\mvc\Controller
-     */
-    public final function getController(): Controller
-    {
-        return $this->controller;
     }
 
     /**
