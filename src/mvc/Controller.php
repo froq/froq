@@ -453,9 +453,10 @@ class Controller
     public final function response(int $code = null, $content = null, array $attributes = null): Response
     {
         // Content can be null, but not code.
-        if ($code !== null) {
-            $this->response->setStatus($code)
-                           ->setBody($content, $attributes);
+        if (func_num_args()) {
+            $this->response
+                 ->setStatus($code)
+                 ->setBody($content, $attributes);
         }
 
         return $this->response;
