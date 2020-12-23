@@ -69,6 +69,9 @@ class Controller
     /** @var froq\mvc\Model */
     protected Model $model;
 
+    /** @var string */
+    protected string $modelClass;
+
     /** @var bool */
     public bool $useView = false;
 
@@ -92,6 +95,11 @@ class Controller
         // Copy as a shortcut for subclasses.
         $this->request    = $app->request();
         $this->response   = $app->response();
+
+        // Model check.
+        if (isset($this->modelClass)) {
+            $this->useModel = true;
+        }
 
         // Load usings.
         $this->useView    && $this->loadView();
@@ -159,6 +167,16 @@ class Controller
     public final function getModel(): Model|null
     {
         return $this->model ?? null;
+    }
+
+    /**
+     * Get model class.
+     *
+     * @return string|null
+     */
+    public final function getModelClass(): string|null
+    {
+        return $this->modelClass ?? null;
     }
 
     /**
@@ -264,11 +282,17 @@ class Controller
     public final function loadModel(): void
     {
         if (!isset($this->model)) {
+            // When an absolute class name given.
+            if (isset($this->modelClass)) {
+                $this->model = $this->initModel($this->modelClass);
+                return;
+            }
+
             $name = $this->getShortName();
             $base = null;
 
             // Check whether controller is a sub-controller.
-            if (substr_count($controller = $this::class, '\\') > 2) {
+            if (substr_count($controller = static::class, '\\') > 2) {
                 $base = substr($controller, 0, strrpos($controller, '\\'));
                 $base = substr($base, strrpos($base, '\\') + 1);
             }
@@ -277,7 +301,8 @@ class Controller
             $class ??= !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
                               : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
 
-            $this->model = $this->initModel($class);
+            $this->model      = $this->initModel($class);
+            $this->modelClass = $class;
         }
     }
 
