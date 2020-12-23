@@ -166,10 +166,10 @@ final class Router
      * @param  string      $uri
      * @param  string|null $method
      * @param  array|null  $options
-     * @return ?array
+     * @return array|null
      * @throws froq\RouterException
      */
-    public function resolve(string $uri, string $method = null, array $options = null): ?array
+    public function resolve(string $uri, string $method = null, array $options = null): array|null
     {
         $routes = $this->routes();
         $routes || throw new RouterException('No route directives exists yet to resolve');
