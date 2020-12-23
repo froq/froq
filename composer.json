@@ -4,9 +4,7 @@
     "description":  "Froq! App & MVC.",
     "keywords": ["froq", "app", "mvc"],
     "license": "Apache-2.0",
-    "authors": [
-        {"name": "Kerem Güneş", "email": "k-gun@mail.com"}
-    ],
+    "authors": [{"name": "Kerem Güneş"}],
     "require": {
         "php": "^8.0",
         "froq/froq-common": "^5.0",
