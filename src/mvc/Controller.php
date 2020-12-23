@@ -88,18 +88,17 @@ class Controller
      */
     public final function __construct(App $app)
     {
-        $this->app = $app;
-
-        // Copy as a shortcut for child classes.
-        $this->request  = $app->request();
-        $this->response = $app->response();
+        $this->app        = $app;
+        // Copy as a shortcut for subclasses.
+        $this->request    = $app->request();
+        $this->response   = $app->response();
 
         // Load usings.
         $this->useView    && $this->loadView();
         $this->useModel   && $this->loadModel();
         $this->useSession && $this->loadSession();
 
-        // Call init() method if defined in child class.
+        // Call init() method if defined in subclass.
         if (method_exists($this, 'init')) {
             $this->init();
         }
