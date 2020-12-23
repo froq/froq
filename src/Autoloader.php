@@ -1,7 +1,7 @@
 <?php
 /**
  * Copyright (c) 2015 · Kerem Güneş
- * Apache License 2.0 <https://opensource.org/licenses/apache-2.0>
+ * Apache License 2.0 · http://github.com/froq/froq
  */
 declare(strict_types=1);
 
@@ -17,7 +17,7 @@ function load($file) { require $file; }
  *
  * @package froq\app
  * @object  froq\app\Autoloader
- * @author  Kerem Güneş <k-gun@mail.com>
+ * @author  Kerem Güneş
  * @since   1.0, 4.0 Renamed from Autoload, refactored.
  */
 final class Autoloader
