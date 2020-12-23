@@ -265,20 +265,18 @@ class Controller
     public final function loadModel(): void
     {
         if (!isset($this->model)) {
-            $name   = $this->getShortName();
-            $config = $this->app->config('model');
+            $name = $this->getShortName();
+            $base = null;
 
-            // Map may be defined in config (eg: ["Foo" => "app\foo\FooModel"])
-            if (!empty($config['map'])) {
-                foreach ($config['map'] as $controllerName => $class) {
-                    if ($controllerName == $name) {
-                        break;
-                    }
-                }
+            // Check whether controller is a sub-controller.
+            if (substr_count($controller = $this::class, '\\') > 2) {
+                $base = substr($controller, 0, strrpos($controller, '\\'));
+                $base = substr($base, strrpos($base, '\\') + 1);
             }
 
             // Use found name in config map or self name.
-            $class ??= ($config['namespace'] ?? Model::NAMESPACE) . '\\' . $name . Model::SUFFIX;
+            $class ??= !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
+                              : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
 
             $this->model = $this->initModel($class);
         }
@@ -756,13 +754,14 @@ class Controller
     }
 
     /**
-     * Initialize a model object by given model/model class name, throws a `ControllerException` if no
-     * such model class exists.
+     * Initialize a model object by given model/model class name, throw a `ControllerException` if no such
+     * model class exists.
      *
      * @param  string                      $name
      * @param  froq\mvc\Controller|null    $controller
      * @param  froq\database\Database|null $database
      * @return froq\mvc\Model (static)
+     * @throws froq\mvc\ControllerException
      * @since  4.13
      */
     public final function initModel(string $class, Controller $controller = null, Database $database = null): Model
@@ -770,10 +769,7 @@ class Controller
         $class = trim($class, '\\');
 
         // If no full class name given.
-        str_contains($class, '\\') || (
-            $class = $this->app->config('model.namespace', Model::NAMESPACE)
-                . '\\' . $class . Model::SUFFIX
-        );
+        strpos($class, '\\') || $class = Model::NAMESPACE . '\\' . $class . Model::SUFFIX;
 
         if (!class_exists($class)) {
             throw new ControllerException('Model class `%s` not exists', $class);

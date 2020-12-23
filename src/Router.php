@@ -144,7 +144,7 @@ final class Router
     {
         // These generally comes from configuration.
         foreach ($routes as $route) {
-            [$route, $call, $callArgs] = array_select((array) $route, [0, 1, 2]);
+            [$route, $call, $callArgs] = array_pad((array) $route, 3, null);
 
             if (is_array($call)) {
                 // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ..]]).
@@ -341,12 +341,12 @@ final class Router
     {
         // Note: suffixes ("Controller" and "Action") must not be used in call directives (
         // eg: Index for IndexController, Index.foo for IndexController.fooAction).
-        [$controller, $action] = array_select((array) explode('.', $call), [0, 1]);
+        [$controller, $action] = array_pad((array) explode('.', $call), 2, null);
 
         // Return controller, action, actionParams.
         return $controller ? [
             self::prepareControllerName($controller),
-            self::prepareActionName($action ?: self::$options['defaultAction']),
+            self::prepareActionName($action ?? self::$options['defaultAction']),
             $callArgs
         ] : [null, null, null];
     }
@@ -391,21 +391,33 @@ final class Router
      */
     public static function prepareControllerName(string $name, bool $full = true): string
     {
+        $name = trim($name, '/\\');
+        $base = null;
+
         if ($name == Controller::NAME_DEFAULT) {
             $name = self::$options['defaultController'];
         }
 
-        $name = self::prepareName($name, Controller::SUFFIX);
-        $name = trim($name, '\\');
-
-        // Fix namespaced name.
-        if ($pos = strrpos($name, '\\')) {
+        // Check whether controller is a sub-controller.
+        if (($pos = strrpos($name, '/')) || ($pos = strrpos($name, '\\'))) {
+            $base = substr($name, 0, $pos);
             $name = substr($name, $pos + 1);
+
+            // Convert namespace separators.
+            $base = str_replace('/', '\\', $base);
+
+            // Drop default namespace prefix. @nope
+            // if (str_starts_with($base, Controller::NAMESPACE)) {
+            //     $base = substr($base, strlen(Controller::NAMESPACE) + 1);
+            // }
         }
+
+        $name = self::prepareName($name, Controller::SUFFIX);
 
         // Make controller fully named & namespaced.
         if ($full) {
-            $name = Controller::NAMESPACE . '\\' . $name . Controller::SUFFIX;
+            $name = !$base ? Controller::NAMESPACE . '\\' . $name . Controller::SUFFIX
+                           : Controller::NAMESPACE . '\\' . $base . '\\' . $name . Controller::SUFFIX;
         }
 
         return $name;
