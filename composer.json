@@ -1,6 +1,6 @@
 {
     "name": "froq/froq",
-    "homepage": "https://github.com/froq/froq",
+    "homepage": "http://github.com/froq/froq",
     "description":  "Froq! App & MVC.",
     "keywords": ["froq", "app", "mvc"],
     "license": "Apache-2.0",
