@@ -754,10 +754,35 @@ class Controller
     }
 
     /**
-     * Initialize a model object by given model/model class name, throw a `ControllerException` if no such
+     * Initialize a controller object by given controller name/controller class name, throw a `ControllerException`
+     * if no such controller class exists.
+     *
+     * @param  string $class
+     * @return froq\mvc\Controller (static)
+     * @throws froq\mvc\ControllerException
+     * @since  5.0
+     */
+    public final function initController(string $class): Controller
+    {
+        $class = trim($class, '\\');
+
+        // If no full class name given.
+        strpos($class, '\\') || $class = Controller::NAMESPACE . '\\' . $class . Controller::SUFFIX;
+
+        if (!class_exists($class)) {
+            throw new ControllerException('Controller class `%s` not exists', $class);
+        } elseif (!class_extends($class, Controller::class)) {
+            throw new ControllerException('Controller class `%s` must extend class `%s`', [$class, Controller::class]);
+        }
+
+        return new $class($this->app);
+    }
+
+    /**
+     * Initialize a model object by given model name /model class name, throw a `ControllerException` if no such
      * model class exists.
      *
-     * @param  string                      $name
+     * @param  string                      $class
      * @param  froq\mvc\Controller|null    $controller
      * @param  froq\database\Database|null $database
      * @return froq\mvc\Model (static)
