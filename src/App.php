@@ -88,12 +88,7 @@ final class App
         // App dir is required (@see pub/index.php).
         defined('APP_DIR') || throw new AppException('No APP_DIR defined');
 
-        // Init logger with default options.
-        $this->logger = new Logger([
-            'level'     => Logger::ERROR,
-            'directory' => APP_DIR . '/tmp/log'
-        ]);
-
+        $this->logger   = new Logger(['level' => Logger::ERROR]);
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
