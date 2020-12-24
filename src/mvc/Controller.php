@@ -715,7 +715,7 @@ class Controller
         try {
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, null, Status::NOT_FOUND);
+            throw new ControllerException($e, code: Status::NOT_FOUND);
         }
 
         $params     = $this->prepareActionParams($ref, $actionParams);
@@ -756,7 +756,7 @@ class Controller
         try {
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, null, Status::NOT_FOUND);
+            throw new ControllerException($e, code: Status::NOT_FOUND);
         }
 
         $params     = $this->prepareActionParams($ref, $actionParams);
