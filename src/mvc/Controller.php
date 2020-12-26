@@ -387,12 +387,17 @@ class Controller
 
         if (!$controller || !$action) {
             throw new ControllerException('Invalid call directive %s, use `Foo.bar`'
-                . ' convention without `Controller` and `Action` suffixes', $call, Status::NOT_FOUND);
+                . ' convention without `Controller` and `Action` suffixes', $call,
+                code: Status::NOT_FOUND
+            );
         } elseif (!class_exists($controller)) {
-            throw new ControllerException('No controller found such `%s`', $controller, Status::NOT_FOUND);
+            throw new ControllerException('No controller found such `%s`', $controller,
+                code: Status::NOT_FOUND
+            );
         } elseif (!method_exists($controller, $action)) {
             throw new ControllerException('No controller action found such `%s::%s()`', [$controller, $action],
-                Status::NOT_FOUND);
+                code: Status::NOT_FOUND
+            );
         }
 
         return (new $controller($this->app))->call($action, $actionParams ?? []);

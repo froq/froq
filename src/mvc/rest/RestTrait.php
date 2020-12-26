@@ -46,6 +46,6 @@ trait RestTrait
         }
 
         throw new RestException('No %s() method defined on %s class for %s calls',
-            [strtolower($method), $this::class, strtoupper($method)], Status::NOT_FOUND);
+            [strtolower($method), $this::class, strtoupper($method)], code: Status::NOT_FOUND);
     }
 }
