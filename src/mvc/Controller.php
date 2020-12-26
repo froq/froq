@@ -8,8 +8,10 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\{ControllerException, View, Model};
-use froq\http\{Request, Response, request\Segments, response\Status};
-use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
+use froq\http\{Request, Response, request\Segments, response\Status,
+    response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
+    response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
+    exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, common\object\Registry};
 use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
 
@@ -388,15 +390,15 @@ class Controller
         if (!$controller || !$action) {
             throw new ControllerException('Invalid call directive %s, use `Foo.bar`'
                 . ' convention without `Controller` and `Action` suffixes', $call,
-                code: Status::NOT_FOUND
+                code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!class_exists($controller)) {
             throw new ControllerException('No controller found such `%s`', $controller,
-                code: Status::NOT_FOUND
+                code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!method_exists($controller, $action)) {
             throw new ControllerException('No controller action found such `%s::%s()`', [$controller, $action],
-                code: Status::NOT_FOUND
+                code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
 
@@ -720,7 +722,7 @@ class Controller
         try {
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, code: Status::NOT_FOUND);
+            throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
         }
 
         $params     = $this->prepareActionParams($ref, $actionParams);
@@ -761,7 +763,7 @@ class Controller
         try {
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, code: Status::NOT_FOUND);
+            throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
         }
 
         $params     = $this->prepareActionParams($ref, $actionParams);

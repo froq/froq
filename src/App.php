@@ -10,7 +10,8 @@ namespace froq;
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use froq\{config\Config, logger\Logger, event\Events, session\Session, database\Database};
 use froq\common\{trait\InstanceTrait, object\Factory, object\Registry};
-use froq\http\{Request, Response, response\Status};
+use froq\http\{Request, Response, response\Status,
+    exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, cache\CacheFactory};
 use Throwable;
 
@@ -469,25 +470,33 @@ final class App
 
         // Found but no method allowed?
         if ($route != null && !isset($route[$method]) && !isset($route['*'])) {
-            throw new AppException('No method %s allowed for URI %s',
-                [$method, htmlspecialchars(rawurldecode($uri))], Status::METHOD_NOT_ALLOWED);
+            throw new AppException('No method %s allowed for `%s`',
+                [$method, htmlspecialchars(rawurldecode($uri))],
+                code: Status::NOT_ALLOWED, cause: new NotAllowedException()
+            );
         }
 
         @ [$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
 
         // Not found?
         if ($controller == null) {
-            throw new AppException('No controller route found for URI %s %s',
-                [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
+            throw new AppException('No controller route found for `%s %s`',
+                [$method, htmlspecialchars(rawurldecode($uri))],
+                code: Status::NOT_FOUND, cause: new NotFoundException(),
+            );
         } elseif ($action == null) {
-            throw new AppException('No action route found for URI %s %s',
-                [$method, htmlspecialchars(rawurldecode($uri))], Status::NOT_FOUND);
+            throw new AppException('No action route found for `%s %s`',
+                [$method, htmlspecialchars(rawurldecode($uri))],
+                code: Status::NOT_FOUND, cause: new NotFoundException()
+            );
         } elseif (!class_exists($controller)) {
-            throw new AppException('No controller class found such %s',
-                [$controller], Status::NOT_FOUND);
+            throw new AppException('No controller class found such `%s`',
+                [$controller], code: Status::NOT_FOUND, cause: new NotFoundException()
+            );
         } elseif (!method_exists($controller, $action) && !is_callable($action)) {
-            throw new AppException('No controller action found such %s::%s()',
-                [$controller, $action], Status::NOT_FOUND);
+            throw new AppException('No controller action found such `%s::%s()`',
+                [$controller, $action], code: Status::NOT_FOUND, cause: new NotFoundException()
+            );
         }
 
         $this->startOutputBuffer();
