@@ -492,7 +492,7 @@ class Controller
     }
 
     /**
-     * Get app session object.
+     * Get app's session object.
      *
      * @return froq\session\Session|null
      * @since  4.2
@@ -503,7 +503,7 @@ class Controller
     }
 
     /**
-     * Gets app database object.
+     * Get app's database object.
      *
      * @return froq\database\Database|null
      * @since  4.2
