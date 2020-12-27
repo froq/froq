@@ -89,7 +89,7 @@ final class App
         // App dir is required (@see pub/index.php).
         defined('APP_DIR') || throw new AppException('No APP_DIR defined');
 
-        $this->logger   = new Logger(['level' => Logger::ERROR]);
+        $this->logger   = new Logger(['level' => Logger::ALL]);
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
@@ -578,7 +578,12 @@ final class App
      */
     public function errorLog(string|Throwable $error): bool
     {
-        return $this->logger->setLevel(Logger::ERROR)->logError($error);
+        $level  = $this->logger->getLevel();
+        $logged = $this->logger->setLevel(Logger::ERROR)->logError($error);
+
+        $this->logger->setLevel($level); // Restore.
+
+        return $logged;
     }
 
     /**
