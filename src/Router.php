@@ -406,10 +406,10 @@ final class Router
             // Convert namespace separators.
             $base = str_replace('/', '\\', $base);
 
-            // Drop default namespace prefix. @nope
-            // if (str_starts_with($base, Controller::NAMESPACE)) {
-            //     $base = substr($base, strlen(Controller::NAMESPACE) + 1);
-            // }
+            // Drop default namespace prefix.
+            if (str_starts_with($base, Controller::NAMESPACE)) {
+                $base = substr($base, strlen(Controller::NAMESPACE) + 1);
+            }
         }
 
         $name = self::prepareName($name, Controller::SUFFIX);
