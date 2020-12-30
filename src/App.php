@@ -156,6 +156,17 @@ final class App
     }
 
     /**
+     * Check local env.
+     *
+     * @return bool|null
+     * @since  5.0
+     */
+    public function local(): bool|null
+    {
+        return defined('__local__') ? __local__ : null;
+    }
+
+    /**
      * Get runtime.
      *
      * @return float
