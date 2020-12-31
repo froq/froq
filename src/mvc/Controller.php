@@ -388,7 +388,7 @@ class Controller
         [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
         if (!$controller || !$action) {
-            throw new ControllerException('Invalid call directive %s, use `Foo.bar`'
+            throw new ControllerException('Invalid call directive `%s`, use `Foo.bar`'
                 . ' convention without `Controller` and `Action` suffixes', $call,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );

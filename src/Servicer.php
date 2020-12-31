@@ -39,9 +39,8 @@ final class Servicer
     }
 
     /**
-     * Adds a service to services stack. Throws `ServicerException` if invalid service argument
-     * type given, service argument is an array and no service class given or service class not
-     * found.
+     * Add a service to services stack, or throws `ServicerException` if invalid service argument
+     * type given, service argument is an array and no service class given or service class not found.
      *
      * @param  string                $name
      * @param  object|callable|array $service
@@ -57,7 +56,7 @@ final class Servicer
                 throw new ServicerException('Service class must be provided and fully namespaced for'
                     . ' array-ed service registrations');
             } elseif (!class_exists($class)) {
-                throw new ServicerException("Service class '%s' not found", $class);
+                throw new ServicerException('Service class `%s` not found', $class);
             }
 
             $this->services[$name] = !$classArgs ? new $class() : new $class(...(array) $classArgs);
@@ -69,7 +68,7 @@ final class Servicer
     }
 
     /**
-     * Adds services to services stack.
+     * Add services to services stack.
      *
      * @param  array $services
      * @return self
@@ -84,7 +83,7 @@ final class Servicer
     }
 
     /**
-     * Gets a service from service stack if found, otherwise returns null.
+     * Get a service from service stack if found, otherwise returns null.
      *
      * @param  string $name
      * @return object|callable|null
@@ -95,7 +94,7 @@ final class Servicer
     }
 
     /**
-     * Removes a service from service stack.
+     * Remove a service from service stack.
      *
      * @param  string $name
      * @return bool
@@ -110,7 +109,7 @@ final class Servicer
     }
 
     /**
-     * Checks whether a service exists.
+     * Check whether a service exists.
      *
      * @param  string $name
      * @return bool

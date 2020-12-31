@@ -160,7 +160,7 @@ final class Router
 
     /**
      * Resolve given URI onto a defined route if possible and return a packed action/controller pairs,
-     * otherwise return null that indicates no route found. Throws `RouterException` if no routes provided
+     * otherwise return null that indicates no route found. Throw a `RouterException` if no routes provided
      * yet or no pattern / no call directive provided for a route.
      *
      * @param  string      $uri
@@ -280,7 +280,7 @@ final class Router
 
     /**
      * Pack given calls with call arguments into an array structure by HTTP method or * that means
-     * accapting all HTTP methods. Throws a `RouterException` if no valid action given or no controller
+     * accapting all HTTP methods. Throw a `RouterException` if no valid action given or no controller
      * given for controller based routes.
      *
      * @param  array $calls
