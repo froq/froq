@@ -38,6 +38,7 @@ final class Router
         'unicode'           => false,
         'decodeUri'         => false,
         'endingSlashes'     => true,
+        'throwErrors'       => true,
     ];
 
     /**
@@ -229,7 +230,15 @@ final class Router
 
         $this->debug = ['uri' => $uri, 'pattern' => $pattern, 'mark' => null];
 
-        if (preg_match($pattern, $uri, $match, PREG_UNMATCHED_AS_NULL)) {
+        $res = preg_match($pattern, $uri, $match, PREG_UNMATCHED_AS_NULL);
+
+        // Check invalid-pattern causing errors.
+        if (!$res && self::$options['throwErrors']) {
+            $message = stracut(error_message() ?? '', 'preg_match(): ') ?: preg_error_message();
+            $message && throw new RouterException($message);
+        }
+
+        if ($res) {
             $this->debug['match'] = $match;
 
             $mark = (int) $match['MARK'];
@@ -240,10 +249,19 @@ final class Router
             $this->debug['mark'] = $mark;
 
             $calls    = (array) $routes[$mark][1];
-            $callArgs = [];
+            $callArgs = $usedArgs = [];
 
             // Drop input & mark fields.
             $match = array_slice($match, 1, -1);
+
+            // Replace conditional replacements.
+            foreach ($calls as $i => $call) {
+                $rep = grep($call, '~{(\w+)}~');
+                if ($rep && isset($match[$rep])) {
+                    $calls[$i] = str_replace('{' . $rep . '}', $match[$rep], $call);
+                    $usedArgs[$match[$rep]] = 1; // Tick.
+                }
+            }
 
             // Fill call arguments.
             $i = 0;
@@ -251,7 +269,7 @@ final class Router
                 if (is_string($key)) {
                     $value = $match[$i] ?? $value;
                     // Skip NULLs that set via PREG_UNMATCHED_AS_NULL.
-                    if (isset($value)) {
+                    if (isset($value) && !isset($usedArgs[$value])) {
                         $callArgs[$key] = $value;
                     }
                     // Step back, so we need after-string indexes only.
