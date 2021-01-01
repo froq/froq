@@ -254,12 +254,18 @@ final class Router
             // Drop input & mark fields.
             $match = array_slice($match, 1, -1);
 
-            // Replace conditional replacements.
+            // Handle conditional replacements.
             foreach ($calls as $i => $call) {
                 $rep = grep($call, '~{(\w+)}~');
-                if ($rep && isset($match[$rep])) {
-                    $calls[$i] = str_replace('{' . $rep . '}', $match[$rep], $call);
-                    $usedArgs[$match[$rep]] = 1; // Tick.
+                if ($rep) {
+                    if (isset($match[$rep])) {
+                        // Replace & tick ("-" for camel-case).
+                        $calls[$i] = str_replace('{' . $rep . '}', $match[$rep] . '-', $call);
+                        $usedArgs[$match[$rep]] = 1;
+                    } else {
+                        // Remove non-found replacements from call.
+                        $calls[$i] = str_replace('{' . $rep . '}', '', $call);
+                    }
                 }
             }
 
