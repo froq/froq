@@ -40,20 +40,20 @@ class Model
     public const NAMESPACE = 'app\model';
 
     /** @const string */
-    public const SUFFIX = 'Model';
+    public const SUFFIX    = 'Model';
 
     /**
      * Constructor.
      *
      * @param  froq\mvc\Controller         $controller
-     * @param  froq\database\Database|null $database
+     * @param  froq\database\Database|null $db
      * @throws froq\mvc\ModelException
      */
-    public final function __construct(Controller $controller, Database $database = null)
+    public final function __construct(Controller $controller, Database $db = null)
     {
-        $db = $database ?? $controller->getApp()->database();
+        $db ??= $controller->getApp()->database();
         if ($db == null) {
-            throw new ModelException('No database given to deal, be sure `database` option exists in'
+            throw new ModelException('No db given to deal, be sure `database` option exists in'
                 . ' app config');
         }
 

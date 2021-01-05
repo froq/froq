@@ -89,10 +89,17 @@ class Controller
     /**
      * Constructor.
      *
-     * @param froq\App $app
+     * @param  froq\App|null $app
+     * @throws froq\mvc\ControllerException
      */
-    public final function __construct(App $app)
+    public final function __construct(App $app = null)
     {
+        // Try to use active app object.
+        $app ??= function_exists('app') ? app() : null;
+        if ($app == null) {
+            throw new ControllerException('No app given to deal');
+        }
+
         $this->app        = $app;
         // Copy as a shortcut for subclasses.
         $this->request    = $app->request();
