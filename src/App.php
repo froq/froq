@@ -584,13 +584,14 @@ final class App
      * Log an error setting logger level to ERROR.
      *
      * @param  string|Throwable $error
+     * @param  bool             $separate
      * @return bool
      * @since  4.0
      */
-    public function errorLog(string|Throwable $error): bool
+    public function errorLog(string|Throwable $error, bool $separate = true): bool
     {
         $level  = $this->logger->getLevel();
-        $logged = $this->logger->setLevel(Logger::ERROR)->logError($error);
+        $logged = $this->logger->setLevel(Logger::ERROR)->logError($error, $separate);
 
         $this->logger->setLevel($level); // Restore.
 
