@@ -431,40 +431,16 @@ class Controller
     }
 
     /**
-     * Set response (status) code.
-     *
-     * @param  int $code
-     * @return self
-     */
-    public final function setResponseCode(int $code): self
-    {
-        $this->response->setStatus($code);
-
-        return $this;
-    }
-
-    /**
-     * Set response (content) type.
-     *
-     * @param  string $type
-     * @return self
-     */
-    public final function setResponseType(string $type): self
-    {
-        $this->response->setContentType($type);
-
-        return $this;
-    }
-
-    /**
-     * Alias of setResponseCode().
+     * Set response status.
      *
      * @param  int $code
      * @return self
      */
     public final function status(int $code): self
     {
-        return $this->setResponseCode($code);
+        $this->response->setStatus($code);
+
+        return $this;
     }
 
     /**
