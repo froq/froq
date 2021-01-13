@@ -656,11 +656,6 @@ final class App
             $response->setBody($content, $attributes, $isError);
         }
 
-        $exposeAppRuntime = $this->config('exposeAppRuntime');
-        if ($exposeAppRuntime && ($exposeAppRuntime === true || $exposeAppRuntime === $this->env())) {
-            $response->setHeader('X-App-Runtime', sprintf('%.4F', $this->runtime()));
-        }
-
         // The end..
         $response->end();
     }
