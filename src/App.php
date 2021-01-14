@@ -590,8 +590,18 @@ final class App
      */
     public function errorLog(string|Throwable $error, bool $separate = true): bool
     {
+        // Prevent duplication.
+        if ($error instanceof Throwable && isset($error->logged)) {
+            return $error->logged;
+        }
+
         $level  = $this->logger->getLevel();
         $logged = $this->logger->setLevel(Logger::ERROR)->logError($error, $separate);
+
+        // Tick for internal stuff for duplication.
+        if ($error instanceof Throwable && !isset($error->logged)) {
+            $error->logged = $logged;
+        }
 
         $this->logger->setLevel($level); // Restore.
 
