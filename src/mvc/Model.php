@@ -74,9 +74,9 @@ class Model
      *
      * @since 5.0
      */
-    public final function query(...$args)
+    public final function query(string $table = null)
     {
-        return $this->initQuery(...$args);
+        return $this->initQuery($table);
     }
 
     /**
