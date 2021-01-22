@@ -13,7 +13,7 @@ use froq\http\{Request, Response, request\Segments, response\Status,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, common\object\Registry};
-use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
+use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
  * Controller.
@@ -837,9 +837,18 @@ class Controller
             }
 
             // Action parameter can be named or indexed.
-            $ret[] = $actionParams[$param->name] ?? $actionParams[$i] ?? (
+            $value = $actionParams[$param->name] ?? $actionParams[$i] ?? (
                 $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null
             );
+
+            if ($param->hasType()) {
+                $type = $param->getType();
+                if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
+                    settype($value, $type->getName());
+                }
+            }
+
+            $ret[] = $value;
         }
 
         return $ret;
