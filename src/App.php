@@ -169,12 +169,16 @@ final class App
     /**
      * Get runtime.
      *
-     * @return float
+     * @param  int  $precision
+     * @param  bool $format
+     * @return float|string
      * @since  4.0 Replaced with loadTime().
      */
-    public function runtime(): float
+    public function runtime(int $precision = 3, bool $format = false): float|string
     {
-        return round(microtime(true) - APP_START_TIME, 4);
+        $runtime = round(microtime(true) - APP_START_TIME, $precision);
+
+        return !$format ? $runtime : sprintf('%.*F', $precision, $runtime);
     }
 
     /**

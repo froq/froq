@@ -57,12 +57,14 @@ function app_env(): string
 /**
  * Get app runtime result.
  *
- * @return float
+ * @param  int  $precision
+ * @param  bool $format
+ * @return float|string
  * @since  4.0 Replaced with app_load_time().
  */
-function app_runtime(): float
+function app_runtime(int $precision = 3, bool $format = false): float|string
 {
-    return app()->runtime();
+    return app()->runtime($precision, $format);
 }
 
 /**
