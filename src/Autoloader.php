@@ -111,11 +111,11 @@ final class Autoloader
             elseif (str_starts_with($name, self::$directives[1][0])) {
                 $this->checkAppDir();
 
-                // A model folder checked for only these objects, eg: Model, FooModel, FooEntity, FooEntityArray.
+                // A model folder checked for only these objects, eg: Model, FooModel, FooEntity, FooEntityList.
                 // So any other objects must be loaded in other ways. Besides, "Model" for only the "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
                 // to eg: $app->get("/book/:id", function ($id) { ... }).
-                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|ModelException|Entity|EntityArray)$~', $name, $match);
+                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|ModelException|Entity|EntityList)$~', $name, $match);
                 if ($match) {
                     $file = APP_DIR . sprintf(self::$directives[1][1], $match[1], $match[0]);
                 }
