@@ -144,7 +144,12 @@ final class Router
     public function addRoutes(array $routes): void
     {
         // These generally comes from configuration.
-        foreach ($routes as $route) {
+        foreach ($routes as $i => $route) {
+            // When route not wrapped in an array.
+            if (is_string($i)) {
+                $route = [$i, $route];
+            }
+
             [$route, $call, $callArgs] = array_pad((array) $route, 3, null);
 
             if (is_array($call)) {
