@@ -146,9 +146,7 @@ final class Router
         // These generally comes from configuration.
         foreach ($routes as $i => $route) {
             // When route not wrapped in an array.
-            if (is_string($i)) {
-                $route = [$i, $route];
-            }
+            is_int($i) || $route = [$i, $route];
 
             [$route, $call, $callArgs] = array_pad((array) $route, 3, null);
 
