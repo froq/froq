@@ -211,6 +211,9 @@ final class Router
                 );
             }
 
+            // Curlies are normal parens.
+            $pattern = strtr($pattern, '{}', '()');
+
             // Escape delimiter.
             $pattern = addcslashes($pattern, '~');
 
