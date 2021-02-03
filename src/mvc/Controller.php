@@ -252,6 +252,17 @@ class Controller
     }
 
     /**
+     * Get an action param by given name.
+     *
+     * @param  string $name
+     * @return any
+     */
+    public final function getActionParam(string $name)
+    {
+        return $this->actionParams[$name] ?? null;
+    }
+
+    /**
      * Get action params that called at the time.
      *
      * @return array
