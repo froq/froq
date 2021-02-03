@@ -12,7 +12,7 @@ use froq\http\{Request, Response, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     exception\client\NotFoundException};
-use froq\{App, Router, session\Session, database\Database, common\object\Registry};
+use froq\{App, Router, session\Session, database\Database, util\Objects, common\object\Registry};
 use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
@@ -105,9 +105,20 @@ class Controller
         $this->request    = $app->request();
         $this->response   = $app->response();
 
-        // Model check.
+        // Check or try to use parent's model class.
         if (isset($this->modelClass)) {
             $this->useModel = true;
+        } elseif (!isset($this->modelClass) && $this->useModel) {
+            $parents = array_slice((array) class_parents($this), 0, -1);
+            foreach ($parents as $parent) {
+                // Make full & validate existence.
+                $modelClass = str_replace(Controller::NAMESPACE, Model::NAMESPACE, Objects::getNamespace($parent))
+                    . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Model::SUFFIX);
+                if (class_exists($modelClass)) {
+                    $this->modelClass = $modelClass;
+                    break;
+                }
+            }
         }
 
         // Load usings.
@@ -306,9 +317,8 @@ class Controller
                 $base = substr($base, strrpos($base, '\\') + 1);
             }
 
-            // Use found name in config map or self name.
-            $class ??= !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
-                              : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
+            $class = !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
+                            : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
 
             $this->model      = $this->initModel($class);
             $this->modelClass = $class;
