@@ -276,9 +276,9 @@ class Controller
         if ($names != null) {
             $params = array_select($params, $names);
         }
-        if (!$combine) {
-            $params = array_values($params);
-        }
+
+        // Leave combined with keys or values only.
+        $combine || $params = array_values($params);
 
         return $params;
     }
