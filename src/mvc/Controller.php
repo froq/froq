@@ -255,7 +255,7 @@ class Controller
      * Get an action param by given name.
      *
      * @param  string $name
-     * @return any
+     * @return any|null
      */
     public final function getActionParam(string $name)
     {
@@ -263,13 +263,24 @@ class Controller
     }
 
     /**
-     * Get action params that called at the time.
+     * Get all action params, or by names only.
      *
+     * @param  array<string>|null $names
+     * @param  bool               $combine
      * @return array
      */
-    public final function getActionParams(): array
+    public final function getActionParams(array $names = null, bool $combine = true): array
     {
-        return $this->actionParams ?? [];
+        $params = $this->actionParams ?? [];
+
+        if ($names != null) {
+            $params = array_select($params, $names);
+        }
+        if (!$combine) {
+            $params = array_values($params);
+        }
+
+        return $params;
     }
 
     /**
