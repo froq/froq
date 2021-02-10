@@ -12,7 +12,7 @@ use froq\{config\Config, logger\Logger, event\Events, session\Session, database\
 use froq\common\{trait\InstanceTrait, object\Factory, object\Registry};
 use froq\http\{Request, Response, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
-use froq\cache\{Cache, cache\CacheFactory};
+use froq\cache\{Cache, CacheFactory};
 use Throwable;
 
 /**
