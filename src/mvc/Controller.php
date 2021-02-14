@@ -263,13 +263,13 @@ class Controller
     }
 
     /**
-     * Get all action params, or by names only.
+     * Get all action params, or by given names only.
      *
      * @param  array<string>|null $names
      * @param  bool               $combine
      * @return array
      */
-    public final function getActionParams(array $names = null, bool $combine = true): array
+    public final function getActionParams(array $names = null, bool $combine = false): array
     {
         $params = $this->actionParams ?? [];
 
