@@ -252,6 +252,19 @@ class Controller
     }
 
     /**
+     * Set an action param by given name/value.
+     *
+     * @param  string $name
+     * @param  any    $value
+     * @return void
+     * @since  5.0
+     */
+    public final function setActionParam(string $name, $value): void
+    {
+        $this->actionParams[$name] = $value;
+    }
+
+    /**
      * Get an action param by given name.
      *
      * @param  string $name
@@ -260,6 +273,20 @@ class Controller
     public final function getActionParam(string $name)
     {
         return $this->actionParams[$name] ?? null;
+    }
+
+    /**
+     * Set action params by given name/value order.
+     *
+     * @param  array<string, any> $params
+     * @return void
+     * @since  5.0
+     */
+    public final function setActionParams(array $params): void
+    {
+        foreach ($params as $name => $value) {
+            $this->setActionParam($name, $value);
+        }
     }
 
     /**
@@ -732,7 +759,7 @@ class Controller
         }
 
         $this->action       = $action;
-        $this->actionParams = $actionParams; // Keep originals.
+        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         try {
             $ref = new ReflectionMethod($this, $action);
@@ -740,22 +767,22 @@ class Controller
             throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
         }
 
-        $params     = $this->prepareActionParams($ref, $actionParams);
-        $paramsRest = array_values($actionParams);
-
-        // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
-        $params = [...$params, ...$paramsRest];
-
         try {
             $this->before && $this->before();
-            $ret = $this->{$action}(...$params);
+
+            $params     = $this->prepareActionParams($ref, $actionParams);
+            $paramsRest = array_values($actionParams);
+
+            // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
+            $return = $this->{$action}(...[...$params, ...$paramsRest]);
+
             $this->after  && $this->after();
         } catch (Throwable $e) {
-            $ret = method_exists($this, 'error')
-                 ? $this->error($e) : $this->app->error($e);
+            $return = method_exists($this, 'error')
+                ? $this->error($e) : $this->app->error($e);
         }
 
-        return $ret;
+        return $return;
     }
 
     /**
@@ -770,7 +797,7 @@ class Controller
     public final function callCallable(callable $action, array $actionParams = [])
     {
         $this->action       = self::NAME_CLOSURE;
-        $this->actionParams = $actionParams; // Keep originals.
+        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         // Make "$this" available in called action.
         $action = $action->bindTo($this, $this);
@@ -781,22 +808,22 @@ class Controller
             throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
         }
 
-        $params     = $this->prepareActionParams($ref, $actionParams);
-        $paramsRest = array_values($actionParams);
-
-        // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
-        $params = [...$params, ...$paramsRest];
-
         try {
             $this->before && $this->before();
-            $ret = $action(...$params);
+
+            $params     = $this->prepareActionParams($ref, $actionParams);
+            $paramsRest = array_values($actionParams);
+
+            // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
+            $return = $action(...[...$params, ...$paramsRest]);
+
             $this->after  && $this->after();
         } catch (Throwable $e) {
-            $ret = method_exists($this, 'error')
-                 ? $this->error($e) : $this->app->error($e);
+            $return = method_exists($this, 'error')
+                ? $this->error($e) : $this->app->error($e);
         }
 
-        return $ret;
+        return $return;
     }
 
     /**
