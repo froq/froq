@@ -9,7 +9,7 @@ namespace froq\mvc;
 
 use froq\mvc\{ModelException, Controller};
 use froq\mvc\trait\ControllerTrait;
-use froq\database\{Database, Result, Query};
+use froq\database\{Database, Result, Query, sql\Sql};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait};
 use froq\{pager\Pager, common\object\Registry};
 
@@ -70,13 +70,21 @@ class Model
     }
 
     /**
-     * Alias of initQuery().
-     *
+     * @alias of initQuery()
      * @since 5.0
      */
-    public final function query(string $table = null)
+    public function sql(...$args)
     {
-        return $this->initQuery($table);
+        return $this->initSql(...$args);
+    }
+
+    /**
+     * @alias of initQuery()
+     * @since 5.0
+     */
+    public final function query(...$args)
+    {
+        return $this->initQuery(...$args);
     }
 
     /**
@@ -130,6 +138,18 @@ class Model
     public final function initPager(int $count = null, int $limit = null): Pager
     {
         return $this->db->initPager($count, $limit);
+    }
+
+    /**
+     * Init an `Sql` object with/without given params.
+     *
+     * @param  string     $in
+     * @param  array|null $params
+     * @return froq\database\sql\Sql
+     */
+    public function initSql(string $in, array $params = null): Sql
+    {
+        return $this->db->initSql($in, $params);
     }
 
     /**
