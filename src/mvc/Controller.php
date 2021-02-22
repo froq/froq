@@ -815,10 +815,10 @@ class Controller
             // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
             $return = $this->{$action}(...[...$params, ...$paramsRest]);
 
-            $this->after  && $this->after();
+            $this->after && $this->after();
         } catch (Throwable $e) {
             $return = method_exists($this, 'error')
-                ? $this->error($e) : $this->app->error($e);
+                    ? $this->error($e) : $this->app->error($e);
         }
 
         return $return;
@@ -856,10 +856,10 @@ class Controller
             // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
             $return = $action(...[...$params, ...$paramsRest]);
 
-            $this->after  && $this->after();
+            $this->after && $this->after();
         } catch (Throwable $e) {
             $return = method_exists($this, 'error')
-                ? $this->error($e) : $this->app->error($e);
+                    ? $this->error($e) : $this->app->error($e);
         }
 
         return $return;
