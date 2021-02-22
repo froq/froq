@@ -12,7 +12,7 @@ use froq\http\{Request, Response, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     exception\client\NotFoundException};
-use froq\{App, Router, session\Session, database\Database, util\Objects, common\object\Registry};
+use froq\{App, Router, session\Session, database\Database, util\Objects};
 use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
@@ -96,9 +96,7 @@ class Controller
     {
         // Try to use active app object.
         $app ??= function_exists('app') ? app() : null;
-        if ($app == null) {
-            throw new ControllerException('No app given to deal');
-        }
+        $app || throw new ControllerException('No app exists to deal');
 
         $this->app        = $app;
         // Copy as a shortcut for subclasses.
@@ -132,12 +130,18 @@ class Controller
         }
 
         // Store (as last) controller.
-        Registry::set('@controller', $this, false);
+        $app::registry()::set('@controller', $this, false);
 
         // Set before/after ticks these called in call() method.
         $this->before = method_exists($this, 'before');
         $this->after  = method_exists($this, 'after');
     }
+
+    /**
+     * Getter aliases.
+     */
+    public final function app() { return $this->getApp(); }
+    public final function model() { return $this->getModel(); }
 
     /**
      * Get app.

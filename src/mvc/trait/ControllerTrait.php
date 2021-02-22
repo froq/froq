@@ -30,7 +30,7 @@ trait ControllerTrait
      *
      * @return froq\mvc\Controller
      */
-    public function controller(): Controller
+    public final function controller(): Controller
     {
         return $this->controller;
     }

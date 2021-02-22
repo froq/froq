@@ -39,6 +39,9 @@ final class View
     public function __construct(Controller $controller)
     {
         $this->controller = $controller;
+
+        // Store (as last) view.
+        $controller->app()::registry()::set('@view', $this, false);
     }
 
     /**

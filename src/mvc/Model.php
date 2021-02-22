@@ -11,7 +11,7 @@ use froq\mvc\{ModelException, Controller};
 use froq\mvc\trait\ControllerTrait;
 use froq\database\{Database, Result, Query, sql\Sql};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait};
-use froq\{pager\Pager, common\object\Registry};
+use froq\pager\Pager;
 
 /**
  * Model.
@@ -51,11 +51,8 @@ class Model
      */
     public final function __construct(Controller $controller, Database $db = null)
     {
-        $db ??= $controller->getApp()->database();
-        if ($db == null) {
-            throw new ModelException('No db given to deal, be sure `database` option exists in'
-                . ' app config');
-        }
+        $db ??= $controller->app()->database();
+        $db || throw new ModelException('No db exists to deal, check `database` option in app config');
 
         $this->db         = $db;
         $this->controller = $controller;
@@ -66,7 +63,7 @@ class Model
         }
 
         // Store (as last) model.
-        Registry::set('@model', $this, false);
+        $controller->app()::registry()::set('@model', $this, false);
     }
 
     /**

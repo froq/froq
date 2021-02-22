@@ -111,3 +111,13 @@ function app_fails(): array|null
 
     return $ret ?? null;
 }
+
+/**
+ * Get app registry.
+ *
+ * @return froq\common\object\Registry
+ */
+function registry(): Registry
+{
+    return app()::registry();
+}

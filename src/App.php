@@ -79,6 +79,9 @@ final class App
     /** @var froq\Servicer @since 4.0 */
     private Servicer $servicer;
 
+    /** @var froq\common\object\Register @since 5.0 */
+    private static Registry $registry;
+
     /**
      * Constructor.
      *
@@ -93,12 +96,12 @@ final class App
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
-        [$this->dir, $this->config, $this->events, $this->router, $this->servicer] = [
-            APP_DIR, new Config(), new Events(), new Router(), new Servicer()
+        [$this->dir, $this->config, $this->events, $this->router, $this->servicer, self::$registry] = [
+            APP_DIR, new Config(), new Events(), new Router(), new Servicer(), new Registry()
         ];
 
         // Register app.
-        Registry::set('@app', $this, false);
+        self::$registry::set('@app', $this, false);
 
         // Register handlers.
         Handler::registerErrorHandler();
@@ -325,6 +328,17 @@ final class App
     }
 
     /**
+     * Get registry.
+     *
+     * @return froq\common\object\Registry
+     * @since  5.0
+     */
+    public static function registry(): Registry
+    {
+        return self::$registry;
+    }
+
+    /**
      * Define a route with given HTTP method / methods.
      *
      * @param  string          $route
@@ -472,7 +486,7 @@ final class App
         );
 
         // @override
-        Registry::set('@app', $this, true);
+        self::$registry::set('@app', $this, true);
 
         // Resolve route.
         $route = $this->router->resolve(
