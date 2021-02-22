@@ -276,6 +276,18 @@ class Controller
     }
 
     /**
+     * Check an action param's existence.
+     *
+     * @param  string $name
+     * @return bool
+     * @since  5.0
+     */
+    public final function hasActionParam(string $name): bool
+    {
+        return isset($this->actionParams[$name]);
+    }
+
+    /**
      * Set action params by given name/value order.
      *
      * @param  array<string, any> $params
@@ -308,6 +320,24 @@ class Controller
         $combine || $params = array_values($params);
 
         return $params;
+    }
+
+    /**
+     * Check all action param's existence, or given names only.
+     *
+     * @param  array<string>|null $names
+     * @return bool
+     * @since  5.0
+     */
+    public final function hasActionParams(array $names = null): bool
+    {
+        $actionParams = $this->getActionParams();
+
+        if ($names == null) {
+            return !!$actionParams;
+        }
+
+        return array_isset($actionParams, $names);
     }
 
     /**
