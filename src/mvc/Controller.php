@@ -452,19 +452,24 @@ class Controller
     }
 
     /**
-     * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output buffer.
+     * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output
+     * buffer, or simply return view property when no arguments provided.
      *
-     * @param  string     $file
-     * @param  array|null $fileData
-     * @param  int|null   $status
-     * @return string
+     * @param  string|null $file
+     * @param  array|null  $fileData
+     * @param  int|null    $status
+     * @return string|froq\mvc\View
      * @throws froq\mvc\ControllerException
      */
-    public final function view(string $file, array $fileData = null, int $status = null): string
+    public final function view(string $file = null, array $fileData = null, int $status = null): string|View
     {
         if (!isset($this->view)) {
             throw new ControllerException('No `$view` property set yet, be sure `$useView` is true on'
                 . ' class %s', static::class);
+        }
+
+        if (!func_num_args()) {
+            return $this->view;
         }
 
         // Shortcut for status.
