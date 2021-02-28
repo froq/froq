@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\{ControllerException, View, Model};
-use froq\http\{Request, Response, request\Segments, response\Status,
+use froq\http\{Request, Response, request\Uri, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     exception\client\NotFoundException};
@@ -428,6 +428,16 @@ class Controller
     }
 
     /**
+     * Get request URI.
+     *
+     * @return froq\http\request\Uri
+     */
+    public final function uri(): Uri
+    {
+        return $this->request->uri();
+    }
+
+    /**
      * Get an environment or a server var or return default.
      *
      * @param  string   $name
@@ -437,7 +447,7 @@ class Controller
     public final function env(string $name, $default = null)
     {
         // Uppers for nginx (in some cases).
-        $value = $_ENV[$name] ?? $_ENV[strtoupper($name)] ??
+        $value = $_ENV[$name]    ?? $_ENV[strtoupper($name)]    ??
                  $_SERVER[$name] ?? $_SERVER[strtoupper($name)] ?? null;
 
         if ($value === null) {
