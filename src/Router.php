@@ -260,7 +260,7 @@ final class Router
             // Drop input & mark fields.
             $match = array_slice($match, 1, -1);
 
-            // Handle conditional replacements.
+            // Handle conditional replacements, eg: ["/user/:x{login|logut}", "User.{x}"].
             foreach ($calls as $i => $call) {
                 $rep = grep($call, '~{(\w+)}~');
                 if ($rep) {
