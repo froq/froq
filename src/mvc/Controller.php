@@ -719,6 +719,19 @@ class Controller
     }
 
     /**
+     * Get a segment param.
+     *
+     * @param  string   $name
+     * @param  any|null $default
+     * @return any|null
+     * @since  5.0
+     */
+    public final function segmentParam(string $name, $default = null)
+    {
+        return $this->request->uri()->segments()?->getParam($name, $default);
+    }
+
+    /**
      * Get a get parameter.
      *
      * @param  string   $name
