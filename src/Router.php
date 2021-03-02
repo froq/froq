@@ -266,7 +266,7 @@ final class Router
                 if ($rep) {
                     if (isset($match[$rep])) {
                         // Replace & tick ("-" for camel-case).
-                        $calls[$i] = str_replace('{' . $rep . '}', $match[$rep] . '-', $call);
+                        $calls[$i] = str_replace('{' . $rep . '}', '-' . $match[$rep] . '-', $call);
                         $usedArgs[$match[$rep]] = 1;
                     } else {
                         // Remove non-found replacements from call.
