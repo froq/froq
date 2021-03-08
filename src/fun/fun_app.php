@@ -72,7 +72,7 @@ function app_runtime(int $precision = 3, bool $format = false): float|string
  *
  * @param  string|array $key
  * @param  any|null     $default
- * @return any|null|froq\config\Config
+ * @return any|null|froq\common\object\Config
  * @since  4.0
  */
 function app_config(string|array $key, $default = null)

@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace froq;
 
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
-use froq\{config\Config, logger\Logger, event\Events, session\Session, database\Database};
-use froq\common\{trait\InstanceTrait, object\Factory, object\Registry};
+use froq\{logger\Logger, event\Events, session\Session, database\Database};
+use froq\common\{trait\InstanceTrait, object\Config, object\Factory, object\Registry};
 use froq\http\{Request, Response, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
@@ -49,7 +49,7 @@ final class App
     /** @var string */
     private string $env;
 
-    /** @var froq\config\Config */
+    /** @var froq\common\object\Config */
     private Config $config;
 
     /** @var froq\logger\Logger */
@@ -189,7 +189,7 @@ final class App
      *
      * @param  string|array|null $key
      * @param  any|null          $default
-     * @return any|null|froq\config\Config
+     * @return any|null|froq\common\object\Config
      */
     public function config(string|array $key = null, $default = null)
     {
