@@ -685,10 +685,11 @@ final class App
      */
     private function applyConfigs(array $configs): void
     {
+        // Update current options.
         $this->config->update($configs);
 
         // Set timezone, encoding, locale options.
-        [$timezone, $encoding, $locales] = $this->config->get(['timezone', 'encoding', 'locales']);
+        $this->config->extract(['timezone', 'encoding', 'locales'], $timezone, $encoding, $locales);
 
         if ($timezone != null) {
             date_default_timezone_set($timezone);
@@ -707,7 +708,7 @@ final class App
         }
 
         // Set/reset options.
-        [$logger, $routes, $services] = $this->config->get(['logger', 'routes', 'services']);
+        $this->config->extract(['logger', 'routes', 'services'], $logger, $routes, $services);
 
         $logger   && $this->logger->setOptions($logger);
         $routes   && $this->router->addRoutes($routes);
