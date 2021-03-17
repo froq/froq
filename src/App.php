@@ -578,8 +578,7 @@ final class App
         if (!class_exists($controller)) {
             throw new AppException('No default controller exists such %s',
                 [$controller]);
-        }
-        if (!method_exists($controller, $method)) {
+        } elseif (!method_exists($controller, $method)) {
             throw new AppException('No default controller method exists such %s::%s',
                 [$controller, $method]);
         }
