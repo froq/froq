@@ -472,18 +472,16 @@ final class App
         $this->request->uri()->generateSegments($this->root);
 
         // These options can be emptied by developer to disable all with "null" if app won't
-        // be using session/database/cache. Also remove sensitive config data after using.
+        // be using session/database/cache. Also, "pull" removes sensitive config data after using.
         [$session, $database, $cache] = $this->config->pull(['session', 'database', 'cache']);
-        isset($session) && (
-            $this->session = Factory::initSingle(Session::class, $session)
-        );
-        isset($database) && (
-            $this->database = Factory::initSingle(Database::class, $database)
-        );
-        // Cache is a "static" instance as default.
-        isset($cache) && (
-            $this->cache = CacheFactory::init($cache['id'], $cache['agent'])
-        );
+
+        isset($session)  && $this->session  = Factory::initSingle(Session::class, $session);
+        isset($database) && $this->database = Factory::initSingle(Database::class, $database);
+
+        // Note: cache is a "static" instance as default.
+        if ($cache != null) {
+            $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
+        }
 
         // @override
         self::$registry::set('@app', $this, true);
