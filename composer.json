@@ -8,7 +8,6 @@
     "require": {
         "php": "^8.0",
         "froq/froq-common": "^5.0",
-        "froq/froq-config": "^5.0",
         "froq/froq-logger": "^5.0",
         "froq/froq-event": "^5.0",
         "froq/froq-http": "^5.0"
