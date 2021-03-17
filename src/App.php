@@ -185,7 +185,7 @@ final class App
     }
 
     /**
-     * Get a config option / options or config object.
+     * Get a config option(s) or config object.
      *
      * @param  string|array|null $key
      * @param  any|null          $default
@@ -193,11 +193,11 @@ final class App
      */
     public function config(string|array $key = null, $default = null)
     {
-        if ($key === null) {
+        if (!func_num_args()) {
             return $this->config;
         }
 
-        // Set is not allowed, so config readonly and set available with config.php only.
+        // Set not allowed, so config readonly and set available with config.php only.
         return $this->config->get($key, $default);
     }
 
