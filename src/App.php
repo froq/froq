@@ -125,7 +125,7 @@ final class App
      */
     public function isRoot(): bool
     {
-        return $this->root == $this->request->uri()->get('path');
+        return ($this->root == $this->request->getContext());
     }
 
     /**
@@ -490,8 +490,8 @@ final class App
 
         // Resolve route.
         $route = $this->router->resolve(
-            $uri    = $this->request->uri()->get('path'),
-            $method = null // To check below it is allowed or not.
+            uri: $this->request->getContext(),
+            method: null // To check below it is allowed or not.
         );
 
         $method = $this->request->getMethod();
