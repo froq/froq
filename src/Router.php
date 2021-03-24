@@ -364,8 +364,8 @@ final class Router
      */
     public static function prepare(string $call, array $callArgs = []): array
     {
-        // Note: suffixes ("Controller" and "Action") must not be used in call directives (
-        // eg: Index for IndexController, Index.foo for IndexController.fooAction).
+        // Note: suffixes ("Controller" and "Action") must not be used in call directives, eg:
+        // Index for IndexController, Index.foo for IndexController.fooAction.
         [$controller, $action] = array_pad((array) explode('.', $call), 2, null);
 
         // Return controller, action, actionParams.
