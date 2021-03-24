@@ -174,7 +174,7 @@ final class Router
     public function resolve(string $uri, string $method = null, array $options = null): array|null
     {
         $routes = $this->routes();
-        $routes || throw new RouterException('No route directives exists yet to resolve');
+        $routes || throw new RouterException('No route directives exist yet to resolve');
 
         $options  = array_replace(self::$options, (array) $options);
         $patterns = [];
