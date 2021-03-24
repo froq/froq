@@ -435,8 +435,10 @@ final class App
         // Apply run options (user options) (@see pub/index.php).
         @ ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
 
-        // Set router options first (for proper error() process).
-        isset($configs['router']) && $this->router->setOptions($configs['router']);
+        // Set router options first (for a proper error() process).
+        if (isset($configs['router'])) {
+            $this->router->setOptions($configs['router']);
+        }
 
         if ($env == '' || $root == '') {
             throw new AppException('Options `env` or `root` must not be empty');
@@ -488,9 +490,8 @@ final class App
 
         // Resolve route.
         $route = $this->router->resolve(
-            $uri     = $this->request->uri()->get('path'),
-            $method  = null, // To check below it is allowed or not.
-            $options = $this->config->get('router')
+            $uri    = $this->request->uri()->get('path'),
+            $method = null // To check below it is allowed or not.
         );
 
         $method = $this->request->getMethod();

@@ -46,7 +46,7 @@ final class Router
      */
     public function __construct(array $options = null)
     {
-        self::setOptions($options ?? []);
+        $options && $this->setOptions($options);
     }
 
     /**
@@ -176,12 +176,9 @@ final class Router
         $routes = $this->routes();
         $routes || throw new RouterException('No route directives exists yet to resolve');
 
-        // Update options.
-        if ($options != null) {
-            self::$options = array_replace(self::$optionsDefault, $options);
-        }
-
+        $options  = array_replace(self::$options, (array) $options);
         $patterns = [];
+
         foreach ($routes as $i => [$pattern]) {
             $pattern || throw new RouterException('No pattern given for route `%s`', $i);
 
@@ -216,7 +213,7 @@ final class Router
             $pattern = addcslashes($pattern, '~');
 
             // Add optional slash to end.
-            self::$options['endingSlashes'] && $pattern .= '/?';
+            $options['endingSlashes'] && $pattern .= '/?';
 
             // See http://www.pcre.org/pcre.txt for verbs.
             $patterns[] = ' (*MARK:'. $i .') '. $pattern;
@@ -226,8 +223,8 @@ final class Router
         $pattern = "~^(?:\n" . join(" |\n", $patterns) . "\n)$~xAJ";
 
         // Apply options.
-        self::$options['unicode']   && $pattern .= 'u';
-        self::$options['decodeUri'] && $uri = rawurldecode($uri);
+        $options['unicode'] && $pattern .= 'u';
+        $options['decodeUri'] && $uri = rawurldecode($uri);
 
         // Normalize URI (removes repeating & ending slashes).
         $uri = '/' . preg_replace('~/+~', '/', trim($uri, '/'));
@@ -237,7 +234,7 @@ final class Router
         $res = preg_match($pattern, $uri, $match, PREG_UNMATCHED_AS_NULL);
 
         // Check invalid-pattern causing errors.
-        if (!$res && self::$options['throwErrors']) {
+        if (!$res && $options['throwErrors']) {
             $message = stracut(error_message() ?? '', 'preg_match(): ') ?: preg_error_message();
             $message && throw new RouterException($message);
         }
