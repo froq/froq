@@ -35,10 +35,8 @@ final class Router
     private static array $optionsDefault = [
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,
-        'unicode'           => false,
-        'decodeUri'         => false,
-        'endingSlashes'     => true,
-        'throwErrors'       => true,
+        'endingSlashes'     => true,  'throwErrors' => true,
+        'unicode'           => false, 'decodeUri'   => false,
     ];
 
     /**
@@ -151,7 +149,7 @@ final class Router
             [$route, $call, $callArgs] = array_pad((array) $route, 3, null);
 
             if (is_array($call)) {
-                // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "POST" => "Book.edit", ..]]).
+                // Multiple directives (eg: ["/book/:id", ["GET" => "Book.show", "PUT" => "Book.edit", ..]]).
                 foreach ($call as $method => $call) {
                     $this->addRoute($route, $method, $call, (array) $callArgs);
                 }
@@ -328,7 +326,7 @@ final class Router
 
             // Controller actions.
             // eg: ["/book/:id", "Book.show", ..].
-            // eg: ["/book/:id", ["*" => "Book.show", "POST" => "Book.edit", ..]].
+            // eg: ["/book/:id", ["*" => "Book.show", "PUT" => "Book.edit", ..]].
             if (is_string($call)) {
                 [$controller, $action] = self::prepare($call);
 
@@ -496,10 +494,10 @@ final class Router
      */
     private static function prepareMethods(string $methods): array
     {
-        // Non-array calls without a method that accepts all (eg: ["/book/:id", "Book.show"]).
+        // Non-array calls without a method that accept all (eg: ["/book/:id", "Book.show"]).
         $methods = (string) ($methods ?: '*');
 
-        // Multiple methods can be given (eg: ["/book/:id", ["GET,POST" => "Book.show"]]).
+        // Multiple methods can be given (eg: ["/book/:id", ["GET,POST" => "Book.index"]]).
         return array_map('strtoupper', explode(',', $methods));
     }
 }
