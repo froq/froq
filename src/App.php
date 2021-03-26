@@ -490,7 +490,7 @@ final class App
 
         // Resolve route.
         $route = $this->router->resolve(
-            uri: $this->request->getContext(),
+            $uri = $this->request->getContext(),
             method: null // To check below it is allowed or not.
         );
 
