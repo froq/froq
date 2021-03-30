@@ -36,7 +36,7 @@ final class Router
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,
         'endingSlashes'     => true,  'throwErrors' => true,
-        'unicode'           => false, 'decodeUri'   => false,
+        'decodeUri'         => false, 'unicode'     => false,
     ];
 
     /**
@@ -46,7 +46,7 @@ final class Router
      */
     public function __construct(array $options = null)
     {
-        $options && $this->setOptions($options);
+        $this->setOptions((array) $options);
     }
 
     /**
@@ -78,7 +78,7 @@ final class Router
      */
     public function setOptions(array $options): self
     {
-        self::$options = array_replace(self::$optionsDefault, $options);
+        self::$options = array_merge(self::$optionsDefault, $options);
 
         return $this;
     }
@@ -176,7 +176,7 @@ final class Router
         $routes = $this->routes();
         $routes || throw new RouterException('No route directives exist yet to resolve');
 
-        $options  = array_replace(self::$options, (array) $options);
+        $options  = array_merge(self::$options, (array) $options);
         $patterns = [];
 
         foreach ($routes as $i => [$pattern]) {
