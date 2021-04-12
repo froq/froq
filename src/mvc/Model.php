@@ -70,7 +70,7 @@ class Model
      * @alias of initQuery()
      * @since 5.0
      */
-    public function sql(...$args)
+    public final function sql(...$args)
     {
         return $this->initSql(...$args);
     }
@@ -144,7 +144,7 @@ class Model
      * @param  array|null $params
      * @return froq\database\sql\Sql
      */
-    public function initSql(string $in, array $params = null): Sql
+    public final function initSql(string $in, array $params = null): Sql
     {
         return $this->db->initSql($in, $params);
     }
