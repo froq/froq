@@ -210,19 +210,20 @@ class Controller
      */
     public final function getName(): string
     {
-        return $this->name ??= substr(strrchr(static::class, '\\'), 1);
+        return $this->name ??= $this::class;
     }
 
     /**
      * Get short name of controller that run at the time.
      *
+     * @param  bool $suffix
      * @return string
      */
-    public final function getShortName(): string
+    public final function getShortName(bool $suffix = true): string
     {
-        $name = $this->getName();
+        $name = substr(strrchr($this->getName(), '\\'), 1);
 
-        if (str_ends_with($name, self::SUFFIX)) {
+        if (!$suffix && str_ends_with($name, self::SUFFIX)) {
             $name = substr($name, 0, -strlen(self::SUFFIX));
         }
 
