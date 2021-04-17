@@ -57,9 +57,6 @@ class Controller
     protected Response $response;
 
     /** @var string */
-    private string $name;
-
-    /** @var string */
     private string $action;
 
     /** @var array<any> */
@@ -210,7 +207,7 @@ class Controller
      */
     public final function getName(): string
     {
-        return $this->name ??= $this::class;
+        return $this::class;
     }
 
     /**
@@ -219,9 +216,9 @@ class Controller
      * @param  bool $suffix
      * @return string
      */
-    public final function getShortName(bool $suffix = true): string
+    public final function getShortName(bool $suffix = false): string
     {
-        $name = substr(strrchr($this->getName(), '\\'), 1);
+        $name = Objects::getShortName($this::class);
 
         if (!$suffix && str_ends_with($name, self::SUFFIX)) {
             $name = substr($name, 0, -strlen(self::SUFFIX));
@@ -243,13 +240,14 @@ class Controller
     /**
      * Get action short name that called at the time.
      *
+     * @param  bool $suffix
      * @return string
      */
-    public final function getActionShortName(): string
+    public final function getActionShortName(bool $suffix = false): string
     {
         $action = $this->getActionName();
 
-        if (str_ends_with($action, self::ACTION_SUFFIX)) {
+        if (!$suffix && str_ends_with($action, self::ACTION_SUFFIX)) {
             $action = substr($action, 0, -strlen(self::ACTION_SUFFIX));
         }
 
