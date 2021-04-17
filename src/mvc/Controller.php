@@ -346,11 +346,13 @@ class Controller
     /**
      * Get current controller path built with action that called at the time.
      *
+     * @param  bool $full
      * @return string
      */
-    public final function getPath(): string
+    public final function getPath(bool $full = false): string
     {
-        return $this->getShortName() . '.' . $this->getActionShortName();
+        return !$full ? $this->getShortName() . '.' . $this->getActionShortName()
+                      : strtr($this->getName(), '\\', '.') . '.' . $this->getActionName();
     }
 
     /**
