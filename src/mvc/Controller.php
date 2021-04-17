@@ -340,7 +340,7 @@ class Controller
             return !!$actionParams;
         }
 
-        return array_isset($actionParams, $names);
+        return array_isset($actionParams, ...$names);
     }
 
     /**
