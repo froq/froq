@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace froq\mvc\data;
 
 use froq\mvc\Controller;
-use froq\mvc\trait\{ControllerTrait, ControllerConstructorTrait};
+use froq\mvc\trait\{ControllerTrait, ModelTrait};
 
 /**
  * Abstract Producer.
@@ -24,6 +24,22 @@ use froq\mvc\trait\{ControllerTrait, ControllerConstructorTrait};
 abstract class AbstractProducer
 {
     /** @see froq\mvc\trait\ControllerTrait */
-    /** @see froq\mvc\trait\ControllerConstructorTrait */
-    use ControllerTrait, ControllerConstructorTrait;
+    /** @see froq\mvc\trait\ModelTrait */
+    use ControllerTrait, ModelTrait;
+
+    /**
+     * Constructor.
+     *
+     * @param froq\mvc\Controller|null $controller
+     */
+    public function __construct(Controller $controller = null)
+    {
+        // Use given or registry controller.
+        $this->controller = $controller ?? registry()::get('@controller');
+
+        // Not all controllers use a model.
+        if ($model = $this->controller->getModel()) {
+            $this->model = $this->controller->getModel();
+        }
+    }
 }
