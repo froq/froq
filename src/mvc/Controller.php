@@ -693,30 +693,32 @@ class Controller
      */
     public final function segment(int|string $key, $default = null)
     {
-        return $this->request->uri()->segment($key, $default);
+        return $this->request->getSegment($key, $default);
     }
 
     /**
      * Get URI segments object.
      *
-     * @return froq\http\request\Segments|null
+     * @param  array<int|string> $keys
+     * @param  any|null          $default
+     * @return froq\http\request\Segments|array
      * @since  4.2
      */
-    public final function segments(): Segments|null
+    public final function segments(array $keys = null, $default = null): Segments|array
     {
-        return $this->request->uri()->segments();
+        return $this->request->getSegments($keys, $default);
     }
 
     /**
      * Get URI segments object as list.
      *
      * @param  int $offset
-     * @return array|null
+     * @return array
      * @since  4.4
      */
-    public final function segmentsList(int $offset = 0): array|null
+    public final function segmentsList(int $offset = 0): array
     {
-        return $this->request->uri()->segments()?->toList($offset);
+        return $this->request->getSegments()->toList($offset);
     }
 
     /**
@@ -729,7 +731,20 @@ class Controller
      */
     public final function segmentParam(string $name, $default = null)
     {
-        return $this->request->uri()->segments()?->getParam($name, $default);
+        return $this->request->getSegments()->getParam($name, $default);
+    }
+
+    /**
+     * Get segment params.
+     *
+     * @param  string<string> $names
+     * @param  any|null       $default
+     * @return array
+     * @since  5.0
+     */
+    public final function segmentParams(array $names, $default = null): array
+    {
+        return $this->request->getSegments($names, $default);
     }
 
     /**
