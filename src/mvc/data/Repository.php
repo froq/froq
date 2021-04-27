@@ -11,16 +11,16 @@ use froq\mvc\Controller;
 use froq\mvc\trait\{ControllerTrait, ModelTrait};
 
 /**
- * Abstract Repository
+ * Repository.
  *
- * Represents an abstract entity which is extended by producers/providers.
+ * Represents an entity which is extended by producers/providers or other data/database related classes.
  *
  * @package froq\mvc\data
- * @object  froq\mvc\data\AbstractRepository
+ * @object  froq\mvc\data\Repository
  * @author  Kerem Güneş
  * @since   5.0
  */
-abstract class AbstractRepository
+class Repository
 {
     /** @see froq\mvc\trait\ControllerTrait */
     /** @see froq\mvc\trait\ModelTrait */
