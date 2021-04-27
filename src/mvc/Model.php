@@ -8,9 +8,11 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\{ModelException, Controller};
+use froq\mvc\data\{Producer, Provider, Repository};
 use froq\mvc\trait\ControllerTrait;
-use froq\database\{Database, Result, Query, sql\Sql};
+use froq\database\{Database, Query, sql\Sql};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait};
+use froq\database\record\{Form, Record};
 use froq\pager\Pager;
 
 /**
@@ -138,7 +140,7 @@ class Model
     }
 
     /**
-     * Init an `Sql` object with/without given params.
+     * Init a `Sql` object with/without given params argument.
      *
      * @param  string     $in
      * @param  array|null $params
@@ -150,8 +152,8 @@ class Model
     }
 
     /**
-     * Initialize a new query object using self `$db` property, setting its "table" query
-     * with `$table` argument if provided.
+     * Init a `Query` object using self `$db` property, setting its "table" query with `$table` argument
+     * when provided or using self `$table` property.
      *
      * @param  string|null $table
      * @return froq\database\Query
@@ -159,5 +161,77 @@ class Model
     public final function initQuery(string $table = null): Query
     {
         return $this->db->initQuery($table ?? $this->table ?? null);
+    }
+
+    /**
+     * Other initializers.
+     *
+     * @param  string|null $class
+     * @param  array|null  $classArgs
+     * @return object
+     * @causes froq\mvc\ModelException
+     * @since  5.0
+     */
+    public final function initForm(string $class = null, array $classArgs = null): Form
+    {
+        return $this->initFor(__function__, $class, $classArgs);
+    }
+    public final function initRecord(string $class = null, array $classArgs = null): Record
+    {
+        return $this->initFor(__function__, $class, $classArgs);
+    }
+    public final function initProducer(string $class = null, array $classArgs = null): Producer
+    {
+        return $this->initFor(__function__, $class, $classArgs);
+    }
+    public final function initProvider(string $class = null, array $classArgs = null): Provider
+    {
+        return $this->initFor(__function__, $class, $classArgs);
+    }
+    public final function initRepository(string $class = null, array $classArgs = null): Repository
+    {
+        return $this->initFor(__function__, $class, $classArgs);
+    }
+
+    /**
+     * Internal initializer.
+     *
+     * @param  string $func
+     * @param  null   $class
+     * @param  null   $classArgs
+     * @return object
+     * @throws froq\mvc\ModelException
+     * @since  5.0
+     */
+    private function initFor(string $func, string|null $class, array|null $classArgs): object
+    {
+        $suffix = substr($func, 4);
+        $subdir = strtolower($suffix);
+
+        // When a sub-model's record, repository etc. wanted.
+        if ($class == null) {
+            $parts = explode('\\', static::class);
+
+            $class = array_pop($parts);
+            $class = implode('\\', [...$parts, $subdir, ''])
+                   . substr($class, 0, -strlen(self::SUFFIX))
+                   . $suffix;
+        } else {
+            // Dots can be used instead back-slashes.
+            $class = trim(str_replace('.', '\\', $class), '\\');
+
+            // When only name given (with/without eg. "Record" suffix).
+            if (!strpos($class, '\\')) {
+                $class = implode('\\', [self::NAMESPACE, $subdir, ''])
+                       . ucfirst($class)
+                       . $suffix;
+            }
+        }
+
+        if (!class_exists($class)) {
+            throw new ModelException('%s class `%s` not exists', [$suffix, $class]);
+        }
+
+        return new $class(...(array) $classArgs);
     }
 }
