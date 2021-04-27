@@ -918,7 +918,9 @@ class Controller
         $class = trim($class, '\\');
 
         // If no full class name given.
-        strpos($class, '\\') || $class = Controller::NAMESPACE . '\\' . $class . Controller::SUFFIX;
+        strpos($class, '\\') || $class = (
+            Controller::NAMESPACE . '\\' . ucfirst($class) . Controller::SUFFIX
+        );
 
         if (!class_exists($class)) {
             throw new ControllerException('Controller class `%s` not exists', $class);
@@ -945,7 +947,9 @@ class Controller
         $class = trim($class, '\\');
 
         // If no full class name given.
-        strpos($class, '\\') || $class = Model::NAMESPACE . '\\' . $class . Model::SUFFIX;
+        strpos($class, '\\') || (
+            $class = Model::NAMESPACE . '\\' . ucfirst($class) . Model::SUFFIX
+        );
 
         if (!class_exists($class)) {
             throw new ControllerException('Model class `%s` not exists', $class);
