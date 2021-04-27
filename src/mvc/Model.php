@@ -193,6 +193,16 @@ class Model
         return $this->initFor(__function__, $class, $classArgs);
     }
 
+    // /**
+    //  * @alias of other initializers.
+    //  * @since 5.0
+    //  */
+    // public final function getForm(...$args) { return $this->initForm(...$args); }
+    // public final function getRecord(...$args) { return $this->initRecord(...$args); }
+    // public final function getProducer(...$args) { return $this->initProducer(...$args); }
+    // public final function getProvider(...$args) { return $this->initProvider(...$args); }
+    // public final function getRepository(...$args) { return $this->initRepository(...$args); }
+
     /**
      * Internal initializer.
      *
