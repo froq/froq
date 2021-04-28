@@ -30,6 +30,7 @@ class Repository
 
     /** @see froq\database\trait\DbTrait */
     /** @see froq\database\trait\TableTrait */
+    /** @see froq\database\trait\ValidationTrait */
     use DbTrait, TableTrait, ValidationTrait;
 
     /**
