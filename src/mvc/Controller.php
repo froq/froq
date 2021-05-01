@@ -964,15 +964,15 @@ class Controller
      * Prepare an action's parameters to fulfill its required/non-required parameters needed on
      * calltime/runtime.
      *
-     * @param  Reflector $reflector
+     * @param  Reflector $ref
      * @param  array     $actionParams
      * @return array
      */
-    private function prepareActionParams(Reflector $reflector, array $actionParams): array
+    private function prepareActionParams(Reflector $ref, array $actionParams): array
     {
         $ret = [];
 
-        foreach ($reflector->getParameters() as $i => $param) {
+        foreach ($ref->getParameters() as $i => $param) {
             if ($param->isVariadic()) {
                 continue;
             }
