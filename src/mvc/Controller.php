@@ -92,8 +92,7 @@ class Controller
     public final function __construct(App $app = null)
     {
         // Try to use active app object.
-        $app ??= function_exists('app') ? app() : null;
-        $app || throw new ControllerException('No app exists to deal');
+        $app ??= function_exists('app') ? app() : throw new ControllerException('No app exists to deal');
 
         $this->app        = $app;
         // Copy as a shortcut for subclasses.
