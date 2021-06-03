@@ -43,11 +43,11 @@ final class Servicer
      * type given, service argument is an array and no service class given or service class not found.
      *
      * @param  string                $name
-     * @param  object|callable|array $service
+     * @param  array|object|callable $service
      * @return self
      * @throws froq\ServicerException
      */
-    public function addService(string $name, object|callable|array $service): self
+    public function addService(string $name, array|object|callable $service): self
     {
         if (is_array($service)) {
             [$class, $classArgs] = array_select($service, [0, 1]);
