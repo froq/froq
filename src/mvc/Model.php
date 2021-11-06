@@ -238,10 +238,10 @@ class Model
             }
         }
 
-        if (!class_exists($class)) {
-            throw new ModelException('%s class `%s` not exists', [$suffix, $class]);
+        if (class_exists($class)) {
+            return new $class(...(array) $classArgs);
         }
 
-        return new $class(...(array) $classArgs);
+        throw new ModelException('%s class `%s` not exists', [$suffix, $class]);
     }
 }
