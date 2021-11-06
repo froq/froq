@@ -7,14 +7,13 @@ declare(strict_types=1);
 
 namespace froq\mvc\data;
 
-use froq\mvc\Controller;
 use froq\mvc\data\Repository;
 
 /**
  * Producer.
  *
  * Represents an entity which is extended by producers those are responsable (basically) data preparation only
- * (eg: validation, sanitization) for saving data to the persistence layer (eg. database via controller's models).
+ * (eg: validation, sanitization) for saving data to the persistence layer (eg. database via controller models).
  *
  * @package froq\mvc\data
  * @object  froq\mvc\data\Producer

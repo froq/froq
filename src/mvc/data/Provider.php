@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace froq\mvc\data;
 
-use froq\mvc\Controller;
 use froq\mvc\data\Repository;
 
 /**
@@ -15,7 +14,7 @@ use froq\mvc\data\Repository;
  *
  * Represents an entity which is extended by providers those are responsable (basically) data preparation only
  * (eg: mapping, casting) for the presentation layer getting records from the persistence layer (eg. database via
- * controller's models).
+ * controller models).
  *
  * @package froq\mvc\data
  * @object  froq\mvc\data\Provider
