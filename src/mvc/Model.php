@@ -54,10 +54,12 @@ class Model
     public final function __construct(Controller $controller, Database $db = null)
     {
         $db ??= $controller->app()->database();
-        $db || throw new ModelException('No db exists to deal, check `database` option in app config');
+        $db || throw new ModelException(
+            'No db exists to deal, check `database` option in app config or pass $db argument'
+        );
 
-        $this->db         = $db;
         $this->controller = $controller;
+        $this->db         = $db;
 
         // When defined on child class.
         if (method_exists($this, 'init')) {
