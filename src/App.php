@@ -477,8 +477,8 @@ final class App
         // be using session/database/cache. Also, "pull" removes sensitive config data after using.
         [$session, $database, $cache] = $this->config->pull(['session', 'database', 'cache']);
 
-        isset($session)  && $this->session  = Factory::initSingle(Session::class, $session);
-        isset($database) && $this->database = Factory::initSingle(Database::class, $database);
+        isset($session)  && $this->session  = Factory::initOnce(Session::class, $session);
+        isset($database) && $this->database = Factory::initOnce(Database::class, $database);
 
         // Note: cache is a "static" instance as default.
         if ($cache != null) {
