@@ -10,7 +10,7 @@ namespace froq\mvc;
 use froq\mvc\{ModelException, Controller};
 use froq\mvc\data\{Producer, Provider, Repository};
 use froq\mvc\trait\ControllerTrait;
-use froq\database\{Database, Query, sql\Sql, entity\Manager};
+use froq\database\{Database, Query, sql\Sql, entity\Manager as EntityManager};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait, EntityManagerTrait};
 use froq\database\record\{Form, Record};
 use froq\pager\Pager;
@@ -62,7 +62,7 @@ class Model
 
         $this->controller = $controller;
         $this->db         = $db;
-        $this->em         = new Manager($db);
+        $this->em         = new EntityManager($db);
 
         // When defined on child class.
         if (method_exists($this, 'init')) {
