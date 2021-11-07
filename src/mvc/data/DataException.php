@@ -10,12 +10,12 @@ namespace froq\mvc\data;
 use froq\AppException;
 
 /**
- * Repository Exception.
+ * Data Exception.
  *
  * @package froq\mvc\data
- * @object  froq\mvc\data\RepositoryException
+ * @object  froq\mvc\data\DataException
  * @author  Kerem Güneş
  * @since   5.0
  */
-class RepositoryException extends AppException
+class DataException extends AppException
 {}

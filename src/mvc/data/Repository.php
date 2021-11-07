@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace froq\mvc\data;
 
-use froq\mvc\data\RepositoryException;
+use froq\mvc\data\DataException;
 use froq\mvc\Controller;
 use froq\mvc\trait\{ControllerTrait, ModelTrait};
 use froq\database\{Query, sql\Sql, entity\Manager};
@@ -62,7 +62,7 @@ class Repository
         }
 
         // Try to use active app database object.
-        $db ??= registry()::get('@app')->database() ?: throw new RepositoryException(
+        $db ??= registry()::get('@app')->database() ?: throw new DataException(
             'No db exists to deal, check `database` option in app config or pass $db argument'
         );
 
