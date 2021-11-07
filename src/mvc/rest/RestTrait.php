@@ -1,26 +1,7 @@
 <?php
 /**
- * MIT License <https://opensource.org/licenses/mit>
- *
- * Copyright (c) 2015 Kerem Güneş
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is furnished
- * to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (c) 2015 · Kerem Güneş
+ * Apache License 2.0 · http://github.com/froq/froq
  */
 declare(strict_types=1);
 
@@ -43,7 +24,7 @@ use froq\mvc\rest\RestException;
  *
  * @package froq\mvc\rest
  * @object  froq\mvc\rest\RestTrait
- * @author  Kerem Güneş <k-gun@mail.com>
+ * @author  Kerem Güneş
  * @since   4.9
  */
 trait RestTrait
@@ -53,18 +34,18 @@ trait RestTrait
      *
      * Note: this method must be called in `index()` method.
      *
-     * @param  ... $params
+     * @param  any ...$params
      * @return any
      */
     protected final function rest(...$params)
     {
-        $method = $this->request->method()->getName();
+        $method = $this->request->getMethod();
 
         if (method_exists($this, $method)) {
             return $this->call($method, $params, false);
         }
 
-        throw new RestException('No "%s()" method defined on "%s" class for "%s" calls',
-                [strtolower($method), get_class($this), strtoupper($method)], Status::NOT_FOUND);
+        throw new RestException('No %s() method defined on %s class for %s calls',
+            [strtolower($method), $this::class, strtoupper($method)], code: Status::NOT_FOUND);
     }
 }

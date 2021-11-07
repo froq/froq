@@ -1,38 +1,19 @@
 <?php
 /**
- * MIT License <https://opensource.org/licenses/mit>
- *
- * Copyright (c) 2015 Kerem Güneş
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is furnished
- * to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (c) 2015 · Kerem Güneş
+ * Apache License 2.0 · http://github.com/froq/froq
  */
 declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\{App, Router};
-use froq\common\objects\Registry;
-use froq\{session\Session, database\Database};
-use froq\http\{Request, Response, request\Segments, response\Status};
-use froq\http\response\payload\{Payload, JsonPayload, XmlPayload, HtmlPayload, FilePayload, ImagePayload};
-use froq\mvc\{ControllerException, View, Model, Action};
-use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionException;
+use froq\mvc\{ControllerException, View, Model};
+use froq\http\{Request, Response, request\Uri, request\Segments, response\Status,
+    response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
+    response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
+    exception\client\NotFoundException};
+use froq\{App, Router, session\Session, database\Database, util\Objects};
+use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
  * Controller.
@@ -41,153 +22,122 @@ use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionExcept
  *
  * @package froq\mvc
  * @object  froq\mvc\Controller
- * @author  Kerem Güneş <k-gun@mail.com>
+ * @author  Kerem Güneş
  * @since   4.0
  */
 class Controller
 {
-    /**
-     * Namespace.
-     * @const string
-     */
+    /** @const string */
     public const NAMESPACE      = 'app\controller';
 
-    /**
-     * Defaults.
-     * @const string
-     */
+    /** @const string */
     public const DEFAULT        = 'app\controller\IndexController',
                  DEFAULT_SHORT  = 'IndexController',
                  ACTION_DEFAULT = 'index';
 
-    /**
-     * Suffixes.
-     * @const string
-     */
+    /** @const string */
     public const SUFFIX         = 'Controller',
                  ACTION_SUFFIX  = 'Action';
 
-    /**
-     * Special actions.
-     * @const string
-     */
+    /** @const string */
     public const INDEX_ACTION   = 'index',
                  ERROR_ACTION   = 'error';
 
-    /**
-     * Name ids.
-     * @const string
-     */
+    /** @const string */
     public const NAME_DEFAULT   = '@default',
                  NAME_CLOSURE   = '@closure';
 
-    /**
-     * App.
-     * @var froq\App
-     */
+    /** @var froq\App */
     protected App $app;
 
-    /**
-     * Request.
-     * @var froq\http\Request
-     */
+    /** @var froq\http\Request */
     protected Request $request;
 
-    /**
-     * Response.
-     * @var froq\http\Response
-     */
+    /** @var froq\http\Response */
     protected Response $response;
 
-    /**
-     * Name.
-     * @var string
-     */
-    private string $name;
-
-    /**
-     * Action.
-     * @var string
-     */
+    /** @var string */
     private string $action;
 
-    /**
-     * Action params.
-     * @var array<any>
-     */
+    /** @var array<any> */
     private array $actionParams;
 
-    /**
-     * View.
-     * @var froq\mvc\View
-     */
+    /** @var froq\mvc\View */
     protected View $view;
 
-    /**
-     * Model.
-     * @var froq\mvc\Model
-     */
+    /** @var froq\mvc\Model */
     protected Model $model;
 
-    /**
-     * Use view.
-     * @var bool
-     */
+    /** @var string */
+    protected string $modelClass;
+
+    /** @var bool */
     public bool $useView = false;
 
-    /**
-     * Use model.
-     * @var bool
-     */
+    /** @var bool */
     public bool $useModel = false;
 
-    /**
-     * Use session.
-     * @var bool
-     */
+    /** @var bool */
     public bool $useSession = false;
 
-    /**
-     * Before/after.
-     * @var bool,bool
-     * @since 4.9
-     */
+    /** @var bool, bool @since 4.9 */
     private bool $before = false, $after = false;
 
     /**
      * Constructor.
      *
-     * Calls `loadView()` method if `$useView` set to true.
-     * Calls `loadModel()` method if `$useModel` set to true.
-     * Calls `init()` method if defined in subclass.
-     *
-     * @param froq\App $app
+     * @param  froq\App|null $app
+     * @throws froq\mvc\ControllerException
      */
-    public final function __construct(App $app)
+    public final function __construct(App $app = null)
     {
-        $this->app = $app;
+        // Try to use active app object.
+        $app ??= function_exists('app') ? app() : throw new ControllerException('No app exists to deal');
 
-        // Copy as a shortcut for child classes.
-        $this->request = $app->request();
-        $this->response = $app->response();
+        $this->app        = $app;
+        // Copy as a shortcut for subclasses.
+        $this->request    = $app->request();
+        $this->response   = $app->response();
+
+        // Check or try to use parent's model class.
+        if (isset($this->modelClass)) {
+            $this->useModel = true;
+        } elseif (!isset($this->modelClass) && $this->useModel) {
+            $parents = array_slice((array) class_parents($this), 0, -1);
+            foreach ($parents as $parent) {
+                // Make full & validate existence.
+                $modelClass = str_replace(Controller::NAMESPACE, Model::NAMESPACE, Objects::getNamespace($parent))
+                    . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Model::SUFFIX);
+                if (class_exists($modelClass)) {
+                    $this->modelClass = $modelClass;
+                    break;
+                }
+            }
+        }
 
         // Load usings.
-        $this->useView && $this->loadView();
-        $this->useModel && $this->loadModel();
+        $this->useView    && $this->loadView();
+        $this->useModel   && $this->loadModel();
         $this->useSession && $this->loadSession();
 
-        // Call init() method if defined in child class.
+        // Call init() method if defined in subclass.
         if (method_exists($this, 'init')) {
             $this->init();
         }
 
-        // Store (last) controller.
-        Registry::set('@controller', $this, false);
+        // Store (as last) controller.
+        $app::registry()::set('@controller', $this, false);
 
         // Set before/after ticks these called in call() method.
         $this->before = method_exists($this, 'before');
-        $this->after = method_exists($this, 'after');
+        $this->after  = method_exists($this, 'after');
     }
+
+    /**
+     * Getter aliases.
+     */
+    public final function app() { return $this->getApp(); }
+    public final function model() { return $this->getModel(); }
 
     /**
      * Get app.
@@ -222,9 +172,9 @@ class Controller
     /**
      * Get view.
      *
-     * @return ?froq\mvc\View
+     * @return froq\mvc\View|null
      */
-    public final function getView(): ?View
+    public final function getView(): View|null
     {
         return $this->view ?? null;
     }
@@ -232,33 +182,44 @@ class Controller
     /**
      * Get model.
      *
-     * @return ?froq\mvc\Model
+     * @return froq\mvc\Model|null
      */
-    public final function getModel(): ?Model
+    public final function getModel(): Model|null
     {
         return $this->model ?? null;
     }
 
     /**
-     * Gets the name of controller that run at the time, creating if not set yet.
+     * Get model class.
+     *
+     * @return string|null
+     */
+    public final function getModelClass(): string|null
+    {
+        return $this->modelClass ?? null;
+    }
+
+    /**
+     * Get name of controller that run at the time, creating if not set yet.
      *
      * @return string
      */
     public final function getName(): string
     {
-        return $this->name ??= substr(strrchr(static::class, '\\'), 1);
+        return $this::class;
     }
 
     /**
-     * Gets the short name of controller that run at the time.
+     * Get short name of controller that run at the time.
      *
+     * @param  bool $suffix
      * @return string
      */
-    public final function getShortName(): string
+    public final function getShortName(bool $suffix = false): string
     {
-        $name = $this->getName();
+        $name = Objects::getShortName($this::class);
 
-        if (strsfx($name, self::SUFFIX)) {
+        if (!$suffix && str_ends_with($name, self::SUFFIX)) {
             $name = substr($name, 0, -strlen(self::SUFFIX));
         }
 
@@ -266,7 +227,7 @@ class Controller
     }
 
     /**
-     * Gets the action name that called at the time.
+     * Get action name that called at the time.
      *
      * @return string
      */
@@ -276,15 +237,16 @@ class Controller
     }
 
     /**
-     * Gets the action short name that called at the time.
+     * Get action short name that called at the time.
      *
+     * @param  bool $suffix
      * @return string
      */
-    public final function getActionShortName(): string
+    public final function getActionShortName(bool $suffix = false): string
     {
         $action = $this->getActionName();
 
-        if (strsfx($action, self::ACTION_SUFFIX)) {
+        if (!$suffix && str_ends_with($action, self::ACTION_SUFFIX)) {
             $action = substr($action, 0, -strlen(self::ACTION_SUFFIX));
         }
 
@@ -292,29 +254,110 @@ class Controller
     }
 
     /**
-     * Gets the action params that called at the time.
+     * Set an action param by given name/value.
      *
+     * @param  string $name
+     * @param  any    $value
+     * @return void
+     * @since  5.0
+     */
+    public final function setActionParam(string $name, $value): void
+    {
+        $this->actionParams[$name] = $value;
+    }
+
+    /**
+     * Get an action param by given name.
+     *
+     * @param  string $name
+     * @return any|null
+     */
+    public final function getActionParam(string $name)
+    {
+        return $this->actionParams[$name] ?? null;
+    }
+
+    /**
+     * Check an action param's existence.
+     *
+     * @param  string $name
+     * @return bool
+     * @since  5.0
+     */
+    public final function hasActionParam(string $name): bool
+    {
+        return isset($this->actionParams[$name]);
+    }
+
+    /**
+     * Set action params by given name/value order.
+     *
+     * @param  array<string, any> $params
+     * @return void
+     * @since  5.0
+     */
+    public final function setActionParams(array $params): void
+    {
+        foreach ($params as $name => $value) {
+            $this->setActionParam($name, $value);
+        }
+    }
+
+    /**
+     * Get all action params, or by given names only.
+     *
+     * @param  array<string>|null $names
+     * @param  bool               $combine
      * @return array
      */
-    public final function getActionParams(): array
+    public final function getActionParams(array $names = null, bool $combine = false): array
     {
-        return $this->actionParams ?? [];
+        $params = $this->actionParams ?? [];
+
+        if ($names != null) {
+            $params = array_select($params, $names);
+        }
+
+        // Leave combined with keys or values only.
+        $combine || $params = array_values($params);
+
+        return $params;
     }
 
     /**
-     * Gets the current controller path built with action that called at the time.
+     * Check all action param's existence, or given names only.
      *
+     * @param  array<string>|null $names
+     * @return bool
+     * @since  5.0
+     */
+    public final function hasActionParams(array $names = null): bool
+    {
+        $actionParams = $this->getActionParams();
+
+        if ($names == null) {
+            return !!$actionParams;
+        }
+
+        return array_isset($actionParams, ...$names);
+    }
+
+    /**
+     * Get current controller path built with action that called at the time.
+     *
+     * @param  bool $full
      * @return string
      */
-    public final function getPath(): string
+    public final function getPath(bool $full = false): string
     {
-        return $this->getShortName() .'.'. $this->getActionShortName();
+        return !$full ? $this->getShortName() . '.' . $this->getActionShortName()
+                      : strtr($this->getName(), '\\', '.') . '.' . $this->getActionName();
     }
 
     /**
-     * Loads (initializes) the view object for the owner controller if controller's `$useView`
-     * property set to true. Throws a `ControllerException` if no `view.layout` option found in
-     * configuration.
+     * Load (initialize) the view object for the owner controller if controller's `$useView` property
+     * set to true and `$view` property is not set yet, throw a `ControllerException` if no `view.layout`
+     * option found in configuration.
      *
      * @return void
      * @throws froq\mvc\ControllerException
@@ -325,7 +368,7 @@ class Controller
             $layout = $this->app->config('view.layout');
 
             if (!$layout) {
-                throw new ControllerException('No "view.layout" option found in configuration');
+                throw new ControllerException('No `view.layout` option found in config');
             }
 
             $this->view = new View($this);
@@ -334,38 +377,40 @@ class Controller
     }
 
     /**
-     * Loads (initializes) the model object for the owner controller if controller's `$useModel`
-     * property set to true. Throws a `ControllerException` if no such model class found.
+     * Load (initialize) the model object for the owner controller if controller's `$useModel` property
+     * set to true and `$model` property is not set yet.
      *
      * @return void
-     * @throws froq\mvc\ControllerException
      */
     public final function loadModel(): void
     {
         if (!isset($this->model)) {
-            $name = $this->getShortName();
-            $config = $this->app->config('model');
-
-            // Map can be defined in config (eg: ["Foo" => "app\foo\FooModel"])
-            if (!empty($config['map'])) {
-                foreach ($config['map'] as $controllerName => $class) {
-                    if ($controllerName == $name) {
-                        break;
-                    }
-                }
+            // When an absolute class name given.
+            if (isset($this->modelClass)) {
+                $this->model = $this->initModel($this->modelClass);
+                return;
             }
 
-            // Use found name in config map or self name.
-            $class ??= ($config['namespace'] ?? Model::NAMESPACE)
-                .'\\'. $name . Model::SUFFIX;
+            $name = $this->getShortName();
+            $base = null;
 
-            $this->model = $this->initModel($class);
+            // Check whether controller is a sub-controller.
+            if (substr_count($controller = static::class, '\\') > 2) {
+                $base = substr($controller, 0, strrpos($controller, '\\'));
+                $base = substr($base, strrpos($base, '\\') + 1);
+            }
+
+            $class = !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
+                            : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
+
+            $this->model      = $this->initModel($class);
+            $this->modelClass = $class;
         }
     }
 
     /**
-     * Loads (starts) the session object for the owner controller if controller's `$useSession`
-     * property set to true. Throws a `ControllerException` if App has no session.
+     * Load (starts) the session object for the owner controller if controller's `$useSession` property
+     * set to true, throw a `ControllerException` if App has no session.
      *
      * @return void
      * @throws froq\mvc\ControllerException
@@ -374,24 +419,35 @@ class Controller
     {
         $session = $this->app->session();
 
-        if (!$session) {
-            throw new ControllerException('App has no session object (check "session" option in '.
-                'configuration and be sure it is not null)');
+        if ($session == null) {
+            throw new ControllerException('App has no session object [tip: check `session` option in'
+                . ' config and be sure it is not null]');
         }
 
         $session->start();
     }
 
     /**
-     * Env.
-     * @param  string   $name
-     * @param  any|null $valueDefault
-     * @return any
+     * Get request URI.
+     *
+     * @return froq\http\request\Uri
      */
-    public final function env(string $name, $valueDefault = null)
+    public final function uri(): Uri
+    {
+        return $this->request->uri();
+    }
+
+    /**
+     * Get an environment or a server var or return default.
+     *
+     * @param  string   $name
+     * @param  any|null $default
+     * @return any|null
+     */
+    public final function env(string $name, $default = null)
     {
         // Uppers for nginx (in some cases).
-        $value = $_ENV[$name] ?? $_ENV[strtoupper($name)] ??
+        $value = $_ENV[$name]    ?? $_ENV[strtoupper($name)]    ??
                  $_SERVER[$name] ?? $_SERVER[strtoupper($name)] ?? null;
 
         if ($value === null) {
@@ -402,38 +458,40 @@ class Controller
             }
         }
 
-        return $value ?? $valueDefault;
+        return $value ?? $default;
     }
 
     /**
-     * Views a view file with given `$fileData` arguments if provided rendering the file
-     * in a wrapped output buffer.
+     * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output
+     * buffer, or simply return view property when no arguments provided.
      *
-     * @param  string     $file
-     * @param  array|null $fileData
-     * @param  int|null   $status
-     * @return string
+     * @param  string|null $file
+     * @param  array|null  $fileData
+     * @param  int|null    $status
+     * @return string|froq\mvc\View
      * @throws froq\mvc\ControllerException
      */
-    public final function view(string $file, array $fileData = null, int $status = null): string
+    public final function view(string $file = null, array $fileData = null, int $status = null): string|View
     {
         if (!isset($this->view)) {
-            throw new ControllerException('No "$view" property set yet, be sure "$useView" is '.
-                'true in %s class', [static::class]);
+            throw new ControllerException('No `$view` property set yet, be sure `$useView` is true on'
+                . ' class %s', static::class);
         }
 
-        // Shortcut for status (if given).
-        if ($status) {
-            $this->response->setStatus($status);
+        if (!func_num_args()) {
+            return $this->view;
         }
+
+        // Shortcut for status.
+        $status && $this->status($status);
 
         return $this->view->render($file, $fileData);
     }
 
     /**
-     * Forwards an internal call to other call (controller method) with given call arguments. The
-     * `$call` parameter must be fully qualified for explicit methods without `Controller` and
-     * `Action` suffixes eg: `Book.show`, otherwise `index` method does not require that explicity.
+     * Forward an internal call to other call (controller method) with given call arguments. The `$call`
+     * parameter must be fully qualified for explicit methods without `Controller` and `Action` suffixes
+     * eg: `Book.show`, otherwise `index` method does not require that explicity.
      *
      * @param  string $call
      * @param  array  $callArgs
@@ -445,22 +503,25 @@ class Controller
         [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
         if (!$controller || !$action) {
-            throw new ControllerException('Invalid call directive given, use "Foo.bar" '.
-                'convention without "Controller" and "Action" suffixes', null,
-                Status::NOT_FOUND);
+            throw new ControllerException('Invalid call directive `%s`, use `Foo.bar`'
+                . ' convention without `Controller` and `Action` suffixes', $call,
+                code: Status::NOT_FOUND, cause: new NotFoundException()
+            );
         } elseif (!class_exists($controller)) {
-            throw new ControllerException('No controller found such "%s"', [$controller],
-                Status::NOT_FOUND);
+            throw new ControllerException('No controller found such `%s`', $controller,
+                code: Status::NOT_FOUND, cause: new NotFoundException()
+            );
         } elseif (!method_exists($controller, $action)) {
-            throw new ControllerException('No controller action found such "%s::%s()"', [$controller, $action],
-                Status::NOT_FOUND);
+            throw new ControllerException('No controller action found such `%s::%s()`', [$controller, $action],
+                code: Status::NOT_FOUND, cause: new NotFoundException()
+            );
         }
 
-        return (new $controller($this->app))->call($action, (array) $actionParams);
+        return (new $controller($this->app))->call($action, $actionParams ?? []);
     }
 
     /**
-     * Redirects to given location applying `$toArgs` if provided, with given headers & cookies.
+     * Redirect clien to given location applying `$toArgs` if provided, with given headers & cookies.
      *
      * @param  string     $to
      * @param  array|null $toArgs
@@ -472,18 +533,18 @@ class Controller
     public final function redirect(string $to, array $toArgs = null, int $code = Status::FOUND,
         array $headers = null, array $cookies = null): void
     {
-        if ($toArgs) $to = vsprintf($to, $toArgs);
+        $toArgs && $to = vsprintf($to, $toArgs);
 
         $this->response->redirect($to, $code, $headers, $cookies);
     }
 
     /**
-     * Sets response (status) code.
+     * Set response status.
      *
      * @param  int $code
      * @return self
      */
-    public final function setResponseCode(int $code): self
+    public final function status(int $code): self
     {
         $this->response->setStatus($code);
 
@@ -491,31 +552,7 @@ class Controller
     }
 
     /**
-     * Sets response (content) type.
-     *
-     * @param  string $type
-     * @return self
-     */
-    public final function setResponseType(string $type): self
-    {
-        $this->response->setContentType($type);
-
-        return $this;
-    }
-
-    /**
-     * Status (alias of setResponseCode()).
-     *
-     * @param  int $code
-     * @return self
-     */
-    public final function status(int $code): self
-    {
-        return $this->setResponseCode($code);
-    }
-
-    /**
-     * Request (gets request object).
+     * Get request object.
      *
      * @return froq\http\Request
      * @since  4.1
@@ -526,49 +563,49 @@ class Controller
     }
 
     /**
-     * Gets response object, sets response status & body content, also content attributes if provided.
+     * Get response object, set response status & body content, also content attributes when provided.
      *
      * @param  int|null   $code
      * @param  any|null   $content
-     * @param  array|null $contentAttributes
+     * @param  array|null $attributes
      * @return froq\http\Response
      */
-    public final function response(int $code = null, $content = null, array $contentAttributes = null): Response
+    public final function response(int $code = null, $content = null, array $attributes = null): Response
     {
-        $response = $this->response;
-
         // Content can be null, but not code.
-        if ($code !== null) {
-            $response->setStatus($code)->setBody($content, $contentAttributes);
+        if (func_num_args()) {
+            $this->response
+                 ->setStatus($code)
+                 ->setBody($content, $attributes);
         }
 
-        return $response;
+        return $this->response;
     }
 
     /**
-     * Gets App's Session object.
+     * Get app's session object.
      *
-     * @return ?froq\session\Session
+     * @return froq\session\Session|null
      * @since  4.2
      */
-    public final function session(): ?Session
+    public final function session(): Session|null
     {
         return $this->app->session();
     }
 
     /**
-     * Gets App's Database object.
+     * Get app's database object.
      *
-     * @return ?froq\database\Database
+     * @return froq\database\Database|null
      * @since  4.2
      */
-    public final function database(): ?Database
+    public final function database(): Database|null
     {
         return $this->app->database();
     }
 
     /**
-     * Yields a payload with given status & content, also content attributes if provided.
+     * Yield a payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -581,7 +618,7 @@ class Controller
     }
 
     /**
-     * Yields a JSON payload with given status & content, also content attributes if provided.
+     * Yield a JSON payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -594,7 +631,7 @@ class Controller
     }
 
     /**
-     * Yields a XML payload with given status & content, also content attributes if provided.
+     * Yield a XML payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -607,7 +644,7 @@ class Controller
     }
 
     /**
-     * Yields a HTML payload with given status & content, also content attributes if provided.
+     * Yield a HTML payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -620,7 +657,7 @@ class Controller
     }
 
     /**
-     * Yields a file payload with given status & content, also content attributes if provided.
+     * Yield a file payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -633,7 +670,7 @@ class Controller
     }
 
     /**
-     * Yields an image payload with given status & content, also content attributes if provided.
+     * Yield an image payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
      * @param  any        $content
@@ -646,117 +683,143 @@ class Controller
     }
 
     /**
-     * Gets a segment value.
+     * Get a segment value.
      *
      * @param  int|string $key
-     * @param  any        $valueDefault
-     * @return any
+     * @param  any|null   $default
+     * @return any|null
      * @since  4.2
      */
-    public final function segment($key, $valueDefault = null)
+    public final function segment(int|string $key, $default = null)
     {
-        return $this->request->uri()->segment($key, $valueDefault);
+        return $this->request->getSegment($key, $default);
     }
 
     /**
-     * Gets URI's Segments object.
+     * Get URI segments object.
      *
-     * @return ?froq\http\request\Segments
+     * @param  array<int|string> $keys
+     * @param  any|null          $default
+     * @return froq\http\request\Segments|array
      * @since  4.2
      */
-    public final function segments(): ?Segments
+    public final function segments(array $keys = null, $default = null): Segments|array
     {
-        return $this->request->uri()->segments();
+        return $this->request->getSegments($keys, $default);
     }
 
     /**
-     * Gets URI's Segments object as list.
+     * Get URI segments object as list.
      *
      * @param  int $offset
-     * @return ?array
+     * @return array
      * @since  4.4
      */
-    public final function segmentsList(int $offset = 0): ?array
+    public final function segmentsList(int $offset = 0): array
     {
-        $segments = $this->request->uri()->segments();
-
-        return $segments ? $segments->toList($offset) : null;
+        return $this->request->getSegments()->toList($offset);
     }
 
     /**
-     * Gets a get parameter.
+     * Get a segment param.
      *
      * @param  string   $name
-     * @param  any|null $valueDefault
+     * @param  any|null $default
      * @return any|null
+     * @since  5.0
      */
-    public final function getParam(string $name, $valueDefault = null)
+    public final function segmentParam(string $name, $default = null)
     {
-        return $this->request->getParam($name, $valueDefault);
+        return $this->request->getSegments()->getParam($name, $default);
     }
 
     /**
-     * Gets all get parameters or given names only.
+     * Get segment params.
      *
-     * @param  array<string>|null $names
-     * @param  any|null           $valuesDefault
+     * @param  string<string> $names
+     * @param  any|null       $default
      * @return array
+     * @since  5.0
      */
-    public final function getParams(array $names = null, $valuesDefault = null): array
+    public final function segmentParams(array $names, $default = null): array
     {
-        return $this->request->getParams($names, $valuesDefault);
+        return $this->request->getSegments($names, $default);
     }
 
     /**
-     * Gets a post parameter.
+     * Get a get parameter.
      *
      * @param  string   $name
-     * @param  any|null $valueDefault
+     * @param  any|null $default
      * @return any|null
      */
-    public final function postParam(string $name, $valueDefault = null)
+    public final function getParam(string $name, $default = null)
     {
-        return $this->request->postParam($name, $valueDefault);
+        return $this->request->getParam($name, $default);
     }
 
     /**
-     * Gets all post parameters or given names only.
+     * Get all get parameters or by given names only.
      *
      * @param  array<string>|null $names
-     * @param  any|null           $valuesDefault
+     * @param  any|null           $default
      * @return array
      */
-    public final function postParams(array $names = null, $valuesDefault = null): array
+    public final function getParams(array $names = null, $default = null): array
     {
-        return $this->request->postParams($names, $valuesDefault);
+        return $this->request->getParams($names, $default);
     }
 
     /**
-     * Gets a cookie parameter.
+     * Get a post parameter.
      *
      * @param  string   $name
-     * @param  any|null $valueDefault
+     * @param  any|null $default
      * @return any|null
      */
-    public final function cookieParam(string $name, $valueDefault = null)
+    public final function postParam(string $name, $default = null)
     {
-        return $this->request->cookieParam($name, $valueDefault);
+        return $this->request->postParam($name, $default);
     }
 
     /**
-     * Gets all cookie parameters or given names only.
+     * Get all post parameters or by given names only.
      *
      * @param  array<string>|null $names
-     * @param  any|null           $valuesDefault
+     * @param  any|null           $default
      * @return array
      */
-    public final function cookieParams(array $names = null, $valuesDefault = null): array
+    public final function postParams(array $names = null, $default = null): array
     {
-        return $this->request->cookieParams($names, $valuesDefault);
+        return $this->request->postParams($names, $default);
     }
 
     /**
-     * Calls an action that defined in subclass or by `App.route()` method or other shortcut route
+     * Get a cookie parameter.
+     *
+     * @param  string   $name
+     * @param  any|null $default
+     * @return any|null
+     */
+    public final function cookieParam(string $name, $default = null)
+    {
+        return $this->request->cookieParam($name, $default);
+    }
+
+    /**
+     * Get all cookie parameters or by given names only.
+     *
+     * @param  array<string>|null $names
+     * @param  any|null           $default
+     * @return array
+     */
+    public final function cookieParams(array $names = null, $default = null): array
+    {
+        return $this->request->cookieParams($names, $default);
+    }
+
+    /**
+     * Call an action that defined in subclass or by `App.route()` method or other shortcut route
      * methods like `get()`, `post()`, eg: `$app->get("/book/:id", "Book.show")`.
      *
      * @param  string $action
@@ -773,33 +836,34 @@ class Controller
         }
 
         $this->action       = $action;
-        $this->actionParams = $actionParams; // Keep originals.
+        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         try {
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, null, Status::NOT_FOUND);
+            throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
         }
-
-        $params     = $this->prepareActionParams($ref, $actionParams);
-        $paramsRest = array_values($actionParams);
-
-        // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
-        $params = [...$params, ...$paramsRest];
 
         try {
-            $this->before && $this->before(); // Call if defined in child.
-            $ret = $this->{$action}(...$params);
-            $this->after && $this->after(); // Call if defined in child.
+            $this->before && $this->before();
+
+            $params     = $this->prepareActionParams($ref, $actionParams);
+            $paramsRest = array_values($actionParams);
+
+            // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
+            $return = $this->{$action}(...[...$params, ...$paramsRest]);
+
+            $this->after && $this->after();
         } catch (Throwable $e) {
-            $ret = $this->error($e);
+            $return = method_exists($this, 'error')
+                    ? $this->error($e) : $this->app->error($e);
         }
 
-        return $ret;
+        return $return;
     }
 
     /**
-     * Calls an callable (function) that defined by `App.route()` method or other shortcut route
+     * Call an callable (function) that defined by `App.route()` method or other shortcut route
      * methods like `get()`, `post()`, eg: `$app->get("/book/:id", function ($id) { .. })`.
      *
      * @param  callable $action
@@ -810,7 +874,7 @@ class Controller
     public final function callCallable(callable $action, array $actionParams = [])
     {
         $this->action       = self::NAME_CLOSURE;
-        $this->actionParams = $actionParams; // Keep originals.
+        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         // Make "$this" available in called action.
         $action = $action->bindTo($this, $this);
@@ -818,77 +882,113 @@ class Controller
         try {
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, null, Status::INTERNAL_SERVER_ERROR);
+            throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
         }
-
-        $params     = $this->prepareActionParams($ref, $actionParams);
-        $paramsRest = array_values($actionParams);
-
-        // Merge with originals as rest params (eg: fooAction($id, ...$rest)).
-        $params = [...$params, ...$paramsRest];
 
         try {
-            $this->before && $this->before(); // Call if defined in child.
-            $ret = $action(...$params);
-            $this->after && $this->after(); // Call if defined in child.
+            $this->before && $this->before();
+
+            $params     = $this->prepareActionParams($ref, $actionParams);
+            $paramsRest = array_values($actionParams);
+
+            // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
+            $return = $action(...[...$params, ...$paramsRest]);
+
+            $this->after && $this->after();
         } catch (Throwable $e) {
-            $ret = $this->error($e);
+            $return = method_exists($this, 'error')
+                    ? $this->error($e) : $this->app->error($e);
         }
 
-        return $ret;
+        return $return;
     }
 
     /**
-     * Initializes a model object by given model/model class name. Throws a `ControllerException`
-     * if no such model class exists.
+     * Initialize a controller object by given controller name/controller class name, throw a `ControllerException`
+     * if no such controller class exists.
      *
-     * @param  string                      $name
+     * @param  string $class
+     * @return froq\mvc\Controller (static)
+     * @throws froq\mvc\ControllerException
+     * @since  5.0
+     */
+    public final function initController(string $class): Controller
+    {
+        $class = trim($class, '\\');
+
+        // If no full class name given.
+        strpos($class, '\\') || $class = (
+            Controller::NAMESPACE . '\\' . ucfirst($class) . Controller::SUFFIX
+        );
+
+        if (!class_exists($class)) {
+            throw new ControllerException('Controller class `%s` not exists', $class);
+        } elseif (!class_extends($class, Controller::class)) {
+            throw new ControllerException('Controller class `%s` must extend class `%s`', [$class, Controller::class]);
+        }
+
+        return new $class($this->app);
+    }
+
+    /**
+     * Initialize a model object by given model name /model class name, throw a `ControllerException` if no such
+     * model class exists.
+     *
+     * @param  string                      $class
      * @param  froq\mvc\Controller|null    $controller
      * @param  froq\database\Database|null $database
      * @return froq\mvc\Model (static)
+     * @throws froq\mvc\ControllerException
      * @since  4.13
      */
-    public final function initModel(string $name, Controller $controller = null, Database $database = null): Model
+    public final function initModel(string $class, Controller $controller = null, Database $database = null): Model
     {
-        $class = trim($name, '\\');
+        $class = trim($class, '\\');
 
         // If no full class name given.
-        if (!strpos($name, '\\')) {
-            $class = $this->app->config('model.namespace', Model::NAMESPACE)
-                .'\\'. $name . Model::SUFFIX;
-        }
+        strpos($class, '\\') || (
+            $class = Model::NAMESPACE . '\\' . ucfirst($class) . Model::SUFFIX
+        );
 
         if (!class_exists($class)) {
-            throw new ControllerException('Model class "%s" not exists', [$class]);
+            throw new ControllerException('Model class `%s` not exists', $class);
         } elseif (!class_extends($class, Model::class)) {
-            throw new ControllerException('Model "%s" class must be subclass of "%s" class',
-                [$class, Model::class]);
+            throw new ControllerException('Model class `%s` must extend class `%s`', [$class, Model::class]);
         }
 
         return new $class($controller ?? $this, $database ?? $this->database());
     }
 
     /**
-     * Prepares an action's parameters to fulfill its required/non-required parameter need on
+     * Prepare an action's parameters to fulfill its required/non-required parameters needed on
      * calltime/runtime.
      *
-     * @param  Reflector $reflector
+     * @param  Reflector $ref
      * @param  array     $actionParams
      * @return array
      */
-    private final function prepareActionParams(Reflector $reflector, array $actionParams): array
+    private function prepareActionParams(Reflector $ref, array $actionParams): array
     {
         $ret = [];
 
-        foreach ($reflector->getParameters() as $i => $param) {
+        foreach ($ref->getParameters() as $i => $param) {
             if ($param->isVariadic()) {
                 continue;
             }
 
             // Action parameter can be named or indexed.
-            $ret[] = $actionParams[$param->name] ?? $actionParams[$i] ?? (
+            $value = $actionParams[$param->name] ?? $actionParams[$i] ?? (
                 $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null
             );
+
+            if ($param->hasType()) {
+                $type = $param->getType();
+                if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
+                    settype($value, $type->getName());
+                }
+            }
+
+            $ret[] = $value;
         }
 
         return $ret;

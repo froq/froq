@@ -1,26 +1,7 @@
 <?php
 /**
- * MIT License <https://opensource.org/licenses/mit>
- *
- * Copyright (c) 2015 Kerem Güneş
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is furnished
- * to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (c) 2015 · Kerem Güneş
+ * Apache License 2.0 · http://github.com/froq/froq
  */
 declare(strict_types=1);
 
@@ -30,17 +11,15 @@ use froq\ServicerException;
 
 /**
  * Servicer.
+ *
  * @package froq
  * @object  froq\Servicer
- * @author  Kerem Güneş <k-gun@mail.com>
+ * @author  Kerem Güneş
  * @since   4.0
  */
 final class Servicer
 {
-    /**
-     * Services.
-     * @var array
-     */
+    /** @var array */
     private array $services = [];
 
     /**
@@ -50,70 +29,72 @@ final class Servicer
     {}
 
     /**
-     * Gets the services property.
+     * Get services.
      *
      * @return array
      */
-    public function getServices(): array
+    public function services(): array
     {
         return $this->services;
     }
 
     /**
-     * Adds a service to services stack. Throws `ServicerException` if invalid service argument
-     * type given, service argument is an array and no service class given or service class not
-     * found.
+     * Add a service to services stack, or throws `ServicerException` if invalid service argument
+     * type given, service argument is an array and no service class given or service class not found.
      *
-     * @param string                        $name
-     * @param callable|array<string, array> $service
+     * @param  string                $name
+     * @param  array|object|callable $service
+     * @return self
      * @throws froq\ServicerException
      */
-    public function addService(string $name, $service): void
+    public function addService(string $name, array|object|callable $service): self
     {
         if (is_array($service)) {
-            @ [$class, $classArgs] = $service;
-            if (!$class) {
-                throw new ServicerException('Service class must be provided and fully namespaced '.
-                    'for array-ed service registrations');
+            [$class, $classArgs] = array_select($service, [0, 1]);
+
+            if ($class == null) {
+                throw new ServicerException('Service class must be provided and fully namespaced for'
+                    . ' array-ed service registrations');
             } elseif (!class_exists($class)) {
-                throw new ServicerException('Service class "%s" not found', [$class]);
+                throw new ServicerException('Service class `%s` not found', $class);
             }
 
-            $this->services[$name] = !$classArgs ? new $class()
-                : new $class(...array_values((array) $classArgs));
-        } elseif (is_callable($service)) {
-            $this->services[$name] = $service;
+            $this->services[$name] = !$classArgs ? new $class() : new $class(...(array) $classArgs);
         } else {
-            throw new ServicerException('Only array and callable service registrations are allowed');
+            $this->services[$name] = $service;
         }
+
+        return $this;
     }
 
     /**
-     * Adds services to services stack.
+     * Add services to services stack.
      *
      * @param  array $services
-     * @return void
+     * @return self
      */
-    public function addServices(array $services): void
+    public function addServices(array $services): self
     {
         foreach ($services as $name => $service) {
             $this->addService($name, $service);
         }
+
+        return $this;
     }
 
     /**
-     * Gets a service from service stack if found, otherwise returns null.
+     * Get a service from service stack if found, otherwise returns null.
      *
      * @param  string $name
      * @return object|callable|null
      */
-    public function getService(string $name)
+    public function getService(string $name): object|callable|null
     {
         return $this->services[$name] ?? null;
     }
 
     /**
-     * Removes a service from service stack.
+     * Remove a service from service stack.
      *
      * @param  string $name
      * @return bool
@@ -128,7 +109,7 @@ final class Servicer
     }
 
     /**
-     * Checks a service if exists or not.
+     * Check whether a service exists.
      *
      * @param  string $name
      * @return bool

@@ -1,26 +1,7 @@
 <?php
 /**
- * MIT License <https://opensource.org/licenses/mit>
- *
- * Copyright (c) 2015 Kerem Güneş
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is furnished
- * to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (c) 2015 · Kerem Güneş
+ * Apache License 2.0 · http://github.com/froq/froq
  */
 declare(strict_types=1);
 
@@ -28,45 +9,41 @@ namespace froq;
 
 use RuntimeException;
 
+// Prevent static return collision etc.
+function load($file) { require $file; }
+
 /**
  * Autoloader.
+ *
  * @package froq\app
  * @object  froq\app\Autoloader
- * @author  Kerem Güneş <k-gun@mail.com>
- * @since   1.0, 4.0 Refactored, renamed as Autoloader from Autoload.
+ * @author  Kerem Güneş
+ * @since   1.0, 4.0 Renamed from Autoload, refactored.
  */
 final class Autoloader
 {
-    /**
-     * Instance.
-     * @var self
-     */
+    /** @var self */
     private static self $instance;
 
-    /**
-     * Directives.
-     * @var array<int, array<string>>
-     */
+    /** @var array */
     private static array $directives = [
         0 => ['app/controller', '/app/system/%s/%s.php'],
         1 => ['app/model'     , '/app/system/%s/model/%s.php'],
         2 => ['app/library'   , '/app/library/%s.php'],
     ];
 
-    /**
-     * Directory.
-     * @var string
-     */
+    /** @var string */
     private string $directory;
 
     /**
      * Constructor.
+     *
      * @param  string|null $directory
      * @throws RuntimeException
      */
     private function __construct(string $directory = null)
     {
-        $directory = $directory ?? realpath(__dir__ .'/../../../../vendor/froq');
+        $directory = $directory ?? realpath(__dir__ . '/../../../../vendor/froq');
 
         if (!$directory || !is_dir($directory)) {
             throw new RuntimeException('Froq folder not found');
@@ -76,7 +53,8 @@ final class Autoloader
     }
 
     /**
-     * Init.
+     * Create an Autoloader instance.
+     *
      * @param  string|null $directory
      * @return self
      */
@@ -87,6 +65,7 @@ final class Autoloader
 
     /**
      * Register.
+     *
      * @return bool
      */
     public function register(): bool
@@ -96,6 +75,7 @@ final class Autoloader
 
     /**
      * Unregister.
+     *
      * @return bool
      */
     public function unregister(): bool
@@ -104,7 +84,8 @@ final class Autoloader
     }
 
     /**
-     * Load.
+     * Load a file by its name & namespace.
+     *
      * @param  string $name
      * @return void
      */
@@ -116,9 +97,9 @@ final class Autoloader
         $name = strtr($name, '\\', '/');
         $file = null;
 
-        if (strpos($name, 'app/') === 0) {
+        if (str_starts_with($name, 'app/')) {
             // User controller objects (eg: FooController => app/system/Foo/FooController.php).
-            if (strpos($name, self::$directives[0][0]) === 0) {
+            if (str_starts_with($name, self::$directives[0][0])) {
                 $this->checkAppDir();
 
                 preg_match('~([A-Z][a-zA-Z0-9]+)Controller$~', $name, $match);
@@ -127,20 +108,20 @@ final class Autoloader
                 }
             }
             // User model objects (eg: FooModel => app/system/Foo/model/FooModel.php).
-            elseif (strpos($name, self::$directives[1][0]) === 0) {
+            elseif (str_starts_with($name, self::$directives[1][0])) {
                 $this->checkAppDir();
 
-                // A model folder checked for only these objects, eg: Model, FooModel, FooEntity, FooEntityArray.
+                // A model folder checked for only these objects, eg: Model, FooModel, FooEntity, FooEntityList.
                 // So any other objects must be loaded in other ways. Besides, "Model" for only the "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
                 // to eg: $app->get("/book/:id", function ($id) { ... }).
-                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|ModelException|Entity|EntityArray)$~', $name, $match);
+                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|ModelException|Entity|EntityList)$~', $name, $match);
                 if ($match) {
                     $file = APP_DIR . sprintf(self::$directives[1][1], $match[1], $match[0]);
                 }
             }
             // User library objects (eg: Foo => app/library/Foo.php).
-            elseif (strpos($name, self::$directives[2][0]) === 0) {
+            elseif (str_starts_with($name, self::$directives[2][0])) {
                 $this->checkAppDir();
 
                 $base = substr($name, strlen(self::$directives[2][0]) + 1);
@@ -148,72 +129,73 @@ final class Autoloader
             }
         }
         // Most objects loaded by Composer, but in case this part is just a fallback.
-        elseif (strpos($name, 'froq/') === 0) {
+        elseif (str_starts_with($name, 'froq/')) {
             [$pkg, $src] = $this->resolve($name);
 
-            $file = $this->directory .'/'. $pkg .'/src/'. $src .'.php';
+            $file = $this->directory . '/' . $pkg . '/src/' . $src . '.php';
         }
 
         if ($file && is_file($file)) {
-            require $file;
-        } else {
-            // Note: this part is for only local development purporses, normally Composer will
-            // do it's job until here.
+            load($file);
+            return;
+        }
 
-            static $autoload;
-            $autoload ??= defined('APP_DIR');
+        // Note: this part is for only local development purporses, normally Composer will
+        // do its job until here.
 
-            // Memoize autoload data.
-            if ($autoload !== false) {
-                $composerFile = APP_DIR .'/composer.json';
-                if (is_file($composerFile)) {
-                    $composerFileData = json_decode(file_get_contents($composerFile), true);
-                    // Both "psr-4" & "froq" accepted.
-                    if (empty($composerFileData['autoload']['psr-4'])
-                        && empty($composerFileData['autoload']['froq'])) {
-                        $autoload = false; // Tick.
-                    } else {
-                        $autoload = $composerFileData['autoload']['psr-4']
-                                 ?? $composerFileData['autoload']['froq'];
-                    }
+        static $autoload; $autoload ??= defined('APP_DIR');
+
+        // Memoize autoload data.
+        if ($autoload !== false) {
+            $composerFile = APP_DIR . '/composer.json';
+            if (is_file($composerFile)) {
+                // Both "psr-4" & "froq" accepted.
+                $composerFileData = json_decode(file_get_contents($composerFile), true);
+                if (empty($composerFileData['autoload']['psr-4'])
+                    && empty($composerFileData['autoload']['froq'])) {
+                    $autoload = false; // Tick.
+                } else {
+                    $autoload = $composerFileData['autoload']['psr-4']
+                             ?? $composerFileData['autoload']['froq'];
                 }
             }
+        }
 
-            // Try to load via autoload.
-            if ($autoload) {
-                $nameOrig = strtr($name, '/', '\\');
-                foreach ($autoload as $ns => $dir) {
-                    if (strpos($nameOrig, $ns) === false) {
-                        continue;
-                    }
+        // Try to load via "autoload" directive.
+        if ($autoload) {
+            $nameOrig = strtr($name, '/', '\\');
+            foreach ($autoload as $ns => $dir) {
+                if (!str_contains($nameOrig, $ns)) {
+                    continue;
+                }
 
-                    $name = strtr(substr($nameOrig, strlen($ns)), '\\', '/');
-                    $file = APP_DIR .'/'. $dir .'/'. $name .'.php';
+                $name = strtr(substr($nameOrig, strlen($ns)), '\\', '/');
+                $file = APP_DIR . '/' . $dir . '/' . $name . '.php';
 
-                    if (is_file($file)) {
-                        require $file;
-                        return;
-                    }
+                if (is_file($file)) {
+                    load($file);
+                    return;
                 }
             }
         }
     }
 
     /**
-     * Check app dir.
+     * Check whether APP_DIR is defined.
+     *
      * @return void
      * @throws RuntimeException
      */
     private function checkAppDir(): void
     {
-        if (!defined('APP_DIR')) {
-            throw new RuntimeException('APP_DIR is not defined, it is required for "app\..." '.
-                'namespaced files');
-        }
+        defined('APP_DIR') || throw new RuntimeException(
+            'APP_DIR is not defined, it is required for `app\...` namespaced files'
+        );
     }
 
     /**
-     * Resolve.
+     * Resolve package & source by given name.
+     *
      * @param  string $name
      * @return array<string>
      */

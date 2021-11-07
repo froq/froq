@@ -5,17 +5,17 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\mvc\data;
 
 use froq\AppException;
 
 /**
- * Servicer Exception.
+ * Data Exception.
  *
- * @package froq
- * @object  froq\ServicerException
+ * @package froq\mvc\data
+ * @object  froq\mvc\data\DataException
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   5.0
  */
-class ServicerException extends AppException
+class DataException extends AppException
 {}
