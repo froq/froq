@@ -7,13 +7,14 @@ declare(strict_types=1);
 
 namespace froq\mvc\data;
 
+use froq\mvc\data\RepositoryException;
 use froq\mvc\Controller;
 use froq\mvc\trait\{ControllerTrait, ModelTrait};
-use froq\database\{Query, sql\Sql};
-use froq\database\trait\{DbTrait, TableTrait, ValidationTrait};
+use froq\database\{Query, sql\Sql, entity\Manager};
+use froq\database\trait\{DbTrait, TableTrait, ValidationTrait, EntityManagerTrait};
 
 /**
- * Repository
+ * Repository.
  *
  * Represents an entity which is extended by producers/providers or other data/database related classes.
  *
@@ -31,25 +32,42 @@ class Repository
     /** @see froq\database\trait\DbTrait */
     /** @see froq\database\trait\TableTrait */
     /** @see froq\database\trait\ValidationTrait */
-    use DbTrait, TableTrait, ValidationTrait;
+    /** @see froq\database\trait\EntityManagerTrait */
+    use DbTrait, TableTrait, ValidationTrait, EntityManagerTrait;
 
     /**
      * Constructor.
      *
-     * @param froq\mvc\Controller|null $controller
+     * @param  froq\mvc\Controller|null    $controller
+     * @param  froq\database\Database|null $db
+     * @throws froq\mvc\ModelException
      */
-    public function __construct(Controller $controller = null)
+    public function __construct(Controller $controller = null, Database $db = null)
     {
-        // Use given or registry controller.
-        $this->controller = $controller ?? registry()::get('@controller');
+        // Use given or registry's controller.
+        $controller ??= registry()::get('@controller');
+        if ($controller != null) {
+            $this->controller = $controller;
 
-        // Not all controllers use models.
-        if ($model = $this->controller->getModel()) {
-            $this->model = $model;
+            // Not all controllers use models.
+            if ($model = $controller->getModel()) {
+                $this->model = $model;
+
+                // Use model's stuff.
+                if ($db == null) {
+                    $db = $model->db();
+                    $em = $model->em();
+                }
+            }
         }
 
-        // Set db property using model or registry.
-        $this->db = $model?->db() ?: registry()::get('@app')->database();
+        // Try to use active app database object.
+        $db ??= registry()::get('@app')->database() ?: throw new RepositoryException(
+            'No db exists to deal, check `database` option in app config or pass $db argument'
+        );
+
+        $this->db = $db;
+        $this->em = $em ?? new Manager($db);
     }
 
     /**
