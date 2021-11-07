@@ -16,7 +16,7 @@ use froq\database\trait\{DbTrait, TableTrait, ValidationTrait, EntityManagerTrai
 /**
  * Repository.
  *
- * Represents an entity which is extended by producers/providers or other data/database related classes.
+ * Represents an entity which is extended by producers/providers or other database related classes.
  *
  * @package froq\mvc\data
  * @object  froq\mvc\data\Repository
