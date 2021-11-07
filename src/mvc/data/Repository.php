@@ -40,7 +40,7 @@ class Repository
      *
      * @param  froq\mvc\Controller|null    $controller
      * @param  froq\database\Database|null $db
-     * @throws froq\mvc\ModelException
+     * @throws froq\mvc\DataException
      */
     public function __construct(Controller $controller = null, Database $db = null)
     {
