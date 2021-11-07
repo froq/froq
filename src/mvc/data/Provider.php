@@ -12,7 +12,7 @@ use froq\mvc\data\Repository;
 /**
  * Provider.
  *
- * Represents an entity which is extended by providers those are responsable (basically) data preparation only
+ * Represents a class entity which is extended by providers those are responsable (basically) data preparation only
  * (eg: mapping, casting) for the presentation layer getting records from the persistence layer (eg. database via
  * controller models).
  *

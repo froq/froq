@@ -12,7 +12,7 @@ use froq\mvc\data\Repository;
 /**
  * Producer.
  *
- * Represents an entity which is extended by producers those are responsable (basically) data preparation only
+ * Represents a class entity which is extended by producers those are responsable (basically) data preparation only
  * (eg: validation, sanitization) for saving data to the persistence layer (eg. database via controller models).
  *
  * @package froq\mvc\data
