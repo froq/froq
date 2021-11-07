@@ -15,7 +15,8 @@ use froq\database\{Database, Repository as _Repository};
 /**
  * Repository.
  *
- * Represents an entity which is extended by producers/providers or other database related classes.
+ * Represents a class entity that contains most required data read/write tools and is intended to use other
+ * repository classes and producers/providers or other database related classes in a MVC environment.
  *
  * @package froq\mvc\data
  * @object  froq\mvc\data\Repository
