@@ -10,8 +10,8 @@ namespace froq\mvc;
 use froq\mvc\{ModelException, Controller};
 use froq\mvc\data\{Producer, Provider, Repository};
 use froq\mvc\trait\ControllerTrait;
-use froq\database\{Database, Query, sql\Sql};
-use froq\database\trait\{DbTrait, TableTrait, ValidationTrait};
+use froq\database\{Database, Query, sql\Sql, entity\Manager};
+use froq\database\trait\{DbTrait, TableTrait, ValidationTrait, EntityManagerTrait};
 use froq\database\record\{Form, Record};
 use froq\pager\Pager;
 
@@ -33,10 +33,11 @@ class Model
     /**
      * @see froq\database\trait\DbTrait
      * @see froq\database\trait\TableTrait
-     * @see froq\database\record\ValidationTrait
+     * @see froq\database\trait\ValidationTrait
+     * @see froq\database\trait\EntityManagerTrait
      * @since 5.0
      */
-    use DbTrait, TableTrait, ValidationTrait;
+    use DbTrait, TableTrait, ValidationTrait, EntityManagerTrait;
 
     /** @const string */
     public const NAMESPACE = 'app\model';
@@ -53,6 +54,7 @@ class Model
      */
     public final function __construct(Controller $controller, Database $db = null)
     {
+        // Use given or app's database.
         $db ??= $controller->app()->database();
         $db || throw new ModelException(
             'No db exists to deal, check `database` option in app config or pass $db argument'
@@ -60,6 +62,7 @@ class Model
 
         $this->controller = $controller;
         $this->db         = $db;
+        $this->em         = new Manager($db);
 
         // When defined on child class.
         if (method_exists($this, 'init')) {
