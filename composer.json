@@ -10,7 +10,10 @@
         "froq/froq-common": "^5.0",
         "froq/froq-logger": "^5.0",
         "froq/froq-event": "^5.0",
-        "froq/froq-http": "^5.0"
+        "froq/froq-http": "^5.0",
+        "froq/froq-database": "^5.0",
+        "froq/froq-encoding": "^5.0",
+        "froq/froq-encrypting": "^5.0"
     },
     "autoload": {
         "classmap": ["src/"]
