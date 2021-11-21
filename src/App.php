@@ -470,6 +470,9 @@ final class App
             $this->response->addCookie($name, $value, $options);
         }
 
+        // Load request stuff (globals, headers, body etc.).
+        $this->request->load();
+
         // Generate URI segments by the root.
         $this->request->uri()->generateSegments($this->root);
 
