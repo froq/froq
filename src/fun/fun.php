@@ -19,10 +19,7 @@ declare(strict_types=1);
 function no($in, ...$ins)
 {
     foreach ([$in, ...$ins] as $in) {
-        if (!$in) {
-            return true;
-        }
-        if ($in instanceof stdClass && !((array) $in)) {
+        if (is_empty($in)) {
             return true;
         }
     }
@@ -39,7 +36,7 @@ function no($in, ...$ins)
 function not($in, ...$ins)
 {
     foreach ([$in, ...$ins] as $in) {
-        if ($in === false) {
+        if (is_false($in)) {
             return true;
         }
     }
