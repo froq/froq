@@ -235,7 +235,7 @@ final class Router
 
         // Check invalid-pattern causing errors.
         if (!$res && $options['throwErrors']) {
-            $message = stracut(error_message() ?? '', 'preg_match(): ') ?: preg_error_message();
+            $message = preg_error_message('preg_match');
             $message && throw new RouterException($message);
         }
 
