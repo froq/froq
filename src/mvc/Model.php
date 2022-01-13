@@ -69,7 +69,7 @@ class Model
             $this->init();
         }
 
-        // Store (as last) model.
+        // Store this model (as last model).
         $controller->app()::registry()::set('@model', $this, false);
     }
 

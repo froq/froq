@@ -40,7 +40,7 @@ final class View
     {
         $this->controller = $controller;
 
-        // Store (as last) view.
+        // Store this view (as last view).
         $controller->app()::registry()::set('@view', $this, false);
     }
 

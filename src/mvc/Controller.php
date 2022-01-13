@@ -91,27 +91,35 @@ class Controller
      */
     public final function __construct(App $app = null)
     {
-        // Try to use active app object.
-        $app ??= function_exists('app') ? app() : throw new ControllerException('No app exists to deal');
+        // Try active app object if none given.
+        $this->app = $app ?? (
+            function_exists('app') ? app()
+                : throw new ControllerException('No app object to deal')
+        );
 
-        $this->app        = $app;
         // Copy as a shortcut for subclasses.
-        $this->request    = $app->request();
-        $this->response   = $app->response();
+        $this->request  = $this->app->request();
+        $this->response = $this->app->response();
 
-        // Check or try to use parent's model class.
+        // Set to true as using model.
         if (isset($this->modelClass)) {
             $this->useModel = true;
-        } elseif (!isset($this->modelClass) && $this->useModel) {
-            $parents = array_slice((array) class_parents($this), 0, -1);
-            foreach ($parents as $parent) {
-                // Make full & validate existence.
+        }
+        // Or try to use parent's model class if using model.
+        elseif (!isset($this->modelClass) && $this->useModel) {
+            $parent = get_parent_class($this);
+            while ($parent && $parent != self::class) {
+                // Make model's class name fully qualified.
                 $modelClass = str_replace(Controller::NAMESPACE, Model::NAMESPACE, Objects::getNamespace($parent))
                     . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Model::SUFFIX);
+
+                // Validate existence & break.
                 if (class_exists($modelClass)) {
                     $this->modelClass = $modelClass;
                     break;
                 }
+
+                $parent = get_parent_class($parent);
             }
         }
 
@@ -125,10 +133,10 @@ class Controller
             $this->init();
         }
 
-        // Store (as last) controller.
-        $app::registry()::set('@controller', $this, false);
+        // Store this controller (as last controller).
+        $this->app::registry()::set('@controller', $this, false);
 
-        // Set before/after ticks these called in call() method.
+        // Set before/after ticks these called in call()/callCallable() methods.
         $this->before = method_exists($this, 'before');
         $this->after  = method_exists($this, 'after');
     }
@@ -217,7 +225,7 @@ class Controller
      */
     public final function getShortName(bool $suffix = false): string
     {
-        $name = Objects::getShortName($this::class);
+        $name = Objects::getShortName($this);
 
         if (!$suffix && str_ends_with($name, self::SUFFIX)) {
             $name = substr($name, 0, -strlen(self::SUFFIX));
@@ -244,7 +252,7 @@ class Controller
      */
     public final function getActionShortName(bool $suffix = false): string
     {
-        $action = $this->getActionName();
+        $action = $this->action ?? '';
 
         if (!$suffix && str_ends_with($action, self::ACTION_SUFFIX)) {
             $action = substr($action, 0, -strlen(self::ACTION_SUFFIX));
@@ -319,7 +327,7 @@ class Controller
         }
 
         // Leave combined with keys or values only.
-        $combine || $params = array_values($params);
+        $combine || ($params = array_values($params));
 
         return $params;
     }
@@ -333,13 +341,13 @@ class Controller
      */
     public final function hasActionParams(array $names = null): bool
     {
-        $actionParams = $this->getActionParams();
+        $params = $this->actionParams ?? [];
 
         if ($names == null) {
-            return !!$actionParams;
+            return !empty($params);
         }
 
-        return array_isset($actionParams, ...$names);
+        return array_isset($params, ...$names);
     }
 
     /**
