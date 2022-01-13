@@ -13,7 +13,7 @@ use froq\http\{Request, Response, request\Uri, request\Segments, response\Status
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, util\Objects};
-use Throwable, Reflector, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
+use Throwable, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
  * Controller.
@@ -964,11 +964,11 @@ class Controller
      * Prepare an action's parameters to fulfill its required/non-required parameters needed on
      * calltime/runtime.
      *
-     * @param  Reflector $ref
-     * @param  array     $actionParams
+     * @param  ReflectionMethod|ReflectionFunction $ref
+     * @param  array                               $actionParams
      * @return array
      */
-    private function prepareActionParams(Reflector $ref, array $actionParams): array
+    private function prepareActionParams(ReflectionMethod|ReflectionFunction $ref, array $actionParams): array
     {
         $ret = [];
 
@@ -977,7 +977,7 @@ class Controller
                 continue;
             }
 
-            // Action parameter can be named or indexed.
+            // Action parameter can be named or indexed, also have a default value.
             $value = $actionParams[$param->name] ?? $actionParams[$i] ?? (
                 $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null
             );
