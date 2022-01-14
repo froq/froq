@@ -430,24 +430,17 @@ final class App
      * @return void
      * @throws froq\AppException
      */
-    public function run(array $options = null): void
+    public function run(array $options): void
     {
         // Apply run options (user options) (@see pub/index.php).
-        @ ['env' => $env, 'root' => $root, 'configs' => $configs] = $options;
-
-        // Set router options first (for a proper error() process).
-        if (isset($configs['router'])) {
-            $this->router->setOptions($configs['router']);
-        }
-
-        if ($env == '' || $root == '') {
-            throw new AppException('Options `env` or `root` must not be empty');
-        }
-
-        $this->env  = $env;
-        $this->root = $root;
+        @ ['configs' => $configs, 'env' => $env, 'root' => $root] = $options;
 
         if ($configs != null) {
+            // Set router options first (for proper error() process).
+            if (pick($configs, 'router', $router)) {
+                $this->router->setOptions($router);
+            }
+
             // Apply dotenv configs.
             if (pluck($configs, 'dotenv', $dotenv)) {
                 $this->applyDotenvConfigs(
@@ -460,7 +453,14 @@ final class App
             $this->applyConfigs($configs);
         }
 
-        // Add headers & cookies if provided.
+        // Check/set env & root stuff.
+        if ($env == '' || $root == '') {
+            throw new AppException('Options `env` or `root` must not be empty');
+        }
+        $this->env  = $env;
+        $this->root = $root;
+
+        // Add headers & cookies (if provided).
         [$headers, $cookies] = $this->config(['headers', 'cookies']);
         if ($headers) foreach ($headers as $name => $value) {
             $this->response->addHeader($name, $value);
@@ -473,7 +473,7 @@ final class App
         // Load request stuff (globals, headers, body etc.).
         $this->request->load();
 
-        // Generate URI segments by the root.
+        // Generate URI segments (by root).
         $this->request->uri()->generateSegments($this->root);
 
         // These options can be emptied by developer to disable all with "null" if app won't
@@ -728,10 +728,10 @@ final class App
     private function applyDotenvConfigs(array $configs, bool $global): void
     {
         foreach ($configs as $name => $value) {
-            putenv($name .'='. $value);
-            if ($global) {
-                $_ENV[$name] = $value;
-            }
+            putenv($name . '=' . $value);
+
+            // When was set as global.
+            $global && ($_ENV[$name] = $value);
         }
     }
 }
