@@ -11,6 +11,7 @@ use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use froq\{logger\Logger, event\Events, session\Session, database\Database};
 use froq\common\{trait\InstanceTrait, object\Config, object\Factory, object\Registry};
 use froq\http\{Request, Response, response\Status,
+    exception\server\InternalServerErrorException,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
 use Throwable;
@@ -501,7 +502,8 @@ final class App
 
         // Found but no method allowed?
         if ($route != null && !isset($route[$method]) && !isset($route['*'])) {
-            throw new AppException('No method %s allowed for `%s`',
+            throw new AppException(
+                'No method %s allowed for `%s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_ALLOWED, cause: new NotAllowedException()
             );
@@ -511,22 +513,26 @@ final class App
 
         // Not found?
         if ($controller == null) {
-            throw new AppException('No controller route found for `%s %s`',
+            throw new AppException(
+                'No controller route found for `%s %s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException(),
             );
         } elseif ($action == null) {
-            throw new AppException('No action route found for `%s %s`',
+            throw new AppException(
+                'No action route found for `%s %s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!class_exists($controller)) {
-            throw new AppException('No controller class found such `%s`',
-                [$controller], code: Status::NOT_FOUND, cause: new NotFoundException()
+            throw new AppException(
+                'No controller class found such `%s`', $controller,
+                code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!method_exists($controller, $action) && !is_callable($action)) {
-            throw new AppException('No controller action found such `%s::%s()`',
-                [$controller, $action], code: Status::NOT_FOUND, cause: new NotFoundException()
+            throw new AppException(
+                'No controller action found such `%s::%s()`', [$controller, $action],
+                code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
 
@@ -574,15 +580,19 @@ final class App
         //     ob_end_clean();
         // }
 
-        $controller = $this->router->getOptions()['defaultController'];
+        $controller = $this->router->getOption('defaultController');
         $method     = Controller::ERROR_ACTION;
 
         if (!class_exists($controller)) {
-            throw new AppException('No default controller exists such %s',
-                [$controller]);
+            throw new AppException(
+                'No default controller exists such `%s`', $controller,
+                code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
+            );
         } elseif (!method_exists($controller, $method)) {
-            throw new AppException('No default controller method exists such %s::%s',
-                [$controller, $method]);
+            throw new AppException(
+                'No default controller method exists such `%s::%s`', [$controller, $method],
+                code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
+            );
         }
 
         // Call default error method of default controller.

@@ -375,8 +375,10 @@ class Controller
         if (!isset($this->view)) {
             $layout = $this->app->config('view.layout');
 
-            if (!$layout) {
-                throw new ControllerException('No `view.layout` option found in config');
+            if ($layout == null) {
+                throw new ControllerException(
+                    'No `view.layout` option found in config'
+                );
             }
 
             $this->view = new View($this);
@@ -428,8 +430,10 @@ class Controller
         $session = $this->app->session();
 
         if ($session == null) {
-            throw new ControllerException('App has no session object [tip: check `session` option in'
-                . ' config and be sure it is not null]');
+            throw new ControllerException(
+                'App has no session object [tip: check `session` option in config ' .
+                'and be sure it is not null]'
+            );
         }
 
         $session->start();
@@ -482,8 +486,10 @@ class Controller
     public final function view(string $file = null, array $fileData = null, int $status = null): string|View
     {
         if (!isset($this->view)) {
-            throw new ControllerException('No `$view` property set yet, be sure `$useView` is true on'
-                . ' class %s', static::class);
+            throw new ControllerException(
+                'No `$view` property set yet, be sure `$useView` is true in class `%s`',
+                static::class
+            );
         }
 
         if (func_num_args() == 0) {
@@ -511,16 +517,19 @@ class Controller
         [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
         if (!$controller || !$action) {
-            throw new ControllerException('Invalid call directive `%s`, use `Foo.bar`'
-                . ' convention without `Controller` and `Action` suffixes', $call,
+            throw new ControllerException(
+                'Invalid call directive `%s`, use `Foo.bar` notation ' .
+                'without `Controller` and `Action` suffixes', $call,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!class_exists($controller)) {
-            throw new ControllerException('No controller found such `%s`', $controller,
+            throw new ControllerException(
+                'No controller found such `%s`', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!method_exists($controller, $action)) {
-            throw new ControllerException('No controller action found such `%s::%s()`', [$controller, $action],
+            throw new ControllerException(
+                'No controller action found such `%s::%s()`', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
@@ -931,9 +940,13 @@ class Controller
         );
 
         if (!class_exists($class)) {
-            throw new ControllerException('Controller class `%s` not exists', $class);
+            throw new ControllerException(
+                'Controller class `%s` not exists', $class
+            );
         } elseif (!class_extends($class, Controller::class)) {
-            throw new ControllerException('Controller class `%s` must extend class `%s`', [$class, Controller::class]);
+            throw new ControllerException(
+                'Controller class `%s` must extend class `%s`', [$class, Controller::class]
+            );
         }
 
         return new $class($this->app);
@@ -960,9 +973,13 @@ class Controller
         );
 
         if (!class_exists($class)) {
-            throw new ControllerException('Model class `%s` not exists', $class);
+            throw new ControllerException(
+                'Model class `%s` not exists', $class
+            );
         } elseif (!class_extends($class, Model::class)) {
-            throw new ControllerException('Model class `%s` must extend class `%s`', [$class, Model::class]);
+            throw new ControllerException(
+                'Model class `%s` must extend class `%s`', [$class, Model::class]
+            );
         }
 
         return new $class($controller ?? $this, $database ?? $this->database());

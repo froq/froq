@@ -9,6 +9,7 @@ namespace froq;
 
 use froq\RouterException;
 use froq\mvc\{Controller, Model};
+use froq\util\Arrays;
 
 /**
  * Router.
@@ -78,7 +79,7 @@ final class Router
      */
     public function setOptions(array $options): self
     {
-        self::$options = array_merge(self::$optionsDefault, $options);
+        self::$options = Arrays::options($options, self::$optionsDefault, false);
 
         return $this;
     }
@@ -92,6 +93,19 @@ final class Router
     public function getOptions(): array
     {
         return self::$options;
+    }
+
+    /**
+     * Get option.
+     *
+     * @param  string     $key
+     * @param  mixed|null $default
+     * @return mixed|null
+     * @since  5.3
+     */
+    public function getOption(string $key, mixed $default = null): mixed
+    {
+        return self::$options[$key] ?? $default;
     }
 
     /**
@@ -174,9 +188,9 @@ final class Router
     public function resolve(string $uri, string $method = null, array $options = null): array|null
     {
         $routes = $this->routes();
-        $routes || throw new RouterException('No route directives exist yet to resolve');
+        $routes || throw new RouterException('No route directives exist to resolve');
 
-        $options  = array_merge(self::$options, (array) $options);
+        $options  = Arrays::options($options, self::$options);
         $patterns = [];
 
         foreach ($routes as $i => [$pattern]) {
