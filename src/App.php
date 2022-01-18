@@ -657,6 +657,7 @@ final class App
             while (ob_get_level()) {
                 ob_end_clean();
             }
+
             $response->setBody(null, ['type' => 'n/a']);
         }
         // Handle outputs & returns.
