@@ -486,7 +486,7 @@ class Controller
                 . ' class %s', static::class);
         }
 
-        if (!func_num_args()) {
+        if (func_num_args() == 0) {
             return $this->view;
         }
 
