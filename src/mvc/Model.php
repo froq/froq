@@ -135,13 +135,13 @@ class Model
     /**
      * Initialize a new pager object running it with `$count` and `$limit` arguments if provided.
      *
-     * @param  int|null $count
-     * @param  int|null $limit
+     * @param  int|null   $count
+     * @param  array|null $attributes
      * @return froq\pager\Pager
      */
-    public final function initPager(int $count = null, int $limit = null): Pager
+    public final function initPager(int $count = null, array $attributes = null): Pager
     {
-        return $this->db->initPager($count, $limit);
+        return $this->db->initPager($count, $attributes);
     }
 
     /**
