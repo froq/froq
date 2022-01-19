@@ -600,6 +600,7 @@ final class App
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($return == null || is_string($return)) {
+            $return = (string) $return;
             $display = ini('display_errors', '', true);
             if ($display) {
                 $return = trim($error . "\n\n" . $return);
@@ -642,14 +643,17 @@ final class App
     /**
      * End output buffer, sending/ending response.
      *
-     * @param  any       $return
-     * @param  bool|null $isError @internal (@see Message.setBody()) @cancel
+     * @param  mixed $return
+     * @param  bool  $error @internal
      * @return void
      */
-    private function endOutputBuffer($return, bool $isError = null): void
+    private function endOutputBuffer(mixed $return, bool $error = false): void
     {
         $response = $this->response();
         $response || throw new AppException('App has no response yet');
+
+        $body = $response->getBody();
+        $attributes = $body->getAttributes();
 
         // Handle redirections.
         $code = $response->getStatusCode();
@@ -658,32 +662,36 @@ final class App
                 ob_end_clean();
             }
 
-            $response->setBody(null, ['type' => 'n/a']);
+            $response->setBody(null, ['type' => 'n/a'] + $attributes);
         }
         // Handle outputs & returns.
         else {
-            $body       = $response->getBody();
-            $content    = $body->getContent();
-            $attributes = $body->getAttributes();
+            $content = null;
 
-            // Pass, return comes from App.error() already.
-            if ($isError) {}
-            // Actions that use echo/print/view()/response.setBody() will return null.
-            elseif ($return == null || is_string($return)) {
-                while (ob_get_level()) {
-                    $return .= ob_get_clean();
+            if ($error) {
+                // Pass, return comes from App.error() already.
+            } else {
+                $content = $body->getContent();
+
+                // Actions that use echo/print/view()/response.setBody() will return null.
+                // So, output buffer must be collected as body content if body content is null.
+                if ($content === null && ($return == null || is_string($return))) {
+                    $return = (string) $return;
+                    while (ob_get_level()) {
+                        $return .= ob_get_clean();
+                    }
                 }
             }
 
-            // Returned content from action or set on body.
-            $content = $content ?? $return;
+            // Content of body or returned content from action.
+            $content ??= $return;
 
             // Call user output handler if provided.
             if ($this->events->has('app.output')) {
                 $content = $this->events->fire('app.output', $content);
             }
 
-            $response->setBody($content, $attributes, $isError);
+            $response->setBody($content, $attributes, $error);
         }
 
         // The end..
