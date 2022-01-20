@@ -656,8 +656,7 @@ final class App
         $attributes = $body->getAttributes();
 
         // Handle redirections.
-        $code = $response->getStatusCode();
-        if ($code >= 300 && $code <= 399) {
+        if ($response->status()->isRedirect()) {
             while (ob_get_level()) {
                 ob_end_clean();
             }
