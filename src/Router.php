@@ -341,7 +341,9 @@ final class Router
             if (is_string($call)) {
                 [$controller, $action] = self::prepare($call);
 
-                $controller || throw new RouterException('No controller given in route');
+                $controller || throw new RouterException(
+                    'No controller given in route'
+                );
 
                 foreach ($methods as $method) {
                     $actions[$method] = [$controller, $action, $actionParams];
@@ -359,8 +361,10 @@ final class Router
             }
             // No valid route options.
             else {
-                throw new RouterException('Only string and callable actions are allowed, %s given',
-                    get_type($call));
+                throw new RouterException(
+                    'Only string and callable actions are allowed, %t given',
+                    $call
+                );
             }
         }
 
