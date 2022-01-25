@@ -14,7 +14,7 @@ defined('__LOCAL__') || define('__LOCAL__', __local__);
 
 // Show all errors if local.
 if (__local__) {
-    ini_set('display_errors', 'on');
+    ini_set('display_errors', true);
     ini_set('error_reporting', E_ALL);
 }
 

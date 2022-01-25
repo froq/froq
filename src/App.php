@@ -637,7 +637,7 @@ final class App
     {
         ob_start();
         ob_implicit_flush(false);
-        ini_set('implicit_flush', 'off');
+        ini_set('implicit_flush', false);
     }
 
     /**
@@ -709,7 +709,8 @@ final class App
         $this->config->update($configs);
 
         // Set timezone, encoding, locale options.
-        $this->config->extract(['timezone', 'encoding', 'locales'], $timezone, $encoding, $locales);
+        $this->config->extract(['timezone', 'encoding', 'locales', 'ini'],
+            $timezone, $encoding, $locales, $ini);
 
         if ($timezone != null) {
             date_default_timezone_set($timezone);
@@ -727,8 +728,16 @@ final class App
             }
         }
 
+        if ($ini != null) {
+            // Must be like eg: [string => scalar].
+            foreach ($ini as $option => $value) {
+                ini_set($option, $value);
+            }
+        }
+
         // Set/reset options.
-        $this->config->extract(['logger', 'routes', 'services'], $logger, $routes, $services);
+        $this->config->extract(['logger', 'routes', 'services'],
+            $logger, $routes, $services);
 
         $logger   && $this->logger->setOptions($logger);
         $routes   && $this->router->addRoutes($routes);

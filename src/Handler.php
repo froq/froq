@@ -90,7 +90,7 @@ final class Handler
         set_exception_handler(function (Throwable $e) {
             // If not local no error display (set & store old option).
             if (!__local__) {
-                set_global('app.displayErrors', ini_set('display_errors', 'off'));
+                set_global('app.displayErrors', ini_set('display_errors', false));
             }
 
             // This may be used later to check error stuff.
@@ -134,9 +134,9 @@ final class Handler
                 app_fail('shutdown', $e);
 
                 // Reset error display option (@see exception handler).
-                $opt = get_global('app.displayErrors');
-                if ($opt !== null) {
-                    ini_set('display_errors', strval($opt));
+                $option = get_global('app.displayErrors');
+                if ($option !== null) {
+                    ini_set('display_errors', $option);
                 }
             }
         });
