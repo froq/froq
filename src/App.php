@@ -433,6 +433,12 @@ final class App
      */
     public function run(array $options): void
     {
+        static $done;
+
+        // Check/tick for run-once state.
+        $done ? throw new AppException('App was already run')
+              : ($done = true);
+
         // Apply run options (user options) (@see pub/index.php).
         @ ['configs' => $configs, 'env' => $env, 'root' => $root] = $options;
 
