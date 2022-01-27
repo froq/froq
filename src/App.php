@@ -696,7 +696,7 @@ final class App
                 $content = $this->events->fire('app.output', $content);
             }
 
-            $response->setBody($content, $attributes, $error);
+            $response->setBody($content, $attributes);
         }
 
         // The end..
