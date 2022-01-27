@@ -11,7 +11,7 @@ use froq\mvc\{ControllerException, View, Model};
 use froq\http\{Request, Response, request\Uri, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
-    exception\client\NotFoundException};
+    response\payload\PlainPayload, exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, util\Objects};
 use Throwable, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
@@ -696,6 +696,19 @@ class Controller
     public final function imagePayload(int $code, $content, array $attributes = null): ImagePayload
     {
         return new ImagePayload($code, $content, $attributes);
+    }
+
+    /**
+     * Yield a plain payload with given status & content, also content attributes if provided.
+     *
+     * @param  int        $code
+     * @param  any        $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\PlainPayload
+     */
+    public final function plainPayload(int $code, $content, array $attributes = null): PlainPayload
+    {
+        return new PlainPayload($code, $content, $attributes);
     }
 
     /**
