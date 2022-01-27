@@ -586,7 +586,7 @@ final class App
         //     ob_end_clean();
         // }
 
-        $class  = new \Classe($this->router->getOption('defaultController'));
+        $class  = new \XClass($this->router->getOption('defaultController'));
         $method = Controller::ERROR_ACTION;
 
         if (!$class->exists()) {
