@@ -120,7 +120,7 @@ final class Handler
                 $errorCode = $error['type'];
             } elseif ($error = error_get_last()) {
                 $error     = ($error['type'] == E_ERROR) ? $error : null;
-                $errorCode = ($error['type'] ?? -1);
+                $errorCode = ($error['type'] ?: -1);
             }
 
             if ($error != null) {

@@ -586,29 +586,29 @@ final class App
         //     ob_end_clean();
         // }
 
-        $controller = $this->router->getOption('defaultController');
-        $method     = Controller::ERROR_ACTION;
+        $class  = new \Classe($this->router->getOption('defaultController'));
+        $method = Controller::ERROR_ACTION;
 
-        if (!class_exists($controller)) {
+        if (!$class->exists()) {
             throw new AppException(
-                'No default controller exists such `%s`', $controller,
+                'No default controller exists such `%s`', $class,
                 code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
             );
-        } elseif (!method_exists($controller, $method)) {
+        } elseif (!$class->existsMethod($method)) {
             throw new AppException(
-                'No default controller method exists such `%s::%s`', [$controller, $method],
+                'No default controller method exists such `%s::%s()`', [$class, $method],
                 code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
             );
         }
 
-        // Call default error method of default controller.
-        $return = (new $controller($this))->{$method}($error);
+        // Call default controller error method.
+        $return = $class->init($this)->{$method}($error);
 
         // Prepend error top of the output (if ini.display_errors is on).
         if ($return == null || is_string($return)) {
             $return = (string) $return;
-            $display = ini('display_errors', '', true);
-            if ($display) {
+            $display = ini_get('display_errors');
+            if ($display || $display === 'on') {
                 $return = trim($error . "\n\n" . $return);
             }
         }
