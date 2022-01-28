@@ -55,8 +55,7 @@ class Model
     public final function __construct(Controller $controller, Database $db = null)
     {
         // Use given or app's database.
-        $db ??= $controller->app()->database();
-        $db || throw new ModelException(
+        $db ??= $controller->app()->database() ?: throw new ModelException(
             'No db exists to deal, check `database` option in app config or pass $db argument'
         );
 
