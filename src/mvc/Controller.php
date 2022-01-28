@@ -537,7 +537,7 @@ class Controller
             );
         }
 
-        return $class->init($this->app)->call($action, $actionParams ?? []);
+        return $class->init($this->app)->call($action, $actionParams);
     }
 
     /**
