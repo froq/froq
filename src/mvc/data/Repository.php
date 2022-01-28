@@ -40,6 +40,7 @@ class Repository extends _Repository
     {
         // Use given or registry's controller.
         $controller ??= registry()::get('@controller');
+
         if ($controller != null) {
             $this->controller = $controller;
 
