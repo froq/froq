@@ -27,9 +27,9 @@ final class Autoloader
 
     /** @var array */
     private static array $directives = [
-        0 => ['app/controller', '/app/system/%s/%s.php'],
-        1 => ['app/model'     , '/app/system/%s/model/%s.php'],
-        2 => ['app/library'   , '/app/library/%s.php'],
+        1 => ['app/controller', '/app/system/%s/%s.php'],
+        2 => ['app/model'     , ['/app/system/%s/%s.php', '/app/system/%s/model/%s.php']],
+        3 => ['app/library'   , '/app/library/%s.php'],
     ];
 
     /** @var string */
@@ -98,16 +98,16 @@ final class Autoloader
 
         if (str_starts_with($name, 'app/')) {
             // Controller classes (eg: app\controller\FooController => app/system/Foo/FooController.php).
-            if (str_starts_with($name, self::$directives[0][0])) {
+            if (str_starts_with($name, self::$directives[1][0])) {
                 $this->checkAppDir();
 
                 preg_match('~([A-Z][A-Za-z0-9]+)Controller$~', $name, $match);
                 if ($match) {
-                    $file = APP_DIR . sprintf(self::$directives[0][1], $match[1], $match[0]);
+                    $file = APP_DIR . sprintf(self::$directives[1][1], $match[1], $match[0]);
                 }
             }
-            // Model classes (eg: app\model\FooModel => app/system/Foo/model/FooModel.php).
-            elseif (str_starts_with($name, self::$directives[1][0])) {
+            // Model classes (eg: app\model\FooModel => app/system/Foo/FooModel.php or app/system/Foo/model/FooModel.php).
+            elseif (str_starts_with($name, self::$directives[2][0])) {
                 $this->checkAppDir();
 
                 // A model folder checked for only these classes, eg: Model, FooModel, FooEntity, FooEntityList.
@@ -116,15 +116,19 @@ final class Autoloader
                 // to eg: $app->get("/foo/:id", function ($id) { ... }).
                 preg_match('~([A-Z][A-Za-z0-9]+)(Model|ModelException|Entity|EntityList)$~', $name, $match);
                 if ($match) {
-                    $file = APP_DIR . sprintf(self::$directives[1][1], $match[1], $match[0]);
+                    $file = APP_DIR . sprintf(self::$directives[2][1][0], $match[1], $match[0]);
+                    // Try "model" subdir.
+                    if (!is_file($file)) {
+                        $file = APP_DIR . sprintf(self::$directives[2][1][1], $match[1], $match[0]);
+                    }
                 }
             }
             // Library classes (eg: app\library\Foo => app/library/Foo.php).
-            elseif (str_starts_with($name, self::$directives[2][0])) {
+            elseif (str_starts_with($name, self::$directives[3][0])) {
                 $this->checkAppDir();
 
-                $base = substr($name, strlen(self::$directives[2][0]) + 1);
-                $file = APP_DIR . sprintf(self::$directives[2][1], $base);
+                $base = substr($name, strlen(self::$directives[3][0]) + 1);
+                $file = APP_DIR . sprintf(self::$directives[3][1], $base);
             }
         }
         // Most classes loaded by Composer, but in case this part is just a fallback.
