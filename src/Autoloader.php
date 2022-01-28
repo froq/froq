@@ -18,7 +18,7 @@ function load($file) { require $file; }
  * @package froq\app
  * @object  froq\app\Autoloader
  * @author  Kerem Güneş
- * @since   1.0, 4.0 Renamed from Autoload, refactored.
+ * @since   1.0, 4.0
  */
 final class Autoloader
 {
@@ -43,7 +43,7 @@ final class Autoloader
      */
     private function __construct(string $directory = null)
     {
-        $directory = $directory ?? realpath(__dir__ . '/../../../../vendor/froq');
+        $directory ??= realpath(__dir__ . '/../../../../vendor/froq');
 
         if (!$directory || !is_dir($directory)) {
             throw new RuntimeException('Froq folder not found');
@@ -91,36 +91,35 @@ final class Autoloader
      */
     public function load(string $name): void
     {
-        // Note: seems PHP is calling this just once for found classes, so no need to cache found
-        // (resolved) stuff.
-
+        // Note: seems PHP is calling this just once for found classes,
+        // so no need to cache found (resolved) stuff.
         $name = strtr($name, '\\', '/');
         $file = null;
 
         if (str_starts_with($name, 'app/')) {
-            // User controller objects (eg: FooController => app/system/Foo/FooController.php).
+            // Controller classes (eg: app\controller\FooController => app/system/Foo/FooController.php).
             if (str_starts_with($name, self::$directives[0][0])) {
                 $this->checkAppDir();
 
-                preg_match('~([A-Z][a-zA-Z0-9]+)Controller$~', $name, $match);
+                preg_match('~([A-Z][A-Za-z0-9]+)Controller$~', $name, $match);
                 if ($match) {
                     $file = APP_DIR . sprintf(self::$directives[0][1], $match[1], $match[0]);
                 }
             }
-            // User model objects (eg: FooModel => app/system/Foo/model/FooModel.php).
+            // Model classes (eg: app\model\FooModel => app/system/Foo/model/FooModel.php).
             elseif (str_starts_with($name, self::$directives[1][0])) {
                 $this->checkAppDir();
 
-                // A model folder checked for only these objects, eg: Model, FooModel, FooEntity, FooEntityList.
-                // So any other objects must be loaded in other ways. Besides, "Model" for only the "Controller"
+                // A model folder checked for only these classes, eg: Model, FooModel, FooEntity, FooEntityList.
+                // So any other classes must be loaded in other ways. Besides, "Model" for only the "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
-                // to eg: $app->get("/book/:id", function ($id) { ... }).
-                preg_match('~([A-Z][a-zA-Z0-9]+)(Model|ModelException|Entity|EntityList)$~', $name, $match);
+                // to eg: $app->get("/foo/:id", function ($id) { ... }).
+                preg_match('~([A-Z][A-Za-z0-9]+)(Model|ModelException|Entity|EntityList)$~', $name, $match);
                 if ($match) {
                     $file = APP_DIR . sprintf(self::$directives[1][1], $match[1], $match[0]);
                 }
             }
-            // User library objects (eg: Foo => app/library/Foo.php).
+            // Library classes (eg: app\library\Foo => app/library/Foo.php).
             elseif (str_starts_with($name, self::$directives[2][0])) {
                 $this->checkAppDir();
 
@@ -128,7 +127,7 @@ final class Autoloader
                 $file = APP_DIR . sprintf(self::$directives[2][1], $base);
             }
         }
-        // Most objects loaded by Composer, but in case this part is just a fallback.
+        // Most classes loaded by Composer, but in case this part is just a fallback.
         elseif (str_starts_with($name, 'froq/')) {
             [$pkg, $src] = $this->resolve($name);
 
@@ -140,19 +139,19 @@ final class Autoloader
             return;
         }
 
-        // Note: this part is for only local development purporses, normally Composer will
-        // do its job until here.
+        // Note: this part is for only local development purporses,
+        // normally Composer will do its job until here.
+        static $composerFile, $composerFileData;
+        $autoload = defined('APP_DIR');
 
-        static $autoload; $autoload ??= defined('APP_DIR');
-
-        // Memoize autoload data.
-        if ($autoload !== false) {
+        // Memoize composer data.
+        if ($autoload && !$composerFile) {
             $composerFile = APP_DIR . '/composer.json';
             if (is_file($composerFile)) {
                 // Both "psr-4" & "froq" accepted.
                 $composerFileData = json_decode(file_get_contents($composerFile), true);
-                if (empty($composerFileData['autoload']['psr-4'])
-                    && empty($composerFileData['autoload']['froq'])) {
+                if (empty($composerFileData['autoload']['psr-4']) &&
+                    empty($composerFileData['autoload']['froq'])) {
                     $autoload = false; // Tick.
                 } else {
                     $autoload = $composerFileData['autoload']['psr-4']
@@ -170,11 +169,11 @@ final class Autoloader
                 }
 
                 $name = strtr(substr($nameOrig, strlen($ns)), '\\', '/');
-                $file = APP_DIR . '/' . $dir . '/' . $name . '.php';
+                $file = realpath(APP_DIR . '/' . $dir . '/' . $name . '.php');
 
-                if (is_file($file)) {
+                if ($file && is_file($file)) {
                     load($file);
-                    return;
+                    break;
                 }
             }
         }
@@ -182,22 +181,16 @@ final class Autoloader
 
     /**
      * Check whether APP_DIR is defined.
-     *
-     * @return void
-     * @throws RuntimeException
      */
     private function checkAppDir(): void
     {
         defined('APP_DIR') || throw new RuntimeException(
-            'APP_DIR is not defined, it is required for `app\...` namespaced files'
+            'APP_DIR is not defined, required for `app\...` namespaced files'
         );
     }
 
     /**
      * Resolve package & source by given name.
-     *
-     * @param  string $name
-     * @return array<string>
      */
     private function resolve(string $name): array
     {
@@ -207,8 +200,7 @@ final class Autoloader
         $dir = dirname($name);
         sscanf($dir, 'froq/%[^/]', $base);
 
-        $isBase = in_array($base, $bases, true);
-        if ($isBase) {
+        if (in_array($base, $bases)) {
             $pkg = 'froq';
         } else {
             $dirlen = strlen($dir);
@@ -221,7 +213,8 @@ final class Autoloader
             $pkg = substr($dir, 0, $dirlen);
         }
 
-        $pkg = strtr($pkg, '/', '-'); // Eg: "froq/acl" => "froq-acl".
+        // Eg: "froq/acl" => "froq-acl".
+        $pkg = strtr($pkg, '/', '-');
         $src = substr($name, strlen($pkg) + 1);
 
         return [$pkg, $src];
