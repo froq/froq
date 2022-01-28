@@ -41,7 +41,7 @@ class Repository extends _Repository
         // Use given or registry's controller.
         $controller ??= registry()::get('@controller');
 
-        if ($controller != null) {
+        if ($controller) {
             $this->controller = $controller;
 
             // Not all controllers use models.
