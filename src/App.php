@@ -603,7 +603,7 @@ final class App
         }
 
         // Also may be changed later in @default.error() method.
-        $this->response->setStatusCode($code);
+        $this->response->status($code);
 
         $controller = $this->router->getOption('defaultController');
         $method     = Controller::ERROR_ACTION;
