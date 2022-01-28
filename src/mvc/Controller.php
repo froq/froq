@@ -492,7 +492,7 @@ class Controller
             );
         }
 
-        if (func_num_args() == 0) {
+        if (!func_num_args()) {
             return $this->view;
         }
 
@@ -522,19 +522,22 @@ class Controller
                 'without `Controller` and `Action` suffixes', $call,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!class_exists($controller)) {
+        }
+
+        $class = new \XClass($controller);
+        if (!$class->exists()) {
             throw new ControllerException(
                 'No controller found such `%s`', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!method_exists($controller, $action)) {
+        } elseif (!$class->existsMethod($action)) {
             throw new ControllerException(
                 'No controller action found such `%s::%s()`', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
 
-        return (new $controller($this->app))->call($action, $actionParams ?? []);
+        return $class->init($this->app)->call($action, $actionParams ?? []);
     }
 
     /**
