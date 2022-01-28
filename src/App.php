@@ -483,15 +483,27 @@ final class App
         // Generate URI segments (by root).
         $this->request->uri()->generateSegments($this->root);
 
-        // These options can be emptied by developer to disable all with "null" if app won't
+        // Note: These options can be emptied by developer to disable all with "null" if app won't
         // be using session/database/cache. Also, "pull" removes sensitive config data after using.
         [$session, $database, $cache] = $this->config->pull(['session', 'database', 'cache']);
 
-        isset($session)  && $this->session  = Factory::initOnce(Session::class, $session);
-        isset($database) && $this->database = Factory::initOnce(Database::class, $database);
-
-        // Note: cache is a "static" instance as default.
+        if ($session) {
+            is_type_of($session, 'array', 'bool') || throw new AppException(
+                'Config option `session` must be array|bool, %t given', [$session]
+            );
+            $this->session  = Factory::initOnce(Session::class, is_array($session) ? $session : []);
+        }
+        if ($database) {
+            is_type_of($database, 'array') || throw new AppException(
+                'Config option `database` must be array, %t given', [$database]
+            );
+            $this->database = Factory::initOnce(Database::class, $database);
+        }
+        // Note: Cache is a static instance as default.
         if ($cache) {
+            is_type_of($cache, 'array') || throw new AppException(
+                'Config option `cache` must be array, %t given', [$cache]
+            );
             $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
         }
 
