@@ -7,8 +7,7 @@ declare(strict_types=1);
 
 namespace froq\mvc\rest;
 
-use froq\http\response\Status;
-use froq\mvc\rest\RestException;
+use froq\http\exception\client\NotFoundException;
 
 /**
  * Rest Trait.
@@ -34,18 +33,22 @@ trait RestTrait
      *
      * Note: this method must be called in `index()` method.
      *
-     * @param  any ...$params
-     * @return any
+     * @param  mixed ...$params
+     * @return mixed
+     * @throws froq\mvc\rest\RestException
      */
-    protected final function rest(...$params)
+    protected final function rest(mixed ...$params): mixed
     {
         $method = $this->request->getMethod();
 
         if (method_exists($this, $method)) {
-            return $this->call($method, $params, false);
+            return $this->call($method, $params, suffix: false);
         }
 
-        throw new RestException('No %s() method defined on %s class for %s calls',
-            [strtolower($method), $this::class, strtoupper($method)], code: Status::NOT_FOUND);
+        throw new RestException(
+            'No %s() method defined on %s class for %s calls',
+            [strtolower($method), $this::class, strtoupper($method)],
+            code: NotFoundException::CODE, cause: new NotFoundException()
+        );
     }
 }
