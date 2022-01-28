@@ -12,8 +12,8 @@ use froq\http\{Request, Response, request\Uri, request\Segments, response\Status
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
-use froq\{App, Router, session\Session, database\Database, util\Objects};
-use Throwable, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
+use froq\{App, Router, session\Session, database\Database, util\Objects, util\misc\System};
+use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
  * Controller.
@@ -56,17 +56,14 @@ class Controller
     /** @var froq\http\Response */
     protected Response $response;
 
-    /** @var string */
-    private string $action;
-
-    /** @var array<any> */
-    private array $actionParams;
-
     /** @var froq\mvc\View */
     protected View $view;
 
     /** @var froq\mvc\Model */
     protected Model $model;
+
+    /** @var froq\mvc\Session */
+    protected Session $session;
 
     /** @var string */
     protected string $modelClass;
@@ -80,7 +77,13 @@ class Controller
     /** @var bool */
     public bool $useSession = false;
 
-    /** @var bool, bool @since 4.9 */
+    /** @var string */
+    private string $action;
+
+    /** @var array<mixed> */
+    private array $actionParams;
+
+    /** @var bool, bool */
     private bool $before = false, $after = false;
 
     /**
@@ -198,6 +201,17 @@ class Controller
     }
 
     /**
+     * Get session.
+     *
+     * @return froq\session\Session
+     * @since  6.0
+     */
+    public final function getSession(): Session|null
+    {
+        return $this->session ?? null;
+    }
+
+    /**
      * Get model class.
      *
      * @return string|null
@@ -277,12 +291,13 @@ class Controller
     /**
      * Get an action param by given name.
      *
-     * @param  string $name
+     * @param  string     $name
+     * @param  mixed|null $default
      * @return any|null
      */
-    public final function getActionParam(string $name)
+    public final function getActionParam(string $name, mixed $default = null): mixed
     {
-        return $this->actionParams[$name] ?? null;
+        return $this->actionParams[$name] ?? $default;
     }
 
     /**
@@ -322,12 +337,12 @@ class Controller
     {
         $params = $this->actionParams ?? [];
 
-        if ($names != null) {
+        if ($names !== null) {
             $params = array_select($params, $names);
         }
 
         // Leave combined with keys or values only.
-        $combine || ($params = array_values($params));
+        $combine || $params = array_values($params);
 
         return $params;
     }
@@ -343,8 +358,8 @@ class Controller
     {
         $params = $this->actionParams ?? [];
 
-        if ($names == null) {
-            return !empty($params);
+        if ($names === null) {
+            return !!$params;
         }
 
         return array_isset($params, ...$names);
@@ -375,7 +390,7 @@ class Controller
         if (!isset($this->view)) {
             $layout = $this->app->config('view.layout');
 
-            if ($layout == null) {
+            if (!$layout) {
                 throw new ControllerException(
                     'No `view.layout` option found in config'
                 );
@@ -395,26 +410,24 @@ class Controller
     public final function loadModel(): void
     {
         if (!isset($this->model)) {
-            // When an absolute class name given.
-            if (isset($this->modelClass)) {
-                $this->model = $this->initModel($this->modelClass);
-                return;
+            // When no absolute class name given.
+            if (!isset($this->modelClass)) {
+                $name = $this->getShortName();
+                $base = null;
+
+                // Check whether controller is a sub-controller.
+                if (substr_count($controller = static::class, '\\') > 2) {
+                    $base = substr($controller, 0, strrpos($controller, '\\'));
+                    $base = substr($base, strrpos($base, '\\') + 1);
+                }
+
+                $class = !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
+                                : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
+
+                $this->modelClass = $class;
             }
 
-            $name = $this->getShortName();
-            $base = null;
-
-            // Check whether controller is a sub-controller.
-            if (substr_count($controller = static::class, '\\') > 2) {
-                $base = substr($controller, 0, strrpos($controller, '\\'));
-                $base = substr($base, strrpos($base, '\\') + 1);
-            }
-
-            $class = !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
-                            : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
-
-            $this->model      = $this->initModel($class);
-            $this->modelClass = $class;
+            $this->model = $this->initModel($this->modelClass);
         }
     }
 
@@ -427,16 +440,20 @@ class Controller
      */
     public final function loadSession(): void
     {
-        $session = $this->app->session();
+        if (!isset($this->session)) {
+            $session = $this->app->session();
 
-        if ($session == null) {
-            throw new ControllerException(
-                'App has no session object [tip: check `session` option in config ' .
-                'and be sure it is not null]'
-            );
+            if (!$session) {
+                throw new ControllerException(
+                    'App has no session object [tip: check `session` option in config ' .
+                    'and be sure it is not null]'
+                );
+            }
+
+            $session->start();
+
+            $this->session = $session;
         }
-
-        $session->start();
     }
 
     /**
@@ -450,27 +467,16 @@ class Controller
     }
 
     /**
-     * Get an environment or a server var or return default.
+     * Get an env/server var, or return default.
      *
-     * @param  string   $name
-     * @param  any|null $default
-     * @return any|null
+     * @param  string     $option
+     * @param  mixed|null $default
+     * @param  bool       $server
+     * @return mixed|null
      */
-    public final function env(string $name, $default = null)
+    public final function env(string $option, mixed $default = null, bool $server = true): mixed
     {
-        // Uppers for nginx (in some cases).
-        $value = $_ENV[$name]    ?? $_ENV[strtoupper($name)]    ??
-                 $_SERVER[$name] ?? $_SERVER[strtoupper($name)] ?? null;
-
-        if ($value === null) {
-            if (($value = getenv($name)) === false) {
-                if (($value = getenv(strtoupper($name))) === false) {
-                    unset($value);
-                }
-            }
-        }
-
-        return $value ?? $default;
+        return System::envGet($option, $default, $server);
     }
 
     /**
@@ -556,6 +562,18 @@ class Controller
         $toArgs && $to = vsprintf($to, $toArgs);
 
         $this->response->redirect($to, $code, $headers, $cookies);
+    }
+
+    /**
+     * Flash for session.
+     *
+     * @param  mixed|null $message
+     * @return mixed|null (Session)
+     * @since  6.0
+     */
+    public function flash(mixed $message = null): mixed
+    {
+        return func_num_args() ? $session->flash($message) : $session->flash();
     }
 
     /**
@@ -712,6 +730,12 @@ class Controller
     public final function plainPayload(int $code, $content, array $attributes = null): PlainPayload
     {
         return new PlainPayload($code, $content, $attributes);
+    }
+
+    /** @aliasOf jsonPayload() */
+    public final function json(...$args)
+    {
+        return $this->jsonPayload(...$args);
     }
 
     /**
@@ -886,9 +910,12 @@ class Controller
             $return = $this->{$action}(...[...$params, ...$paramsRest]);
 
             $this->after && $this->after();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $return = method_exists($this, 'error')
                     ? $this->error($e) : $this->app->error($e);
+
+            // Log always, dev may skip calling errorLog().
+            $this->app->errorLog($e);
         }
 
         return $return;
@@ -927,9 +954,12 @@ class Controller
             $return = $action(...[...$params, ...$paramsRest]);
 
             $this->after && $this->after();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $return = method_exists($this, 'error')
                     ? $this->error($e) : $this->app->error($e);
+
+            // Log always, dev may skip calling errorLog().
+            $this->app->errorLog($e);
         }
 
         return $return;
@@ -949,21 +979,20 @@ class Controller
         $class = trim($class, '\\');
 
         // If no full class name given.
-        strpos($class, '\\') || $class = (
-            Controller::NAMESPACE . '\\' . ucfirst($class) . Controller::SUFFIX
-        );
-
-        if (!class_exists($class)) {
-            throw new ControllerException(
-                'Controller class `%s` not exists', $class
-            );
-        } elseif (!class_extends($class, Controller::class)) {
-            throw new ControllerException(
-                'Controller class `%s` must extend class `%s`', [$class, Controller::class]
-            );
+        if (!str_contains($class, '\\')) {
+            $class = Controller::NAMESPACE . '\\' . ucfirst($class) . Controller::SUFFIX;
         }
 
-        return new $class($this->app);
+        $class = new \XClass($class);
+
+        $class->exists() || throw new ControllerException(
+            'Controller class `%s` not exists', $class
+        );
+        $class->extends(Controller::class) || throw new ControllerException(
+            'Controller class `%s` must extend class `%s`', [$class, Controller::class]
+        );
+
+        return $class->init($this->app);
     }
 
     /**
@@ -982,21 +1011,20 @@ class Controller
         $class = trim($class, '\\');
 
         // If no full class name given.
-        strpos($class, '\\') || (
-            $class = Model::NAMESPACE . '\\' . ucfirst($class) . Model::SUFFIX
-        );
-
-        if (!class_exists($class)) {
-            throw new ControllerException(
-                'Model class `%s` not exists', $class
-            );
-        } elseif (!class_extends($class, Model::class)) {
-            throw new ControllerException(
-                'Model class `%s` must extend class `%s`', [$class, Model::class]
-            );
+        if (!str_contains($class, '\\')) {
+            $class = Model::NAMESPACE . '\\' . ucfirst($class) . Model::SUFFIX;
         }
 
-        return new $class($controller ?? $this, $database ?? $this->database());
+        $class = new \XClass($class);
+
+        $class->exists() || throw new ControllerException(
+            'Model class `%s` not exists', $class
+        );
+        $class->extends(Model::class) || throw new ControllerException(
+            'Model class `%s` must extend class `%s`', [$class, Model::class]
+        );
+
+        return $class->init($controller ?? $this, $database ?? $this->database());
     }
 
     /**
