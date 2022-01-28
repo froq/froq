@@ -9,10 +9,12 @@ namespace froq;
 
 use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
 use froq\{logger\Logger, event\Events, session\Session, database\Database};
-use froq\common\{trait\InstanceTrait, object\Config, object\Factory, object\Registry};
+use froq\common\{Error, Exception,
+    trait\InstanceTrait, object\Config, object\Factory, object\Registry};
 use froq\http\{Request, Response, response\Status,
-    exception\server\InternalServerErrorException,
-    exception\client\NotFoundException, exception\client\NotAllowedException};
+    exception\ClientException, exception\ServerException,
+    exception\client\NotFoundException, exception\client\NotAllowedException,
+    exception\server\InternalServerErrorException};
 use froq\cache\{Cache, CacheFactory};
 use Throwable;
 
@@ -593,11 +595,20 @@ final class App
         // Call user error handler if provided.
         $this->events->fire('app.error', $error);
 
-        // Status may be changed later in @default.error().
-        $this->response->setStatusCode(Status::INTERNAL_SERVER_ERROR);
+        // Check HTTP exception related codes.
+        $code = Status::INTERNAL_SERVER_ERROR;
+        if (is_class_of($error, Error::class, Exception::class) &&
+            is_class_of($error->cause ?? '', ClientException::class, ServerException::class)) {
+            $code = $error->cause->code;
+        }
 
-        $class  = new \XClass($this->router->getOption('defaultController'));
-        $method = Controller::ERROR_ACTION;
+        // Also may be changed later in @default.error() method.
+        $this->response->setStatusCode($code);
+
+        $controller = $this->router->getOption('defaultController');
+        $method     = Controller::ERROR_ACTION;
+
+        $class = new \XClass($controller);
 
         if (!$class->exists()) {
             throw new AppException(
