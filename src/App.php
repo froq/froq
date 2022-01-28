@@ -19,7 +19,7 @@ use Throwable;
 /**
  * App.
  *
- * Represents an application entity which is responsible with all application logics;
+ * Application class which is responsible with all logics;
  * - Creating needed object instances such as Logger, Router, Servicer or Session, Database etc. those used
  * all over the application cycle.
  * - Registering/unregistering error handlers, handling and logging errors.
@@ -442,7 +442,7 @@ final class App
         // Apply run options (user options) (@see pub/index.php).
         @ ['configs' => $configs, 'env' => $env, 'root' => $root] = $options;
 
-        if ($configs != null) {
+        if ($configs) {
             // Set router options first (for proper error() process).
             if (pick($configs, 'router', $router)) {
                 $this->router->setOptions($router);
@@ -461,7 +461,7 @@ final class App
         }
 
         // Check/set env & root stuff.
-        if ($env == '' || $root == '') {
+        if (!$env || !$root) {
             throw new AppException('Options `env` or `root` must not be empty');
         }
         $this->env  = $env;
@@ -491,7 +491,7 @@ final class App
         isset($database) && $this->database = Factory::initOnce(Database::class, $database);
 
         // Note: cache is a "static" instance as default.
-        if ($cache != null) {
+        if ($cache) {
             $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
         }
 
@@ -507,7 +507,7 @@ final class App
         $method = $this->request->getMethod();
 
         // Found but no method allowed?
-        if ($route != null && !isset($route[$method]) && !isset($route['*'])) {
+        if ($route && !isset($route[$method]) && !isset($route['*'])) {
             throw new AppException(
                 'No method %s allowed for `%s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
@@ -518,24 +518,27 @@ final class App
         @ [$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
 
         // Not found?
-        if ($controller == null) {
+        if (!$controller) {
             throw new AppException(
                 'No controller route found for `%s %s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException(),
             );
-        } elseif ($action == null) {
+        } elseif (!$action) {
             throw new AppException(
                 'No action route found for `%s %s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!class_exists($controller)) {
+        }
+
+        $class = new \XClass($controller);
+        if (!$class->exists()) {
             throw new AppException(
                 'No controller class found such `%s`', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!method_exists($controller, $action) && !is_callable($action)) {
+        } elseif (!$class->existsMethod($action) && !is_callable($action)) {
             throw new AppException(
                 'No controller action found such `%s::%s()`', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
@@ -547,7 +550,7 @@ final class App
         // Call before event if exists.
         $this->events->fire('app.before');
 
-        $controller = new $controller($this);
+        $controller = $class->init($this);
 
         if (is_string($action)) {
             $return = $controller->call($action, $actionParams);
@@ -581,11 +584,6 @@ final class App
         // Status may be changed later in @default.error().
         $this->response->setStatusCode(Status::INTERNAL_SERVER_ERROR);
 
-        // Clear outputs (@default.error() will work below for output).
-        // while (ob_get_level()) {
-        //     ob_end_clean();
-        // }
-
         $class  = new \XClass($this->router->getOption('defaultController'));
         $method = Controller::ERROR_ACTION;
 
@@ -602,11 +600,17 @@ final class App
         }
 
         // Call default controller error method.
-        $return = $class->init($this)->{$method}($error);
+        $return = $class->init($this)->call($method, [$error]);
 
-        // Prepend error top of the output (if ini.display_errors is on).
-        if ($return == null || is_string($return)) {
+        if (!$return || is_string($return)) {
             $return = (string) $return;
+
+            // Handle echo/print stuff.
+            while (ob_get_level()) {
+                $return .= ob_get_clean();
+            }
+
+            // Prepend error top of the output (if ini.display_errors is on).
             $display = ini_get('display_errors');
             if ($display || $display === 'on') {
                 $return = trim($error . "\n\n" . $return);
@@ -636,8 +640,6 @@ final class App
 
     /**
      * Start output buffer.
-     *
-     * @return void
      */
     private function startOutputBuffer(): void
     {
@@ -648,10 +650,6 @@ final class App
 
     /**
      * End output buffer, sending/ending response.
-     *
-     * @param  mixed $return
-     * @param  bool  $error @internal
-     * @return void
      */
     private function endOutputBuffer(mixed $return, bool $error = false): void
     {
@@ -663,10 +661,6 @@ final class App
 
         // Handle redirections.
         if ($response->status()->isRedirect()) {
-            while (ob_get_level()) {
-                ob_end_clean();
-            }
-
             $response->setBody(null, ['type' => 'n/a'] + $attributes);
         }
         // Handle outputs & returns.
@@ -680,8 +674,10 @@ final class App
 
                 // Actions that use echo/print/view()/response.setBody() will return null.
                 // So, output buffer must be collected as body content if body content is null.
-                if ($content === null && ($return == null || is_string($return))) {
+                if ($content === null && (!$return || is_string($return))) {
                     $return = (string) $return;
+
+                    // Handle echo/print stuff.
                     while (ob_get_level()) {
                         $return .= ob_get_clean();
                     }
@@ -705,9 +701,6 @@ final class App
 
     /**
      * Apply configs.
-     *
-     * @param  array $configs
-     * @return void
      */
     private function applyConfigs(array $configs): void
     {
@@ -718,23 +711,23 @@ final class App
         $this->config->extract(['timezone', 'encoding', 'locales', 'ini'],
             $timezone, $encoding, $locales, $ini);
 
-        if ($timezone != null) {
+        if ($timezone) {
             date_default_timezone_set($timezone);
         }
 
-        if ($encoding != null) {
+        if ($encoding) {
             ini_set('default_charset', $encoding);
             ini_set('internal_encoding', $encoding);
         }
 
-        if ($locales != null) {
+        if ($locales) {
             // Must be like eg: [LC_TIME => 'en_US' or 'en_US.utf-8'].
             foreach ($locales as $category => $locale) {
                 setlocale($category, $locale);
             }
         }
 
-        if ($ini != null) {
+        if ($ini) {
             // Must be like eg: [string => scalar].
             foreach ($ini as $option => $value) {
                 ini_set($option, $value);
@@ -752,11 +745,6 @@ final class App
 
     /**
      * Apply dot-env configs.
-     *
-     * @param  array $configs
-     * @param  bool  $global
-     * @return void
-     * @since  4.14
      */
     private function applyDotenvConfigs(array $configs, bool $global): void
     {
@@ -764,7 +752,7 @@ final class App
             putenv($name . '=' . $value);
 
             // When was set as global.
-            $global && ($_ENV[$name] = $value);
+            $global && $_ENV[$name] = $value;
         }
     }
 }
