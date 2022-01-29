@@ -531,6 +531,7 @@ class Controller
         }
 
         $class = new \XClass($controller);
+
         if (!$class->exists()) {
             throw new ControllerException(
                 'No controller found such `%s`', $controller,

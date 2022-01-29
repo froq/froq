@@ -664,9 +664,11 @@ final class App
     public function errorLog(string|Throwable $error, bool $separate = true): bool
     {
         $level  = $this->logger->getLevel();
-        $logged = $this->logger->setLevel(Logger::ERROR)->logError($error, $separate);
+        $logged = $this->logger->setLevel(Logger::ERROR)
+                               ->logError($error, $separate);
 
-        $this->logger->setLevel($level); // Restore.
+        // Restore.
+        $this->logger->setLevel($level);
 
         return $logged;
     }
