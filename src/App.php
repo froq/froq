@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
+use froq\{AppError, AppException, Handler, Router, Servicer, mvc\Controller};
 use froq\{logger\Logger, event\Events, session\Session, database\Database};
 use froq\common\{Error, Exception,
     trait\InstanceTrait, object\Config, object\Factory, object\Registry};
@@ -16,6 +16,7 @@ use froq\http\{Request, Response, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException,
     exception\server\InternalServerErrorException};
 use froq\cache\{Cache, CacheFactory};
+use froq\util\misc\System;
 use Throwable;
 
 /**
@@ -605,25 +606,35 @@ final class App
         // Also may be changed later in @default.error() method.
         $this->response->status($code);
 
-        $controller = $this->router->getOption('defaultController');
-        $method     = Controller::ERROR_ACTION;
+        $return  = null;
+        $display = System::iniGet('display_errors', bool: true);
 
-        $class = new \XClass($controller);
+        // Try to call @default.error() method or make an error string as return.
+        try {
+            $controller = $this->router->getOption('defaultController');
+            $method     = Controller::ERROR_ACTION;
+            $class      = new \XClass($controller);
 
-        if (!$class->exists()) {
-            throw new AppException(
-                'No default controller exists such `%s`', $class,
-                code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
+            // Check default controller & controller (error) method.
+            $class->exists() || throw new AppError(
+                'No default controller exists such `%s`',
+                $controller,
             );
-        } elseif (!$class->existsMethod($method)) {
-            throw new AppException(
-                'No default controller method exists such `%s::%s()`', [$class, $method],
-                code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
+            $class->existsMethod($method) || throw new AppError(
+                'No default controller method exists such `%s::%s()`',
+                [$controller, $method],
             );
+
+            // Call default controller error method.
+            $return = $class->init($this)->$method($error);
+        } catch (AppError $e) {
+            $this->errorLog($e);
+
+            // Make an error string as return.
+            if ($display) {
+                $return = $e . "\n";
+            }
         }
-
-        // Call default controller error method.
-        $return = $class->init($this)->$method($error);
 
         if (!$return || is_string($return)) {
             $return = (string) $return;
@@ -634,9 +645,8 @@ final class App
             }
 
             // Prepend error top of the output (if ini.display_errors is on).
-            $display = ini_get('display_errors');
-            if ($display || $display === 'on') {
-                $return = trim($error . "\n\n" . $return);
+            if ($display) {
+                $return = $error . "\n\n" . $return;
             }
         }
 
