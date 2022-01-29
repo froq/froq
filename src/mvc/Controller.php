@@ -897,7 +897,10 @@ class Controller
         try {
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
+            throw new ControllerException(
+                'No action exists such `%s::%s()`', [$this::class, $action],
+                code: NotFoundException::CODE, cause: new NotFoundException(cause: $e)
+            );
         }
 
         try {
@@ -941,7 +944,10 @@ class Controller
         try {
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
-            throw new ControllerException($e, code: Status::NOT_FOUND, cause: $e);
+            throw new ControllerException(
+                'No callable exists such `%s::%s()`', [$this::class, $action],
+                code: NotFoundException::CODE, cause: new NotFoundException(cause: $e)
+            );
         }
 
         try {
