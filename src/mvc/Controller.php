@@ -898,8 +898,8 @@ class Controller
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No action exists such `%s::%s()`', [$this::class, $action],
-                code: NotFoundException::CODE, cause: new NotFoundException(cause: $e)
+                'No action exists such `%s::%s()`', [static::class, $action],
+                code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
 
@@ -914,11 +914,11 @@ class Controller
 
             $this->after && $this->after();
         } catch (\Throwable $e) {
+            // Log always, dev may skip errorLog().
+            $this->app->errorLog($e);
+
             $return = method_exists($this, 'error')
                     ? $this->error($e) : $this->app->error($e);
-
-            // Log always, dev may skip calling errorLog().
-            $this->app->errorLog($e);
         }
 
         return $return;
@@ -945,8 +945,8 @@ class Controller
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No callable exists such `%s::%s()`', [$this::class, $action],
-                code: NotFoundException::CODE, cause: new NotFoundException(cause: $e)
+                'No callable exists such `%s::%s()`', [static::class, $action],
+                code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
 
@@ -961,11 +961,11 @@ class Controller
 
             $this->after && $this->after();
         } catch (\Throwable $e) {
+            // Log always, dev may skip errorLog().
+            $this->app->errorLog($e);
+
             $return = method_exists($this, 'error')
                     ? $this->error($e) : $this->app->error($e);
-
-            // Log always, dev may skip calling errorLog().
-            $this->app->errorLog($e);
         }
 
         return $return;
