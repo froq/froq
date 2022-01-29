@@ -310,6 +310,36 @@ final class App
     }
 
     /**
+     * Add an event.
+     *
+     * @param  string   $name
+     * @param  callable $callback
+     * @param  bool     $once
+     * @return self
+     * @since  6.0
+     */
+    public function on(string $name, callable $callback, bool $once = true): self
+    {
+        $this->events->on($name, $callback, $once);
+
+        return $this;
+    }
+
+    /**
+     * Remove an event.
+     *
+     * @param  string $name
+     * @return self
+     * @since  6.0
+     */
+    public function off(string $name): self
+    {
+        $this->events->off($name);
+
+        return $this;
+    }
+
+    /**
      * Get router.
      *
      * @return froq\Router
@@ -563,7 +593,7 @@ final class App
         $this->startOutputBuffer();
 
         // Call before event if exists.
-        $this->events->fire('app.before');
+        $this->events->fire('app.before', $this);
 
         $controller = $class->init($this);
 
@@ -574,7 +604,7 @@ final class App
         }
 
         // Call after event if exists.
-        $this->events->fire('app.after');
+        $this->events->fire('app.after', $this);
 
         $this->endOutputBuffer($return);
     }
@@ -594,7 +624,7 @@ final class App
         $log && $this->errorLog($error);
 
         // Call user error handler if provided.
-        $this->events->fire('app.error', $error);
+        $this->events->fire('app.error', $this, $error);
 
         // Check HTTP exception related codes.
         $code = Status::INTERNAL_SERVER_ERROR;
@@ -724,7 +754,7 @@ final class App
 
             // Call user output handler if provided.
             if ($this->events->has('app.output')) {
-                $content = $this->events->fire('app.output', $content);
+                $content = $this->events->fire('app.output', $this, $content);
             }
 
             $response->setBody($content, $attributes);
