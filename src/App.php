@@ -623,7 +623,7 @@ final class App
         }
 
         // Call default controller error method.
-        $return = $class->init($this)->call($method, [$error]);
+        $return = $class->init($this)->$method($error);
 
         if (!$return || is_string($return)) {
             $return = (string) $return;
