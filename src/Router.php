@@ -249,8 +249,8 @@ final class Router
 
         // Check invalid-pattern causing errors.
         if (!$res && $options['throwErrors']) {
-            $message = preg_error_message('preg_match');
-            $message && throw new RouterException($message);
+            $message = preg_error_message($code, 'preg_match');
+            $message && throw new RouterException($message, code: $code);
         }
 
         if ($res) {
