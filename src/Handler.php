@@ -32,7 +32,7 @@ final class Handler
     public static function registerErrorHandler(): void
     {
         set_error_handler(function ($ecode, $emesg, $efile, $eline) {
-            // @cancel: Because error_get_last() should always work!
+            // @cancel: Because error_get_last() should always work.
             // Error was suppressed with the @ operator.
             // if (!$ecode || !($ecode & error_reporting())) {
             //     return;
@@ -73,7 +73,7 @@ final class Handler
             // This can be used later to check error stuff.
             app_fail('error', new AppError($error, null, $ecode));
 
-            // @cancel: Because error_get_last() should always work!
+            // @cancel: Because error_get_last() should always work.
             // Dont not execute php internal error handler.
             // return true;
             return false;
