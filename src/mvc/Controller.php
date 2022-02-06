@@ -450,7 +450,8 @@ class Controller
                 );
             }
 
-            $session->start();
+            // @cancel: Must be started on-demand in actions or init.
+            // $session->start();
 
             $this->session = $session;
         }
