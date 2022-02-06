@@ -623,6 +623,10 @@ final class App
     {
         $log && $this->errorLog($error);
 
+        // @keep
+        // For internal use only.
+        // app_fail('last', $error);
+
         // Call user error handler if provided.
         $this->events->fire('app.error', $this, $error);
 
