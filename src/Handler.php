@@ -49,27 +49,29 @@ final class Handler
                 case E_CORE_WARNING:
                 case E_COMPILE_ERROR:
                 case E_COMPILE_WARNING:
-                    $error = sprintf('Fatal error in %s:%s ecode[%s] emesg[%s]',
+                    $error = sprintf('Fatal error at %s:%s [code: %s, message: %s]',
                         $efile, $eline,  $ecode, $emesg);
                     break;
                 case E_RECOVERABLE_ERROR:
-                    $error = sprintf('Recoverable error in %s:%s ecode[%s] emesg[%s]',
+                    $error = sprintf('Recoverable error at %s:%s [code: %s, message: %s]',
                         $efile, $eline, $ecode, $emesg);
                     break;
+                case E_NOTICE:
+                case E_WARNING:
+                case E_DEPRECATED:
                 case E_USER_ERROR:
-                    $error = sprintf('User error in %s:%s ecode[%s] emesg[%s]',
-                        $efile, $eline, $ecode, $emesg);
-                    break;
-                case E_USER_WARNING:
-                    $error = sprintf('User warning in %s:%s ecode[%s] emesg[%s]',
-                        $efile, $eline, $ecode, $emesg);
-                    break;
                 case E_USER_NOTICE:
-                    $error = sprintf('User notice in %s:%s ecode[%s] emesg[%s]',
-                        $efile, $eline, $ecode, $emesg);
+                case E_USER_WARNING:
+                case E_USER_DEPRECATED:
+                    // Get error title.
+                    $title = xstring(get_constant_name($ecode, 'E_'))
+                        ->sub(2)->lower()->upper(0)->replace('_', ' ');
+
+                    $error = sprintf('%s at %s:%s [code: %s, message: %s]',
+                        $title, $efile, $eline, $ecode, $emesg);
                     break;
                 default:
-                    $error = sprintf('Unknown error in %s:%s ecode[%s] emesg[%s]',
+                    $error = sprintf('Unknown error at %s:%s [code: %s, message: %s]',
                         $efile, $eline, $ecode, $emesg);
             }
 
@@ -110,27 +112,34 @@ final class Handler
     public static function registerShutdownHandler(): void
     {
         register_shutdown_function(function () {
-            $app = app();
+            $error = $errorCode = null;
 
             // This will keep app running, even if a ParseError occurs.
-            if ($error = app_fail('exception')) {
+            if ($fail = app_fail('exception')) {
                 $error = [
-                    'type' => $error->getCode(), 'message' => $error->__toString(),
-                    'file' => $error->getFile(), 'line'    => $error->getLine()
+                    'type' => $fail->getCode(), 'message' => $fail->__toString(),
+                    'file' => $fail->getFile(), 'line'    => $fail->getLine()
                 ];
                 $errorCode = $error['type'];
-            } elseif ($error = error_get_last()) {
-                $type      = $error['type'] ?? null;
-                $error     = ($type == E_ERROR) ? $error : null;
-                $errorCode = ($type ?? -1);
+            } elseif (($fail = app_fail('error'))
+                && in_array($fail->getCode(), [E_ERROR, E_USER_ERROR])) {
+                $error = [
+                    'type' => $fail->getCode(), 'message' => $fail->__toString(),
+                    'file' => $fail->getFile(), 'line'    => $fail->getLine()
+                ];
+                $errorCode = $error['type'];
+            } elseif (($fail = error_get_last())
+                && in_array($fail['type'] ?? null, [E_ERROR, E_USER_ERROR])) {
+                $error     = $fail;
+                $errorCode = $fail['type'] ?? -1;
             }
 
             if ($error) {
-                $error = sprintf("Shutdown in %s:%s\n%s",
+                $error = sprintf("Shutdown at %s:%s\nError:\n%s",
                     $error['file'], $error['line'], $error['message']);
 
                 // Call app error process (log etc.).
-                $app->error($e = new AppError($error, null, $errorCode));
+                app()->error($e = new AppError($error, null, $errorCode));
 
                 // Store, this may be used later to check error stuff.
                 app_fail('shutdown', $e);
