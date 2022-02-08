@@ -24,6 +24,9 @@ use Throwable;
  */
 final class Handler
 {
+    /** @internal */
+    private static mixed $displayErrors = null;
+
     /**
      * Register error handler.
      *
@@ -70,7 +73,7 @@ final class Handler
                         $efile, $eline, $ecode, $emesg);
             }
 
-            // This can be used later to check error stuff.
+            // Store, this can be used later to check error stuff.
             app_fail('error', new AppError($error, null, $ecode));
 
             // @cancel: Because error_get_last() should always work.
@@ -88,12 +91,10 @@ final class Handler
     public static function registerExceptionHandler(): void
     {
         set_exception_handler(function (Throwable $e) {
-            // If not local no error display (set & store old option).
-            if (!__local__) {
-                set_global('app.displayErrors', ini_set('display_errors', false));
-            }
+            // Store error display option (setting temporarily as no local = no display)
+            self::$displayErrors = ini_set('display_errors', __local__);
 
-            // This may be used later to check error stuff.
+            // Store, this may be used later to check error stuff.
             app_fail('exception', $e);
 
             // This will be caught in shutdown handler.
@@ -124,20 +125,19 @@ final class Handler
                 $errorCode = ($type ?? -1);
             }
 
-            if ($error != null) {
+            if ($error) {
                 $error = sprintf("Shutdown in %s:%s\n%s",
                     $error['file'], $error['line'], $error['message']);
 
                 // Call app error process (log etc.).
                 $app->error($e = new AppError($error, null, $errorCode));
 
-                // This may be used later to check error stuff.
+                // Store, this may be used later to check error stuff.
                 app_fail('shutdown', $e);
 
-                // Reset error display option (@see exception handler).
-                $option = get_global('app.displayErrors');
-                if ($option !== null) {
-                    ini_set('display_errors', $option);
+                // Restore error display option.
+                if (self::$displayErrors !== null) {
+                    ini_set('display_errors', self::$displayErrors);
                 }
             }
         });
@@ -150,6 +150,8 @@ final class Handler
      */
     public static function unregisterErrorHandler(): void
     {
+        self::$displayErrors = null;
+
         restore_error_handler();
     }
 
@@ -160,6 +162,8 @@ final class Handler
      */
     public static function unregisterExceptionHandler(): void
     {
+        self::$displayErrors = null;
+
         restore_exception_handler();
     }
 }
