@@ -735,67 +735,66 @@ class Controller
     }
 
     /**
-     * Get a segment value.
+     * Get a URI segment.
      *
-     * @param  int|string $key
-     * @param  any|null   $default
-     * @return any|null
+     * @param  int|string  $key
+     * @param  string|null $default
+     * @return string|null
      * @since  4.2
      */
-    public final function segment(int|string $key, $default = null)
+    public final function segment(int|string $key, string $default = null): string|null
     {
-        return $this->request->getSegment($key, $default);
+        return $this->request->segment($key, $default);
     }
 
     /**
-     * Get URI segments object.
+     * Get all/many URI segments or Segments object.
      *
-     * @param  array<int|string> $keys
-     * @param  any|null          $default
-     * @return froq\http\request\Segments|array
+     * @param  array<int|string>  $keys
+     * @param  array<string>|null $defaults
+     * @return array<string>|froq\http\request\Segments|null
      * @since  4.2
      */
-    public final function segments(array $keys = null, $default = null): Segments|array
+    public final function segments(array $keys = null, array $defaults = null): array|Segments|null
     {
-        return $this->request->getSegments($keys, $default);
+        return $this->request->segments($keys, $defaults);
     }
 
     /**
      * Get URI segments object as list.
      *
-     * @param  int $offset
      * @return array
      * @since  4.4
      */
-    public final function segmentsList(int $offset = 0): array
+    public final function segmentsList(): array
     {
-        return $this->request->getSegments()->toList($offset);
+        return $this->request->segments()->toList($offset);
     }
 
     /**
      * Get a segment param.
      *
-     * @param  string   $name
-     * @param  any|null $default
-     * @return any|null
+     * @param  string      $name
+     * @param  string|null $default
+     * @return string|null
      * @since  5.0
      */
-    public final function segmentParam(string $name, $default = null)
+    public final function segmentParam(string $name, string $default = null): string|null
     {
-        return $this->request->getSegments()->getParam($name, $default);
+        return $this->request->segments()->getParam($name, $default);
     }
 
     /**
-     * Get segment params.
+     * Get many segment params.
      *
-     * @param  string<string> $names
-     * @param  any|null       $default
-     * @return array
+     * @param  array<string>|null $names
+     * @param  array<string>|null $default
+     * @return array<string>|null
      * @since  5.0
      */
-    public final function segmentParams(array $names, $default = null): array
+    public final function segmentParams(array $names = null, array $default = null): array|null
     {
-        return $this->request->getSegments($names, $default);
+        return $this->request->segments()->getParams($names, $default);
     }
 
     /**
