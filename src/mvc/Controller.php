@@ -734,12 +734,6 @@ class Controller
         return new PlainPayload($code, $content, $attributes);
     }
 
-    /** @aliasOf jsonPayload() */
-    public final function json(...$args)
-    {
-        return $this->jsonPayload(...$args);
-    }
-
     /**
      * Get a segment value.
      *
