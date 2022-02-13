@@ -477,12 +477,12 @@ final class App
 
         if ($configs) {
             // Set router options first (for proper error() process).
-            if (pick($configs, 'router', $router)) {
+            if ($router = array_get($configs, 'router')) {
                 $this->router->setOptions($router);
             }
 
-            // Apply dotenv configs.
-            if (pluck($configs, 'dotenv', $dotenv)) {
+            // Apply dotenv configs (dropping config entrty).
+            if ($dotenv = array_get($configs, 'dotenv', drop: true)) {
                 $this->applyDotenvConfigs(
                     Config::parseDotenv($dotenv['file']),
                     !!($dotenv['global'] ?? false), // @default
