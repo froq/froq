@@ -359,7 +359,7 @@ class Controller
         $params = $this->actionParams ?? [];
 
         if ($names === null) {
-            return !!$params;
+            return !empty($params);
         }
 
         return array_isset($params, ...$names);
