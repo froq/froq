@@ -788,85 +788,91 @@ class Controller
      * Get many segment params.
      *
      * @param  array<string>|null $names
-     * @param  array<string>|null $default
+     * @param  array<string>|null $defaults
      * @return array<string>|null
      * @since  5.0
      */
-    public final function segmentParams(array $names = null, array $default = null): array|null
+    public final function segmentParams(array $names = null, array $defaults = null): array|null
     {
-        return $this->request->segments()->getParams($names, $default);
+        return $this->request->segments()->getParams($names, $defaults);
     }
 
     /**
-     * Get a get parameter.
+     * Get one $_GET param.
      *
-     * @param  string   $name
-     * @param  any|null $default
-     * @return any|null
+     * @param  string     $name
+     * @param  mixed|null $default
+     * @param  mixed   ...$options
+     * @return mixed
      */
-    public final function getParam(string $name, $default = null)
+    public final function getParam(string $name, mixed $default = null, mixed ...$options): mixed
     {
-        return $this->request->getParam($name, $default);
+        return $this->request->getParam($name, $default, ...$options);
     }
 
     /**
-     * Get all get parameters or by given names only.
+     * Get many/all $_GET params.
      *
-     * @param  array<string>|null $names
-     * @param  any|null           $default
+     * @param  string|array<string>|null $names
+     * @param  array|null                $defaults
+     * @param  mixed                  ...$options
      * @return array
      */
-    public final function getParams(array $names = null, $default = null): array
+    public final function getParams(array $names = null, array $defaults = null, mixed ...$options): array
     {
-        return $this->request->getParams($names, $default);
+        return $this->request->getParams($names, $defaults, ...$options);
     }
 
     /**
-     * Get a post parameter.
+     * Get one $_POST param.
      *
-     * @param  string   $name
-     * @param  any|null $default
-     * @return any|null
+     * @param  string     $name
+     * @param  mixed|null $default
+     * @param  mixed   ...$options
+     * @return mixed
      */
-    public final function postParam(string $name, $default = null)
+    public final function postParam(string $name, mixed $default = null, mixed ...$options): mixed
     {
-        return $this->request->postParam($name, $default);
+        return $this->request->postParam($name, $default, ...$options);
     }
 
     /**
-     * Get all post parameters or by given names only.
+     * Get many/all $_POST params.
      *
-     * @param  array<string>|null $names
-     * @param  any|null           $default
+     * @param  string|array<string>|null $names
+     * @param  array|null                $defaults
+     * @param  mixed                  ...$options
      * @return array
      */
-    public final function postParams(array $names = null, $default = null): array
+    public final function postParams(array $names = null, array $defaults = null, mixed ...$options): array
     {
-        return $this->request->postParams($names, $default);
+        return $this->request->postParams($names, $defaults, ...$options);
     }
 
     /**
-     * Get a cookie parameter.
+     * Get one $_COOKIE param.
      *
-     * @param  string   $name
-     * @param  any|null $default
-     * @return any|null
+     * @param  string     $name
+     * @param  mixed|null $default
+     * @param  mixed   ...$options
+     * @return mixed
      */
-    public final function cookieParam(string $name, $default = null)
+    public final function cookieParam(string $name, mixed $default = null, mixed ...$options): mixed
     {
-        return $this->request->cookieParam($name, $default);
+        return $this->request->cookieParam($name, $default, ...$options);
     }
 
     /**
-     * Get all cookie parameters or by given names only.
+     * Get many/all $_COOKIE params.
      *
-     * @param  array<string>|null $names
-     * @param  any|null           $default
+     * @param  string|array<string>|null $names
+     * @param  array|null                $defaults
+     * @param  mixed                  ...$options
      * @return array
      */
-    public final function cookieParams(array $names = null, $default = null): array
+    public final function cookieParams(array $names = null, array $defaults = null, mixed ...$options): array
     {
-        return $this->request->cookieParams($names, $default);
+        return $this->request->cookieParams($names, $defaults, ...$options);
     }
 
     /**
