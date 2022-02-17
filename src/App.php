@@ -189,20 +189,19 @@ final class App
     }
 
     /**
-     * Get a config option(s) or config object.
+     * Get a config option(s) or config property.
+     * Note: Set not allowed, so config readonly and set available with config.php only.
      *
      * @param  string|array|null $key
-     * @param  any|null          $default
-     * @return any|null|froq\common\object\Config
+     * @param  mixed|null        $default
+     * @return mixed
      */
-    public function config(string|array $key = null, $default = null)
+    public function config(string|array $key = null, mixed $default = null): mixed
     {
-        if (!func_num_args()) {
-            return $this->config;
+        if (func_num_args()) {
+            return $this->config->get($key, $default);
         }
-
-        // Set not allowed, so config readonly and set available with config.php only.
-        return $this->config->get($key, $default);
+        return $this->config;
     }
 
     /**
@@ -501,7 +500,7 @@ final class App
         $this->root = $root;
 
         // Add headers & cookies (if provided).
-        [$headers, $cookies] = $this->config(['headers', 'cookies']);
+        [$headers, $cookies] = $this->config->get(['headers', 'cookies']);
         if ($headers) foreach ($headers as $name => $value) {
             $this->response->addHeader($name, $value);
         }
@@ -517,8 +516,8 @@ final class App
         $this->request->uri()->generateSegments($this->root);
 
         // Note: These options can be emptied by developer to disable all with "null" if app won't
-        // be using session/database/cache. Also, "pull" removes sensitive config data after using.
-        [$session, $database, $cache] = $this->config->pull(['session', 'database', 'cache']);
+        // be using session/database/cache. Also, "drop" removes sensitive config data after using.
+        [$session, $database, $cache] = $this->config->get(['session', 'database', 'cache'], drop: true);
 
         if ($session) {
             is_type_of($session, 'array', 'bool') || throw new AppException(
@@ -790,14 +789,14 @@ final class App
         }
 
         if ($locales) {
-            // Must be like eg: [LC_TIME => 'en_US' or 'en_US.utf-8'].
+            // Must be like [LC_TIME => 'en_US'].
             foreach ($locales as $category => $locale) {
                 setlocale($category, $locale);
             }
         }
 
         if ($ini) {
-            // Must be like eg: [string => scalar].
+            // Must be like [string => scalar].
             foreach ($ini as $option => $value) {
                 ini_set($option, $value);
             }
