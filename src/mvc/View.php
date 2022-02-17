@@ -104,10 +104,14 @@ final class View
     public function render(string $file, array $fileData = null): string
     {
         $file = $this->prepareFile($file);
-        is_file($file) || throw new ViewException('View file `%s` is not exist', $file);
+        if (!is_file($file)) {
+            throw new ViewException('View file `%s` is not exist', $file);
+        }
 
         $fileLayout = $this->getLayout();
-        is_file($fileLayout) || throw new ViewException('View layout file `%s` is not exist', $fileLayout);
+        if (!is_file($fileLayout)) {
+            throw new ViewException('View layout file `%s` is not exist', $fileLayout);
+        }
 
         $fileData ??= [];
         foreach ($fileData as $key => $value) {
@@ -138,7 +142,7 @@ final class View
 
         ob_start();
         include $file;
-        return (string) ob_get_clean();
+        return ob_get_clean();
     }
 
     /**
@@ -153,9 +157,9 @@ final class View
             $file = substr($file, 0, -4);
         }
 
-        // May be defined as full path.
+        // Can be defined as full path.
         $viewBase = $this->controller->getApp()->config('view.base');
-        if ($viewBase != null) {
+        if ($viewBase) {
             return sprintf('%s/%s.php', $viewBase, $file);
         }
 
