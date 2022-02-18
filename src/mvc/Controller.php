@@ -330,15 +330,16 @@ class Controller
      * Get all action params, or by given names only.
      *
      * @param  array<string>|null $names
+     * @param  array|null         $defaults
      * @param  bool               $combine
      * @return array
      */
-    public final function getActionParams(array $names = null, bool $combine = false): array
+    public final function getActionParams(array $names = null, array $defaults = null, bool $combine = false): array
     {
         $params = $this->actionParams ?? [];
 
         if ($names !== null) {
-            $params = array_select($params, $names);
+            $params = array_select($params, $names, $defaults);
         }
 
         // Leave combined with keys or values only.
