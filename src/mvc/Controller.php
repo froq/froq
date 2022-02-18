@@ -753,10 +753,10 @@ class Controller
      *
      * @param  array<int|string>  $keys
      * @param  array<string>|null $defaults
-     * @return array<string>|froq\http\request\Segments|null
+     * @return array<string>|froq\http\request\Segments
      * @since  4.2
      */
-    public final function segments(array $keys = null, array $defaults = null): array|Segments|null
+    public final function segments(array $keys = null, array $defaults = null): array|Segments
     {
         return $this->request->segments($keys, $defaults);
     }
@@ -769,7 +769,7 @@ class Controller
      */
     public final function segmentsList(): array
     {
-        return $this->request->segments()->toList($offset);
+        return $this->request->segments()->toList();
     }
 
     /**
