@@ -73,51 +73,6 @@ function delete_global(string $key)
 }
 
 /**
- * Empty var checker.
- *
- * @param  any    $in
- * @param  any ...$ins
- * @return bool
- */
-function no($in, ...$ins)
-{
-    foreach ([$in, ...$ins] as $in) {
-        if (is_empty($in)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * False var checker.
- *
- * @param  any    $in
- * @param  any ...$ins
- * @return bool
- */
-function not($in, ...$ins)
-{
-    foreach ([$in, ...$ins] as $in) {
-        if (is_false($in)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * Length getter.
- *
- * @alias of size()
- * @since 3.0
- */
-function len(...$args)
-{
-    return size(...$args);
-}
-
-/**
  * Remove something(s) from an array or string.
  *
  * @param  array|string $in
