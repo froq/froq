@@ -71,16 +71,3 @@ function delete_global(string $key)
 {
     unset($GLOBALS['@froq'][$key]);
 }
-
-/**
- * Remove something(s) from an array or string.
- *
- * @param  array|string $in
- * @param  any          $search
- * @return array|string
- * @since  3.0
- */
-function remove(array|string $in, $search): array|string
-{
-    return replace($in, $search, '', true);
-}
