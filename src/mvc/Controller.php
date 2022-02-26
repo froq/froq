@@ -241,8 +241,8 @@ class Controller
     {
         $name = Objects::getShortName($this);
 
-        if (!$suffix && str_ends_with($name, self::SUFFIX)) {
-            $name = substr($name, 0, -strlen(self::SUFFIX));
+        if (!$suffix && str_ends_with($name, Controller::SUFFIX)) {
+            $name = substr($name, 0, -strlen(Controller::SUFFIX));
         }
 
         return $name;
@@ -268,8 +268,8 @@ class Controller
     {
         $action = $this->action ?? '';
 
-        if (!$suffix && str_ends_with($action, self::ACTION_SUFFIX)) {
-            $action = substr($action, 0, -strlen(self::ACTION_SUFFIX));
+        if (!$suffix && str_ends_with($action, Controller::ACTION_SUFFIX)) {
+            $action = substr($action, 0, -strlen(Controller::ACTION_SUFFIX));
         }
 
         return $action;
@@ -889,8 +889,8 @@ class Controller
     public final function call(string $action, array $actionParams = [], bool $suffix = false)
     {
         // For short calls (eg: call('foo') instead call('fooAction')).
-        if ($suffix && !in_array($action, [self::INDEX_ACTION, self::ERROR_ACTION])) {
-            $action .= self::ACTION_SUFFIX;
+        if ($suffix && !in_array($action, [Controller::INDEX_ACTION, Controller::ERROR_ACTION])) {
+            $action .= Controller::ACTION_SUFFIX;
         }
 
         $this->action       = $action;
@@ -937,7 +937,7 @@ class Controller
      */
     public final function callCallable(callable $action, array $actionParams = [])
     {
-        $this->action       = self::NAME_CLOSURE;
+        $this->action       = Controller::NAME_CLOSURE;
         $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         // Make "$this" available in called action.

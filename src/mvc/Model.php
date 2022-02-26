@@ -228,7 +228,7 @@ class Model
 
             $class = array_pop($parts);
             $class = implode('\\', [...$parts, $subdir, ''])
-                   . substr($class, 0, -strlen(self::SUFFIX))
+                   . substr($class, 0, -strlen(Model::SUFFIX))
                    . $suffix;
         } else {
             // Dots can be used instead back-slashes.
@@ -236,7 +236,7 @@ class Model
 
             // When only name given (with/without eg. "Record" suffix).
             if (!strpos($class, '\\')) {
-                $class = implode('\\', [self::NAMESPACE, $subdir, ''])
+                $class = implode('\\', [Model::NAMESPACE, $subdir, ''])
                        . ucfirst($class)
                        . $suffix;
             }
