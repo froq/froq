@@ -7,9 +7,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\RouterException;
 use froq\mvc\{Controller, Model};
-use froq\util\Arrays;
 
 /**
  * Router.
@@ -79,7 +77,7 @@ final class Router
      */
     public function setOptions(array $options): self
     {
-        self::$options = Arrays::options($options, self::$optionsDefault, false);
+        self::$options = array_options($options, self::$optionsDefault, false);
 
         return $this;
     }
@@ -188,9 +186,9 @@ final class Router
     public function resolve(string $uri, string $method = null, array $options = null): array|null
     {
         $routes = $this->routes();
-        $routes || throw new RouterException('No route directives exist to resolve');
+        $routes || throw new RouterException('No route directives to resolve');
 
-        $options  = Arrays::options($options, self::$options);
+        $options  = array_options($options, self::$options);
         $patterns = [];
 
         foreach ($routes as $i => [$pattern]) {
@@ -341,9 +339,9 @@ final class Router
             if (is_string($call)) {
                 [$controller, $action] = self::prepare($call);
 
-                $controller || throw new RouterException(
-                    'No controller given in route'
-                );
+                if (!$controller) {
+                    throw new RouterException('No controller given in route');
+                }
 
                 foreach ($methods as $method) {
                     $actions[$method] = [$controller, $action, $actionParams];
@@ -382,9 +380,9 @@ final class Router
      */
     public static function prepare(string $call, array $callArgs = []): array
     {
-        // Note: suffixes ("Controller" and "Action") must not be used in call directives, eg:
-        // Index for IndexController, Index.foo for IndexController.fooAction.
-        [$controller, $action] = array_pad((array) explode('.', $call), 2, null);
+        // Note: suffixes ("Controller" and "Action") must not be used in call directives,
+        // eg: Index for IndexController, Index.foo for IndexController.fooAction.
+        [$controller, $action] = split('.', $call, 2);
 
         // Return controller, action, actionParams.
         return $controller ? [
@@ -513,6 +511,6 @@ final class Router
         $methods = (string) ($methods ?: '*');
 
         // Multiple methods can be given (eg: ["/book/:id", ["GET,POST" => "Book.index"]]).
-        return array_map('strtoupper', explode(',', $methods));
+        return array_map('strtoupper', split(',', $methods));
     }
 }
