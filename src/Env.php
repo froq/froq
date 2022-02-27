@@ -12,7 +12,7 @@ use froq\common\object\Enum;
 /**
  * Env.
  *
- * Represents an enum entity which carries App environment names.
+ * An enum class which carries App environment names.
  *
  * @package froq
  * @object  froq\Env
