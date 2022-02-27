@@ -17,6 +17,7 @@ use froq\http\{Request, Response, response\Status,
     exception\server\InternalServerErrorException};
 use froq\cache\{Cache, CacheFactory};
 use froq\util\misc\System;
+use Assert;
 use Throwable;
 
 /**
@@ -520,22 +521,22 @@ final class App
         [$session, $database, $cache] = $this->config->get(['session', 'database', 'cache'], drop: true);
 
         if ($session) {
-            is_type_of($session, 'array', 'bool') || throw new AppException(
-                'Config option `session` must be array|bool, %t given', [$session]
-            );
-            $this->session  = Factory::initOnce(Session::class, is_array($session) ? $session : []);
+            Assert::type($session, 'array|bool', new AppException(
+                'Config option `session` must be array|bool, %t given', $session
+            ));
+            $this->session = Factory::initOnce(Session::class, (array) $session);
         }
         if ($database) {
-            is_type_of($database, 'array') || throw new AppException(
+            Assert::type($database, 'array', new AppException(
                 'Config option `database` must be array, %t given', [$database]
-            );
+            ));
             $this->database = Factory::initOnce(Database::class, $database);
         }
         // Note: Cache is a static instance as default.
         if ($cache) {
-            is_type_of($cache, 'array') || throw new AppException(
+            Assert::type($cache, 'array', new AppException(
                 'Config option `cache` must be array, %t given', [$cache]
-            );
+            ));
             $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
         }
 
