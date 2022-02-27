@@ -68,22 +68,22 @@ final class App
     /** @var froq\http\Response */
     private Response $response;
 
-    /** @var froq\session\Session|null @since 3.18 */
+    /** @var froq\session\Session|null */
     private Session $session;
 
-    /** @var froq\database\Database|null @since 4.0 */
+    /** @var froq\database\Database|null */
     private Database $database;
 
-    /** @var froq\cache\Cache|null @since 4.10 */
+    /** @var froq\cache\Cache|null */
     private Cache $cache;
 
-    /** @var froq\Router @since 4.0 */
+    /** @var froq\Router */
     private Router $router;
 
-    /** @var froq\Servicer @since 4.0 */
+    /** @var froq\Servicer */
     private Servicer $servicer;
 
-    /** @var froq\common\object\Register @since 5.0 */
+    /** @var froq\common\object\Register */
     private static Registry $registry;
 
     /**
@@ -94,7 +94,7 @@ final class App
     private function __construct()
     {
         // App dir is required (@see pub/index.php).
-        defined('APP_DIR') || throw new AppException('No APP_DIR defined');
+        defined('APP_DIR') || throw new AppException('APP_DIR not defined');
 
         $this->logger   = new Logger(['level' => Logger::ALL]);
         $this->request  = new Request($this);
@@ -270,24 +270,23 @@ final class App
      * Put/get a cache item or get cache object, throw `AppException` if no cache object initiated.
      *
      * @param  string|int|array<string|int>|null $key
-     * @param  any|null                          $value
+     * @param  mixed|null                        $value
      * @param  int|null                          $ttl
-     * @return any|null|froq\cache\agent\Cache
+     * @return mixed|null|froq\cache\agent\Cache
      * @throws froq\AppException
      * @since  4.10
      */
-    public function cache(string|int|array $key = null, $value = null, int $ttl = null)
+    public function cache(string|int|array $key = null, mixed $value = null, int $ttl = null): mixed
     {
-        if (isset($this->cache)) {
-            return match (func_num_args()) {
-                      0 => $this->cache, // None given.
-                      1 => $this->cache->read($key),
-                default => $this->cache->write($key, $value, $ttl)
-            };
-        }
+        isset($this->cache) || throw new AppException(
+            'No cache object initiated yet, be sure `cache` option is not empty'
+        );
 
-        throw new AppException('No cache agent initiated yet, be sure `cache` field is not'
-            . ' empty in config');
+        return match (func_num_args()) {
+                  0 => $this->cache, // None given.
+                  1 => $this->cache->read($key),
+            default => $this->cache->write($key, $value, $ttl)
+        };
     }
 
     /**
@@ -300,12 +299,11 @@ final class App
      */
     public function uncache(string|int|array $key): bool
     {
-        if (isset($this->cache)) {
-            return $this->cache->remove($key);
-        }
+        isset($this->cache) || throw new AppException(
+            'No cache object initiated yet, be sure `cache` option is not empty'
+        );
 
-        throw new AppException('No cache agent initiated yet, be sure `cache` field is not'
-            . ' empty in config');
+        return $this->cache->remove($key);
     }
 
     /**
