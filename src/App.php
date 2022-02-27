@@ -495,7 +495,7 @@ final class App
 
         // Check/set env & root stuff.
         if (!$env || !$root) {
-            throw new AppException('Options `env` or `root` must not be empty');
+            throw new AppException('Options `env` or `root` cannot be empty');
         }
         $this->env  = $env;
         $this->root = $root;
