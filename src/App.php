@@ -525,14 +525,14 @@ final class App
         }
         if ($database) {
             Assert::type($database, 'array', new AppException(
-                'Config option `database` must be array, %t given', [$database]
+                'Config option `database` must be array, %t given', $database
             ));
             $this->database = Factory::initOnce(Database::class, $database);
         }
         // Note: Cache is a static instance as default.
         if ($cache) {
             Assert::type($cache, 'array', new AppException(
-                'Config option `cache` must be array, %t given', [$cache]
+                'Config option `cache` must be array, %t given', $cache
             ));
             $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
         }
