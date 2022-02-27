@@ -438,7 +438,7 @@ final class App
     }
 
     /**
-     * Set/get a service.
+     * Add/get a service.
      *
      * @param  string                $name
      * @param  object|callable|array $service
