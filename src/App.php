@@ -17,8 +17,7 @@ use froq\http\{Request, Response, response\Status,
     exception\server\InternalServerErrorException};
 use froq\cache\{Cache, CacheFactory};
 use froq\util\misc\System;
-use Assert;
-use Throwable;
+use Assert, Throwable;
 
 /**
  * App.
