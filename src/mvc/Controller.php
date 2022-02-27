@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\mvc\{ControllerException, View, Model};
 use froq\http\{Request, Response, request\Uri, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
@@ -390,12 +389,9 @@ class Controller
     {
         if (!isset($this->view)) {
             $layout = $this->app->config('view.layout');
-
-            if (!$layout) {
-                throw new ControllerException(
-                    'No `view.layout` option found in config'
-                );
-            }
+            $layout || throw new ControllerException(
+                'No `view.layout` option found in config'
+            );
 
             $this->view = new View($this);
             $this->view->setLayout($layout);
@@ -443,15 +439,11 @@ class Controller
     {
         if (!isset($this->session)) {
             $session = $this->app->session();
+            $session || throw new ControllerException(
+                'App has no session object, be sure `session` option is not empty'
+            );
 
-            if (!$session) {
-                throw new ControllerException(
-                    'App has no session object [tip: check `session` option in config ' .
-                    'and be sure it is not null]'
-                );
-            }
-
-            // @cancel: Must be started on-demand in actions or init.
+            // @cancel: Must be started on-demand in actions or init method.
             // $session->start();
 
             $this->session = $session;
@@ -974,8 +966,8 @@ class Controller
     }
 
     /**
-     * Initialize a controller object by given controller name/controller class name, throw a `ControllerException`
-     * if no such controller class exists.
+     * Initialize a controller object by given controller name/controller class name, throw a
+     * `ControllerException` if no such controller class exists.
      *
      * @param  string $class
      * @return froq\mvc\Controller (static)
@@ -1004,8 +996,8 @@ class Controller
     }
 
     /**
-     * Initialize a model object by given model name /model class name, throw a `ControllerException` if no such
-     * model class exists.
+     * Initialize a model object by given model name /model class name, throw a `ControllerException`
+     * if no such model class exists.
      *
      * @param  string                      $class
      * @param  froq\mvc\Controller|null    $controller
@@ -1038,10 +1030,6 @@ class Controller
     /**
      * Prepare an action's parameters to fulfill its required/non-required parameters needed on
      * calltime/runtime.
-     *
-     * @param  ReflectionMethod|ReflectionFunction $ref
-     * @param  array                               $actionParams
-     * @return array
      */
     private function prepareActionParams(ReflectionMethod|ReflectionFunction $ref, array $actionParams): array
     {
