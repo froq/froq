@@ -667,7 +667,7 @@ final class App
             }
         }
 
-        if (!$return || is_string($return)) {
+        if ($return === null || is_string($return)) {
             $return = (string) $return;
 
             // Handle echo/print stuff.
@@ -740,7 +740,7 @@ final class App
 
                 // Actions that use echo/print/view()/response.setBody() will return null.
                 // So, output buffer must be collected as body content if body content is null.
-                if ($content === null && (!$return || is_string($return))) {
+                if ($content === null && ($return === null || is_string($return))) {
                     $return = (string) $return;
 
                     // Handle echo/print stuff.
