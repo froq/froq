@@ -76,7 +76,7 @@ final class Handler
             }
 
             // Store, this can be used later to check error stuff.
-            app_fail('error', new AppError($error, null, $ecode));
+            app_fail('error', new AppError($error, code: $ecode));
 
             // @cancel: Because error_get_last() should always work.
             // Dont not execute php internal error handler.
@@ -139,7 +139,7 @@ final class Handler
                     $error['file'], $error['line'], $error['message']);
 
                 // Call app error process (log etc.).
-                app()->error($e = new AppError($error, null, $errorCode));
+                app()->error($e = new AppError($error, code: $errorCode));
 
                 // Store, this may be used later to check error stuff.
                 app_fail('shutdown', $e);
