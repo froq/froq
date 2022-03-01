@@ -12,7 +12,7 @@ use froq\mvc\{Controller, Model};
 /**
  * Router.
  *
- * Represents a route stack entity that able to do such ops add/pack and resolve using RegExp utilities.
+ * A route stack class, able to such ops add, pack and resolve using RegExp utilities.
  *
  * @package froq
  * @object  froq\Router
@@ -27,10 +27,10 @@ final class Router
     /** @var array */
     private array $debug = [];
 
-    /** @var array @since 4.12 */
+    /** @var array */
     private static array $options = [];
 
-    /** @var array @since 4.12 */
+    /** @var array */
     private static array $optionsDefault = [
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,

@@ -196,7 +196,7 @@ class Model
     }
 
     // /**
-    //  * @alias of other initializers.
+    //  * Other aliased initializers.
     //  * @since 5.0
     //  */
     // public final function getForm(...$args) { return $this->initForm(...$args); }
