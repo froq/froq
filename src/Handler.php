@@ -7,9 +7,6 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\AppError;
-use Throwable;
-
 /**
  * Handler.
  *
@@ -92,7 +89,7 @@ final class Handler
      */
     public static function registerExceptionHandler(): void
     {
-        set_exception_handler(function (Throwable $e) {
+        set_exception_handler(function (\Throwable $e) {
             // Store error display option (setting temporarily as no local = no display)
             self::$displayErrors = ini_set('display_errors', __local__);
 

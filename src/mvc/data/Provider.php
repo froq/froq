@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace froq\mvc\data;
 
-use froq\mvc\data\Repository;
-
 /**
  * Provider.
  *

@@ -7,9 +7,6 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\mvc\{ViewException, Controller};
-use froq\mvc\trait\ControllerTrait;
-
 /**
  * View.
  *
@@ -23,7 +20,7 @@ use froq\mvc\trait\ControllerTrait;
 final class View
 {
     /** @see froq\mvc\trait\ControllerTrait */
-    use ControllerTrait;
+    use trait\ControllerTrait;
 
     /** @var string */
     private string $layout;

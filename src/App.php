@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\{AppError, AppException, Handler, Router, Servicer, mvc\Controller};
 use froq\{logger\Logger, event\Events, session\Session, database\Database};
 use froq\common\{Error, Exception,
     trait\InstanceTrait, object\Config, object\Factory, object\Registry};
@@ -643,7 +642,7 @@ final class App
         // Try to call @default.error() method or make an error string as return.
         try {
             $controller = $this->router->getOption('defaultController');
-            $method     = Controller::ERROR_ACTION;
+            $method     = mvc\Controller::ERROR_ACTION;
             $class      = new \XClass($controller);
 
             // Check default controller & controller (error) method.

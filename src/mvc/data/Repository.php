@@ -7,10 +7,9 @@ declare(strict_types=1);
 
 namespace froq\mvc\data;
 
-use froq\mvc\data\DataException;
 use froq\mvc\Controller;
 use froq\mvc\trait\{ControllerTrait, ModelTrait};
-use froq\database\{Database, Repository as _Repository};
+use froq\database\{Database, Repository as DatabaseRepository};
 
 /**
  * Repository.
@@ -23,10 +22,12 @@ use froq\database\{Database, Repository as _Repository};
  * @author  Kerem Güneş
  * @since   5.0
  */
-class Repository extends _Repository
+class Repository extends DatabaseRepository
 {
-    /** @see froq\mvc\trait\ControllerTrait */
-    /** @see froq\mvc\trait\ModelTrait */
+    /**
+     * @see froq\mvc\trait\ControllerTrait
+     * @see froq\mvc\trait\ModelTrait
+     */
     use ControllerTrait, ModelTrait;
 
     /**

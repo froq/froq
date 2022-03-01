@@ -7,9 +7,7 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\mvc\{ModelException, Controller};
 use froq\mvc\data\{Producer, Provider, Repository};
-use froq\mvc\trait\ControllerTrait;
 use froq\database\{Database, Query, sql\Sql, entity\Manager as EntityManager};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait, EntityManagerTrait};
 use froq\database\record\{Form, Record};
@@ -28,7 +26,7 @@ use froq\pager\Pager;
 class Model
 {
     /** @see froq\mvc\trait\ControllerTrait */
-    use ControllerTrait;
+    use trait\ControllerTrait;
 
     /**
      * @see froq\database\trait\DbTrait
