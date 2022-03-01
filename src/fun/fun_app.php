@@ -60,7 +60,7 @@ function app_env(): string
  * @param  int  $precision
  * @param  bool $format
  * @return float|string
- * @since  4.0 Replaced with app_load_time().
+ * @since  4.0
  */
 function app_runtime(int $precision = 3, bool $format = false): float|string
 {

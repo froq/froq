@@ -178,7 +178,7 @@ final class App
      * @param  int  $precision
      * @param  bool $format
      * @return float|string
-     * @since  4.0 Replaced with loadTime().
+     * @since  4.0
      */
     public function runtime(int $precision = 3, bool $format = false): float|string
     {
