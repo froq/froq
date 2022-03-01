@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace froq;
 
-use RuntimeException;
-
 // Prevent static return collision etc.
 function load($file) { require $file; }
 
@@ -39,14 +37,14 @@ final class Autoloader
      * Constructor.
      *
      * @param  string|null $directory
-     * @throws RuntimeException
+     * @throws Exception
      */
     private function __construct(string $directory = null)
     {
         $directory ??= realpath(__dir__ . '/../../../../vendor/froq');
 
         if (!$directory || !is_dir($directory)) {
-            throw new RuntimeException('Froq folder not found');
+            throw new \Exception('Froq folder not found');
         }
 
         $this->directory = $directory;
@@ -187,7 +185,7 @@ final class Autoloader
      */
     private function checkAppDir(): void
     {
-        defined('APP_DIR') || throw new RuntimeException(
+        defined('APP_DIR') || throw new \Exception(
             'APP_DIR is not defined, required for `app\...` namespaced files'
         );
     }
