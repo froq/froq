@@ -881,7 +881,7 @@ class Controller
     public final function call(string $action, array $actionParams = [], bool $suffix = false)
     {
         // For short calls (eg: call('foo') instead call('fooAction')).
-        if ($suffix && !in_array($action, [Controller::INDEX_ACTION, Controller::ERROR_ACTION])) {
+        if ($suffix && !in_array($action, [Controller::INDEX_ACTION, Controller::ERROR_ACTION], true)) {
             $action .= Controller::ACTION_SUFFIX;
         }
 

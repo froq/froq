@@ -201,7 +201,7 @@ final class Autoloader
         $dir = dirname($name);
         sscanf($dir, 'froq/%[^/]', $base);
 
-        if (in_array($base, $bases)) {
+        if (in_array($base, $bases, true)) {
             $pkg = 'froq';
         } else {
             $dirlen = strlen($dir);
