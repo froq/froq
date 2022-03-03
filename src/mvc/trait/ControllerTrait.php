@@ -12,7 +12,7 @@ use froq\mvc\Controller;
 /**
  * Controller Trait.
  *
- * Represents a trait entity that holds a read-only `$controller` property and its getter method.
+ * A trait, provides `$controller` property and its getter method.
  *
  * @package froq\mvc\trait
  * @object  froq\mvc\trait\ControllerTrait

@@ -10,8 +10,7 @@ namespace froq;
 /**
  * Handler.
  *
- * Represents an handler entity that registers / unregisters `error`, `exception` and `shutdown` handlers.
- * This is an internal class and all handlers are constantified internally.
+ * A static class, registers/unregisters `error`, `exception` and `shutdown` handlers.
  *
  * @package froq
  * @object  froq\Handler
@@ -19,9 +18,9 @@ namespace froq;
  * @since   4.0
  * @static
  */
-final class Handler
+final class Handler extends \StaticClass
 {
-    /** @internal */
+    /** @var mixed */
     private static mixed $displayErrors = null;
 
     /**

@@ -16,7 +16,7 @@ use froq\pager\Pager;
 /**
  * Model.
  *
- * Represents a model entity which is a part of MVC stack.
+ * A class, part of MVC stack and extended by other `app\model` classes.
  *
  * @package froq\mvc
  * @object  froq\mvc\Model

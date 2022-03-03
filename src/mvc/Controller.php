@@ -17,7 +17,7 @@ use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionExcepti
 /**
  * Controller.
  *
- * Represents a controller entity which is a part of MVC stack.
+ * A class, part of MVC stack and extended by other `app\controller` classes.
  *
  * @package froq\mvc
  * @object  froq\mvc\Controller

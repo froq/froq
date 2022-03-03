@@ -12,8 +12,8 @@ use froq\http\exception\client\NotFoundException;
 /**
  * Rest Trait.
  *
- * Represents a trait entity that can be used for RESTful controllers that responds only such
- * requests via GET, POST etc. methods and defines those named methods as controller methods.
+ * A trait, used by RESTful controllers that responds only such requests via GET, POST etc.
+ * methods and defines those named methods as controller methods.
  *
  * Note: User controller can/must implement `RestInterface` and call `rest()` method in `index()`
  * method.
@@ -29,9 +29,9 @@ use froq\http\exception\client\NotFoundException;
 trait RestTrait
 {
     /**
-     * Calls a rest methods like `get()`, `post()` etc. those defined in user controller.
+     * Calls a rest methods like `get()`, `post()` etc. defined in user controller.
      *
-     * Note: this method must be called in `index()` method.
+     * Note: This method must be called in `index()` method.
      *
      * @param  mixed ...$params
      * @return mixed
@@ -47,7 +47,7 @@ trait RestTrait
 
         throw new RestException(
             'No %s() method defined on %s class for %s calls',
-            [strtolower($method), $this::class, strtoupper($method)],
+            [strtolower($method), static::class, strtoupper($method)],
             code: NotFoundException::CODE, cause: new NotFoundException()
         );
     }

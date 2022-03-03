@@ -14,8 +14,9 @@ use froq\database\{Database, Repository as DatabaseRepository};
 /**
  * Repository.
  *
- * Represents a class entity that contains most required data read/write tools and is intended to use other
- * repository classes and producers/providers or other database related classes in a MVC environment.
+ * A class, contains most required data read/write tools and intended to use other
+ * repository classes and producers/providers or other database related classes in
+ * a MVC environment.
  *
  * @package froq\mvc\data
  * @object  froq\mvc\data\Repository
@@ -50,7 +51,7 @@ class Repository extends DatabaseRepository
                 $this->model = $model;
 
                 // Use model's stuff.
-                if ($db == null) {
+                if (!$db) {
                     $db = $model->db();
                     $em = $model->em();
                 }

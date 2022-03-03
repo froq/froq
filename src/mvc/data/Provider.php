@@ -10,9 +10,9 @@ namespace froq\mvc\data;
 /**
  * Provider.
  *
- * Represents a class entity which is extended by providers those are responsable (basically) data preparation only
- * (eg: mapping, casting) for the presentation layer getting records from the persistence layer (eg. database via
- * controller models).
+ * A class, extended by providers those are responsable (basically) data preparation only
+ * (eg: mapping, casting) for the presentation layer getting records from the persistence
+ * layer (eg. database via controller models).
  *
  * @package froq\mvc\data
  * @object  froq\mvc\data\Provider

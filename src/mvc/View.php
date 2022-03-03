@@ -10,7 +10,7 @@ namespace froq\mvc;
 /**
  * View.
  *
- * Represents a view entity which is a part of MVC stack.
+ * A class, part of MVC stack and used for templating purposes.
  *
  * @package froq\mvc
  * @object  froq\mvc\View

@@ -12,7 +12,7 @@ use froq\mvc\Model;
 /**
  * Model Trait.
  *
- * Represents a trait entity that holds a read-only `$model` property and its getter method.
+ * A trait, provides `$model` property and its getter method.
  *
  * @package froq\mvc\trait
  * @object  froq\mvc\trait\ModelTrait

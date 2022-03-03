@@ -10,7 +10,7 @@ namespace froq\mvc\rest;
 /**
  * Rest Interface.
  *
- * Represents a interface entity that can be implemented in RESTful controllers.
+ * A interface, implemented by RESTful controllers.
  *
  * Example for a parent index(): `if this instanceof RestInterface: return this.rest(...params)`.
  *
