@@ -278,7 +278,7 @@ class Controller
      * Set an action param by given name/value.
      *
      * @param  string $name
-     * @param  any    $value
+     * @param  mixed  $value
      * @return void
      * @since  5.0
      */
@@ -292,7 +292,7 @@ class Controller
      *
      * @param  string     $name
      * @param  mixed|null $default
-     * @return any|null
+     * @return mixed|null
      */
     public final function getActionParam(string $name, mixed $default = null): mixed
     {
@@ -314,7 +314,7 @@ class Controller
     /**
      * Set action params by given name/value order.
      *
-     * @param  array<string, any> $params
+     * @param  array<string, mixed> $params
      * @return void
      * @since  5.0
      */
@@ -331,7 +331,7 @@ class Controller
      * @param  array<string>|null $names
      * @param  array|null         $defaults
      * @param  bool               $combine
-     * @return array
+     * @return array<mixed>
      */
     public final function getActionParams(array $names = null, array $defaults = null, bool $combine = false): array
     {
@@ -599,11 +599,11 @@ class Controller
      * Get response object, set response status & body content, also content attributes when provided.
      *
      * @param  int|null   $code
-     * @param  any|null   $content
+     * @param  mixed|null $content
      * @param  array|null $attributes
      * @return froq\http\Response
      */
-    public final function response(int $code = null, $content = null, array $attributes = null): Response
+    public final function response(int $code = null, mixed $content = null, array $attributes = null): Response
     {
         if (func_num_args()) {
             isset($code) && $this->response->setStatus($code);
@@ -640,11 +640,11 @@ class Controller
      * Yield a payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
-     * @param  any        $content
+     * @param  mixed      $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\Payload
      */
-    public final function payload(int $code, $content, array $attributes = null): Payload
+    public final function payload(int $code, mixed $content, array $attributes = null): Payload
     {
         return new Payload($code, $content, $attributes);
     }
@@ -653,11 +653,11 @@ class Controller
      * Yield a JSON payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
-     * @param  any        $content
+     * @param  mixed      $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\JsonPayload
      */
-    public final function jsonPayload(int $code, $content, array $attributes = null): JsonPayload
+    public final function jsonPayload(int $code, mixed $content, array $attributes = null): JsonPayload
     {
         return new JsonPayload($code, $content, $attributes);
     }
@@ -666,11 +666,11 @@ class Controller
      * Yield a XML payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
-     * @param  any        $content
+     * @param  mixed      $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\XmlPayload
      */
-    public final function xmlPayload(int $code, $content, array $attributes = null): XmlPayload
+    public final function xmlPayload(int $code, mixed $content, array $attributes = null): XmlPayload
     {
         return new XmlPayload($code, $content, $attributes);
     }
@@ -679,11 +679,11 @@ class Controller
      * Yield a HTML payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
-     * @param  any        $content
+     * @param  mixed      $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\HtmlPayload
      */
-    public final function htmlPayload(int $code, $content, array $attributes = null): HtmlPayload
+    public final function htmlPayload(int $code, mixed $content, array $attributes = null): HtmlPayload
     {
         return new HtmlPayload($code, $content, $attributes);
     }
@@ -692,11 +692,11 @@ class Controller
      * Yield a file payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
-     * @param  any        $content
+     * @param  mixed      $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\FilePayload
      */
-    public final function filePayload(int $code, $content, array $attributes = null): FilePayload
+    public final function filePayload(int $code, mixed $content, array $attributes = null): FilePayload
     {
         return new FilePayload($code, $content, $attributes);
     }
@@ -705,11 +705,11 @@ class Controller
      * Yield an image payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
-     * @param  any        $content
+     * @param  mixed      $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\ImagePayload
      */
-    public final function imagePayload(int $code, $content, array $attributes = null): ImagePayload
+    public final function imagePayload(int $code, mixed $content, array $attributes = null): ImagePayload
     {
         return new ImagePayload($code, $content, $attributes);
     }
@@ -718,11 +718,11 @@ class Controller
      * Yield a plain payload with given status & content, also content attributes if provided.
      *
      * @param  int        $code
-     * @param  any        $content
+     * @param  mixed      $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\PlainPayload
      */
-    public final function plainPayload(int $code, $content, array $attributes = null): PlainPayload
+    public final function plainPayload(int $code, mixed $content, array $attributes = null): PlainPayload
     {
         return new PlainPayload($code, $content, $attributes);
     }
@@ -875,10 +875,10 @@ class Controller
      * @param  string $action
      * @param  array  $actionParams
      * @param  bool   $suffix
-     * @return any
+     * @return mixed
      * @throws froq\mvc\ControllerException
      */
-    public final function call(string $action, array $actionParams = [], bool $suffix = false)
+    public final function call(string $action, array $actionParams = [], bool $suffix = false): mixed
     {
         // For short calls (eg: call('foo') instead call('fooAction')).
         if ($suffix && !in_array($action, [Controller::INDEX_ACTION, Controller::ERROR_ACTION], true)) {
@@ -924,10 +924,10 @@ class Controller
      *
      * @param  callable $action
      * @param  array    $actionParams
-     * @return any
+     * @return mixed
      * @throws froq\mvc\ControllerException
      */
-    public final function callCallable(callable $action, array $actionParams = [])
+    public final function callCallable(callable $action, array $actionParams = []): mixed
     {
         $this->action       = Controller::NAME_CLOSURE;
         $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.

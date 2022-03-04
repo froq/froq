@@ -71,11 +71,11 @@ function app_runtime(int $precision = 3, bool $format = false): float|string
  * Get app config or default.
  *
  * @param  string|array $key
- * @param  any|null     $default
- * @return any|null|froq\common\object\Config
+ * @param  mixed|null   $default
+ * @return mixed|null or Config
  * @since  4.0
  */
-function app_config(string|array $key, $default = null)
+function app_config(string|array $key, mixed $default = null): mixed
 {
     return app()->config($key, $default);
 }
@@ -84,11 +84,11 @@ function app_config(string|array $key, $default = null)
  * Get/set an app failure.
  *
  * @param  string   $name
- * @param  any|null $value
- * @return any|null
+ * @param  mixed|null $value
+ * @return mixed|null
  * @since  4.0
  */
-function app_fail(string $name, $value = null)
+function app_fail(string $name, mixed $value = null): mixed
 {
     return (func_num_args() == 1)
          ? get_global('app.fail.'. $name)

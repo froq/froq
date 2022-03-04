@@ -456,7 +456,7 @@ final class App
      * config), resolve route and check validity, call "before/after" events, start output buffer and end it
      * passing that called action return to ended buffer.
      *
-     * @param  array<string, any> $options
+     * @param  array $options
      * @return void
      * @throws froq\AppException
      */

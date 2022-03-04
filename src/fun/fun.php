@@ -12,18 +12,16 @@ declare(strict_types=1);
 /**
  * Init Froq! global.
  */
-if (!isset($GLOBALS['@froq'])) {
-    $GLOBALS['@froq'] = [];
-}
+isset($GLOBALS['@froq']) || $GLOBALS['@froq'] = [];
 
 /**
  * Set a global variable.
  *
  * @param  string $key
- * @param  any    $value
+ * @param  mixed  $value
  * @return void
  */
-function set_global(string $key, $value)
+function set_global(string $key, mixed $value): mixed
 {
     $GLOBALS['@froq'][$key] = $value;
 }
@@ -31,18 +29,18 @@ function set_global(string $key, $value)
 /**
  * Get a global variable/variables.
  *
- * @param  string   $key
- * @param  any|null $default
- * @return any|null
+ * @param  string     $key
+ * @param  mixed|null $default
+ * @return mixed|null
  */
-function get_global(string $key, $default = null)
+function get_global(string $key, mixed $default = null): mixed
 {
     // All.
-    if ($key === '*') {
+    if ($key == '*') {
         $value = $GLOBALS['@froq'];
     }
     // All subs (eg: "foo*" or "foo.*").
-    elseif ($key && $key[-1] === '*') {
+    elseif ($key && $key[-1] == '*') {
         $values = [];
         $search = substr($key, 0, -1);
         foreach ($GLOBALS['@froq'] as $key => $value) {
