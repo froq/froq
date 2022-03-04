@@ -21,7 +21,7 @@ isset($GLOBALS['@froq']) || $GLOBALS['@froq'] = [];
  * @param  mixed  $value
  * @return void
  */
-function set_global(string $key, mixed $value): mixed
+function set_global(string $key, mixed $value): void
 {
     $GLOBALS['@froq'][$key] = $value;
 }
@@ -65,7 +65,7 @@ function get_global(string $key, mixed $default = null): mixed
  * @return void
  * @since  3.0
  */
-function delete_global(string $key)
+function delete_global(string $key): void
 {
     unset($GLOBALS['@froq'][$key]);
 }
