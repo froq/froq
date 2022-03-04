@@ -9,7 +9,7 @@ namespace froq;
 
 use froq\{logger\Logger, event\Events, session\Session, database\Database};
 use froq\common\{Error, Exception,
-    trait\InstanceTrait, object\Config, object\Factory, object\Registry};
+    trait\InstanceTrait, object\Config, object\Registry};
 use froq\http\{Request, Response, response\Status,
     exception\ClientException, exception\ServerException,
     exception\client\NotFoundException, exception\client\NotAllowedException,
@@ -520,13 +520,13 @@ final class App
             Assert::type($session, 'array|bool', new AppException(
                 'Config option `session` must be array|bool, %t given', $session
             ));
-            $this->session = Factory::initOnce(Session::class, (array) $session);
+            $this->session = Session::initOnce((array) $session);
         }
         if ($database) {
             Assert::type($database, 'array', new AppException(
                 'Config option `database` must be array, %t given', $database
             ));
-            $this->database = Factory::initOnce(Database::class, $database);
+            $this->database = Database::initOnce($database);
         }
         // Note: Cache is a static instance as default.
         if ($cache) {
