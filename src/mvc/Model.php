@@ -71,7 +71,7 @@ class Model
     }
 
     /**
-     * @alias of initQuery()
+     * @alias initQuery()
      * @since 5.0
      */
     public final function sql(...$args)
@@ -80,7 +80,7 @@ class Model
     }
 
     /**
-     * @alias of initQuery()
+     * @alias initQuery()
      * @since 5.0
      */
     public final function query(...$args)
