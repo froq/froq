@@ -408,7 +408,7 @@ final class Router
             $name = implode('', array_map('ucfirst', explode('-', $name)));
         }
 
-        if ($suffix != null) {
+        if ($suffix) {
             $name = ($suffix == Controller::SUFFIX || $suffix == Model::SUFFIX)
                   ? ucfirst($name) : lcfirst($name);
 
