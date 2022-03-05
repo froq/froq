@@ -25,10 +25,6 @@ use froq\database\{Database, Repository as DatabaseRepository};
  */
 class Repository extends DatabaseRepository
 {
-    /**
-     * @see froq\mvc\trait\ControllerTrait
-     * @see froq\mvc\trait\ModelTrait
-     */
     use ControllerTrait, ModelTrait;
 
     /**

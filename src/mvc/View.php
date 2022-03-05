@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
+use froq\mvc\trait\ControllerTrait;
+
 /**
  * View.
  *
@@ -19,8 +21,7 @@ namespace froq\mvc;
  */
 final class View
 {
-    /** @see froq\mvc\trait\ControllerTrait */
-    use trait\ControllerTrait;
+    use ControllerTrait;
 
     /** @var string */
     private string $layout;

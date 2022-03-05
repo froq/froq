@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
+use froq\mvc\trait\ControllerTrait;
 use froq\mvc\data\{Producer, Provider, Repository};
 use froq\database\{Database, Query, sql\Sql, entity\Manager as EntityManager};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait, EntityManagerTrait};
@@ -25,17 +26,7 @@ use froq\pager\Pager;
  */
 class Model
 {
-    /** @see froq\mvc\trait\ControllerTrait */
-    use trait\ControllerTrait;
-
-    /**
-     * @see froq\database\trait\DbTrait
-     * @see froq\database\trait\TableTrait
-     * @see froq\database\trait\ValidationTrait
-     * @see froq\database\trait\EntityManagerTrait
-     * @since 5.0
-     */
-    use DbTrait, TableTrait, ValidationTrait, EntityManagerTrait;
+    use ControllerTrait, DbTrait, TableTrait, ValidationTrait, EntityManagerTrait;
 
     /** @const string */
     public const NAMESPACE = 'app\model';

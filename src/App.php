@@ -37,7 +37,6 @@ use Assert, Throwable;
  */
 final class App
 {
-    /** @see froq\common\trait\InstanceTrait */
     use InstanceTrait;
 
     /**
