@@ -8,12 +8,9 @@ declare(strict_types=1);
 namespace froq;
 
 use froq\{logger\Logger, event\Events, session\Session, database\Database};
-use froq\common\{Error, Exception,
-    trait\InstanceTrait, object\Config, object\Registry};
-use froq\http\{Request, Response, response\Status,
-    exception\ClientException, exception\ServerException,
-    exception\client\NotFoundException, exception\client\NotAllowedException,
-    exception\server\InternalServerErrorException};
+use froq\common\{Error, Exception, trait\InstanceTrait, object\Config, object\Registry};
+use froq\http\{Request, Response, response\Status, exception\ClientException, exception\ServerException,
+    exception\client\NotFoundException, exception\client\NotAllowedException, exception\server\InternalServerErrorException};
 use froq\cache\{Cache, CacheFactory};
 use froq\util\misc\System;
 use Assert, Throwable;
