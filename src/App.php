@@ -529,7 +529,7 @@ final class App
             Assert::type($cache, 'array', new AppException(
                 'Config option `cache` must be array, %t given', $cache
             ));
-            $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
+            $this->cache = CacheFactory::init($cache['id'], $cache['options']);
         }
 
         // @override
