@@ -37,7 +37,7 @@ final class App
     use InstanceTrait;
 
     /**
-     * Root (provides options like "app.local/v1/book/1" for versioning etc.).
+     * For versioning (eg: "app.host/v1/book/1").
      * @var string
      */
     private string $root = '/';
