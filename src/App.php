@@ -274,7 +274,7 @@ final class App
     public function cache(string|int|array $key = null, mixed $value = null, int $ttl = null): mixed
     {
         isset($this->cache) || throw new AppException(
-            'No cache object initiated yet, be sure `cache` option is not empty'
+            'No cache object initiated yet, be sure `cache` option is not empty in config'
         );
 
         return match (func_num_args()) {
@@ -295,7 +295,7 @@ final class App
     public function uncache(string|int|array $key): bool
     {
         isset($this->cache) || throw new AppException(
-            'No cache object initiated yet, be sure `cache` option is not empty'
+            'No cache object initiated yet, be sure `cache` option is not empty in config'
         );
 
         return $this->cache->remove($key);
