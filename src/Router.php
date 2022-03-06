@@ -77,7 +77,7 @@ final class Router
      */
     public function setOptions(array $options): self
     {
-        self::$options = array_options($options, self::$optionsDefault, false);
+        self::$options = array_options($options, self::$optionsDefault);
 
         return $this;
     }
