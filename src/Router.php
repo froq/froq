@@ -489,10 +489,6 @@ final class Router
 
     /**
      * Prepare calls for a route.
-     *
-     * @param  array $routes
-     * @param  int   $i
-     * @return array
      */
     private static function prepareCalls(array $routes, int $i): array
     {
@@ -501,13 +497,10 @@ final class Router
 
     /**
      * Prepare methods for a route.
-     *
-     * @param  string $methods
-     * @return array<string>
      */
     private static function prepareMethods(string $methods): array
     {
-        // Non-array calls without a method that accept all (eg: ["/book/:id", "Book.show"]).
+        // Non-array calls without method that accept all (eg: ["/book/:id", "Book.show"]).
         $methods = (string) ($methods ?: '*');
 
         // Multiple methods can be given (eg: ["/book/:id", ["GET,POST" => "Book.index"]]).
