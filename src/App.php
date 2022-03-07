@@ -799,7 +799,12 @@ final class App
         $this->config->extract(['logger', 'routes', 'services'],
             $logger, $routes, $services);
 
-        $logger   && $this->logger->setOptions($logger);
+        if ($logger) {
+            foreach ($logger as $option => $value) {
+                $this->logger->setOption($option, $value);
+            }
+        }
+
         $routes   && $this->router->addRoutes($routes);
         $services && $this->servicer->addServices($services);
     }
