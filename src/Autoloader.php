@@ -162,7 +162,7 @@ final class Autoloader
         }
 
         // Try to load via "autoload" directive.
-        if ($autoload) {
+        if ($autoload && is_array($autoload)) {
             $nameOrig = strtr($name, '/', '\\');
             foreach ($autoload as $ns => $dir) {
                 if (!str_contains($nameOrig, $ns)) {
