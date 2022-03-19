@@ -62,6 +62,23 @@ final class Autoloader
     }
 
     /**
+     * Check given names to ensure calling load.
+     *
+     * Note: This method for only development purposes.
+     *
+     * @param  string ...$names
+     * @return void
+     * @since  6.0
+     */
+    public static function check(string ...$names): void
+    {
+        foreach ($names as $name) {
+            class_exists($name) || interface_exists($name) ||
+            trait_exists($name) || enum_exists($name);
+        }
+    }
+
+    /**
      * Register.
      *
      * @return bool
