@@ -51,11 +51,11 @@ final class App
     /** @var froq\common\object\Config */
     private Config $config;
 
-    /** @var froq\logger\Logger */
-    private Logger $logger;
-
     /** @var froq\events\Events */
     private Events $events;
+
+    /** @var froq\logger\Logger */
+    private Logger $logger;
 
     /** @var froq\http\Request */
     private Request $request;
@@ -200,16 +200,6 @@ final class App
     }
 
     /**
-     * Get logger.
-     *
-     * @return froq\logger\Logger
-     */
-    public function logger(): Logger
-    {
-        return $this->logger;
-    }
-
-    /**
      * Get events.
      *
      * @return froq\events\Events
@@ -217,6 +207,16 @@ final class App
     public function events(): Events
     {
         return $this->events;
+    }
+
+    /**
+     * Get logger.
+     *
+     * @return froq\logger\Logger
+     */
+    public function logger(): Logger
+    {
+        return $this->logger;
     }
 
     /**
