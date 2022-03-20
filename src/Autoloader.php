@@ -13,8 +13,8 @@ function load($file) { require $file; }
 /**
  * Autoloader.
  *
- * @package froq\app
- * @object  froq\app\Autoloader
+ * @package froq
+ * @object  froq\Autoloader
  * @author  Kerem Güneş
  * @since   1.0, 4.0
  */
