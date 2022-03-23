@@ -570,6 +570,7 @@ final class App
         }
 
         $class = new \XClass($controller);
+
         if (!$class->exists()) {
             throw new AppException(
                 'No controller class found such `%s`', $controller,
