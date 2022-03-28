@@ -113,7 +113,7 @@ class Model
      *
      * @param  string                   $class
      * @param  froq\mvc\Controller|null $controller
-     * @return froq\mvc\Model (static)
+     * @return froq\mvc\Model
      */
     public final function initModel(string $class, Controller $controller = null): Model
     {
@@ -154,87 +154,5 @@ class Model
     public final function initQuery(string $table = null): Query
     {
         return $this->db->initQuery($table ?? $this->table ?? null);
-    }
-
-    /**
-     * Other initializers.
-     *
-     * @param  string|null $class
-     * @param  array|null  $classArgs
-     * @return object
-     * @causes froq\mvc\ModelException
-     * @since  5.0
-     */
-    public final function initForm(string $class = null, array $classArgs = null): Form
-    {
-        return $this->initFor(__function__, $class, $classArgs);
-    }
-    public final function initRecord(string $class = null, array $classArgs = null): Record
-    {
-        return $this->initFor(__function__, $class, $classArgs);
-    }
-    public final function initProducer(string $class = null, array $classArgs = null): Producer
-    {
-        return $this->initFor(__function__, $class, $classArgs);
-    }
-    public final function initProvider(string $class = null, array $classArgs = null): Provider
-    {
-        return $this->initFor(__function__, $class, $classArgs);
-    }
-    public final function initRepository(string $class = null, array $classArgs = null): Repository
-    {
-        return $this->initFor(__function__, $class, $classArgs);
-    }
-
-    // /**
-    //  * Other aliased initializers.
-    //  * @since 5.0
-    //  */
-    // public final function getForm(...$args) { return $this->initForm(...$args); }
-    // public final function getRecord(...$args) { return $this->initRecord(...$args); }
-    // public final function getProducer(...$args) { return $this->initProducer(...$args); }
-    // public final function getProvider(...$args) { return $this->initProvider(...$args); }
-    // public final function getRepository(...$args) { return $this->initRepository(...$args); }
-
-    /**
-     * Internal initializer.
-     *
-     * @param  string $func
-     * @param  null   $class
-     * @param  null   $classArgs
-     * @return object
-     * @throws froq\mvc\ModelException
-     * @since  5.0
-     */
-    private function initFor(string $func, string|null $class, array|null $classArgs): object
-    {
-        $suffix = substr($func, 4);
-        $subdir = strtolower($suffix);
-
-        // When a sub-model's record, repository etc. wanted.
-        if ($class == null) {
-            $parts = explode('\\', static::class);
-
-            $class = array_pop($parts);
-            $class = implode('\\', [...$parts, $subdir, ''])
-                   . substr($class, 0, -strlen(Model::SUFFIX))
-                   . $suffix;
-        } else {
-            // Dots can be used instead back-slashes.
-            $class = trim(str_replace('.', '\\', $class), '\\');
-
-            // When only name given (with/without eg. "Record" suffix).
-            if (!strpos($class, '\\')) {
-                $class = implode('\\', [Model::NAMESPACE, $subdir, ''])
-                       . ucfirst($class)
-                       . $suffix;
-            }
-        }
-
-        if (class_exists($class)) {
-            return new $class(...(array) $classArgs);
-        }
-
-        throw new ModelException('%s class `%s` not exists', [$suffix, $class]);
     }
 }
