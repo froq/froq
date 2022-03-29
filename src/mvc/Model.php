@@ -8,9 +8,8 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\trait\ControllerTrait;
-use froq\database\{Database, Query, sql\Sql, entity\Manager as EntityManager};
+use froq\database\{Database, entity\Manager as EntityManager};
 use froq\database\trait\{DbTrait, EmTrait, TableTrait, ValidationTrait};
-use froq\pager\Pager;
 
 /**
  * Model.
@@ -86,53 +85,5 @@ class Model
         }
 
         return $this->runValidation($data, $rules, $options, $errors);
-    }
-
-    /**
-     * Initialize a model object by given model/model class name.
-     *
-     * @param  string                   $class
-     * @param  froq\mvc\Controller|null $controller
-     * @return froq\mvc\Model
-     */
-    public final function initModel(string $class, Controller $controller = null): Model
-    {
-        return $this->controller->initModel($class, $controller, $this->db);
-    }
-
-    /**
-     * Initialize a new pager object running it with `$count` and `$limit` arguments if provided.
-     *
-     * @param  int|null   $count
-     * @param  array|null $attributes
-     * @return froq\pager\Pager
-     */
-    public final function initPager(int $count = null, array $attributes = null): Pager
-    {
-        return $this->db->initPager($count, $attributes);
-    }
-
-    /**
-     * Init a `Sql` object with/without given params argument.
-     *
-     * @param  string     $input
-     * @param  array|null $params
-     * @return froq\database\sql\Sql
-     */
-    public final function initSql(string $input, array $params = null): Sql
-    {
-        return $this->db->initSql($input, $params);
-    }
-
-    /**
-     * Init a `Query` object using self `$db` property, setting its "table" query with `$table` argument
-     * when provided or using self `$table` property.
-     *
-     * @param  string|null $table
-     * @return froq\database\Query
-     */
-    public final function initQuery(string $table = null): Query
-    {
-        return $this->db->initQuery($table ?? $this->table ?? null);
     }
 }
