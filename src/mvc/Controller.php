@@ -1024,7 +1024,7 @@ class Controller
             'Model class `%s` must extend class `%s`', [$class, Model::class]
         );
 
-        return $class->init($controller ?? $this, $database ?? $this->database());
+        return $class->init($controller ?? $this, $database ?? $this->app->database());
     }
 
     /**
