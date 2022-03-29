@@ -8,10 +8,8 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\trait\ControllerTrait;
-use froq\mvc\data\{Producer, Provider, Repository};
 use froq\database\{Database, Query, sql\Sql, entity\Manager as EntityManager};
 use froq\database\trait\{DbTrait, TableTrait, ValidationTrait, EntityManagerTrait};
-use froq\database\record\{Form, Record};
 use froq\pager\Pager;
 
 /**
@@ -62,24 +60,6 @@ class Model
     }
 
     /**
-     * @alias initQuery()
-     * @since 5.0
-     */
-    public final function sql(...$args)
-    {
-        return $this->initSql(...$args);
-    }
-
-    /**
-     * @alias initQuery()
-     * @since 5.0
-     */
-    public final function query(...$args)
-    {
-        return $this->initQuery(...$args);
-    }
-
-    /**
      * Validate given data by key given rules or self rules, modifying given `$data` and filling `$errors`
      * if validation fails.
      *
@@ -101,8 +81,8 @@ class Model
             throw new ModelException('Empty data given for validation');
         }
         if (empty($rules)) {
-            throw new ModelException('No validation rules set yet, call setValidationRules() or pass $rules'
-                . ' argument or define $validationRules property on %s class', static::class);
+            throw new ModelException('No validation rules set yet, call setValidationRules() or pass $rules '.
+                'argument or define $validationRules property on %s class', static::class);
         }
 
         return $this->runValidation($data, $rules, $options, $errors);
