@@ -63,14 +63,14 @@ class Model
      * if validation fails.
      *
      * @param  array       &$data
-     * @param  array|null   $rules
      * @param  array|null  &$errors
+     * @param  array|null   $rules
      * @param  array|null   $options
      * @throws froq\mvc\ModelException
      * @return bool
      * @since  4.8
      */
-    public final function validate(array &$data, array $rules = null, array &$errors = null, array $options = null): bool
+    public final function validate(array &$data, array &$errors = null, array $rules = null, array $options = null): bool
     {
         // Validation rules & options can be also defined in child models.
         $rules   ??= $this->getValidationRules();
