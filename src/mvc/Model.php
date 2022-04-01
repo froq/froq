@@ -57,33 +57,4 @@ class Model
         // Store this model (as last model).
         $controller->app()::registry()::set('@model', $this, false);
     }
-
-    /**
-     * Validate given data by key given rules or self rules, modifying given `$data` and filling `$errors`
-     * if validation fails.
-     *
-     * @param  array       &$data
-     * @param  array|null  &$errors
-     * @param  array|null   $rules
-     * @param  array|null   $options
-     * @throws froq\mvc\ModelException
-     * @return bool
-     * @since  4.8
-     */
-    public final function validate(array &$data, array &$errors = null, array $rules = null, array $options = null): bool
-    {
-        // Validation rules & options can be also defined in child models.
-        $rules   ??= $this->getValidationRules();
-        $options ??= $this->getValidationOptions();
-
-        if (empty($data)) {
-            throw new ModelException('Empty data given for validation');
-        }
-        if (empty($rules)) {
-            throw new ModelException('No validation rules set yet, call setValidationRules() or pass $rules '.
-                'argument or define $validationRules property on %s class', static::class);
-        }
-
-        return $this->runValidation($data, $rules, $options, $errors);
-    }
 }
