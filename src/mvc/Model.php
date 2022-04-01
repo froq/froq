@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace froq\mvc;
 
 use froq\mvc\trait\ControllerTrait;
-use froq\database\{Database, entity\Manager as EntityManager};
 use froq\database\trait\{DbTrait, EmTrait, TableTrait, ValidationTrait};
+use froq\database\{Database, DatabaseException, common\Helper, entity\Manager as EntityManager};
 
 /**
  * Model.
@@ -40,14 +40,16 @@ class Model
      */
     public final function __construct(Controller $controller, Database $db = null)
     {
-        // Use given or app's database.
-        $db ??= $controller->app()->database() ?: throw new ModelException(
-            'No db exists to deal, check `database` option in app config or pass $db argument'
-        );
-
         $this->controller = $controller;
-        $this->db         = $db;
-        $this->em         = new EntityManager($db);
+
+        if (!$db) try {
+            $db = Helper::getActiveDatabase();
+        } catch (DatabaseException $e) {
+            throw new ModelException($e->message);
+        }
+
+        $this->db = $db;
+        $this->em = new EntityManager($db);
 
         // When defined on child class.
         if (method_exists($this, 'init')) {

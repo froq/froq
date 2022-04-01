@@ -9,7 +9,7 @@ namespace froq\mvc\data;
 
 use froq\mvc\Controller;
 use froq\mvc\trait\{ControllerTrait, ModelTrait};
-use froq\database\{Database, Repository as DatabaseRepository};
+use froq\database\{Database, DatabaseException, common\Helper, Repository as BaseRepository};
 
 /**
  * Repository.
@@ -23,7 +23,7 @@ use froq\database\{Database, Repository as DatabaseRepository};
  * @author  Kerem Güneş
  * @since   5.0
  */
-class Repository extends DatabaseRepository
+class Repository extends BaseRepository
 {
     use ControllerTrait, ModelTrait;
 
@@ -54,10 +54,11 @@ class Repository extends DatabaseRepository
             }
         }
 
-        // Try to use active app database object.
-        $db ??= registry()::get('@app')->database() ?: throw new DataException(
-            'No db exists to deal, check `database` option in app config or pass $db argument'
-        );
+        if (!$db) try {
+            $db = Helper::getActiveDatabase();
+        } catch (DatabaseException $e) {
+            throw new DataException($e->message);
+        }
 
         parent::__construct($db, $em ?? null);
     }
