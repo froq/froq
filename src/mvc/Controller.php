@@ -338,7 +338,7 @@ class Controller
         $params = $this->actionParams ?? [];
 
         if ($names !== null) {
-            $params = array_select($params, $names, $defaults, combine: true);
+            return array_select($params, $names, $defaults, combine: $combine);
         }
 
         // Leave combined with keys or values only.
