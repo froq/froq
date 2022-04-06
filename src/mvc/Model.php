@@ -10,6 +10,7 @@ namespace froq\mvc;
 use froq\mvc\trait\ControllerTrait;
 use froq\database\trait\{DbTrait, EmTrait, TableTrait, ValidationTrait};
 use froq\database\{Database, DatabaseException, common\Helper, entity\Manager as EntityManager};
+use froq\database\{Query, query\QueryParam, query\QueryParams};
 
 /**
  * Model.
@@ -58,5 +59,38 @@ class Model
 
         // Store this model (as last model).
         $controller->app()::registry()::set('@model', $this, false);
+    }
+
+    /**
+     * Init a Query instance.
+     *
+     * @param  string|null $table
+     * @return froq\database\Query
+     */
+    public final function initQuery(string $table = null): Query
+    {
+        return new Query($this->db, $table ?? $this->getTable()?->getName());
+    }
+
+    /**
+     * Init a QueryParam instance.
+     *
+     * @return froq\database\query\QueryParam
+     * @since  6.0
+     */
+    public final function initQueryParam(): QueryParam
+    {
+        return new QueryParam();
+    }
+
+    /**
+     * Init a QueryParams instance.
+     *
+     * @return froq\database\query\QueryParams
+     * @since  6.0
+     */
+    public final function initQueryParams(): QueryParams
+    {
+        return new QueryParams();
     }
 }
