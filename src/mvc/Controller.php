@@ -27,24 +27,24 @@ use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionExcepti
 class Controller
 {
     /** @const string */
-    public const NAMESPACE      = 'app\controller';
+    public final const NAMESPACE      = 'app\controller';
 
     /** @const string */
-    public const DEFAULT        = 'app\controller\IndexController',
-                 DEFAULT_SHORT  = 'IndexController',
-                 ACTION_DEFAULT = 'index';
+    public final const DEFAULT        = 'app\controller\IndexController',
+                       DEFAULT_SHORT  = 'IndexController',
+                       ACTION_DEFAULT = 'index';
 
     /** @const string */
-    public const SUFFIX         = 'Controller',
-                 ACTION_SUFFIX  = 'Action';
+    public final const SUFFIX         = 'Controller',
+                       ACTION_SUFFIX  = 'Action';
 
     /** @const string */
-    public const INDEX_ACTION   = 'index',
-                 ERROR_ACTION   = 'error';
+    public final const INDEX_ACTION   = 'index',
+                       ERROR_ACTION   = 'error';
 
     /** @const string */
-    public const NAME_DEFAULT   = '@default',
-                 NAME_CLOSURE   = '@closure';
+    public final const NAME_DEFAULT   = '@default',
+                       NAME_CLOSURE   = '@closure';
 
     /** @var froq\App */
     protected App $app;

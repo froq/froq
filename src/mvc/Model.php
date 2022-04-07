@@ -27,10 +27,10 @@ class Model
     use ControllerTrait, DbTrait, EmTrait, TableTrait, ValidationTrait;
 
     /** @const string */
-    public const NAMESPACE = 'app\model';
+    public final const NAMESPACE = 'app\model';
 
     /** @const string */
-    public const SUFFIX    = 'Model';
+    public final const SUFFIX    = 'Model';
 
     /**
      * Constructor.
