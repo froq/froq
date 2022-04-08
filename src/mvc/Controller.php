@@ -509,10 +509,10 @@ class Controller
      *
      * @param  string $call
      * @param  array  $callArgs
-     * @return void
+     * @return mixed
      * @throws froq\mvc\ControllerException
      */
-    public final function forward(string $call, array $callArgs = [])
+    public final function forward(string $call, array $callArgs = []): mixed
     {
         [$controller, $action, $actionParams] = Router::prepare($call, $callArgs);
 
@@ -531,7 +531,7 @@ class Controller
                 'No controller found such `%s`', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!$class->existsMethod($action)) {
+        } elseif (!$class->methodExists($action)) {
             throw new ControllerException(
                 'No controller action found such `%s::%s()`', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
