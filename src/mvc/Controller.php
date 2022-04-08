@@ -1039,9 +1039,9 @@ class Controller
                     $code < 500 ? 'client' : 'server', // Class type.
                     preg_replace('~[\W]~', '', $name), // Class name.
                 );
-                if (class_exists($class)) {
-                    return new $class($message, $messageParams);
-                }
+
+                // Note: These classes don't use code, so they have already.
+                if (class_exists($class)) return new $class($message, $messageParams);
             }
         }
 
