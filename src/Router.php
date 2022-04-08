@@ -72,14 +72,12 @@ final class Router
      * Set options.
      *
      * @param  array $options
-     * @return self
+     * @return void
      * @since  4.14
      */
-    public function setOptions(array $options): self
+    public function setOptions(array $options): void
     {
         self::$options = array_options($options, self::$optionsDefault);
-
-        return $this;
     }
 
     /**
