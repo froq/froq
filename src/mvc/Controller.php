@@ -566,7 +566,7 @@ class Controller
      * @return mixed|null (Session)
      * @since  6.0
      */
-    public function flash(mixed $message = null): mixed
+    public final function flash(mixed $message = null): mixed
     {
         return func_num_args() ? $session->flash($message) : $session->flash();
     }
@@ -881,7 +881,7 @@ class Controller
     public final function call(string $action, array $actionParams = [], bool $suffix = false): mixed
     {
         // For short calls (eg: call('foo') instead call('fooAction')).
-        if ($suffix && !in_array($action, [Controller::INDEX_ACTION, Controller::ERROR_ACTION], true)) {
+        if ($suffix && ($action != Controller::INDEX_ACTION && $action != Controller::ERROR_ACTION)) {
             $action .= Controller::ACTION_SUFFIX;
         }
 
@@ -897,23 +897,17 @@ class Controller
             );
         }
 
-        try {
-            $this->before && $this->before();
+        // Call before action if exists.
+        $this->before && $this->before();
 
-            $params     = $this->prepareActionParams($ref, $actionParams);
-            $paramsRest = array_values($actionParams);
+        $params     = $this->prepareActionParams($ref, $actionParams);
+        $paramsRest = array_values($actionParams);
 
-            // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
-            $return = $this->{$action}(...[...$params, ...$paramsRest]);
+        // Call action, merging with originals as rest (eg: fooAction($id, ...$rest)).
+        $return = $this->$action(...[...$params, ...$paramsRest]);
 
-            $this->after && $this->after();
-        } catch (\Throwable $e) {
-            // Log always, dev may skip errorLog().
-            $this->app->errorLog($e);
-
-            $return = method_exists($this, 'error')
-                    ? $this->error($e) : $this->app->error($e);
-        }
+        // Call after action if exists.
+        $this->after && $this->after();
 
         return $return;
     }
@@ -944,23 +938,17 @@ class Controller
             );
         }
 
-        try {
-            $this->before && $this->before();
+        // Call before action if exists.
+        $this->before && $this->before();
 
-            $params     = $this->prepareActionParams($ref, $actionParams);
-            $paramsRest = array_values($actionParams);
+        $params     = $this->prepareActionParams($ref, $actionParams);
+        $paramsRest = array_values($actionParams);
 
-            // Call action, merging with originals as rest params (eg: fooAction($id, ...$rest)).
-            $return = $action(...[...$params, ...$paramsRest]);
+        // Call action, merging with originals as rest (eg: fooAction($id, ...$rest)).
+        $return = $action(...[...$params, ...$paramsRest]);
 
-            $this->after && $this->after();
-        } catch (\Throwable $e) {
-            // Log always, dev may skip errorLog().
-            $this->app->errorLog($e);
-
-            $return = method_exists($this, 'error')
-                    ? $this->error($e) : $this->app->error($e);
-        }
+        // Call after action if exists.
+        $this->after && $this->after();
 
         return $return;
     }

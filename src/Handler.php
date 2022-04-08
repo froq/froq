@@ -71,7 +71,7 @@ final class Handler extends \StaticClass
                         $efile, $eline, $ecode, $emesg);
             }
 
-            // Store, this can be used later to check error stuff.
+            // Store, used in shutdown handler.
             app_fail('error', new AppError($error, code: $ecode));
 
             // @cancel: Because error_get_last() should always work.
@@ -92,10 +92,10 @@ final class Handler extends \StaticClass
             // Store error display option (setting temporarily as no local = no display)
             self::$displayErrors = ini_set('display_errors', __local__);
 
-            // Store, this may be used later to check error stuff.
+            // Store, used in shutdown handler.
             app_fail('exception', $e);
 
-            // This will be caught in shutdown handler.
+            // This caught in shutdown handler.
             throw $e;
         });
     }
@@ -135,7 +135,7 @@ final class Handler extends \StaticClass
                     $error['file'], $error['line'], $error['message']);
 
                 // Call app error process (log etc.).
-                app()->error($e = new AppError($error, code: $errorCode));
+                app()->log($e = new AppError($error, code: $errorCode));
 
                 // Store, this may be used later to check error stuff.
                 app_fail('shutdown', $e);

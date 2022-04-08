@@ -8,9 +8,9 @@ declare(strict_types=1);
 namespace froq;
 
 use froq\{logger\Logger, event\Events, session\Session, database\Database};
-use froq\common\{Error, Exception, trait\InstanceTrait, object\Config, object\Registry};
-use froq\http\{Request, Response, response\Status, exception\ClientException, exception\ServerException,
-    exception\client\NotFoundException, exception\client\NotAllowedException, exception\server\InternalServerErrorException};
+use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
+use froq\http\{Request, Response, HttpException, response\Status,
+    exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
 use froq\util\misc\System;
 use Assert, Throwable;
@@ -569,14 +569,12 @@ final class App
             );
         }
 
-        $class = new \XClass($controller);
-
-        if (!$class->exists()) {
+        if (!class_exists($controller)) {
             throw new AppException(
                 'No controller class found such `%s`', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!$class->existsMethod($action) && !is_callable($action)) {
+        } elseif (!method_exists($controller, $action) && !is_callable($action)) {
             throw new AppException(
                 'No controller action found such `%s::%s()`', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
@@ -588,12 +586,16 @@ final class App
         // Call before event if exists.
         $this->events->fire('app.before', $this);
 
-        $controller = $class->init($this);
+        $controller = new $controller($this);
 
-        if (is_string($action)) {
-            $return = $controller->call($action, $actionParams);
-        } elseif (is_callable($action)) {
-            $return = $controller->callCallable($action, $actionParams);
+        try {
+            if (is_string($action)) {
+                $return = $controller->call($action, $actionParams);
+            } elseif (is_callable($action)) {
+                $return = $controller->callCallable($action, $actionParams);
+            }
+        } catch (Throwable $e) {
+            $return = $this->error($e);
         }
 
         // Call after event if exists.
@@ -603,58 +605,79 @@ final class App
     }
 
     /**
-     * Process an error routine creating default controller and calling its default error method and
-     * ending output buffer, also log error. Throw `AppException` if no default controller or error
-     * method not exists.
+     * Fallback for run failures.
      *
      * @param  Throwable $error
-     * @param  bool      $log
      * @return void
-     * @since  4.0
+     * @since  6.0
      */
-    public function error(Throwable $error, bool $log = true): void
+    public function fallback(Throwable $error): void
     {
-        $log && $this->errorLog($error);
+        $this->startOutputBuffer();
 
-        // @keep
-        // For internal use only.
-        // app_fail('last', $error);
+        $return = $this->error($error);
+
+        $this->endOutputBuffer($return);
+    }
+
+    /**
+     * Log for only errors.
+     *
+     * @param  Throwable $error
+     * @return void
+     * @since  6.0
+     */
+    public function log(Throwable $error): void
+    {
+        $this->errorLog($error);
+    }
+
+    /**
+     * Process an error routine creating default controller and calling its default error method
+     * if exists and also log all errors.
+     */
+    private function error(Throwable $error): mixed
+    {
+        $this->errorLog($error);
 
         // Call user error handler if provided.
         $this->events->fire('app.error', $this, $error);
 
         // Check HTTP exception related codes.
-        $code = Status::INTERNAL_SERVER_ERROR;
-        if (is_class_of($error, Error::class, Exception::class) &&
-            is_class_of($error->cause ?? '', ClientException::class, ServerException::class)) {
-            $code = $error->cause->code;
+        $cause = $error->cause ?? null;
+        if ($cause instanceof HttpException) {
+            $code = $cause->code;
+        } elseif ($error instanceof HttpException) {
+            $code = ($error->code >= 400 && $error->code <= 599) ? $error->code : null;
         }
 
         // Also may be changed later in @default.error() method.
-        $this->response->status($code);
+        $this->response->status($code ?? Status::INTERNAL_SERVER_ERROR);
 
         $return  = null;
         $display = System::iniGet('display_errors', bool: true);
 
-        // Try to call @default.error() method or make an error string as return.
+        // Try, for call @default.error() method or make an error string as return.
         try {
             $controller = $this->router->getOption('defaultController');
-            $method     = mvc\Controller::ERROR_ACTION;
-            $class      = new \XClass($controller);
 
             // Check default controller & controller (error) method.
-            $class->exists() || throw new AppError(
-                'No default controller exists such `%s`',
-                $controller,
-            );
-            $class->existsMethod($method) || throw new AppError(
-                'No default controller method exists such `%s::%s()`',
-                [$controller, $method],
-            );
+            if (!class_exists($controller)) {
+                throw new AppError('No default controller exists such `%s`',
+                    $controller);
+            }
+            if (!method_exists($controller, 'error')) {
+                throw new AppError('No default controller method exists such `%s::%s()`',
+                    [$controller, 'error']);
+            }
 
-            // Call default controller error method.
-            $return = $class->init($this)->$method($error);
-        } catch (AppError $e) {
+            // Try, for controller related errors.
+            try {
+                $return = (new $controller($this))->error($error);
+            } catch (Throwable $e) {
+                $this->errorLog($e);
+            }
+        } catch (Throwable $e) {
             $this->errorLog($e);
 
             // Make an error string as return.
@@ -664,12 +687,7 @@ final class App
         }
 
         if ($return === null || is_string($return)) {
-            $return = (string) $return;
-
-            // Handle echo/print stuff.
-            while (ob_get_level()) {
-                $return .= ob_get_clean();
-            }
+            $return .= $this->getOutputBuffer();
 
             // Prepend error top of the output (if ini.display_errors is on).
             if ($display) {
@@ -677,22 +695,16 @@ final class App
             }
         }
 
-        $this->endOutputBuffer($return, true);
+        return ($return !== '') ? $return : null;
     }
 
     /**
      * Log an error setting logger level to ERROR.
-     *
-     * @param  string|Throwable $error
-     * @param  bool             $separate
-     * @return bool
-     * @since  4.0
      */
-    public function errorLog(string|Throwable $error, bool $separate = true): bool
+    private function errorLog(Throwable $error): bool
     {
         $level  = $this->logger->getLevel();
-        $logged = $this->logger->setLevel(Logger::ERROR)
-                               ->logError($error, $separate);
+        $logged = $this->logger->setLevel(Logger::ERROR)->logError($error);
 
         // Restore.
         $this->logger->setLevel($level);
@@ -713,37 +725,22 @@ final class App
     /**
      * End output buffer, sending/ending response.
      */
-    private function endOutputBuffer(mixed $return, bool $error = false): void
+    private function endOutputBuffer(mixed $return): void
     {
         $response = $this->response();
-        $response || throw new AppException('App has no response yet');
-
-        $body = $response->getBody();
-        $attributes = $body->getAttributes();
 
         // Handle redirections.
         if ($response->status()->isRedirect()) {
-            $response->setBody(null, ['type' => 'n/a'] + $attributes);
+            $response->setBody(null, ['type' => 'n/a'] + $response->body()->getAttributes());
         }
         // Handle outputs & returns.
         else {
-            $content = null;
+            $body    = $response->body();
+            $content = $response->body()->getContent();
 
-            if ($error) {
-                // Pass, return comes from App.error() already.
-            } else {
-                $content = $body->getContent();
-
-                // Actions that use echo/print/view()/response.setBody() will return null.
-                // So, output buffer must be collected as body content if body content is null.
-                if ($content === null && ($return === null || is_string($return))) {
-                    $return = (string) $return;
-
-                    // Handle echo/print stuff.
-                    while (ob_get_level()) {
-                        $return .= ob_get_clean();
-                    }
-                }
+            // Actions that use echo/print/view()/response.setBody() will return null.
+            if ($content === null && ($return === null || is_string($return))) {
+                $return .= $this->getOutputBuffer();
             }
 
             // Content of body or returned content from action.
@@ -754,11 +751,28 @@ final class App
                 $content = $this->events->fire('app.output', $this, $content);
             }
 
-            $response->setBody($content, $attributes);
+            $response->body($content, $response->body()->getAttributes());
         }
 
         // The end..
         $response->end();
+    }
+
+    /**
+     * Get output buffer.
+     */
+    private function getOutputBuffer(): string
+    {
+        // Actions that use echo/print/view()/response.setBody() will return null.
+        // So, output buffer must be collected as body content if body content is null.
+        $buffer = '';
+
+        // Handle echo/print stuff.
+        while (ob_get_level()) {
+            $buffer .= ob_get_clean();
+        }
+
+        return $buffer;
     }
 
     /**
