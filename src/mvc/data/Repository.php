@@ -9,7 +9,7 @@ namespace froq\mvc\data;
 
 use froq\mvc\Controller;
 use froq\mvc\trait\{ControllerTrait, ModelTrait};
-use froq\database\{Database, DatabaseException, common\Helper, Repository as BaseRepository};
+use froq\database\{Database, Repository as DatabaseRepository};
 
 /**
  * Repository.
@@ -23,7 +23,7 @@ use froq\database\{Database, DatabaseException, common\Helper, Repository as Bas
  * @author  Kerem Güneş
  * @since   5.0
  */
-class Repository extends BaseRepository
+class Repository extends DatabaseRepository
 {
     use ControllerTrait, ModelTrait;
 
@@ -52,12 +52,6 @@ class Repository extends BaseRepository
                     $em = $model->em();
                 }
             }
-        }
-
-        if (!$db) try {
-            $db = Helper::getActiveDatabase();
-        } catch (DatabaseException $e) {
-            throw new DataException($e->message);
         }
 
         parent::__construct($db, $em ?? null);
