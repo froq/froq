@@ -16,6 +16,8 @@ defined('__LOCAL__') || define('__LOCAL__', __local__);
 if (__local__) {
     ini_set('display_errors', true);
     ini_set('error_reporting', E_ALL);
+} else {
+    ini_set('display_errors', false);
 }
 
 // Load global function files.
