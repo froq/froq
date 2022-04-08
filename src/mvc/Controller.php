@@ -7,7 +7,8 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\http\{Request, Response, request\Uri, request\Segments, response\Status,
+use froq\http\{Request, Response, HttpException,
+    request\Uri, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
@@ -542,7 +543,7 @@ class Controller
     }
 
     /**
-     * Redirect clien to given location applying `$toArgs` if provided, with given headers & cookies.
+     * Redirect client to given location applying `$toArgs` if provided, with given headers & cookies.
      *
      * @param  string     $to
      * @param  array|null $toArgs
@@ -1013,6 +1014,38 @@ class Controller
         );
 
         return $class->init($controller ?? $this, $database ?? $this->app->database());
+    }
+
+    /**
+     * Create a `HttpException` instance by given code.
+     *
+     * If a `froq\http\exception\client` or `froq\http\exception\server` is exists by given (status) code, then
+     * that exception's instance will be returned (eg: froq\http\exception\client\NotFoundException for 404 code),
+     * otherwise `froq\http\HttpException` will be returned.
+     *
+     * @param  int         $code
+     * @param  string|null $message
+     * @param  mixed|null  $messageParams
+     * @return froq\http\HttpException
+     * @since  6.0
+     */
+    public final function createHttpException(int $code, string $message = null, mixed $messageParams = null): HttpException
+    {
+        if ($code >= 400 && $code <= 599) {
+            $name = Status::getTextByCode($code);
+            if ($name) {
+                $class = sprintf(
+                    'froq\http\exception\%s\%sException',
+                    $code < 500 ? 'client' : 'server', // Class type.
+                    preg_replace('~[\W]~', '', $name), // Class name.
+                );
+                if (class_exists($class)) {
+                    return new $class($message, $messageParams);
+                }
+            }
+        }
+
+        return new HttpException($message, $messageParams, code: $code);
     }
 
     /**
