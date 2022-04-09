@@ -506,7 +506,7 @@ final class App
         $this->request->load();
 
         // Generate URI segments (by root).
-        $this->request->uri()->generateSegments($this->root);
+        $this->request->uri->generateSegments($this->root);
 
         // Note: These options can be emptied by developer to disable all with "null" if app won't
         // be using session/database/cache. Also, "drop" removes sensitive config data after using.

@@ -7,8 +7,7 @@ declare(strict_types=1);
 
 namespace froq\mvc;
 
-use froq\http\{Request, Response, HttpException,
-    request\Uri, request\Segments, response\Status,
+use froq\http\{Request, Response, HttpException, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
@@ -449,16 +448,6 @@ class Controller
 
             $this->session = $session;
         }
-    }
-
-    /**
-     * Get request URI.
-     *
-     * @return froq\http\request\Uri
-     */
-    public final function uri(): Uri
-    {
-        return $this->request->uri();
     }
 
     /**
