@@ -487,7 +487,7 @@ class Controller
         }
 
         // Shortcut for status.
-        $status && $this->status($status);
+        $status && $this->response->setStatus($status);
 
         return $this->view->render($file, $fileData);
     }
@@ -559,19 +559,6 @@ class Controller
     public final function flash(mixed $message = null): mixed
     {
         return func_num_args() ? $session->flash($message) : $session->flash();
-    }
-
-    /**
-     * Set response status.
-     *
-     * @param  int $code
-     * @return self
-     */
-    public final function status(int $code): self
-    {
-        $this->response->setStatus($code);
-
-        return $this;
     }
 
     /**

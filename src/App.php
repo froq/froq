@@ -652,7 +652,7 @@ final class App
         }
 
         // Also may be changed later in @default.error() method.
-        $this->response->status($code ?? Status::INTERNAL_SERVER_ERROR);
+        $this->response->setStatus($code ?? Status::INTERNAL_SERVER_ERROR);
 
         $return  = null;
         $display = System::iniGet('display_errors', bool: true);
@@ -730,7 +730,7 @@ final class App
         $response = $this->response();
 
         // Handle redirections.
-        if ($response->status()->isRedirect()) {
+        if ($response->status->isRedirect()) {
             $response->setBody(null, ['type' => 'n/a'] + $response->body()->getAttributes());
         }
         // Handle outputs & returns.
