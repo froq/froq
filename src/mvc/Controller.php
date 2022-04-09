@@ -738,7 +738,7 @@ class Controller
      */
     public final function segment(int|string $key, string $default = null): string|null
     {
-        return $this->request->segment($key, $default);
+        return $this->request->uri->segment($key, $default);
     }
 
     /**
@@ -751,7 +751,7 @@ class Controller
      */
     public final function segments(array $keys = null, array $defaults = null): array|Segments
     {
-        return $this->request->segments($keys, $defaults);
+        return $this->request->uri->segments($keys, $defaults);
     }
 
     /**
@@ -762,7 +762,7 @@ class Controller
      */
     public final function segmentsList(): array
     {
-        return $this->request->segments()->toList();
+        return $this->request->uri->segments->list();
     }
 
     /**
@@ -775,7 +775,7 @@ class Controller
      */
     public final function segmentParam(string $name, string $default = null): string|null
     {
-        return $this->request->segments()->getParam($name, $default);
+        return $this->request->uri->segments->getParam($name, $default);
     }
 
     /**
@@ -788,7 +788,7 @@ class Controller
      */
     public final function segmentParams(array $names = null, array $defaults = null): array|null
     {
-        return $this->request->segments()->getParams($names, $defaults);
+        return $this->request->uri->segments->getParams($names, $defaults);
     }
 
     /**
