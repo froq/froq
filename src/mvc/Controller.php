@@ -64,9 +64,6 @@ class Controller
     /** @var froq\mvc\Session */
     protected Session $session;
 
-    /** @var string */
-    protected string $modelClass;
-
     /** @var bool */
     public bool $useView = false;
 
@@ -102,28 +99,6 @@ class Controller
         // Copy as a shortcut for subclasses.
         $this->request  = $this->app->request();
         $this->response = $this->app->response();
-
-        // Set to true as using model.
-        if (isset($this->modelClass)) {
-            $this->useModel = true;
-        }
-        // Or try to use parent's model class if using model.
-        elseif (!isset($this->modelClass) && $this->useModel) {
-            $parent = get_parent_class($this);
-            while ($parent && $parent != self::class) {
-                // Make model's class name fully qualified.
-                $modelClass = str_replace(Controller::NAMESPACE, Model::NAMESPACE, Objects::getNamespace($parent))
-                    . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Model::SUFFIX);
-
-                // Validate existence & break.
-                if (class_exists($modelClass)) {
-                    $this->modelClass = $modelClass;
-                    break;
-                }
-
-                $parent = get_parent_class($parent);
-            }
-        }
 
         // Load usings.
         $this->useView    && $this->loadView();
@@ -208,16 +183,6 @@ class Controller
     public final function getSession(): Session|null
     {
         return $this->session ?? null;
-    }
-
-    /**
-     * Get model class.
-     *
-     * @return string|null
-     */
-    public final function getModelClass(): string|null
-    {
-        return $this->modelClass ?? null;
     }
 
     /**
@@ -407,24 +372,36 @@ class Controller
     public final function loadModel(): void
     {
         if (!isset($this->model)) {
-            // When no absolute class name given.
-            if (!isset($this->modelClass)) {
-                $name = $this->getShortName();
-                $base = null;
+            $name = $this->getShortName();
+            $base = null;
 
-                // Check whether controller is a sub-controller.
-                if (substr_count($controller = static::class, '\\') > 2) {
-                    $base = substr($controller, 0, strrpos($controller, '\\'));
-                    $base = substr($base, strrpos($base, '\\') + 1);
-                }
-
-                $class = !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
-                                : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
-
-                $this->modelClass = $class;
+            // Check whether controller is a subcontroller.
+            if (substr_count($controller = static::class, '\\') > 2) {
+                $base = substr($controller, 0, strrpos($controller, '\\'));
+                $base = substr($base, strrpos($base, '\\') + 1);
             }
 
-            $this->model = $this->initModel($this->modelClass);
+            $class = !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
+                            : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
+
+            // Try to use parent's model class if parent using model.
+            if (!class_exists($class)) {
+                $parent = get_parent_class($this);
+                while ($parent && $parent != self::class) {
+                    // Make model's class name fully qualified.
+                    $class = str_replace(Controller::NAMESPACE, Model::NAMESPACE, Objects::getNamespace($parent))
+                        . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Model::SUFFIX);
+
+                    // Validate existence & break.
+                    if (class_exists($class)) {
+                        break;
+                    }
+
+                    $parent = get_parent_class($parent);
+                }
+            }
+
+            $this->model = $this->initModel($class);
         }
     }
 
