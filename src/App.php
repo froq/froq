@@ -727,16 +727,13 @@ final class App
      */
     private function endOutputBuffer(mixed $return): void
     {
-        $response = $this->response();
-
         // Handle redirections.
-        if ($response->status->isRedirect()) {
-            $response->setBody(null, ['type' => 'n/a'] + $response->body()->getAttributes());
+        if ($this->response->status->isRedirect()) {
+            $this->response->setBody(null, null);
         }
         // Handle outputs & returns.
         else {
-            $body    = $response->body();
-            $content = $response->body()->getContent();
+            $content = $this->response->body->getContent();
 
             // Actions that use echo/print/view()/response.setBody() will return null.
             if ($content === null && ($return === null || is_string($return))) {
@@ -751,11 +748,11 @@ final class App
                 $content = $this->events->fire('app.output', $this, $content);
             }
 
-            $response->body($content, $response->body()->getAttributes());
+            $this->response->setBody($content, $this->response->body->getAttributes());
         }
 
         // The end..
-        $response->end();
+        $this->response->end();
     }
 
     /**
