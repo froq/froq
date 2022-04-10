@@ -97,8 +97,8 @@ class Controller
         );
 
         // Copy as a shortcut for subclasses.
-        $this->request  = $this->app->request();
-        $this->response = $this->app->response();
+        $this->request  = $this->app->request;
+        $this->response = $this->app->response;
 
         // Load usings.
         $this->useView    && $this->loadView();
@@ -370,8 +370,8 @@ class Controller
     }
 
     /**
-     * Load (starts) the session object for the owner controller if controller's `$useSession` property
-     * set to true, throw a `ControllerException` if App has no session.
+     * Load session object for the owner controller if controller's `$useSession` property
+     * set to true, throw a `ControllerException` if app has no session.
      *
      * @return void
      * @throws froq\mvc\ControllerException
@@ -379,15 +379,14 @@ class Controller
     public final function loadSession(): void
     {
         if (!isset($this->session)) {
-            $session = $this->app->session();
-            $session || throw new ControllerException(
+            $this->app->session ?? throw new ControllerException(
                 'App has no session object, be sure `session` option is not empty'
             );
 
             // @cancel: Must be started on-demand in actions or init method.
-            // $session->start();
+            // $this->app->session->start();
 
-            $this->session = $session;
+            $this->session = $this->app->session;
         }
     }
 
@@ -893,7 +892,7 @@ class Controller
             'Model class `%s` must extend class `%s`', [$class, Model::class]
         );
 
-        return $class->init($controller ?? $this, $database ?? $this->app->database());
+        return $class->init($controller ?? $this, $database ?? $this->app->database);
     }
 
     /**
@@ -920,8 +919,10 @@ class Controller
                     preg_replace('~[\W]~', '', $name), // Class name.
                 );
 
-                // Note: These classes don't use code, so they have already.
-                if (class_exists($class)) return new $class($message, $messageParams);
+                // These classes don't use codes, they have already.
+                if (class_exists($class)) {
+                    return new $class($message, $messageParams);
+                }
             }
         }
 

@@ -40,34 +40,34 @@ final class App
      * For versioning (eg: "app.host/v1/book/1").
      * @var string
      */
-    private string $root = '/';
+    public readonly string $root;
 
     /** @var string */
-    private string $dir;
+    public readonly string $dir;
 
     /** @var string */
-    private string $env;
-
-    /** @var froq\common\object\Config */
-    private Config $config;
+    public readonly string $env;
 
     /** @var froq\logger\Logger */
-    private Logger $logger;
+    public readonly Logger $logger;
 
     /** @var froq\http\Request */
-    private Request $request;
+    public readonly Request $request;
 
     /** @var froq\http\Response */
-    private Response $response;
+    public readonly Response $response;
 
     /** @var froq\session\Session|null */
-    private Session $session;
+    public readonly Session|null $session;
 
     /** @var froq\database\Database|null */
-    private Database $database;
+    public readonly Database|null $database;
 
     /** @var froq\cache\Cache|null */
-    private Cache $cache;
+    public readonly Cache|null $cache;
+
+    /** @var froq\events\Events */
+    private Events $events;
 
     /** @var froq\Router */
     private Router $router;
@@ -75,8 +75,8 @@ final class App
     /** @var froq\Servicer */
     private Servicer $servicer;
 
-    /** @var froq\events\Events */
-    private Events $events;
+    /** @var froq\common\object\Config */
+    private Config $config;
 
     /** @var froq\common\object\Register */
     private static Registry $registry;
@@ -95,8 +95,8 @@ final class App
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
-        [$this->dir, $this->config, $this->router, $this->servicer, $this->events, self::$registry] = [
-            APP_DIR, new Config(), new Router(), new Servicer(), new Events(), new Registry()
+        [$this->dir, $this->events, $this->router, $this->servicer, $this->config, self::$registry] = [
+            APP_DIR, new Events(), new Router(), new Servicer(), new Config(), new Registry()
         ];
 
         // Register app.
@@ -128,42 +128,12 @@ final class App
     }
 
     /**
-     * Get root.
-     *
-     * @return string
-     */
-    public function root(): string
-    {
-        return $this->root;
-    }
-
-    /**
-     * Get dir.
-     *
-     * @return string
-     */
-    public function dir(): string
-    {
-        return $this->dir;
-    }
-
-    /**
-     * Get env.
-     *
-     * @return string
-     */
-    public function env(): string
-    {
-        return $this->env;
-    }
-
-    /**
-     * Check local env.
+     * Check whether environment is local that defined .
      *
      * @return bool
      * @since  5.0
      */
-    public function local(): bool
+    public function isLocal(): bool
     {
         return defined('__local__') && __local__;
     }
@@ -184,99 +154,26 @@ final class App
     }
 
     /**
-     * Get a config option(s) or config property.
+     * Set/get a cache item, throw `AppException` if no cache object initiated.
      *
-     * Note: Set not allowed, so config readonly and set available with config.php only.
-     *
-     * @param  string|array|null $key
-     * @param  mixed|null        $default
+     * @param  string|int|array<string|int> $key
+     * @param  mixed|null                   $value
+     * @param  int|null                     $ttl
      * @return mixed
-     */
-    public function config(string|array $key = null, mixed $default = null): mixed
-    {
-        if (func_num_args()) {
-            return $this->config->get($key, $default);
-        }
-        return $this->config;
-    }
-
-    /**
-     * Get logger.
-     *
-     * @return froq\logger\Logger
-     */
-    public function logger(): Logger
-    {
-        return $this->logger;
-    }
-
-    /**
-     * Get request.
-     *
-     * @return froq\http\Request
-     */
-    public function request(): Request
-    {
-        return $this->request;
-    }
-
-    /**
-     * Get response.
-     *
-     * @return froq\http\Response
-     */
-    public function response(): Response
-    {
-        return $this->response;
-    }
-
-    /**
-     * Get session.
-     *
-     * @return froq\session\Session|null
-     * @since  3.18
-     */
-    public function session(): Session|null
-    {
-        return $this->session ?? null;
-    }
-
-    /**
-     * Get database.
-     *
-     * @return froq\database\Database|null
-     * @since  4.0
-     */
-    public function database(): Database|null
-    {
-        return $this->database ?? null;
-    }
-
-    /**
-     * Put/get a cache item or get cache object, throw `AppException` if no cache object initiated.
-     *
-     * @param  string|int|array<string|int>|null $key
-     * @param  mixed|null                        $value
-     * @param  int|null                          $ttl
-     * @return mixed|null|froq\cache\agent\Cache
      * @throws froq\AppException
      * @since  4.10
      */
-    public function cache(string|int|array $key = null, mixed $value = null, int $ttl = null): mixed
+    public function cache(string|int|array $key, mixed $value = null, int $ttl = null): mixed
     {
         isset($this->cache) || throw new AppException(
             'No cache object initiated yet, be sure `cache` option is not empty in config'
         );
 
-        return match (func_num_args()) {
-                  0 => $this->cache, // None given.
-                  1 => $this->cache->read($key),
-            default => $this->cache->write($key, $value, $ttl)
-        };
+        return (func_num_args() == 1) ? $this->cache->get($key) : $this->cache->set($key, $value, $ttl);
     }
 
     /**
-     * Drop a cache item from cache, throw `AppException` if no cache object initiated.
+     * Delete a cache item, throw `AppException` if no cache object initiated.
      *
      * @param  string|int|array<string|int> $key
      * @return bool
@@ -289,7 +186,7 @@ final class App
             'No cache object initiated yet, be sure `cache` option is not empty in config'
         );
 
-        return $this->cache->remove($key);
+        return $this->cache->delete($key);
     }
 
     /**
@@ -320,39 +217,6 @@ final class App
         $this->events->off($name);
 
         return $this;
-    }
-
-    /**
-     * Get router.
-     *
-     * @return froq\Router
-     * @since  4.0
-     */
-    public function router(): Router
-    {
-        return $this->router;
-    }
-
-    /**
-     * Get servicer.
-     *
-     * @return froq\Servicer
-     * @since  4.0
-     */
-    public function servicer(): Servicer
-    {
-        return $this->servicer;
-    }
-
-    /**
-     * Get registry.
-     *
-     * @return froq\common\object\Registry
-     * @since  5.0
-     */
-    public static function registry(): Registry
-    {
-        return self::$registry;
     }
 
     /**
@@ -433,9 +297,32 @@ final class App
      */
     public function service(string $name, object|callable|array $service = null): object|callable|null
     {
-        return (func_num_args() == 1)
-             ? $this->servicer->getService($name)
-             : $this->servicer->addService($name, $service);
+        return (func_num_args() == 1) ? $this->servicer->getService($name) : $this->servicer->addService($name, $service);
+    }
+
+    /**
+     * Get config option(s).
+     *
+     * Note: Set not allowed, so config readonly and set available with config.php only.
+     *
+     * @param  string|array $key
+     * @param  mixed|null   $default
+     * @return mixed
+     */
+    public function config(string|array $key, mixed $default = null): mixed
+    {
+        return $this->config->get($key, $default);
+    }
+
+    /**
+     * Get registry.
+     *
+     * @return froq\common\object\Registry
+     * @since  5.0
+     */
+    public static function registry(): Registry
+    {
+        return self::$registry;
     }
 
     /**
@@ -480,8 +367,8 @@ final class App
         if (!$env || !$root) {
             throw new AppException('Options `env` or `root` cannot be empty');
         }
-        $this->env  = $env;
-        $this->root = $root;
+
+        $this->env = $env; $this->root = $root;
 
         // Add headers & cookies (if provided).
         [$headers, $cookies] = $this->config->get(['headers', 'cookies']);
@@ -508,19 +395,27 @@ final class App
                 'Config option `session` must be array|bool, %t given', $session
             ));
             $this->session = Session::initOnce((array) $session);
+        } else {
+            $this->session = null;
         }
+
         if ($database) {
             Assert::type($database, 'array', new AppException(
                 'Config option `database` must be array, %t given', $database
             ));
             $this->database = Database::initOnce($database);
+        } else {
+            $this->database = null;
         }
+
         // Note: Cache is a static instance as default.
         if ($cache) {
             Assert::type($cache, 'array', new AppException(
                 'Config option `cache` must be array, %t given', $cache
             ));
             $this->cache = CacheFactory::init($cache['id'], $cache['options']);
+        } else {
+            $this->cache = null;
         }
 
         // @override

@@ -30,7 +30,7 @@ function app(): App
  */
 function app_root(): string
 {
-    return app()->root();
+    return app()->root;
 }
 
 /**
@@ -40,7 +40,7 @@ function app_root(): string
  */
 function app_dir(): string
 {
-    return app()->dir();
+    return app()->dir;
 }
 
 /**
@@ -51,7 +51,7 @@ function app_dir(): string
  */
 function app_env(): string
 {
-    return app()->env();
+    return app()->env;
 }
 
 /**
@@ -72,7 +72,7 @@ function app_runtime(int $precision = 3, bool $format = false): float|string
  *
  * @param  string|array $key
  * @param  mixed|null   $default
- * @return mixed|null or Config
+ * @return mixed
  * @since  4.0
  */
 function app_config(string|array $key, mixed $default = null): mixed
@@ -85,7 +85,7 @@ function app_config(string|array $key, mixed $default = null): mixed
  *
  * @param  string   $name
  * @param  mixed|null $value
- * @return mixed|null
+ * @return mixed
  * @since  4.0
  */
 function app_fail(string $name, mixed $value = null): mixed
