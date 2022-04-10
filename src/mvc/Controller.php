@@ -47,22 +47,22 @@ class Controller
                        NAME_CLOSURE   = '@closure';
 
     /** @var froq\App */
-    protected App $app;
+    public readonly App $app;
 
     /** @var froq\http\Request */
-    protected Request $request;
+    public readonly Request $request;
 
     /** @var froq\http\Response */
-    protected Response $response;
+    public readonly Response $response;
 
     /** @var froq\mvc\View */
-    protected View $view;
+    public readonly View $view;
 
     /** @var froq\mvc\Model */
-    protected Model $model;
+    public readonly Model $model;
 
-    /** @var froq\mvc\Session */
-    protected Session $session;
+    /** @var froq\session\Session */
+    public readonly Session $session;
 
     /** @var bool */
     public bool $useView = false;
@@ -116,42 +116,6 @@ class Controller
         // Set before/after ticks these called in call()/callCallable() methods.
         $this->before = method_exists($this, 'before');
         $this->after  = method_exists($this, 'after');
-    }
-
-    /**
-     * Getter aliases.
-     */
-    public final function app() { return $this->getApp(); }
-    public final function model() { return $this->getModel(); }
-
-    /**
-     * Get app.
-     *
-     * @return froq\App
-     */
-    public final function getApp(): App
-    {
-        return $this->app;
-    }
-
-    /**
-     * Get request.
-     *
-     * @return froq\http\Request
-     */
-    public final function getRequest(): Request
-    {
-        return $this->request;
-    }
-
-    /**
-     * Get response.
-     *
-     * @return froq\http\Response
-     */
-    public final function getResponse(): Response
-    {
-        return $this->response;
     }
 
     /**
@@ -442,15 +406,15 @@ class Controller
 
     /**
      * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output
-     * buffer, or simply return view property when no arguments provided.
+     * buffer.
      *
-     * @param  string|null $file
-     * @param  array|null  $fileData
-     * @param  int|null    $status
-     * @return string|froq\mvc\View
+     * @param  string     $file
+     * @param  array|null $fileData
+     * @param  int|null   $status
+     * @return string
      * @throws froq\mvc\ControllerException
      */
-    public final function view(string $file = null, array $fileData = null, int $status = null): string|View
+    public final function view(string $file, array $fileData = null, int $status = null): string
     {
         if (!isset($this->view)) {
             throw new ControllerException(
@@ -459,11 +423,7 @@ class Controller
             );
         }
 
-        if (!func_num_args()) {
-            return $this->view;
-        }
-
-        // Shortcut for status.
+        // Shortcut for response status.
         $status && $this->response->setStatus($status);
 
         return $this->view->render($file, $fileData);
@@ -535,7 +495,7 @@ class Controller
      */
     public final function flash(mixed $message = null): mixed
     {
-        return func_num_args() ? $session->flash($message) : $session->flash();
+        return func_num_args() ? $this->session->flash($message) : $this->session->flash();
     }
 
     /**
@@ -566,28 +526,6 @@ class Controller
         }
 
         return $this->response;
-    }
-
-    /**
-     * Get app's session object.
-     *
-     * @return froq\session\Session|null
-     * @since  4.2
-     */
-    public final function session(): Session|null
-    {
-        return $this->app->session();
-    }
-
-    /**
-     * Get app's database object.
-     *
-     * @return froq\database\Database|null
-     * @since  4.2
-     */
-    public final function database(): Database|null
-    {
-        return $this->app->database();
     }
 
     /**

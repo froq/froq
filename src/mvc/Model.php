@@ -58,7 +58,7 @@ class Model
         }
 
         // Store this model (as last model).
-        $controller->app()::registry()::set('@model', $this, false);
+        $this->controller->app::registry()::set('@model', $this, false);
     }
 
     /**

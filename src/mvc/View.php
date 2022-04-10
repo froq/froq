@@ -39,7 +39,7 @@ final class View
         $this->controller = $controller;
 
         // Store this view (as last view).
-        $controller->app()::registry()::set('@view', $this, false);
+        $this->controller->app::registry()::set('@view', $this, false);
     }
 
     /**
@@ -155,7 +155,7 @@ final class View
         }
 
         // Must be defined as full path.
-        $viewBase = $this->controller->getApp()->config('view.base');
+        $viewBase = $this->controller->app->config('view.base');
         if ($viewBase) {
             return sprintf('%s/%s.php', $viewBase, $file);
         }
