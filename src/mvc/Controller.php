@@ -838,7 +838,7 @@ class Controller
      * `ControllerException` if no such controller class exists.
      *
      * @param  string $class
-     * @return froq\mvc\Controller (static)
+     * @return froq\mvc\Controller
      * @throws froq\mvc\ControllerException
      * @since  5.0
      */
@@ -851,16 +851,14 @@ class Controller
             $class = Controller::NAMESPACE . '\\' . ucfirst($class) . Controller::SUFFIX;
         }
 
-        $class = new \XClass($class);
-
-        $class->exists() || throw new ControllerException(
+        class_exists($class) || throw new ControllerException(
             'Controller class `%s` not exists', $class
         );
-        $class->extends(Controller::class) || throw new ControllerException(
+        class_extends($class, Controller::class) || throw new ControllerException(
             'Controller class `%s` must extend class `%s`', [$class, Controller::class]
         );
 
-        return $class->init($this->app);
+        return new $class($this->app);
     }
 
     /**
@@ -870,7 +868,7 @@ class Controller
      * @param  string                      $class
      * @param  froq\mvc\Controller|null    $controller
      * @param  froq\database\Database|null $database
-     * @return froq\mvc\Model (static)
+     * @return froq\mvc\Model
      * @throws froq\mvc\ControllerException
      * @since  4.13
      */
@@ -883,16 +881,14 @@ class Controller
             $class = Model::NAMESPACE . '\\' . ucfirst($class) . Model::SUFFIX;
         }
 
-        $class = new \XClass($class);
-
-        $class->exists() || throw new ControllerException(
+        class_exists($class) || throw new ControllerException(
             'Model class `%s` not exists', $class
         );
-        $class->extends(Model::class) || throw new ControllerException(
+        class_extends($class, Model::class) || throw new ControllerException(
             'Model class `%s` must extend class `%s`', [$class, Model::class]
         );
 
-        return $class->init($controller ?? $this, $database ?? $this->app->database);
+        return new $class($controller ?? $this, $database ?? $this->app->database);
     }
 
     /**
