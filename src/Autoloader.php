@@ -106,7 +106,7 @@ final class Autoloader
      */
     public function load(string $name): void
     {
-        // Note: seems PHP is calling this just once for found classes,
+        // Seems PHP is calling this just once for found classes,
         // so no need to cache found (resolved) stuff.
         $name = strtr($name, '\\', '/');
         $file = null;
@@ -126,14 +126,14 @@ final class Autoloader
 
                 [$dir, $subdir] = explode('|', self::$directives['model']);
 
-                // A model folder checked for only these classes, eg: Model, FooModel, FooEntity, FooEntityList.
+                // A model folder checked for only these classes, eg: FooModel, FooEntity, FooEntityList.
                 // So any other classes must be loaded in other ways. Besides, "Model" for only the "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
                 // to eg: $app->get("/foo/:id", function ($id) { ... }).
-                if (preg_match('~([A-Z][A-Za-z0-9]+)Model|ModelException|Entity|EntityList$~', $name, $match)) {
+                if (preg_match('~([A-Z][A-Za-z0-9]+)Model|Entity|EntityList$~', $name, $match)) {
                     $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
 
-                    // Try "model" subdir.
+                    // Try "model" subdir (eg: app/system/Foo/model/FooModel.php).
                     is_file($file) || $file = APP_DIR . sprintf($subdir, $match[1], $match[0]);
                 }
             }
@@ -157,42 +157,33 @@ final class Autoloader
             return;
         }
 
-        // Note: this part is for only local development purporses,
-        // normally Composer will do its job until here.
-        static $composerFile, $composerFileData;
-        $autoload = defined('APP_DIR');
-
-        // Memoize composer data.
-        if ($autoload && !$composerFile) {
-            $composerFile = APP_DIR . '/composer.json';
-            if (is_file($composerFile)) {
-                // Both "psr-4" & "froq" accepted.
-                $composerFileData = json_decode(file_get_contents($composerFile), true);
-                if (empty($composerFileData['autoload']['psr-4']) &&
-                    empty($composerFileData['autoload']['froq'])) {
-                    $autoload = false; // Tick.
-                } else {
-                    $autoload = $composerFileData['autoload']['psr-4']
-                             ?? $composerFileData['autoload']['froq'];
+        // This part is for only local development purporses,
+        // normally Composer would do its job until here.
+        if (defined('APP_DIR')) {
+            static $autoload; $autoload ??= (function () {
+                if (is_file($json = APP_DIR . '/composer.json')) {
+                    $data = json_decode(file_get_contents($json), true);
+                    return $data['autoload']['psr-4'] ?? false;
                 }
-            }
-        }
+                return false;
+            })();
 
-        // Try to load via "autoload" directive.
-        if ($autoload && is_array($autoload)) {
-            $nameOrig = strtr($name, '/', '\\');
-            foreach ($autoload as $ns => $dir) {
-                if (!str_contains($nameOrig, $ns)) {
-                    continue;
-                }
+            if ($autoload) {
+                static $find; $find ??= function ($name) use ($autoload) {
+                    $name = strtr($name, '/', '\\');
+                    foreach ($autoload as $namespace => $folder) {
+                        if (str_starts_with($name, $namespace)) {
+                            $name = strtr(substr($name, strlen($namespace)), '\\', '/');
+                            $file = APP_DIR . '/' . $folder . '/' . $name . '.php';
+                            if (is_file($file)) {
+                                return $file;
+                            }
+                        }
+                    }
+                };
 
-                $name = strtr(substr($nameOrig, strlen($ns)), '\\', '/');
-                $file = realpath(APP_DIR . '/' . $dir . '/' . $name . '.php');
-
-                if ($file && is_file($file)) {
-                    load($file);
-                    break;
-                }
+                $file = $find($name);
+                $file && load($file);
             }
         }
     }
