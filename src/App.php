@@ -51,9 +51,6 @@ final class App
     /** @var froq\common\object\Config */
     private Config $config;
 
-    /** @var froq\events\Events */
-    private Events $events;
-
     /** @var froq\logger\Logger */
     private Logger $logger;
 
@@ -78,6 +75,9 @@ final class App
     /** @var froq\Servicer */
     private Servicer $servicer;
 
+    /** @var froq\events\Events */
+    private Events $events;
+
     /** @var froq\common\object\Register */
     private static Registry $registry;
 
@@ -95,8 +95,8 @@ final class App
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
-        [$this->dir, $this->config, $this->events, $this->router, $this->servicer, self::$registry] = [
-            APP_DIR, new Config(), new Events(), new Router(), new Servicer(), new Registry()
+        [$this->dir, $this->config, $this->router, $this->servicer, $this->events, self::$registry] = [
+            APP_DIR, new Config(), new Router(), new Servicer(), new Events(), new Registry()
         ];
 
         // Register app.
@@ -185,6 +185,7 @@ final class App
 
     /**
      * Get a config option(s) or config property.
+     *
      * Note: Set not allowed, so config readonly and set available with config.php only.
      *
      * @param  string|array|null $key
@@ -197,16 +198,6 @@ final class App
             return $this->config->get($key, $default);
         }
         return $this->config;
-    }
-
-    /**
-     * Get events.
-     *
-     * @return froq\events\Events
-     */
-    public function events(): Events
-    {
-        return $this->events;
     }
 
     /**
@@ -584,7 +575,7 @@ final class App
         $this->startOutputBuffer();
 
         // Call before event if exists.
-        $this->events->fire('app.before', $this);
+        $this->events->fire('before', $this);
 
         $controller = new $controller($this);
 
@@ -599,7 +590,7 @@ final class App
         }
 
         // Call after event if exists.
-        $this->events->fire('app.after', $this);
+        $this->events->fire('after', $this);
 
         $this->endOutputBuffer($return);
     }
@@ -641,7 +632,7 @@ final class App
         $this->errorLog($error);
 
         // Call user error handler if provided.
-        $this->events->fire('app.error', $this, $error);
+        $this->events->fire('error', $this, $error);
 
         // Check HTTP exception related codes.
         $cause = $error->cause ?? null;
@@ -744,8 +735,8 @@ final class App
             $content ??= $return;
 
             // Call user output handler if provided.
-            if ($this->events->has('app.output')) {
-                $content = $this->events->fire('app.output', $this, $content);
+            if ($this->events->has('output')) {
+                $content = $this->events->fire('output', $this, $content);
             }
 
             $this->response->setBody($content, $this->response->body->getAttributes());
