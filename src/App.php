@@ -140,32 +140,32 @@ final class App
     /**
      * Get dir.
      *
-     * @return string|null
+     * @return string
      */
-    public function dir(): string|null
+    public function dir(): string
     {
-        return $this->dir ?? null;
+        return $this->dir;
     }
 
     /**
      * Get env.
      *
-     * @return string|null
+     * @return string
      */
-    public function env(): string|null
+    public function env(): string
     {
-        return $this->env ?? null;
+        return $this->env;
     }
 
     /**
      * Check local env.
      *
-     * @return bool|null
+     * @return bool
      * @since  5.0
      */
-    public function local(): bool|null
+    public function local(): bool
     {
-        return defined('__local__') ? __local__ : null;
+        return defined('__local__') && __local__;
     }
 
     /**
@@ -213,21 +213,21 @@ final class App
     /**
      * Get request.
      *
-     * @return froq\http\Request|null
+     * @return froq\http\Request
      */
-    public function request(): Request|null
+    public function request(): Request
     {
-        return $this->request ?? null;
+        return $this->request;
     }
 
     /**
      * Get response.
      *
-     * @return froq\http\Response|null
+     * @return froq\http\Response
      */
-    public function response(): Response|null
+    public function response(): Response
     {
-        return $this->response ?? null;
+        return $this->response;
     }
 
     /**
