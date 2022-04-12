@@ -7,15 +7,11 @@ declare(strict_types=1);
 
 namespace froq\mvc\rest;
 
-use froq\mvc\ControllerException;
-
 /**
- * Rest Exception.
- *
  * @package froq\mvc\rest
  * @object  froq\mvc\rest\RestException
  * @author  Kerem Güneş
  * @since   4.9
  */
-class RestException extends ControllerException
+class RestException extends \froq\mvc\ControllerException
 {}

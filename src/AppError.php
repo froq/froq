@@ -7,15 +7,11 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\common\Error;
-
 /**
- * App Error.
- *
  * @package froq
  * @object  froq\AppError
  * @author  Kerem Güneş
  * @since   4.0
  */
-class AppError extends Error
+class AppError extends \froq\common\Error
 {}

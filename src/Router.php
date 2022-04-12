@@ -10,8 +10,6 @@ namespace froq;
 use froq\mvc\{Controller, Model};
 
 /**
- * Router.
- *
  * A route stack class, able to such ops add, pack and resolve using RegExp utilities.
  *
  * @package froq

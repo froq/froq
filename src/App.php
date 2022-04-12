@@ -16,8 +16,6 @@ use froq\util\misc\System;
 use Assert, Throwable;
 
 /**
- * App.
- *
  * Application class which is responsible with all logics;
  * - Creating needed object instances such as Logger, Router, Servicer or Session, Database etc. those used
  * all over the application cycle.

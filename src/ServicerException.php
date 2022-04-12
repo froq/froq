@@ -7,11 +7,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\AppException;
-
 /**
- * Servicer Exception.
- *
  * @package froq
  * @object  froq\ServicerException
  * @author  Kerem Güneş

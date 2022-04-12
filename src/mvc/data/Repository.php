@@ -12,8 +12,6 @@ use froq\mvc\trait\{ControllerTrait, ModelTrait};
 use froq\database\{Database, Repository as DatabaseRepository};
 
 /**
- * Repository.
- *
  * A class, contains most required data read/write tools and intended to use other
  * repository classes and producers/providers or other database related classes in
  * a MVC environment.

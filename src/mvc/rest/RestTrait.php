@@ -10,8 +10,6 @@ namespace froq\mvc\rest;
 use froq\http\exception\client\NotFoundException;
 
 /**
- * Rest Trait.
- *
  * A trait, used by RESTful controllers that responds only such requests via GET, POST etc.
  * methods and defines those named methods as controller methods.
  *

@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace froq;
 
 /**
- * Servicer.
+ * Service registry class.
  *
  * @package froq
  * @object  froq\Servicer

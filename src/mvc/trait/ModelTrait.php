@@ -10,8 +10,6 @@ namespace froq\mvc\trait;
 use froq\mvc\Model;
 
 /**
- * Model Trait.
- *
  * A trait, provides `$model` property and its getter method.
  *
  * @package froq\mvc\trait

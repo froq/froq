@@ -15,8 +15,6 @@ use froq\{App, Router, session\Session, database\Database, util\Objects, util\mi
 use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
- * Controller.
- *
  * A class, part of MVC stack and extended by other `app\controller` classes.
  *
  * @package froq\mvc

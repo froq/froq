@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace froq\mvc\data;
 
 /**
- * Producer.
- *
  * A class, extended by producers those are responsable (basically) data preparation only
  * (eg: validation, sanitization) for saving data to the persistence layer (eg. database
  * via controller models).

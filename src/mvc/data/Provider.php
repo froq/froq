@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace froq\mvc\data;
 
 /**
- * Provider.
- *
  * A class, extended by providers those are responsable (basically) data preparation only
  * (eg: mapping, casting) for the presentation layer getting records from the persistence
  * layer (eg. database via controller models).

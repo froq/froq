@@ -10,8 +10,6 @@ namespace froq\mvc\trait;
 use froq\mvc\Controller;
 
 /**
- * Controller Trait.
- *
  * A trait, provides `$controller` property and its getter method.
  *
  * @package froq\mvc\trait

@@ -10,8 +10,6 @@ namespace froq\mvc;
 use froq\mvc\trait\ControllerTrait;
 
 /**
- * View.
- *
  * A class, part of MVC stack and used for templating purposes.
  *
  * @package froq\mvc

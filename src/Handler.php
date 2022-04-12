@@ -8,15 +8,13 @@ declare(strict_types=1);
 namespace froq;
 
 /**
- * Handler.
- *
- * A static class, registers/unregisters `error`, `exception` and `shutdown` handlers.
+ * A internal class, registers/unregisters `error`, `exception` and `shutdown` handlers.
  *
  * @package froq
  * @object  froq\Handler
  * @author  Kerem Güneş
  * @since   4.0
- * @static
+ * @static @internal
  */
 final class Handler extends \StaticClass
 {

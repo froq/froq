@@ -13,8 +13,6 @@ use froq\database\{Database, DatabaseException, common\Helper, entity\Manager as
 use froq\database\{Query, query\QueryParam, query\QueryParams};
 
 /**
- * Model.
- *
  * A class, part of MVC stack and extended by other `app\model` classes.
  *
  * @package froq\mvc
