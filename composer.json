@@ -6,14 +6,11 @@
     "license": "Apache-2.0",
     "authors": [{"name": "Kerem Güneş"}],
     "require": {
-        "php": "^8.0",
-        "froq/froq-common": "^5.0",
-        "froq/froq-logger": "^5.0",
-        "froq/froq-event": "^5.0",
-        "froq/froq-http": "^5.0",
-        "froq/froq-database": "^5.0",
-        "froq/froq-encoding": "^5.0",
-        "froq/froq-encrypting": "^5.0"
+        "php": "^8.1",
+        "froq/froq-common": "^6.0",
+        "froq/froq-logger": "^6.0",
+        "froq/froq-event": "^6.0",
+        "froq/froq-http": "^6.0"
     },
     "autoload": {
         "classmap": ["src/"]
