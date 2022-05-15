@@ -130,7 +130,7 @@ final class Autoloader
                 // So any other classes must be loaded in other ways. Besides, "Model" for only the "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
                 // to eg: $app->get("/foo/:id", function ($id) { ... }).
-                if (preg_match('~([A-Z][A-Za-z0-9]+)Model|Entity|EntityList$~', $name, $match)) {
+                if (preg_match('~([A-Z][A-Za-z0-9]+)(?:Model|Entity|EntityList)$~', $name, $match)) {
                     $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
 
                     // Try "model" subdir (eg: app/system/Foo/model/FooModel.php).
