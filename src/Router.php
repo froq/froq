@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\mvc\{Controller, Model};
+use froq\app\{Controller, Repository};
 
 /**
  * A route stack class, able to such ops add, pack and resolve using RegExp utilities.
@@ -405,7 +405,7 @@ final class Router
         }
 
         if ($suffix) {
-            $name = ($suffix == Controller::SUFFIX || $suffix == Model::SUFFIX)
+            $name = ($suffix == Controller::SUFFIX || $suffix == Repository::SUFFIX)
                   ? ucfirst($name) : lcfirst($name);
 
             // Add/drop suffix.

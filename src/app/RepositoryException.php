@@ -5,13 +5,13 @@
  */
 declare(strict_types=1);
 
-namespace froq\mvc;
+namespace froq\app;
 
 /**
- * @package froq\mvc
- * @object  froq\mvc\ModelException
+ * @package froq\app
+ * @object  froq\app\RepositoryException
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   6.0
  */
-class ModelException extends \froq\AppException
+class RepositoryException extends \froq\AppException
 {}

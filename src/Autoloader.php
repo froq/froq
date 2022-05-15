@@ -26,8 +26,7 @@ final class Autoloader
     /** @var array */
     private static array $directives = [
         'controller' => '/app/system/%s/%s.php',
-        'model'      => '/app/system/%s/%s.php|/app/system/%s/model/%s.php',
-        'library'    => '/app/library/%s.php',
+        'repository' => '/app/system/%s/%s.php|/app/system/%s/data/%s.php',
     ];
 
     /** @var string */
@@ -120,20 +119,20 @@ final class Autoloader
                     $file = APP_DIR . sprintf(self::$directives['controller'], $match[1], $match[0]);
                 }
             }
-            // Model (eg: app\model\FooModel => app/system/Foo/FooModel.php or app/system/Foo/model/FooModel.php).
-            elseif (str_starts_with($name, 'app/model/')) {
+            // Data (eg: app\data\FooRepository => app/system/Foo/FooRepository.php or app/system/Foo/data/FooRepository.php).
+            elseif (str_starts_with($name, 'app/data/') || str_starts_with($name, 'app/repository/')) {
                 $this->checkAppDir();
 
-                [$dir, $subdir] = explode('|', self::$directives['model']);
+                [$dir, $subdir] = explode('|', self::$directives['repository']);
 
-                // A model folder checked for only these classes, eg: FooModel, FooEntity, FooEntityList.
-                // So any other classes must be loaded in other ways. Besides, "Model" for only the "Controller"
+                // A data folder checked for only such these classes: FooRepository, FooEntity, FooEntityList.
+                // Any other classes must be loaded in other ways. Besides, "Repository" for only "Controller"
                 // that returned from Router.pack() and called in App.run() to execute callable actions similar
                 // to eg: $app->get("/foo/:id", function ($id) { ... }).
-                if (preg_match('~([A-Z][A-Za-z0-9]+)(?:Model|Entity|EntityList)$~', $name, $match)) {
+                if (preg_match('~([A-Z][A-Za-z0-9]+)(?:Repository|Entity|EntityList)$~', $name, $match)) {
                     $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
 
-                    // Try "model" subdir (eg: app/system/Foo/model/FooModel.php).
+                    // Try with "data" subdir (eg: app/system/Foo/data/FooRepository.php).
                     is_file($file) || $file = APP_DIR . sprintf($subdir, $match[1], $match[0]);
                 }
             }
@@ -141,8 +140,7 @@ final class Autoloader
             elseif (str_starts_with($name, 'app/library/')) {
                 $this->checkAppDir();
 
-                $base = substr($name, strlen('app/library/'));
-                $file = APP_DIR . sprintf(self::$directives['library'], $base);
+                $file = APP_DIR . '/' . $name . '.php';
             }
         }
         // Most classes loaded by Composer, but in case this part is just a fallback.
@@ -203,8 +201,8 @@ final class Autoloader
      */
     private function resolve(string $name): array
     {
-        // Base stuffs that stay in "froq/froq".
-        static $bases = ['mvc'];
+        // Base stuffs defined in "froq/froq".
+        static $bases = ['app'];
 
         $dir = dirname($name);
         sscanf($dir, 'froq/%[^/]', $base);

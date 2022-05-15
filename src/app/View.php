@@ -5,21 +5,20 @@
  */
 declare(strict_types=1);
 
-namespace froq\mvc;
-
-use froq\mvc\trait\ControllerTrait;
+namespace froq\app;
 
 /**
- * A class, part of MVC stack and used for templating purposes.
+ * View class, for templating purposes.
  *
- * @package froq\mvc
- * @object  froq\mvc\View
+ * @package froq\app
+ * @object  froq\app\View
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   4.0, 6.0
  */
 final class View
 {
-    use ControllerTrait;
+    /** @var froq\app\Controller */
+    public readonly Controller $controller;
 
     /** @var string */
     private string $layout;
@@ -30,7 +29,7 @@ final class View
     /**
      * Constructor.
      *
-     * @param froq\mvc\Controller $controller
+     * @param froq\app\Controller $controller
      */
     public function __construct(Controller $controller)
     {

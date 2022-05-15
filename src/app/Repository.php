@@ -5,37 +5,40 @@
  */
 declare(strict_types=1);
 
-namespace froq\mvc;
+namespace froq\app;
 
-use froq\mvc\trait\ControllerTrait;
-use froq\database\trait\{DbTrait, EmTrait, TableTrait, ValidationTrait};
-use froq\database\{Database, DatabaseException, common\Helper, entity\Manager as EntityManager};
-use froq\database\{Query, query\QueryParam, query\QueryParams};
+use froq\database\trait\{DbTrait, EmTrait};
+use froq\database\{common\Helper, entity\Manager as EntityManager};
+use froq\database\{Database, DatabaseException, Query};
+use froq\database\query\{QueryParam, QueryParams};
 
 /**
- * A class, part of MVC stack and extended by other `app\model` classes.
+ * Base class of `app\repository` classes.
  *
- * @package froq\mvc
- * @object  froq\mvc\Model
+ * @package froq\app
+ * @object  froq\app\Repository
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   6.0
  */
-class Model
+class Repository
 {
-    use ControllerTrait, DbTrait, EmTrait, TableTrait, ValidationTrait;
+    use DbTrait, EmTrait;
+
+    /** @var froq\app\Controller */
+    public readonly Controller $controller;
 
     /** @const string */
-    public final const NAMESPACE = 'app\model';
+    public final const NAMESPACE = 'app\repository';
 
     /** @const string */
-    public final const SUFFIX    = 'Model';
+    public final const SUFFIX    = 'Repository';
 
     /**
      * Constructor.
      *
-     * @param  froq\mvc\Controller         $controller
+     * @param  froq\app\Controller         $controller
      * @param  froq\database\Database|null $db
-     * @throws froq\mvc\ModelException
+     * @throws froq\app\RepositoryException
      */
     public final function __construct(Controller $controller, Database $db = null)
     {
@@ -44,19 +47,19 @@ class Model
         if (!$db) try {
             $db = Helper::getActiveDatabase();
         } catch (DatabaseException $e) {
-            throw new ModelException($e->message);
+            throw new RepositoryException($e->message);
         }
 
         $this->db = $db;
         $this->em = new EntityManager($db);
 
-        // When defined on child class.
+        // Call init() method if defined in subclass.
         if (method_exists($this, 'init')) {
             $this->init();
         }
 
-        // Store this model (as last model).
-        $this->controller->app::registry()::set('@model', $this, false);
+        // Store this repository (as last repository).
+        $this->controller->app::registry()::set('@repository', $this, false);
     }
 
     /**
@@ -67,7 +70,7 @@ class Model
      */
     public final function initQuery(string $table = null): Query
     {
-        return new Query($this->db, $table ?? $this->getTable()?->getName());
+        return new Query($this->db, $table);
     }
 
     /**

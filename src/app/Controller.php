@@ -5,7 +5,7 @@
  */
 declare(strict_types=1);
 
-namespace froq\mvc;
+namespace froq\app;
 
 use froq\http\{Request, Response, HttpException, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
@@ -15,12 +15,12 @@ use froq\{App, Router, session\Session, database\Database, util\Objects, util\mi
 use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
- * A class, part of MVC stack and extended by other `app\controller` classes.
+ * Base class of `app\controller` classes.
  *
- * @package froq\mvc
- * @object  froq\mvc\Controller
+ * @package froq\app
+ * @object  froq\app\Controller
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   4.0, 6.0
  */
 class Controller
 {
@@ -53,23 +53,23 @@ class Controller
     /** @var froq\http\Response */
     public readonly Response $response;
 
-    /** @var froq\mvc\View */
-    public readonly View $view;
-
-    /** @var froq\mvc\Model */
-    public readonly Model $model;
+    /** @var froq\app\Repository */
+    public readonly Repository $repository;
 
     /** @var froq\session\Session */
     public readonly Session $session;
 
-    /** @var bool */
-    public bool $useView = false;
+    /** @var froq\app\View */
+    public readonly View $view;
 
     /** @var bool */
-    public bool $useModel = false;
+    public bool $useRepository = false;
 
     /** @var bool */
     public bool $useSession = false;
+
+    /** @var bool */
+    public bool $useView = false;
 
     /** @var string */
     private string $action;
@@ -84,7 +84,7 @@ class Controller
      * Constructor.
      *
      * @param  froq\App|null $app
-     * @throws froq\mvc\ControllerException
+     * @throws froq\app\ControllerException
      */
     public final function __construct(App $app = null)
     {
@@ -99,9 +99,9 @@ class Controller
         $this->response = $this->app->response;
 
         // Load usings.
-        $this->useView    && $this->loadView();
-        $this->useModel   && $this->loadModel();
-        $this->useSession && $this->loadSession();
+        $this->useRepository && $this->loadRepository();
+        $this->useSession    && $this->loadSession();
+        $this->useView       && $this->loadView();
 
         // Call init() method if defined in subclass.
         if (method_exists($this, 'init')) {
@@ -117,23 +117,13 @@ class Controller
     }
 
     /**
-     * Get view.
+     * Get repository.
      *
-     * @return froq\mvc\View|null
+     * @return froq\app\Repository|null
      */
-    public final function getView(): View|null
+    public final function getRepository(): Repository|null
     {
-        return $this->view ?? null;
-    }
-
-    /**
-     * Get model.
-     *
-     * @return froq\mvc\Model|null
-     */
-    public final function getModel(): Model|null
-    {
-        return $this->model ?? null;
+        return $this->repository ?? null;
     }
 
     /**
@@ -145,6 +135,16 @@ class Controller
     public final function getSession(): Session|null
     {
         return $this->session ?? null;
+    }
+
+    /**
+     * Get view.
+     *
+     * @return froq\app\View|null
+     */
+    public final function getView(): View|null
+    {
+        return $this->view ?? null;
     }
 
     /**
@@ -305,12 +305,75 @@ class Controller
     }
 
     /**
+     * Load (initialize) the repository object for the owner controller if controller's `$useRepository`
+     * property set to true and `$repository` property is not set yet.
+     *
+     * @return void
+     */
+    public final function loadRepository(): void
+    {
+        if (!isset($this->repository)) {
+            $name = $this->getShortName();
+            $base = null;
+
+            // Check whether controller is a subcontroller.
+            if (substr_count($controller = static::class, '\\') > 2) {
+                $base = substr($controller, 0, strrpos($controller, '\\'));
+                $base = substr($base, strrpos($base, '\\') + 1);
+            }
+
+            $class = !$base ? Repository::NAMESPACE . '\\' . $name . Repository::SUFFIX
+                            : Repository::NAMESPACE . '\\' . $base . '\\' . $name . Repository::SUFFIX;
+
+            // Try to use parent's repository class if parent using repository.
+            if (!class_exists($class)) {
+                $parent = get_parent_class($this);
+                while ($parent && $parent != self::class) {
+                    // Make repository's class name fully qualified.
+                    $class = str_replace(Controller::NAMESPACE, Repository::NAMESPACE, Objects::getNamespace($parent))
+                        . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Repository::SUFFIX);
+
+                    // Validate existence & break.
+                    if (class_exists($class)) {
+                        break;
+                    }
+
+                    $parent = get_parent_class($parent);
+                }
+            }
+
+            $this->repository = $this->initRepository($class);
+        }
+    }
+
+    /**
+     * Load session object for the owner controller if controller's `$useSession` property
+     * set to true, throw a `ControllerException` if app has no session.
+     *
+     * @return void
+     * @throws froq\app\ControllerException
+     */
+    public final function loadSession(): void
+    {
+        if (!isset($this->session)) {
+            $this->app->session ?? throw new ControllerException(
+                'App has no session object, be sure `session` option is not empty in config'
+            );
+
+            // @cancel: Must be started on-demand in actions or init() method.
+            // $this->app->session->start();
+
+            $this->session = $this->app->session;
+        }
+    }
+
+    /**
      * Load (initialize) the view object for the owner controller if controller's `$useView` property
      * set to true and `$view` property is not set yet, throw a `ControllerException` if no `view.layout`
      * option found in configuration.
      *
      * @return void
-     * @throws froq\mvc\ControllerException
+     * @throws froq\app\ControllerException
      */
     public final function loadView(): void
     {
@@ -322,69 +385,6 @@ class Controller
 
             $this->view = new View($this);
             $this->view->setLayout($layout);
-        }
-    }
-
-    /**
-     * Load (initialize) the model object for the owner controller if controller's `$useModel` property
-     * set to true and `$model` property is not set yet.
-     *
-     * @return void
-     */
-    public final function loadModel(): void
-    {
-        if (!isset($this->model)) {
-            $name = $this->getShortName();
-            $base = null;
-
-            // Check whether controller is a subcontroller.
-            if (substr_count($controller = static::class, '\\') > 2) {
-                $base = substr($controller, 0, strrpos($controller, '\\'));
-                $base = substr($base, strrpos($base, '\\') + 1);
-            }
-
-            $class = !$base ? Model::NAMESPACE . '\\' . $name . Model::SUFFIX
-                            : Model::NAMESPACE . '\\' . $base . '\\' . $name . Model::SUFFIX;
-
-            // Try to use parent's model class if parent using model.
-            if (!class_exists($class)) {
-                $parent = get_parent_class($this);
-                while ($parent && $parent != self::class) {
-                    // Make model's class name fully qualified.
-                    $class = str_replace(Controller::NAMESPACE, Model::NAMESPACE, Objects::getNamespace($parent))
-                        . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Model::SUFFIX);
-
-                    // Validate existence & break.
-                    if (class_exists($class)) {
-                        break;
-                    }
-
-                    $parent = get_parent_class($parent);
-                }
-            }
-
-            $this->model = $this->initModel($class);
-        }
-    }
-
-    /**
-     * Load session object for the owner controller if controller's `$useSession` property
-     * set to true, throw a `ControllerException` if app has no session.
-     *
-     * @return void
-     * @throws froq\mvc\ControllerException
-     */
-    public final function loadSession(): void
-    {
-        if (!isset($this->session)) {
-            $this->app->session ?? throw new ControllerException(
-                'App has no session object, be sure `session` option is not empty'
-            );
-
-            // @cancel: Must be started on-demand in actions or init method.
-            // $this->app->session->start();
-
-            $this->session = $this->app->session;
         }
     }
 
@@ -409,7 +409,7 @@ class Controller
      * @param  array|null $fileData
      * @param  int|null   $status
      * @return string
-     * @throws froq\mvc\ControllerException
+     * @throws froq\app\ControllerException
      */
     public final function view(string $file, array $fileData = null, int $status = null): string
     {
@@ -434,7 +434,7 @@ class Controller
      * @param  string $call
      * @param  array  $callArgs
      * @return mixed
-     * @throws froq\mvc\ControllerException
+     * @throws froq\app\ControllerException
      */
     public final function forward(string $call, array $callArgs = []): mixed
     {
@@ -754,7 +754,7 @@ class Controller
      * @param  array  $actionParams
      * @param  bool   $suffix
      * @return mixed
-     * @throws froq\mvc\ControllerException
+     * @throws froq\app\ControllerException
      */
     public final function call(string $action, array $actionParams = [], bool $suffix = false): mixed
     {
@@ -797,7 +797,7 @@ class Controller
      * @param  callable $action
      * @param  array    $actionParams
      * @return mixed
-     * @throws froq\mvc\ControllerException
+     * @throws froq\app\ControllerException
      */
     public final function callCallable(callable $action, array $actionParams = []): mixed
     {
@@ -836,8 +836,8 @@ class Controller
      * `ControllerException` if no such controller class exists.
      *
      * @param  string $class
-     * @return froq\mvc\Controller
-     * @throws froq\mvc\ControllerException
+     * @return froq\app\Controller
+     * @throws froq\app\ControllerException
      * @since  5.0
      */
     public final function initController(string $class): Controller
@@ -860,30 +860,30 @@ class Controller
     }
 
     /**
-     * Initialize a model object by given model name /model class name, throw a `ControllerException`
-     * if no such model class exists.
+     * Initialize a repository object by given repository name or repository class name, throw a
+     * `ControllerException` if no such repository class exists.
      *
      * @param  string                      $class
-     * @param  froq\mvc\Controller|null    $controller
+     * @param  froq\app\Controller|null    $controller
      * @param  froq\database\Database|null $database
-     * @return froq\mvc\Model
-     * @throws froq\mvc\ControllerException
+     * @return froq\app\Repository
+     * @throws froq\app\ControllerException
      * @since  4.13
      */
-    public final function initModel(string $class, Controller $controller = null, Database $database = null): Model
+    public final function initRepository(string $class, Controller $controller = null, Database $database = null): Repository
     {
         $class = trim($class, '\\');
 
         // If no full class name given.
         if (!str_contains($class, '\\')) {
-            $class = Model::NAMESPACE . '\\' . ucfirst($class) . Model::SUFFIX;
+            $class = Repository::NAMESPACE . '\\' . ucfirst($class) . Repository::SUFFIX;
         }
 
         class_exists($class) || throw new ControllerException(
-            'Model class `%s` not exists', $class
+            'Repository class `%s` not exists', $class
         );
-        class_extends($class, Model::class) || throw new ControllerException(
-            'Model class `%s` must extend class `%s`', [$class, Model::class]
+        class_extends($class, Repository::class) || throw new ControllerException(
+            'Repository class `%s` must extend class `%s`', [$class, Repository::class]
         );
 
         return new $class($controller ?? $this, $database ?? $this->app->database);

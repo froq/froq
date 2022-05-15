@@ -5,13 +5,13 @@
  */
 declare(strict_types=1);
 
-namespace froq\mvc;
+namespace froq\app;
 
 /**
- * @package froq\mvc
- * @object  froq\mvc\ControllerException
+ * @package froq\app
+ * @object  froq\app\ViewException
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   4.0, 6.0
  */
-class ControllerException extends \froq\AppException
+class ViewException extends \froq\AppException
 {}

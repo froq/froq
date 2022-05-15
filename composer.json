@@ -1,8 +1,8 @@
 {
     "name": "froq/froq",
     "homepage": "http://github.com/froq/froq",
-    "description":  "Froq! App & MVC.",
-    "keywords": ["froq", "app", "mvc"],
+    "description":  "Froq! App.",
+    "keywords": ["froq", "app"],
     "license": "Apache-2.0",
     "authors": [{"name": "Kerem Güneş"}],
     "require": {

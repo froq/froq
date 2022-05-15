@@ -5,13 +5,13 @@
  */
 declare(strict_types=1);
 
-namespace froq\mvc\rest;
+namespace froq\app;
 
 /**
- * @package froq\mvc\rest
- * @object  froq\mvc\rest\RestException
+ * @package froq\app
+ * @object  froq\app\ControllerException
  * @author  Kerem Güneş
- * @since   4.9
+ * @since   4.0, 6.0
  */
-class RestException extends \froq\mvc\ControllerException
+class ControllerException extends \froq\AppException
 {}
