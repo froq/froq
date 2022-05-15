@@ -60,7 +60,7 @@ final class View
      */
     public function getLayout(): string|null
     {
-        return $this->layout;
+        return $this->layout ?? null;
     }
 
     /**
@@ -101,12 +101,12 @@ final class View
     {
         $file = $this->prepareFile($file);
         if (!is_file($file)) {
-            throw new ViewException('View file `%s` is not exist', $file);
+            throw new ViewException('View file `%s` not found', $file);
         }
 
         $fileLayout = $this->getLayout();
         if (!is_file($fileLayout)) {
-            throw new ViewException('View layout file `%s` is not exist', $fileLayout);
+            throw new ViewException('View layout file `%s` not found', $fileLayout);
         }
 
         $fileData ??= [];
@@ -114,7 +114,7 @@ final class View
             $this->setData($key, $value);
         }
 
-        // Render file first, then send to layout file its contents.
+        // Render file first, then send its contents to layout file.
         $content = $this->renderFile($file, $fileData);
         $content = $this->renderFile($fileLayout, ['CONTENT' => $content]);
 
@@ -134,9 +134,8 @@ final class View
         // Not needed anymore.
         unset($file, $fileData);
 
-        // Extract file data & make items accessible in included file.
+        // Extract file data, make items accessible in included file.
         $FILE_DATA && extract($FILE_DATA);
-
 
         ob_start();
         include $FILE;
