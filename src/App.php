@@ -171,7 +171,7 @@ final class App
     }
 
     /**
-     * Delete a cache item, throw `AppException` if no cache object initiated.
+     * Delete a cache item or all by "*" as key, throw `AppException` if no cache object initiated.
      *
      * @param  string|int|array<string|int> $key
      * @return bool
