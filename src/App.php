@@ -184,7 +184,7 @@ final class App
             'No cache object initiated yet, be sure `cache` option is not empty in config'
         );
 
-        return $this->cache->delete($key);
+        return ($key === '*') ? $this->cache->clear() : $this->cache->delete($key);
     }
 
     /**
