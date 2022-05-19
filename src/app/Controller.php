@@ -535,6 +535,9 @@ class Controller
      */
     public final function payload(int $code, mixed $content, array $attributes = null): Payload
     {
+        if ($content instanceof data\Dto) {
+            $content = $content->toOutput();
+        }
         return new Payload($code, $content, $attributes);
     }
 
@@ -548,6 +551,9 @@ class Controller
      */
     public final function jsonPayload(int $code, mixed $content, array $attributes = null): JsonPayload
     {
+        if ($content instanceof data\Dto) {
+            $content = $content->toOutput();
+        }
         return new JsonPayload($code, $content, $attributes);
     }
 
@@ -561,6 +567,9 @@ class Controller
      */
     public final function xmlPayload(int $code, mixed $content, array $attributes = null): XmlPayload
     {
+        if ($content instanceof data\Dto) {
+            $content = $content->toOutput();
+        }
         return new XmlPayload($code, $content, $attributes);
     }
 
