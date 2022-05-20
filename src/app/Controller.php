@@ -922,8 +922,8 @@ class Controller
                     preg_replace('~[\W]~', '', $name), // Class name.
                 );
 
-                // These classes don't use codes, they have already.
                 if (class_exists($class)) {
+                    // These classes don't use codes, they have already.
                     return new $class($message, $messageParams);
                 }
             }
