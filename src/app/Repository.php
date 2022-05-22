@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace froq\app;
 
 use froq\database\trait\{DbTrait, EmTrait};
-use froq\database\{common\Helper, entity\Manager as EntityManager};
-use froq\database\{Database, DatabaseException, Query};
+use froq\database\entity\Manager as EntityManager;
+use froq\database\{Database, DatabaseRegistry, DatabaseRegistryException, Query};
 use froq\database\query\{QueryParam, QueryParams};
 
 /**
@@ -45,8 +45,8 @@ class Repository
         $this->controller = $controller;
 
         if (!$db) try {
-            $db = Helper::getActiveDatabase();
-        } catch (DatabaseException $e) {
+            $db = DatabaseRegistry::getDefault(__method__);
+        } catch (DatabaseRegistryException $e) {
             throw new RepositoryException($e->message);
         }
 
