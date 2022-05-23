@@ -202,6 +202,18 @@ class Controller
     }
 
     /**
+     * Check an action param's existence.
+     *
+     * @param  string $name
+     * @return bool
+     * @since  5.0
+     */
+    public final function hasActionParam(string $name): bool
+    {
+        return isset($this->actionParams[$name]);
+    }
+
+    /**
      * Set an action param by given name/value.
      *
      * @param  string $name
@@ -227,15 +239,21 @@ class Controller
     }
 
     /**
-     * Check an action param's existence.
+     * Check all action param's existence, or given names only.
      *
-     * @param  string $name
+     * @param  array<string>|null $names
      * @return bool
      * @since  5.0
      */
-    public final function hasActionParam(string $name): bool
+    public final function hasActionParams(array $names = null): bool
     {
-        return isset($this->actionParams[$name]);
+        $params = $this->actionParams ?? [];
+
+        if ($names === null) {
+            return !empty($params);
+        }
+
+        return array_isset($params, ...$names);
     }
 
     /**
@@ -272,24 +290,6 @@ class Controller
         $combine || $params = array_values($params);
 
         return $params;
-    }
-
-    /**
-     * Check all action param's existence, or given names only.
-     *
-     * @param  array<string>|null $names
-     * @return bool
-     * @since  5.0
-     */
-    public final function hasActionParams(array $names = null): bool
-    {
-        $params = $this->actionParams ?? [];
-
-        if ($names === null) {
-            return !empty($params);
-        }
-
-        return array_isset($params, ...$names);
     }
 
     /**
