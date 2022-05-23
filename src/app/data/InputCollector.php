@@ -8,23 +8,23 @@ declare(strict_types=1);
 namespace froq\app\data;
 
 /**
- * Collector class, collects property data of self DTO instance.
+ * Collector class, collects property data of given DTO instance.
  *
  * @package froq\app\data
- * @object  froq\app\data\DataCollector
+ * @object  froq\app\data\InputCollector
  * @author  Kerem Güneş
  * @since   6.0
  * @internal
  */
-class DataCollector
+class InputCollector
 {
     /**
      * Constructor.
      *
-     * @param froq\app\data\Dto $dto
+     * @param froq\app\data\Data $data
      */
     public function __construct(
-        public readonly Dto $dto
+        public readonly Data $data
     ) {}
 
     /**
@@ -34,16 +34,16 @@ class DataCollector
      */
     public function collect(): array
     {
-        return $this->dto->toInput();
+        return $this->data->toInput();
     }
 
     /**
-     * Collect "public" properties data of self DTO.
+     * Collect "public" property data of given DTO instance.
      *
      * @return array
      */
     public function collectProperties(): array
     {
-        return get_object_vars($this->dto);
+        return get_object_vars($this->data);
     }
 }

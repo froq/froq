@@ -10,14 +10,14 @@ namespace froq\app\data;
 use froq\pager\{Pager, PagerTrait};
 
 /**
- * A list class, for collecting `Dto` instances.
+ * A list class, for collecting DTO instances.
  *
  * @package froq\app\data
- * @object  froq\app\data\DtoList
+ * @object  froq\app\data\DataList
  * @author  Kerem Güneş
  * @since   6.0
  */
-class DtoList extends \ItemList
+class DataList extends \ItemList
 {
     use PagerTrait;
 
@@ -50,7 +50,7 @@ class DtoList extends \ItemList
         $items = parent::toArray();
 
         if ($deep) foreach ($items as &$item) {
-            if ($item instanceof Dto) {
+            if ($item instanceof Data) {
                 $item = $item->toArray();
             }
         }
@@ -65,7 +65,8 @@ class DtoList extends \ItemList
     {
         if (str_ends_with(static::class, 'List')) {
             $class = substr(static::class, 0, -4);
-            if (class_exists($class) && class_extends($class, Dto::class)) {
+            if (class_exists($class)
+                && class_extends($class, Data::class)) {
                 return $class;
             }
         }

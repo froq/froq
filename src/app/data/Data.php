@@ -14,11 +14,11 @@ use froq\common\interface\Arrayable;
  * with set/get & array methods and other abstractions like toInput/toOutput.
  *
  * @package froq\app\data
- * @object  froq\app\data\Dto
+ * @object  froq\app\data\Data
  * @author  Kerem Güneş
  * @since   6.0
  */
-abstract class Dto implements Arrayable
+abstract class Data implements Arrayable
 {
     /**
      * Constructor.
@@ -73,7 +73,7 @@ abstract class Dto implements Arrayable
     }
 
     /**
-     * Validate subclass properties data, return errors if validation fails.
+     * Validate subclass's property data, return errors if validation fails.
      *
      * @param  array|null   $options
      * @param  mixed     ...$arguments
@@ -81,8 +81,8 @@ abstract class Dto implements Arrayable
      */
     public function validate(array $options = null, mixed ...$arguments): array|null
     {
-        $data = (new DataCollector($this))->collect();
-        $okay = (new DataValidator($this))->validate($data, $errors, $options, $arguments);
+        $data = (new InputCollector($this))->collect();
+        $okay = (new InputValidator($this))->validate($data, $errors, $options, $arguments);
 
         // Update self data with validated data.
         $okay && $this->update($data);

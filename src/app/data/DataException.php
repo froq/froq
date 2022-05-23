@@ -9,9 +9,9 @@ namespace froq\app\data;
 
 /**
  * @package froq\app\data
- * @object  froq\app\data\DtoException
+ * @object  froq\app\data\DataException
  * @author  Kerem Güneş
  * @since   6.0
  */
-class DtoException extends \froq\AppException
+class DataException extends \froq\AppException
 {}
