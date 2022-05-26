@@ -24,14 +24,14 @@ class Repository
 {
     use DbTrait, EmTrait;
 
-    /** @var froq\app\Controller */
-    public readonly Controller $controller;
-
     /** @const string */
     public final const NAMESPACE = 'app\repository';
 
     /** @const string */
     public final const SUFFIX    = 'Repository';
+
+    /** @var froq\app\Controller */
+    public readonly Controller $controller;
 
     /**
      * Constructor.
@@ -77,7 +77,6 @@ class Repository
      * Init a QueryParam instance.
      *
      * @return froq\database\query\QueryParam
-     * @since  6.0
      */
     public final function initQueryParam(): QueryParam
     {
@@ -88,7 +87,6 @@ class Repository
      * Init a QueryParams instance.
      *
      * @return froq\database\query\QueryParams
-     * @since  6.0
      */
     public final function initQueryParams(): QueryParams
     {
