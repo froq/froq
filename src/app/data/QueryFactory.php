@@ -23,10 +23,10 @@ use froq\database\query\{QueryParam, QueryParams};
  * // BookRepository.init()
  * $this->query = new BookQuery()
  *
- * // BookRepository.findBook()
- * return $this->query->findBook($id)
+ * // BookRepository.find()
+ * return $this->query->find($id)
  *
- * // BookQuery.findBook()
+ * // BookQuery.find()
  * return $this->initQuery('books')->select('*')->where('id', [$id])->get()
  * ```
  *
