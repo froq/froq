@@ -42,18 +42,16 @@ class QueryFactory
     /**
      * Constructor.
      *
-     * @param froq\database\Database|null $db
+     * @param  froq\database\Database|null $db
      * @throws froq\app\data\QueryFactoryException
      */
     public function __construct(Database $db = null)
     {
         if (!$db) try {
-            // Find real caller method for a proper error message.
-            if (self::class != static::class) {
-                $method = sprintf('%s::%s', static::class, __function__);
-            }
+            // Real caller method for a proper error message.
+            $caller = static::class . '::' . __function__;
 
-            $db = DatabaseRegistry::getDefault($method ?? __method__);
+            $db = DatabaseRegistry::getDefault($caller);
         } catch (DatabaseRegistryException $e) {
             throw new QueryFactoryException($e->message);
         }
