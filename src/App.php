@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\{logger\Logger, event\Events, session\Session, database\Database};
+use froq\{logger\Logger, event\EventStack, session\Session, database\Database};
 use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
 use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
@@ -64,8 +64,8 @@ final class App
     /** @var froq\cache\Cache|null */
     public readonly Cache|null $cache;
 
-    /** @var froq\events\Events */
-    private Events $events;
+    /** @var froq\events\EventStack */
+    private EventStack $events;
 
     /** @var froq\Router */
     private Router $router;
@@ -94,7 +94,7 @@ final class App
         $this->response = new Response($this);
 
         [$this->dir, $this->events, $this->router, $this->servicer, $this->config, self::$registry] = [
-            APP_DIR, new Events(), new Router(), new Servicer(), new Config(), new Registry()
+            APP_DIR, new EventStack(), new Router(), new Servicer(), new Config(), new Registry()
         ];
 
         // Register app.
