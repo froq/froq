@@ -467,8 +467,7 @@ final class App
 
         $this->startOutputBuffer();
 
-        // Call before event if exists.
-        $this->events->fire('before', $this);
+        $this->fireEvent('before');
 
         $controller = new $controller($this);
 
@@ -482,8 +481,7 @@ final class App
             $return = $this->error($e);
         }
 
-        // Call after event if exists.
-        $this->events->fire('after', $this);
+        $this->fireEvent('after');
 
         $this->endOutputBuffer($return);
     }
@@ -524,8 +522,7 @@ final class App
     {
         $this->errorLog($error);
 
-        // Call user error handler if provided.
-        $this->events->fire('error', $this, $error);
+        $this->fireEvent('error', $error);
 
         // Check HTTP exception related codes.
         $cause = $error->cause ?? null;
@@ -654,6 +651,15 @@ final class App
         }
 
         return $buffer;
+    }
+
+    /**
+     * Fire an event (if provided in index.php via on/off methods).
+     */
+    private function fireEvent(string $name, mixed ...$args): void
+    {
+        $event = $this->events->get($name);
+        $event && $event($this, ...$args);
     }
 
     /**
