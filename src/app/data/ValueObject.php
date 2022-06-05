@@ -23,7 +23,7 @@ abstract class ValueObject extends \PlainObject implements Arrayable
     /**
      * Constructor.
      *
-     * @param mixed ...$properties
+     * @param mixed ...$properties As map of named arguments.
      */
     public function __construct(mixed ...$properties)
     {

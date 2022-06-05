@@ -24,11 +24,13 @@ abstract class DataObject implements Arrayable
     /**
      * Constructor.
      *
-     * @param array<string, mixed>|null $data
+     * @param mixed ...$properties As map of named arguments.
      */
-    public function __construct(array $data = null)
+    public function __construct(mixed ...$properties)
     {
-        $data && $this->update($data);
+        foreach ($properties as $name => $value) {
+            $this->set($name, $value);
+        }
     }
 
     /**
@@ -40,7 +42,11 @@ abstract class DataObject implements Arrayable
      */
     public function set(string $name, mixed $value): self
     {
-        return $this->update([$name => $value]);
+        if ($this->canUpdateProperty($name)) {
+            $this->$name = $value;
+        }
+
+        return $this;
     }
 
     /**
@@ -136,7 +142,7 @@ abstract class DataObject implements Arrayable
      * Check whether a property can be updated controlling that the property is defined
      * in subclass as public & non-static and not in given skip list.
      */
-    private function canUpdateProperty(string $name, array $namesToSkip): bool
+    private function canUpdateProperty(string $name, array $namesToSkip = []): bool
     {
         if (in_array($name, $namesToSkip, true)
             || !property_exists($this, $name)) {
