@@ -10,7 +10,7 @@ namespace froq\app\data;
 use froq\common\interface\Arrayable;
 
 /**
- * Base/template class of DTO (Data Transfer object) classes, provides basic methods
+ * Base/template class of DTO (Data Transfer Object) classes, provides basic methods
  * such as update/validate with set/get & array methods and other abstractions like
  * toInput/toOutput.
  *
