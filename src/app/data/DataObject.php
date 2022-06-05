@@ -97,7 +97,7 @@ abstract class DataObject implements Arrayable
      * Note: If subclass has a constructor that takes various arguments (any required),
      * than this method must be overriden.
      *
-     * @param  array $data
+     * @param  array<string, mixed> $data
      * @return static
      */
     public static function fromArray(array $data): static
