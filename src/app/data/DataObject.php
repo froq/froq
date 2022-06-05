@@ -10,15 +10,16 @@ namespace froq\app\data;
 use froq\common\interface\Arrayable;
 
 /**
- * Base/template class of DTO classes, provides basic methods such as update/validate
- * with set/get & array methods and other abstractions like toInput/toOutput.
+ * Base/template class of DTO (Data Transfer object) classes, provides basic methods
+ * such as update/validate with set/get & array methods and other abstractions like
+ * toInput/toOutput.
  *
  * @package froq\app\data
- * @object  froq\app\data\Data
+ * @object  froq\app\data\DataObject
  * @author  Kerem Güneş
  * @since   6.0
  */
-abstract class Data implements Arrayable
+abstract class DataObject implements Arrayable
 {
     /**
      * Constructor.

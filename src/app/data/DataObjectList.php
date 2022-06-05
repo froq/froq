@@ -13,11 +13,11 @@ use froq\pager\{Pager, PagerTrait};
  * A list class, for collecting DTO instances.
  *
  * @package froq\app\data
- * @object  froq\app\data\DataList
+ * @object  froq\app\data\DataObjectList
  * @author  Kerem Güneş
  * @since   6.0
  */
-class DataList extends \ItemList
+class DataObjectList extends \ItemList
 {
     use PagerTrait;
 
@@ -50,7 +50,7 @@ class DataList extends \ItemList
         $items = parent::toArray();
 
         if ($deep) foreach ($items as &$item) {
-            if ($item instanceof Data) {
+            if ($item instanceof DataObject) {
                 $item = $item->toArray();
             }
         }
@@ -66,7 +66,7 @@ class DataList extends \ItemList
         if (str_ends_with(static::class, 'List')) {
             $class = substr(static::class, 0, -4);
             if (class_exists($class)
-                && class_extends($class, Data::class)) {
+                && class_extends($class, DataObject::class)) {
                 return $class;
             }
         }

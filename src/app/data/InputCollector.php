@@ -21,10 +21,10 @@ class InputCollector
     /**
      * Constructor.
      *
-     * @param froq\app\data\Data $data
+     * @param froq\app\data\DataObject $do
      */
     public function __construct(
-        public readonly Data $data
+        public readonly DataObject $do
     ) {}
 
     /**
@@ -34,7 +34,7 @@ class InputCollector
      */
     public function collect(): array
     {
-        return $this->data->toInput();
+        return $this->do->toInput();
     }
 
     /**
@@ -44,6 +44,6 @@ class InputCollector
      */
     public function collectProperties(): array
     {
-        return get_object_vars($this->data);
+        return get_object_vars($this->do);
     }
 }
