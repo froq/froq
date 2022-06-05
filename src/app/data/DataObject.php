@@ -133,7 +133,8 @@ abstract class DataObject implements Arrayable
     abstract public function toOutput(): mixed;
 
     /**
-     * Check whether a property can be updated.
+     * Check whether a property can be updated controlling that the property is defined
+     * in subclass as public & non-static and not in given skip list.
      */
     private function canUpdateProperty(string $name, array $namesToSkip): bool
     {
