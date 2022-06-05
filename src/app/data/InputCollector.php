@@ -42,7 +42,7 @@ class InputCollector
      *
      * @return array
      */
-    public function collectProperties(): array
+    public function collectVars(): array
     {
         return get_object_vars($this->do);
     }
