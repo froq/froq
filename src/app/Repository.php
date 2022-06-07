@@ -45,7 +45,7 @@ class Repository
         $this->controller = $controller;
 
         if (!$db) try {
-            $db = DatabaseRegistry::getDefault(__method__);
+            $db = DatabaseRegistry::getDefault();
         } catch (DatabaseRegistryException $e) {
             throw new RepositoryException($e->message);
         }
