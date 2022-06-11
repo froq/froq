@@ -61,7 +61,7 @@ class QueryFactory
 
             $db = DatabaseRegistry::getDefault($caller);
         } catch (DatabaseRegistryException $e) {
-            throw new QueryFactoryException($e->message);
+            throw new QueryFactoryException($e);
         }
 
         $this->db = $db;
