@@ -47,7 +47,7 @@ class Repository
         if (!$db) try {
             $db = DatabaseRegistry::getDefault();
         } catch (DatabaseRegistryException $e) {
-            throw new RepositoryException($e->message);
+            throw new RepositoryException($e);
         }
 
         $this->db = $db;
