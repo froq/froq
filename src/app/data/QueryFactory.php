@@ -56,8 +56,8 @@ class QueryFactory
     public function __construct(Database $db = null, string $table = null)
     {
         if (!$db) try {
-            // Real caller method for a proper error message.
-            $caller = static::class . '::' . __function__;
+            // Real caller for a proper error message (for subclasses).
+            $caller = sprintf('%s::%s', static::class, __function__);
 
             $db = DatabaseRegistry::getDefault($caller);
         } catch (DatabaseRegistryException $e) {
