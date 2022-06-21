@@ -210,8 +210,8 @@ final class Autoloader
         $directory = realpath(APP_DIR . $directory)
             ?: throw new \Exception('No directory exists such ' . APP_DIR . $directory);
 
-        /** @var array<SplFileInfo> */
-        $matches = new \RegexIterator(
+        /** @var RegexIterator<SplFileInfo> */
+        $infos = new \RegexIterator(
             new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($directory)
             ),
@@ -219,11 +219,11 @@ final class Autoloader
             \RecursiveRegexIterator::MATCH, // For collecting file info stack only.
         );
 
-        foreach ($matches as $match) {
+        foreach ($infos as $info) {
             // Reset for each file.
             $index = 0; $item = [];
 
-            $file = $match->getRealPath();
+            $file = $info->getRealPath();
             $tokens = \PhpToken::tokenize(file_get_contents($file));
 
             foreach ($tokens as $token) {
