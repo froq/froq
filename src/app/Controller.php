@@ -325,7 +325,7 @@ class Controller
             $class = !$base ? Repository::NAMESPACE . '\\' . $name . Repository::SUFFIX
                             : Repository::NAMESPACE . '\\' . $base . '\\' . $name . Repository::SUFFIX;
 
-            // Try to use parent's repository class if parent using repository.
+            // Try to use parent's repository class if parent uses a repository.
             if (!class_exists($class)) {
                 $parent = get_parent_class($this);
                 while ($parent && $parent != self::class) {
@@ -338,6 +338,7 @@ class Controller
                         break;
                     }
 
+                    // Try moving to next parent.
                     $parent = get_parent_class($parent);
                 }
             }
