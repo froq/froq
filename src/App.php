@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\{logger\Logger, event\EventStack, session\Session, database\Database};
+use froq\{logger\Logger, event\EventManager, session\Session, database\Database};
 use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
 use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
@@ -64,8 +64,8 @@ final class App
     /** @var froq\cache\Cache|null */
     public readonly Cache|null $cache;
 
-    /** @var froq\events\EventStack */
-    private EventStack $events;
+    /** @var froq\event\EventManager */
+    private EventManager $eventManager;
 
     /** @var froq\Router */
     private Router $router;
@@ -93,8 +93,8 @@ final class App
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
-        [$this->dir, $this->events, $this->router, $this->servicer, $this->config, self::$registry] = [
-            APP_DIR, new EventStack(), new Router(), new Servicer(), new Config(), new Registry()
+        [$this->dir, $this->eventManager, $this->router, $this->servicer, $this->config, self::$registry] = [
+            APP_DIR, new EventManager($this), new Router(), new Servicer(), new Config(), new Registry()
         ];
 
         // Register app.
@@ -192,13 +192,13 @@ final class App
      *
      * @param  string   $name
      * @param  callable $callback
-     * @param  bool     $once
+     * @param  mixed ...$options
      * @return self
      * @since  6.0
      */
-    public function on(string $name, callable $callback, bool $once = true): self
+    public function on(string $name, callable $callback, mixed ...$options): self
     {
-        $this->events->on($name, $callback, $once);
+        $this->eventManager->add($name, $callback, ...$options);
 
         return $this;
     }
@@ -212,7 +212,7 @@ final class App
      */
     public function off(string $name): self
     {
-        $this->events->off($name);
+        $this->eventManager->remove($name);
 
         return $this;
     }
@@ -624,9 +624,9 @@ final class App
             // Content of body or returned content from action.
             $content ??= $return;
 
-            // Call user output handler if provided.
-            if ($this->events->has('output')) {
-                $content = $this->events->fire('output', $this, $content);
+            // Call user output handler if provided, so output must return back.
+            if ($this->eventManager->has('output')) {
+                $content = $this->eventManager->fire('output', $content);
             }
 
             $this->response->setBody($content, $this->response->body->getAttributes());
@@ -656,10 +656,11 @@ final class App
     /**
      * Fire an event (if provided in index.php via on/off methods).
      */
-    private function fireEvent(string $name, mixed ...$args): void
+    private function fireEvent(string $name, mixed ...$arguments): void
     {
-        $event = $this->events->get($name);
-        $event && $event($this, ...$args);
+        if ($this->eventManager->has($name)) {
+            $this->eventManager->fire($name, ...$arguments);
+        }
     }
 
     /**
