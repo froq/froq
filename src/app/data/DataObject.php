@@ -101,7 +101,7 @@ abstract class DataObject implements Arrayable
      * Create a DTO instance & update with given data.
      *
      * Note: If subclass has a constructor that takes various arguments (any required),
-     * than this method must be overriden.
+     * than this method must be overridden.
      *
      * @param  array<string, mixed> $data
      * @return static
@@ -115,7 +115,7 @@ abstract class DataObject implements Arrayable
      * Return output data as default.
      *
      * Note: If subclass method logic is different from this method, then this method
-     * must be overriden.
+     * must be overridden.
      *
      * @return array
      */

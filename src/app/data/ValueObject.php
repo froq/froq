@@ -64,7 +64,7 @@ abstract class ValueObject extends \PlainObject implements Arrayable
      * Create a VO instance & update with given data.
      *
      * Note: If subclass has a constructor that takes various arguments (any required),
-     * than this method must be overriden.
+     * than this method must be overridden.
      *
      * @param  array<string, mixed> $data
      * @return static
@@ -78,7 +78,7 @@ abstract class ValueObject extends \PlainObject implements Arrayable
      * Return data as array.
      *
      * Note: If subclass method logic is different from this method, then this method
-     * must be overriden.
+     * must be overridden.
      *
      * @return array
      */
