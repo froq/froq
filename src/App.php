@@ -7,11 +7,12 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\{logger\Logger, event\EventManager, session\Session, database\Database};
+use froq\{event\EventManager, session\Session, database\Database};
 use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
 use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
+use froq\logger\{Logger, LogLevel};
 use froq\util\misc\System;
 use Assert, Throwable;
 
@@ -89,7 +90,7 @@ final class App
         // App dir is required (@see pub/index.php).
         defined('APP_DIR') || throw new AppException('APP_DIR not defined');
 
-        $this->logger   = new Logger(['level' => Logger::ALL]);
+        $this->logger   = new Logger(['level' => LogLevel::ALL]);
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
@@ -585,10 +586,12 @@ final class App
     private function errorLog(Throwable $error): bool
     {
         $level  = $this->logger->getLevel();
-        $logged = $this->logger->setLevel(Logger::ERROR)->logError($error);
+        $logged = $this->logger->setLevel(LogLevel::ERROR)->logError($error);
 
         // Restore.
-        $this->logger->setLevel($level);
+        if ($level != LogLevel::ERROR) {
+            $this->logger->setLevel($level);
+        }
 
         return $logged;
     }
