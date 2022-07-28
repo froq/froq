@@ -7,10 +7,10 @@ declare(strict_types=1);
 
 namespace froq\app;
 
-use froq\database\trait\{DbTrait, EmTrait};
-use froq\database\entity\Manager as EntityManager;
 use froq\database\{Database, DatabaseRegistry, DatabaseRegistryException, Query};
 use froq\database\query\{QueryParam, QueryParams};
+use froq\database\trait\{DbTrait, EmTrait};
+use froq\database\entity\EntityManager;
 
 /**
  * Base class of `app\repository` classes.
