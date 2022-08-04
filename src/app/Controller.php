@@ -117,6 +117,17 @@ class Controller
     }
 
     /**
+     * Destructor.
+     */
+    public final function __destruct()
+    {
+        // Call dinit() method if defined in subclass.
+        if (method_exists($this, 'dinit')) {
+            $this->dinit();
+        }
+    }
+
+    /**
      * Get repository.
      *
      * @return froq\app\Repository|null
