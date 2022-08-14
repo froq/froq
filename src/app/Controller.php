@@ -103,17 +103,17 @@ class Controller
         $this->useSession    && $this->loadSession();
         $this->useView       && $this->loadView();
 
-        // Call init() method if defined in subclass.
-        if (method_exists($this, 'init')) {
-            $this->init();
-        }
-
         // Store this controller (as last controller).
         $this->app::registry()::set('@controller', $this, false);
 
         // Set before/after ticks these called in call()/callCallable() methods.
         $this->before = method_exists($this, 'before');
         $this->after  = method_exists($this, 'after');
+
+        // Call init() method if defined in subclass.
+        if (method_exists($this, 'init')) {
+            $this->init();
+        }
     }
 
     /**
