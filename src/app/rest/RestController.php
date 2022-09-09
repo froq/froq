@@ -20,7 +20,7 @@ use froq\http\exception\client\NotFoundException;
 class RestController extends \froq\app\Controller
 {
     /**
-     * Call rest related methods like `get()`, `post()` etc. defined in user controller.
+     * Call REST related methods like `get()`, `post()` etc. defined in user controller.
      *
      * Note: This method can be called in `index()` method redirecting all routes to this
      * method in route config.
