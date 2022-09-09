@@ -34,7 +34,7 @@ abstract class DataObject implements Arrayable
     }
 
     /**
-     * Set a property if exists.
+     * Set a property if available.
      *
      * @param  string $name
      * @param  mixed  $value
@@ -50,7 +50,7 @@ abstract class DataObject implements Arrayable
     }
 
     /**
-     * Get a property if exists.
+     * Get a property if available.
      *
      * @param  string     $name
      * @param  mixed|null $default

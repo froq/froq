@@ -33,7 +33,7 @@ abstract class ValueObject extends \PlainObject implements Arrayable
     }
 
     /**
-     * Set a property.
+     * Set a property available.
      *
      * @param  string $name
      * @param  mixed  $value
@@ -49,7 +49,7 @@ abstract class ValueObject extends \PlainObject implements Arrayable
     }
 
     /**
-     * Get a property.
+     * Get a property available.
      *
      * @param  string     $name
      * @param  mixed|null $default

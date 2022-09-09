@@ -39,7 +39,7 @@ class ObjectList extends \ItemList
                 'Given items must be list, map given'
             );
 
-            // Sniff item class for converting items to DTO/VO objects.
+            // Sniff item class for converting items to DTO/VO instances.
             if ($this->convertItems && ($itemClass = $this->sniffItemClass())) {
                 $items = $this->convertItems($items, $itemClass);
             }
@@ -75,7 +75,7 @@ class ObjectList extends \ItemList
     }
 
     /**
-     * Convert items to DTO instances.
+     * Convert items to DTO/VO instances.
      */
     private function convertItems(array $items, string $itemClass): array
     {
