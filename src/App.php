@@ -611,12 +611,8 @@ final class App
      */
     private function endOutputBuffer(mixed $return): void
     {
-        // Handle redirections.
-        if ($this->response->status->isRedirect()) {
-            $this->response->setBody(null, null);
-        }
-        // Handle outputs & returns.
-        else {
+        // Handle output/return responses.
+        if ($this->response->canHaveBody()) {
             $content = $this->response->body->getContent();
 
             // Actions that use echo/print/view()/response.setBody() will return null.
@@ -633,6 +629,10 @@ final class App
             }
 
             $this->response->setBody($content, $this->response->body->getAttributes());
+        }
+        // Handle non-body responses.
+        else {
+            $this->response->setBody(null, null);
         }
 
         // The end..
