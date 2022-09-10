@@ -612,7 +612,7 @@ final class App
     private function endOutputBuffer(mixed $return): void
     {
         // Handle output/return responses.
-        if ($this->response->canHaveBody()) {
+        if ($this->response->allowsBody()) {
             $content = $this->response->body->getContent();
 
             // Actions that use echo/print/view()/response.setBody() will return null.
