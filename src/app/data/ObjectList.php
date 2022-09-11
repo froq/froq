@@ -79,7 +79,8 @@ class ObjectList extends \ItemList
      */
     private function convertItems(array $items, string $itemClass): array
     {
-        $object = new $itemClass;
+        $object = new $itemClass();
+
         foreach ($items as &$item) {
             if (!is_array($item)) {
                 continue;
