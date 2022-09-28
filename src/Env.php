@@ -7,19 +7,15 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\common\object\Enum;
-
 /**
- * Env.
- *
- * Represents an enum entity which carries App environment names.
+ * An enum class, carries App environment names.
  *
  * @package froq
  * @object  froq\Env
  * @author  Kerem Güneş
  * @since   4.0
  */
-final class Env extends Enum
+final class Env extends \froq\common\object\Enum
 {
     /**
      * Names.

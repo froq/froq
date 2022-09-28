@@ -7,10 +7,8 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\ServicerException;
-
 /**
- * Servicer.
+ * Service registry class.
  *
  * @package froq
  * @object  froq\Servicer
@@ -39,6 +37,21 @@ final class Servicer
     }
 
     /**
+     * Add services to services stack.
+     *
+     * @param  array $services
+     * @return self
+     */
+    public function addServices(array $services): self
+    {
+        foreach ($services as $name => $service) {
+            $this->addService($name, $service);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a service to services stack, or throws `ServicerException` if invalid service argument
      * type given, service argument is an array and no service class given or service class not found.
      *
@@ -52,31 +65,20 @@ final class Servicer
         if (is_array($service)) {
             [$class, $classArgs] = array_select($service, [0, 1]);
 
-            if ($class == null) {
-                throw new ServicerException('Service class must be provided and fully namespaced for'
-                    . ' array-ed service registrations');
+            if (!$class) {
+                throw new ServicerException(
+                    'Service class must be provided and fully named '.
+                    'for array-ed service registrations'
+                );
             } elseif (!class_exists($class)) {
-                throw new ServicerException('Service class `%s` not found', $class);
+                throw new ServicerException(
+                    'Service class `%s` not found', $class
+                );
             }
 
-            $this->services[$name] = !$classArgs ? new $class() : new $class(...(array) $classArgs);
+            $this->services[$name] = new $class(...(array) $classArgs);
         } else {
             $this->services[$name] = $service;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add services to services stack.
-     *
-     * @param  array $services
-     * @return self
-     */
-    public function addServices(array $services): self
-    {
-        foreach ($services as $name => $service) {
-            $this->addService($name, $service);
         }
 
         return $this;
@@ -97,15 +99,11 @@ final class Servicer
      * Remove a service from service stack.
      *
      * @param  string $name
-     * @return bool
+     * @return void
      */
-    public function removeService(string $name): bool
+    public function removeService(string $name): void
     {
-        if (isset($this->services[$name])) {
-            unset($this->services[$name]);
-            return true;
-        }
-        return false;
+        unset($this->services[$name]);
     }
 
     /**

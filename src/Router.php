@@ -7,14 +7,10 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\RouterException;
-use froq\mvc\{Controller, Model};
-use froq\util\Arrays;
+use froq\app\{Controller, Repository};
 
 /**
- * Router.
- *
- * Represents a route stack entity that able to do such ops add/pack and resolve using RegExp utilities.
+ * A route stack class, able to such ops add, pack and resolve using RegExp utilities.
  *
  * @package froq
  * @object  froq\Router
@@ -29,10 +25,10 @@ final class Router
     /** @var array */
     private array $debug = [];
 
-    /** @var array @since 4.12 */
+    /** @var array */
     private static array $options = [];
 
-    /** @var array @since 4.12 */
+    /** @var array */
     private static array $optionsDefault = [
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,
@@ -74,14 +70,12 @@ final class Router
      * Set options.
      *
      * @param  array $options
-     * @return self
+     * @return void
      * @since  4.14
      */
-    public function setOptions(array $options): self
+    public function setOptions(array $options): void
     {
-        self::$options = Arrays::options($options, self::$optionsDefault, false);
-
-        return $this;
+        self::$options = array_options($options, self::$optionsDefault);
     }
 
     /**
@@ -188,9 +182,9 @@ final class Router
     public function resolve(string $uri, string $method = null, array $options = null): array|null
     {
         $routes = $this->routes();
-        $routes || throw new RouterException('No route directives exist to resolve');
+        $routes || throw new RouterException('No route directives to resolve');
 
-        $options  = Arrays::options($options, self::$options);
+        $options  = array_options($options, self::$options);
         $patterns = [];
 
         foreach ($routes as $i => [$pattern]) {
@@ -249,8 +243,8 @@ final class Router
 
         // Check invalid-pattern causing errors.
         if (!$res && $options['throwErrors']) {
-            $message = preg_error_message('preg_match');
-            $message && throw new RouterException($message);
+            $message = preg_error_message($code, 'preg_match');
+            $message && throw new RouterException($message, code: $code);
         }
 
         if ($res) {
@@ -271,7 +265,7 @@ final class Router
 
             // Handle conditional replacements, eg: ["/user/:x{login|logut}", "User.{x}"].
             foreach ($calls as $i => $call) {
-                $rep = grep($call, '~{(\w+)}~');
+                $rep = grep('~{(\w+)}~', $call);
                 if ($rep) {
                     if (isset($match[$rep])) {
                         // Replace & tick ("-" for camel-case).
@@ -341,7 +335,9 @@ final class Router
             if (is_string($call)) {
                 [$controller, $action] = self::prepare($call);
 
-                $controller || throw new RouterException('No controller given in route');
+                if (!$controller) {
+                    throw new RouterException('No controller given in route');
+                }
 
                 foreach ($methods as $method) {
                     $actions[$method] = [$controller, $action, $actionParams];
@@ -359,8 +355,10 @@ final class Router
             }
             // No valid route options.
             else {
-                throw new RouterException('Only string and callable actions are allowed, %s given',
-                    get_type($call));
+                throw new RouterException(
+                    'Only string and callable actions are allowed, %t given',
+                    $call
+                );
             }
         }
 
@@ -378,9 +376,9 @@ final class Router
      */
     public static function prepare(string $call, array $callArgs = []): array
     {
-        // Note: suffixes ("Controller" and "Action") must not be used in call directives, eg:
-        // Index for IndexController, Index.foo for IndexController.fooAction.
-        [$controller, $action] = array_pad((array) explode('.', $call), 2, null);
+        // Note: suffixes ("Controller" and "Action") must not be used in call directives,
+        // eg: Index for IndexController, Index.foo for IndexController.fooAction.
+        [$controller, $action] = split('.', $call, 2);
 
         // Return controller, action, actionParams.
         return $controller ? [
@@ -406,8 +404,8 @@ final class Router
             $name = implode('', array_map('ucfirst', explode('-', $name)));
         }
 
-        if ($suffix != null) {
-            $name = ($suffix == Controller::SUFFIX || $suffix == Model::SUFFIX)
+        if ($suffix) {
+            $name = ($suffix == Controller::SUFFIX || $suffix == Repository::SUFFIX)
                   ? ucfirst($name) : lcfirst($name);
 
             // Add/drop suffix.
@@ -487,10 +485,6 @@ final class Router
 
     /**
      * Prepare calls for a route.
-     *
-     * @param  array $routes
-     * @param  int   $i
-     * @return array
      */
     private static function prepareCalls(array $routes, int $i): array
     {
@@ -499,16 +493,13 @@ final class Router
 
     /**
      * Prepare methods for a route.
-     *
-     * @param  string $methods
-     * @return array<string>
      */
     private static function prepareMethods(string $methods): array
     {
-        // Non-array calls without a method that accept all (eg: ["/book/:id", "Book.show"]).
+        // Non-array calls without method that accept all (eg: ["/book/:id", "Book.show"]).
         $methods = (string) ($methods ?: '*');
 
         // Multiple methods can be given (eg: ["/book/:id", ["GET,POST" => "Book.index"]]).
-        return array_map('strtoupper', explode(',', $methods));
+        return array_map('strtoupper', split(',', $methods));
     }
 }

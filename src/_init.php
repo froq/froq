@@ -3,7 +3,7 @@
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=0);
+declare(strict_types=1);
 
 // Used to detect local environment.
 defined('__local__') || define('__local__',
@@ -14,8 +14,10 @@ defined('__LOCAL__') || define('__LOCAL__', __local__);
 
 // Show all errors if local.
 if (__local__) {
-    ini_set('display_errors', 'on');
+    ini_set('display_errors', true);
     ini_set('error_reporting', E_ALL);
+} else {
+    ini_set('display_errors', false);
 }
 
 // Load global function files.

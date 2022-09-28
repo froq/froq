@@ -5,13 +5,13 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\app\data;
 
 /**
- * @package froq
- * @object  froq\AppError
+ * @package froq\app\data
+ * @object  froq\app\data\QueryFactoryException
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   6.0
  */
-class AppError extends \froq\common\Error
+class QueryFactoryException extends \froq\AppException
 {}

@@ -5,43 +5,38 @@
  */
 declare(strict_types=1);
 
-namespace froq\mvc;
-
-use froq\mvc\{ViewException, Controller};
-use froq\mvc\trait\ControllerTrait;
+namespace froq\app;
 
 /**
- * View.
+ * View class, for templating purposes.
  *
- * Represents a view entity which is a part of MVC stack.
- *
- * @package froq\mvc
- * @object  froq\mvc\View
+ * @package froq\app
+ * @object  froq\app\View
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   4.0, 6.0
  */
 final class View
 {
-    /** @see froq\mvc\trait\ControllerTrait */
-    use ControllerTrait;
+    /** @var froq\app\Controller */
+    public readonly Controller $controller;
 
     /** @var string */
     private string $layout;
 
-    /** @var array<string, any> */
+    /** @var array */
     private array $data;
 
     /**
      * Constructor.
      *
-     * @param froq\mvc\Controller $controller
+     * @param froq\app\Controller $controller
      */
     public function __construct(Controller $controller)
     {
         $this->controller = $controller;
 
         // Store this view (as last view).
-        $controller->app()::registry()::set('@view', $this, false);
+        $this->controller->app::registry()::set('@view', $this, false);
     }
 
     /**
@@ -64,17 +59,17 @@ final class View
      */
     public function getLayout(): string|null
     {
-        return $this->layout;
+        return $this->layout ?? null;
     }
 
     /**
      * Set a data entry with given key.
      *
      * @param  string $key
-     * @param  any    $value
+     * @param  mixed  $value
      * @return self
      */
-    public function setData(string $key, $value): self
+    public function setData(string $key, mixed $value): self
     {
         $this->data[$key] = $value;
 
@@ -84,36 +79,41 @@ final class View
     /**
      * Get a data entry with given key, return `$default` value if found no entry.
      *
-     * @param  string   $key
-     * @param  any|null $default
-     * @return any
+     * @param  string     $key
+     * @param  mixed|null $default
+     * @return mixed
      */
-    public function getData(string $key, $default = null)
+    public function getData(string $key, mixed $default = null): mixed
     {
         return $this->data[$key] ?? $default;
     }
 
     /**
      * Render a given view file instantly with given data set and return the rendered contents,
-     * throw `ViewException` if given file or layout file not found.
+     * throw `ViewException` if given file or layout file not exists.
      *
-     * @param  string                  $file
-     * @param  array<string, any>|null $fileData
+     * @param  string     $file
+     * @param  array|null $fileData
      * @return string
      */
     public function render(string $file, array $fileData = null): string
     {
         $file = $this->prepareFile($file);
-        is_file($file) || throw new ViewException('View file `%s` is not exist', $file);
+        if (!is_file($file)) {
+            throw new ViewException('View file `%s` not found', $file);
+        }
 
         $fileLayout = $this->getLayout();
-        is_file($fileLayout) || throw new ViewException('View layout file `%s` is not exist', $fileLayout);
+        if (!is_file($fileLayout)) {
+            throw new ViewException('View layout file `%s` not found', $fileLayout);
+        }
 
         $fileData ??= [];
         foreach ($fileData as $key => $value) {
             $this->setData($key, $value);
         }
 
+        // Render file first, then send its contents to layout file.
         $content = $this->renderFile($file, $fileData);
         $content = $this->renderFile($fileLayout, ['CONTENT' => $content]);
 
@@ -121,31 +121,28 @@ final class View
     }
 
     /**
-     * Wrap the render operation in an output buffer that run by `render()` method extracting `$fileData`
-     * argument if not empty and return the rendered file's contents.
-     *
-     * @param  string             $file
-     * @param  array<string, any> $fileData
-     * @return string
+     * Wrap the render operation in an output buffer that run by `render()` method extracting
+     * `$fileData` argument if not empty and return the rendered file's contents.
      */
     private function renderFile(string $file, array $fileData): string
     {
-        // Extract file data & make items accessible in included file.
-        $fileData && extract($fileData);
+        // As specials.
+        $FILE      = $file;
+        $FILE_DATA = $fileData;
 
         // Not needed anymore.
-        unset($fileData);
+        unset($file, $fileData);
+
+        // Extract file data, make items accessible in included file.
+        $FILE_DATA && extract($FILE_DATA);
 
         ob_start();
-        include $file;
-        return (string) ob_get_clean();
+        include $FILE;
+        return ob_get_clean();
     }
 
     /**
      * Prepare the given file for inclusion with a fully qualified path.
-     *
-     * @param  string $file
-     * @return string
      */
     private function prepareFile(string $file): string
     {
@@ -153,9 +150,9 @@ final class View
             $file = substr($file, 0, -4);
         }
 
-        // May be defined as full path.
-        $viewBase = $this->controller->getApp()->config('view.base');
-        if ($viewBase != null) {
+        // Must be defined as full path.
+        $viewBase = $this->controller->app->config('view.base');
+        if ($viewBase) {
             return sprintf('%s/%s.php', $viewBase, $file);
         }
 

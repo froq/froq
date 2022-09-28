@@ -7,11 +7,7 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\AppException;
-
 /**
- * Router Exception.
- *
  * @package froq
  * @object  froq\RouterException
  * @author  Kerem Güneş

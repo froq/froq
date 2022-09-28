@@ -10,104 +10,62 @@ declare(strict_types=1);
  *********************/
 
 /**
- * Empty var checker.
- *
- * @param  any    $in
- * @param  any ...$ins
- * @return bool
+ * Init Froq! global.
  */
-function no($in, ...$ins)
+isset($GLOBALS['@froq']) || $GLOBALS['@froq'] = [];
+
+/**
+ * Set a global variable.
+ *
+ * @param  string $key
+ * @param  mixed  $value
+ * @return void
+ */
+function set_global(string $key, mixed $value): void
 {
-    foreach ([$in, ...$ins] as $in) {
-        if (is_empty($in)) {
-            return true;
-        }
+    $GLOBALS['@froq'][$key] = $value;
+}
+
+/**
+ * Get a global variable/variables.
+ *
+ * @param  string     $key
+ * @param  mixed|null $default
+ * @return mixed|null
+ */
+function get_global(string $key, mixed $default = null): mixed
+{
+    // All.
+    if ($key == '*') {
+        $value = $GLOBALS['@froq'];
     }
-    return false;
-}
-
-/**
- * False var checker.
- *
- * @param  any    $in
- * @param  any ...$ins
- * @return bool
- */
-function not($in, ...$ins)
-{
-    foreach ([$in, ...$ins] as $in) {
-        if (is_false($in)) {
-            return true;
+    // All subs (eg: "foo*" or "foo.*").
+    elseif ($key && $key[-1] == '*') {
+        $values = [];
+        $search = substr($key, 0, -1);
+        foreach ($GLOBALS['@froq'] as $key => $value) {
+            if ($search && str_starts_with($key, $search)) {
+                $values[$key] = $value;
+            }
         }
+        $value = $values;
     }
-    return false;
+    // Sub only (eg: "foo" or "foo.bar").
+    else {
+        $value = $GLOBALS['@froq'][$key] ?? $default;
+    }
+
+    return $value;
 }
 
 /**
- * Length getter.
+ * Delete a global variable.
  *
- * @alias of size()
- * @since 3.0
- */
-function len(...$args)
-{
-    return size(...$args);
-}
-
-/**
- * Remove something(s) from an array or string.
- *
- * @param  array|string $in
- * @param  any          $search
- * @return array|string
+ * @param  string $key
+ * @return void
  * @since  3.0
  */
-function remove(array|string $in, $search): array|string
+function delete_global(string $key): void
 {
-    return replace($in, $search, '', true);
-}
-
-/**
- * Replace something(s) on an array or string.
- *
- * @param  string|array               $in
- * @param  string|array               $search
- * @param  string|array|callable|null $replacement
- * @param  bool                       $remove @internal
- * @return string|array
- * @since  3.0
- */
-function replace(array|string $in, array|string $search, array|string|callable $replacement = null,
-    bool $remove = false): array|string
-{
-    if (is_string($in)) {
-        // RegExp: only ~..~ patterns accepted.
-        if (is_string($search) && strlen($search) >= 3 && $search[0] == '~') {
-            return !is_callable($replacement)
-                 ? preg_replace($search, $replacement, $in)
-                 : preg_replace_callback($search, $replacement, $in);
-        }
-
-        return str_replace($search, $replacement, $in);
-    }
-
-    if (is_array($in)) {
-        if (is_string($search)) {
-            $key = array_search($search, $in, true);
-            if ($key !== false) {
-                $in[$key] = $replacement;
-                if ($remove) unset($in[$key]);
-            }
-            return $in;
-        }
-
-        if (is_array($search)) {
-            if ($replacement && is_array($replacement)) {
-                return str_replace($search, $replacement, $in);
-            }
-            return array_replace($in, $search);
-        }
-    }
-
-    return null; // No valid input.
+    unset($GLOBALS['@froq'][$key]);
 }

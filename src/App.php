@@ -7,19 +7,17 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\{AppException, Handler, Router, Servicer, mvc\Controller};
-use froq\{logger\Logger, event\Events, session\Session, database\Database};
-use froq\common\{trait\InstanceTrait, object\Config, object\Factory, object\Registry};
-use froq\http\{Request, Response, response\Status,
-    exception\server\InternalServerErrorException,
+use froq\{event\EventManager, session\Session, database\Database};
+use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
+use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
-use Throwable;
+use froq\logger\{Logger, LogLevel};
+use froq\util\misc\System;
+use Assert, Throwable;
 
 /**
- * App.
- *
- * Represents an application entity which is responsible with all application logics;
+ * Application class which is responsible with all logics;
  * - Creating needed object instances such as Logger, Router, Servicer or Session, Database etc. those used
  * all over the application cycle.
  * - Registering/unregistering error handlers, handling and logging errors.
@@ -35,52 +33,51 @@ use Throwable;
  */
 final class App
 {
-    /** @see froq\common\trait\InstanceTrait */
     use InstanceTrait;
 
     /**
-     * Root (provides options like "app.local/v1/book/1" for versioning etc.).
+     * For versioning (eg: "app.host/v1/book/1").
      * @var string
      */
-    private string $root = '/';
+    public readonly string $root;
 
     /** @var string */
-    private string $dir;
+    public readonly string $dir;
 
     /** @var string */
-    private string $env;
+    public readonly string $env;
+
+    /** @var froq\logger\Logger */
+    public readonly Logger $logger;
+
+    /** @var froq\http\Request */
+    public readonly Request $request;
+
+    /** @var froq\http\Response */
+    public readonly Response $response;
+
+    /** @var froq\session\Session|null */
+    public readonly Session|null $session;
+
+    /** @var froq\database\Database|null */
+    public readonly Database|null $database;
+
+    /** @var froq\cache\Cache|null */
+    public readonly Cache|null $cache;
+
+    /** @var froq\event\EventManager */
+    private EventManager $eventManager;
+
+    /** @var froq\Router */
+    private Router $router;
+
+    /** @var froq\Servicer */
+    private Servicer $servicer;
 
     /** @var froq\common\object\Config */
     private Config $config;
 
-    /** @var froq\logger\Logger */
-    private Logger $logger;
-
-    /** @var froq\events\Events */
-    private Events $events;
-
-    /** @var froq\http\Request */
-    private Request $request;
-
-    /** @var froq\http\Response */
-    private Response $response;
-
-    /** @var froq\session\Session|null @since 3.18 */
-    private Session $session;
-
-    /** @var froq\database\Database|null @since 4.0 */
-    private Database $database;
-
-    /** @var froq\cache\Cache|null @since 4.10 */
-    private Cache $cache;
-
-    /** @var froq\Router @since 4.0 */
-    private Router $router;
-
-    /** @var froq\Servicer @since 4.0 */
-    private Servicer $servicer;
-
-    /** @var froq\common\object\Register @since 5.0 */
+    /** @var froq\common\object\Register */
     private static Registry $registry;
 
     /**
@@ -91,14 +88,14 @@ final class App
     private function __construct()
     {
         // App dir is required (@see pub/index.php).
-        defined('APP_DIR') || throw new AppException('No APP_DIR defined');
+        defined('APP_DIR') || throw new AppException('APP_DIR not defined');
 
-        $this->logger   = new Logger(['level' => Logger::ALL]);
+        $this->logger   = new Logger(['level' => LogLevel::ALL]);
         $this->request  = new Request($this);
         $this->response = new Response($this);
 
-        [$this->dir, $this->config, $this->events, $this->router, $this->servicer, self::$registry] = [
-            APP_DIR, new Config(), new Events(), new Router(), new Servicer(), new Registry()
+        [$this->dir, $this->eventManager, $this->router, $this->servicer, $this->config, self::$registry] = [
+            APP_DIR, new EventManager($this), new Router(), new Servicer(), new Config(), new Registry()
         ];
 
         // Register app.
@@ -126,48 +123,18 @@ final class App
      */
     public function isRoot(): bool
     {
-        return ($this->root == $this->request->getContext());
+        return ($this->root == $this->request->getPath());
     }
 
     /**
-     * Get root.
+     * Check whether environment is local that defined .
      *
-     * @return string
-     */
-    public function root(): string
-    {
-        return $this->root;
-    }
-
-    /**
-     * Get dir.
-     *
-     * @return string|null
-     */
-    public function dir(): string|null
-    {
-        return $this->dir ?? null;
-    }
-
-    /**
-     * Get env.
-     *
-     * @return string|null
-     */
-    public function env(): string|null
-    {
-        return $this->env ?? null;
-    }
-
-    /**
-     * Check local env.
-     *
-     * @return bool|null
+     * @return bool
      * @since  5.0
      */
-    public function local(): bool|null
+    public function isLocal(): bool
     {
-        return defined('__local__') ? __local__ : null;
+        return defined('__local__') && __local__;
     }
 
     /**
@@ -176,7 +143,7 @@ final class App
      * @param  int  $precision
      * @param  bool $format
      * @return float|string
-     * @since  4.0 Replaced with loadTime().
+     * @since  4.0
      */
     public function runtime(int $precision = 3, bool $format = false): float|string
     {
@@ -186,110 +153,26 @@ final class App
     }
 
     /**
-     * Get a config option(s) or config object.
+     * Set/get a cache item, throw `AppException` if no cache object initiated.
      *
-     * @param  string|array|null $key
-     * @param  any|null          $default
-     * @return any|null|froq\common\object\Config
-     */
-    public function config(string|array $key = null, $default = null)
-    {
-        if (!func_num_args()) {
-            return $this->config;
-        }
-
-        // Set not allowed, so config readonly and set available with config.php only.
-        return $this->config->get($key, $default);
-    }
-
-    /**
-     * Get logger.
-     *
-     * @return froq\logger\Logger
-     */
-    public function logger(): Logger
-    {
-        return $this->logger;
-    }
-
-    /**
-     * Get events.
-     *
-     * @return froq\events\Events
-     */
-    public function events(): Events
-    {
-        return $this->events;
-    }
-
-    /**
-     * Get request.
-     *
-     * @return froq\http\Request|null
-     */
-    public function request(): Request|null
-    {
-        return $this->request ?? null;
-    }
-
-    /**
-     * Get response.
-     *
-     * @return froq\http\Response|null
-     */
-    public function response(): Response|null
-    {
-        return $this->response ?? null;
-    }
-
-    /**
-     * Get session.
-     *
-     * @return froq\session\Session|null
-     * @since  3.18
-     */
-    public function session(): Session|null
-    {
-        return $this->session ?? null;
-    }
-
-    /**
-     * Get database.
-     *
-     * @return froq\database\Database|null
-     * @since  4.0
-     */
-    public function database(): Database|null
-    {
-        return $this->database ?? null;
-    }
-
-    /**
-     * Put/get a cache item or get cache object, throw `AppException` if no cache object initiated.
-     *
-     * @param  string|int|array<string|int>|null $key
-     * @param  any|null                          $value
-     * @param  int|null                          $ttl
-     * @return any|null|froq\cache\agent\Cache
+     * @param  string|int|array<string|int> $key
+     * @param  mixed|null                   $value
+     * @param  int|null                     $ttl
+     * @return mixed
      * @throws froq\AppException
      * @since  4.10
      */
-    public function cache(string|int|array $key = null, $value = null, int $ttl = null)
+    public function cache(string|int|array $key, mixed $value = null, int $ttl = null): mixed
     {
-        if (isset($this->cache)) {
-            return match (func_num_args()) {
-                      0 => $this->cache, // None given.
-                      1 => $this->cache->read($key),
-                default => $this->cache->write($key, $value, $ttl)
-            };
-        }
+        isset($this->cache) || throw new AppException(
+            'No cache object initiated yet, be sure `cache` option is not empty in config'
+        );
 
-        throw new AppException('No cache agent initiated yet, be sure `cache` field is not'
-            . ' empty in config');
+        return (func_num_args() == 1) ? $this->cache->get($key) : $this->cache->set($key, $value, $ttl);
     }
 
     /**
-     * Drop a cache item from cache, throw `AppException` if no cache object initiated.
+     * Delete a cache item or all by "*" as key, throw `AppException` if no cache object initiated.
      *
      * @param  string|int|array<string|int> $key
      * @return bool
@@ -298,45 +181,41 @@ final class App
      */
     public function uncache(string|int|array $key): bool
     {
-        if (isset($this->cache)) {
-            return $this->cache->remove($key);
-        }
+        isset($this->cache) || throw new AppException(
+            'No cache object initiated yet, be sure `cache` option is not empty in config'
+        );
 
-        throw new AppException('No cache agent initiated yet, be sure `cache` field is not'
-            . ' empty in config');
+        return ($key === '*') ? $this->cache->clear() : $this->cache->delete($key);
     }
 
     /**
-     * Get router.
+     * Add an event.
      *
-     * @return froq\Router
-     * @since  4.0
+     * @param  string   $name
+     * @param  callable $callback
+     * @param  mixed ...$options
+     * @return self
+     * @since  6.0
      */
-    public function router(): Router
+    public function on(string $name, callable $callback, mixed ...$options): self
     {
-        return $this->router;
+        $this->eventManager->add($name, $callback, ...$options);
+
+        return $this;
     }
 
     /**
-     * Get servicer.
+     * Remove an event.
      *
-     * @return froq\Servicer
-     * @since  4.0
+     * @param  string $name
+     * @return self
+     * @since  6.0
      */
-    public function servicer(): Servicer
+    public function off(string $name): self
     {
-        return $this->servicer;
-    }
+        $this->eventManager->remove($name);
 
-    /**
-     * Get registry.
-     *
-     * @return froq\common\object\Registry
-     * @since  5.0
-     */
-    public static function registry(): Registry
-    {
-        return self::$registry;
+        return $this;
     }
 
     /**
@@ -408,7 +287,7 @@ final class App
     }
 
     /**
-     * Set/get a service.
+     * Add/get a service.
      *
      * @param  string                $name
      * @param  object|callable|array $service
@@ -417,9 +296,32 @@ final class App
      */
     public function service(string $name, object|callable|array $service = null): object|callable|null
     {
-        return (func_num_args() == 1)
-             ? $this->servicer->getService($name)
-             : $this->servicer->addService($name, $service);
+        return (func_num_args() == 1) ? $this->servicer->getService($name) : $this->servicer->addService($name, $service);
+    }
+
+    /**
+     * Get config option(s).
+     *
+     * Note: Set not allowed, so config readonly and set available with config.php only.
+     *
+     * @param  string|array $key
+     * @param  mixed|null   $default
+     * @return mixed
+     */
+    public function config(string|array $key, mixed $default = null): mixed
+    {
+        return $this->config->get($key, $default);
+    }
+
+    /**
+     * Get registry.
+     *
+     * @return froq\common\object\Registry
+     * @since  5.0
+     */
+    public static function registry(): Registry
+    {
+        return self::$registry;
     }
 
     /**
@@ -427,23 +329,29 @@ final class App
      * config), resolve route and check validity, call "before/after" events, start output buffer and end it
      * passing that called action return to ended buffer.
      *
-     * @param  array<string, any> $options
+     * @param  array $options
      * @return void
      * @throws froq\AppException
      */
     public function run(array $options): void
     {
+        static $done;
+
+        // Check/tick for run-once state.
+        $done ? throw new AppException('App was already run')
+              : ($done = true);
+
         // Apply run options (user options) (@see pub/index.php).
         @ ['configs' => $configs, 'env' => $env, 'root' => $root] = $options;
 
-        if ($configs != null) {
+        if ($configs) {
             // Set router options first (for proper error() process).
-            if (pick($configs, 'router', $router)) {
+            if ($router = array_get($configs, 'router')) {
                 $this->router->setOptions($router);
             }
 
-            // Apply dotenv configs.
-            if (pluck($configs, 'dotenv', $dotenv)) {
+            // Apply dotenv configs (dropping config entrty).
+            if ($dotenv = array_get($configs, 'dotenv', drop: true)) {
                 $this->applyDotenvConfigs(
                     Config::parseDotenv($dotenv['file']),
                     !!($dotenv['global'] ?? false), // @default
@@ -455,14 +363,14 @@ final class App
         }
 
         // Check/set env & root stuff.
-        if ($env == '' || $root == '') {
-            throw new AppException('Options `env` or `root` must not be empty');
+        if (!$env || !$root) {
+            throw new AppException('Options `env` or `root` cannot be empty');
         }
-        $this->env  = $env;
-        $this->root = $root;
+
+        $this->env = $env; $this->root = $root;
 
         // Add headers & cookies (if provided).
-        [$headers, $cookies] = $this->config(['headers', 'cookies']);
+        [$headers, $cookies] = $this->config->get(['headers', 'cookies']);
         if ($headers) foreach ($headers as $name => $value) {
             $this->response->addHeader($name, $value);
         }
@@ -475,18 +383,38 @@ final class App
         $this->request->load();
 
         // Generate URI segments (by root).
-        $this->request->uri()->generateSegments($this->root);
+        $this->request->uri->generateSegments($this->root);
 
-        // These options can be emptied by developer to disable all with "null" if app won't
-        // be using session/database/cache. Also, "pull" removes sensitive config data after using.
-        [$session, $database, $cache] = $this->config->pull(['session', 'database', 'cache']);
+        // Note: These options can be emptied by developer to disable all with "null" if app won't
+        // be using session/database/cache. Also, "drop" removes sensitive config data after using.
+        [$session, $database, $cache] = $this->config->get(['session', 'database', 'cache'], drop: true);
 
-        isset($session)  && $this->session  = Factory::initOnce(Session::class, $session);
-        isset($database) && $this->database = Factory::initOnce(Database::class, $database);
+        if ($session) {
+            Assert::type($session, 'array|bool', new AppException(
+                'Config option `session` must be array|bool, %t given', $session
+            ));
+            $this->session = Session::initOnce((array) $session);
+        } else {
+            $this->session = null;
+        }
 
-        // Note: cache is a "static" instance as default.
-        if ($cache != null) {
-            $this->cache = CacheFactory::init($cache['id'], $cache['agent']);
+        if ($database) {
+            Assert::type($database, 'array', new AppException(
+                'Config option `database` must be array, %t given', $database
+            ));
+            $this->database = Database::initOnce($database);
+        } else {
+            $this->database = null;
+        }
+
+        // Note: Cache is a static instance as default.
+        if ($cache) {
+            Assert::type($cache, 'array', new AppException(
+                'Config option `cache` must be array, %t given', $cache
+            ));
+            $this->cache = CacheFactory::init($cache['id'], $cache['options']);
+        } else {
+            $this->cache = null;
         }
 
         // @override
@@ -494,14 +422,14 @@ final class App
 
         // Resolve route.
         $route = $this->router->resolve(
-            $uri = $this->request->getContext(),
+            $uri = $this->request->getPath(),
             method: null // To check below it is allowed or not.
         );
 
         $method = $this->request->getMethod();
 
         // Found but no method allowed?
-        if ($route != null && !isset($route[$method]) && !isset($route['*'])) {
+        if ($route && !isset($route[$method]) && !isset($route['*'])) {
             throw new AppException(
                 'No method %s allowed for `%s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
@@ -512,19 +440,21 @@ final class App
         @ [$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
 
         // Not found?
-        if ($controller == null) {
+        if (!$controller) {
             throw new AppException(
                 'No controller route found for `%s %s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException(),
             );
-        } elseif ($action == null) {
+        } elseif (!$action) {
             throw new AppException(
                 'No action route found for `%s %s`',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!class_exists($controller)) {
+        }
+
+        if (!class_exists($controller)) {
             throw new AppException(
                 'No controller class found such `%s`', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
@@ -538,171 +468,206 @@ final class App
 
         $this->startOutputBuffer();
 
-        // Call before event if exists.
-        $this->events->fire('app.before');
+        $this->fireEvent('before');
 
         $controller = new $controller($this);
 
-        if (is_string($action)) {
-            $return = $controller->call($action, $actionParams);
-        } elseif (is_callable($action)) {
-            $return = $controller->callCallable($action, $actionParams);
+        try {
+            if (is_string($action)) {
+                $return = $controller->call($action, $actionParams);
+            } elseif (is_callable($action)) {
+                $return = $controller->callCallable($action, $actionParams);
+            }
+        } catch (Throwable $e) {
+            $return = $this->error($e);
         }
 
-        // Call after event if exists.
-        $this->events->fire('app.after');
+        $this->fireEvent('after');
 
         $this->endOutputBuffer($return);
     }
 
     /**
-     * Process an error routine creating default controller and calling its default error method and
-     * ending output buffer, also log error. Throw `AppException` if no default controller or error
-     * method not exists.
+     * Fallback for run failures.
      *
      * @param  Throwable $error
-     * @param  bool      $log
      * @return void
-     * @since  4.0
+     * @since  6.0
      */
-    public function error(Throwable $error, bool $log = true): void
+    public function fallback(Throwable $error): void
     {
-        $log && $this->errorLog($error);
+        $this->startOutputBuffer();
 
-        // Call user error handler if provided.
-        $this->events->fire('app.error', $error);
+        $return = $this->error($error);
 
-        // Status may be changed later in @default.error().
-        $this->response->setStatusCode(Status::INTERNAL_SERVER_ERROR);
+        $this->endOutputBuffer($return);
+    }
 
-        // Clear outputs (@default.error() will work below for output).
-        // while (ob_get_level()) {
-        //     ob_end_clean();
-        // }
+    /**
+     * Log for only errors.
+     *
+     * @param  Throwable $error
+     * @return void
+     * @since  6.0
+     */
+    public function log(Throwable $error): void
+    {
+        $this->errorLog($error);
+    }
 
-        $controller = $this->router->getOption('defaultController');
-        $method     = Controller::ERROR_ACTION;
+    /**
+     * Process an error routine creating default controller and calling its default error method
+     * if exists and also log all errors.
+     */
+    private function error(Throwable $error): mixed
+    {
+        $this->errorLog($error);
 
-        if (!class_exists($controller)) {
-            throw new AppException(
-                'No default controller exists such `%s`', $controller,
-                code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
-            );
-        } elseif (!method_exists($controller, $method)) {
-            throw new AppException(
-                'No default controller method exists such `%s::%s`', [$controller, $method],
-                code: Status::INTERNAL_SERVER_ERROR, cause: new InternalServerErrorException()
-            );
+        $this->fireEvent('error', $error);
+
+        // Check HTTP exception related codes.
+        $cause = $error->cause ?? null;
+        if ($cause instanceof HttpException) {
+            $code = $cause->code;
+        } elseif ($error instanceof HttpException) {
+            $code = ($error->code >= 400 && $error->code <= 599) ? $error->code : null;
         }
 
-        // Call default error method of default controller.
-        $return = (new $controller($this))->{$method}($error);
+        // Also may be changed later in @default.error() method.
+        $this->response->setStatus($code ?? Status::INTERNAL_SERVER_ERROR);
 
-        // Prepend error top of the output (if ini.display_errors is on).
-        if ($return == null || is_string($return)) {
-            $return = (string) $return;
-            $display = ini('display_errors', '', true);
+        $return  = null;
+        $display = System::iniGet('display_errors', bool: true);
+
+        // Try, for call @default.error() method or make an error string as return.
+        try {
+            $controller = $this->router->getOption('defaultController');
+
+            // Check default controller & controller (error) method.
+            if (!class_exists($controller)) {
+                throw new AppError('No default controller exists such `%s`',
+                    $controller);
+            }
+            if (!method_exists($controller, 'error')) {
+                throw new AppError('No default controller method exists such `%s::%s()`',
+                    [$controller, 'error']);
+            }
+
+            // Try, for controller related errors.
+            try {
+                $return = (new $controller($this))->error($error);
+            } catch (Throwable $e) {
+                $this->errorLog($e);
+            }
+        } catch (Throwable $e) {
+            $this->errorLog($e);
+
+            // Make an error string as return.
             if ($display) {
-                $return = trim($error . "\n\n" . $return);
+                $return = $e . "\n";
             }
         }
 
-        $this->endOutputBuffer($return, true);
+        if ($return === null || is_string($return)) {
+            $return .= $this->getOutputBuffer();
+
+            // Prepend error top of the output (if ini.display_errors is on).
+            if ($display) {
+                $return = $error . "\n\n" . $return;
+            }
+        }
+
+        return ($return !== '') ? $return : null;
     }
 
     /**
      * Log an error setting logger level to ERROR.
-     *
-     * @param  string|Throwable $error
-     * @param  bool             $separate
-     * @return bool
-     * @since  4.0
      */
-    public function errorLog(string|Throwable $error, bool $separate = true): bool
+    private function errorLog(Throwable $error): bool
     {
         $level  = $this->logger->getLevel();
-        $logged = $this->logger->setLevel(Logger::ERROR)->logError($error, $separate);
+        $logged = $this->logger->setLevel(LogLevel::ERROR)->logError($error);
 
-        $this->logger->setLevel($level); // Restore.
+        // Restore.
+        if ($level != LogLevel::ERROR) {
+            $this->logger->setLevel($level);
+        }
 
         return $logged;
     }
 
     /**
      * Start output buffer.
-     *
-     * @return void
      */
     private function startOutputBuffer(): void
     {
         ob_start();
         ob_implicit_flush(false);
-        ini_set('implicit_flush', 'off');
+        ini_set('implicit_flush', false);
     }
 
     /**
      * End output buffer, sending/ending response.
-     *
-     * @param  mixed $return
-     * @param  bool  $error @internal
-     * @return void
      */
-    private function endOutputBuffer(mixed $return, bool $error = false): void
+    private function endOutputBuffer(mixed $return): void
     {
-        $response = $this->response();
-        $response || throw new AppException('App has no response yet');
+        // Handle output/return responses.
+        if ($this->response->allowsBody()) {
+            $content = $this->response->body->getContent();
 
-        $body = $response->getBody();
-        $attributes = $body->getAttributes();
-
-        // Handle redirections.
-        $code = $response->getStatusCode();
-        if ($code >= 300 && $code <= 399) {
-            while (ob_get_level()) {
-                ob_end_clean();
-            }
-
-            $response->setBody(null, ['type' => 'n/a'] + $attributes);
-        }
-        // Handle outputs & returns.
-        else {
-            $content = null;
-
-            if ($error) {
-                // Pass, return comes from App.error() already.
-            } else {
-                $content = $body->getContent();
-
-                // Actions that use echo/print/view()/response.setBody() will return null.
-                // So, output buffer must be collected as body content if body content is null.
-                if ($content === null && ($return == null || is_string($return))) {
-                    $return = (string) $return;
-                    while (ob_get_level()) {
-                        $return .= ob_get_clean();
-                    }
-                }
+            // Actions that use echo/print/view()/response.setBody() will return null.
+            if ($content === null && ($return === null || is_string($return))) {
+                $return .= $this->getOutputBuffer();
             }
 
             // Content of body or returned content from action.
             $content ??= $return;
 
-            // Call user output handler if provided.
-            if ($this->events->has('app.output')) {
-                $content = $this->events->fire('app.output', $content);
+            // Call user output handler if provided, so output must return back.
+            if ($this->eventManager->has('output')) {
+                $content = $this->eventManager->fire('output', $content);
             }
 
-            $response->setBody($content, $attributes, $error);
+            $this->response->setBody($content, $this->response->body->getAttributes());
+        }
+        // Handle non-body responses.
+        else {
+            $this->response->setBody(null, null);
         }
 
         // The end..
-        $response->end();
+        $this->response->end();
+    }
+
+    /**
+     * Get output buffer.
+     */
+    private function getOutputBuffer(): string
+    {
+        // Actions that use echo/print/view()/response.setBody() will return null.
+        // So, output buffer must be collected as body content if body content is null.
+        $buffer = '';
+
+        // Handle echo/print stuff.
+        while (ob_get_level()) {
+            $buffer .= ob_get_clean();
+        }
+
+        return $buffer;
+    }
+
+    /**
+     * Fire an event (if provided in index.php via on/off methods).
+     */
+    private function fireEvent(string $name, mixed ...$arguments): void
+    {
+        if ($this->eventManager->has($name)) {
+            $this->eventManager->fire($name, ...$arguments);
+        }
     }
 
     /**
      * Apply configs.
-     *
-     * @param  array $configs
-     * @return void
      */
     private function applyConfigs(array $configs): void
     {
@@ -710,39 +675,48 @@ final class App
         $this->config->update($configs);
 
         // Set timezone, encoding, locale options.
-        $this->config->extract(['timezone', 'encoding', 'locales'], $timezone, $encoding, $locales);
+        $this->config->extract(['timezone', 'encoding', 'locales', 'ini'],
+            $timezone, $encoding, $locales, $ini);
 
-        if ($timezone != null) {
+        if ($timezone) {
             date_default_timezone_set($timezone);
         }
 
-        if ($encoding != null) {
+        if ($encoding) {
             ini_set('default_charset', $encoding);
             ini_set('internal_encoding', $encoding);
         }
 
-        if ($locales != null) {
-            // Must be like eg: [LC_TIME => 'en_US' or 'en_US.utf-8'].
+        if ($locales) {
+            // Must be like [LC_TIME => 'en_US'].
             foreach ($locales as $category => $locale) {
                 setlocale($category, $locale);
             }
         }
 
-        // Set/reset options.
-        $this->config->extract(['logger', 'routes', 'services'], $logger, $routes, $services);
+        if ($ini) {
+            // Must be like [string => scalar].
+            foreach ($ini as $option => $value) {
+                ini_set($option, $value);
+            }
+        }
 
-        $logger   && $this->logger->setOptions($logger);
+        // Set/reset options.
+        $this->config->extract(['logger', 'routes', 'services'],
+            $logger, $routes, $services);
+
+        if ($logger) {
+            foreach ($logger as $option => $value) {
+                $this->logger->setOption($option, $value);
+            }
+        }
+
         $routes   && $this->router->addRoutes($routes);
         $services && $this->servicer->addServices($services);
     }
 
     /**
      * Apply dot-env configs.
-     *
-     * @param  array $configs
-     * @param  bool  $global
-     * @return void
-     * @since  4.14
      */
     private function applyDotenvConfigs(array $configs, bool $global): void
     {
@@ -750,7 +724,7 @@ final class App
             putenv($name . '=' . $value);
 
             // When was set as global.
-            $global && ($_ENV[$name] = $value);
+            $global && $_ENV[$name] = $value;
         }
     }
 }

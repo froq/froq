@@ -5,13 +5,13 @@
  */
 declare(strict_types=1);
 
-namespace froq;
+namespace froq\app;
 
 /**
- * @package froq
- * @object  froq\AppError
+ * @package froq\app
+ * @object  froq\app\RepositoryException
  * @author  Kerem Güneş
- * @since   4.0
+ * @since   6.0
  */
-class AppError extends \froq\common\Error
+class RepositoryException extends \froq\AppException
 {}

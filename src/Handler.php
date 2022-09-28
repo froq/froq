@@ -7,23 +7,20 @@ declare(strict_types=1);
 
 namespace froq;
 
-use froq\AppError;
-use Throwable;
-
 /**
- * Handler.
- *
- * Represents an handler entity that registers / unregisters `error`, `exception` and `shutdown` handlers.
- * This is an internal class and all handlers are constantified internally.
+ * A internal class, registers/unregisters `error`, `exception` and `shutdown` handlers.
  *
  * @package froq
  * @object  froq\Handler
  * @author  Kerem Güneş
  * @since   4.0
- * @static
+ * @static @internal
  */
-final class Handler
+final class Handler extends \StaticClass
 {
+    /** @var mixed */
+    private static mixed $displayErrors = null;
+
     /**
      * Register error handler.
      *
@@ -32,7 +29,7 @@ final class Handler
     public static function registerErrorHandler(): void
     {
         set_error_handler(function ($ecode, $emesg, $efile, $eline) {
-            // @cancel Because error_get_last() should always work!
+            // @cancel: Because error_get_last() should always work.
             // Error was suppressed with the @ operator.
             // if (!$ecode || !($ecode & error_reporting())) {
             //     return;
@@ -46,34 +43,36 @@ final class Handler
                 case E_CORE_WARNING:
                 case E_COMPILE_ERROR:
                 case E_COMPILE_WARNING:
-                    $error = sprintf('Fatal error in %s:%s ecode[%s] emesg[%s]',
+                    $error = sprintf('Fatal error at %s:%s [code: %s, message: %s]',
                         $efile, $eline,  $ecode, $emesg);
                     break;
                 case E_RECOVERABLE_ERROR:
-                    $error = sprintf('Recoverable error in %s:%s ecode[%s] emesg[%s]',
+                    $error = sprintf('Recoverable error at %s:%s [code: %s, message: %s]',
                         $efile, $eline, $ecode, $emesg);
                     break;
+                case E_NOTICE:
+                case E_WARNING:
+                case E_DEPRECATED:
                 case E_USER_ERROR:
-                    $error = sprintf('User error in %s:%s ecode[%s] emesg[%s]',
-                        $efile, $eline, $ecode, $emesg);
-                    break;
-                case E_USER_WARNING:
-                    $error = sprintf('User warning in %s:%s ecode[%s] emesg[%s]',
-                        $efile, $eline, $ecode, $emesg);
-                    break;
                 case E_USER_NOTICE:
-                    $error = sprintf('User notice in %s:%s ecode[%s] emesg[%s]',
-                        $efile, $eline, $ecode, $emesg);
+                case E_USER_WARNING:
+                case E_USER_DEPRECATED:
+                    // Get error title.
+                    $title = xstring(get_constant_name($ecode, 'E_'))
+                        ->sub(2)->lower()->upper(0)->replace('_', ' ');
+
+                    $error = sprintf('%s at %s:%s [code: %s, message: %s]',
+                        $title, $efile, $eline, $ecode, $emesg);
                     break;
                 default:
-                    $error = sprintf('Unknown error in %s:%s ecode[%s] emesg[%s]',
+                    $error = sprintf('Unknown error at %s:%s [code: %s, message: %s]',
                         $efile, $eline, $ecode, $emesg);
             }
 
-            // This can be used later to check error stuff.
-            app_fail('error', new AppError($error, null, $ecode));
+            // Store, used in shutdown handler.
+            app_fail('error', new AppError($error, code: $ecode));
 
-            // @cancel Because error_get_last() should always work!
+            // @cancel: Because error_get_last() should always work.
             // Dont not execute php internal error handler.
             // return true;
             return false;
@@ -87,16 +86,14 @@ final class Handler
      */
     public static function registerExceptionHandler(): void
     {
-        set_exception_handler(function (Throwable $e) {
-            // If not local no error display (set & store old option).
-            if (!__local__) {
-                set_global('app.displayErrors', ini_set('display_errors', 'off'));
-            }
+        set_exception_handler(function (\Throwable $e) {
+            // Store error display option (setting temporarily as no local = no display)
+            self::$displayErrors = ini_set('display_errors', __local__);
 
-            // This may be used later to check error stuff.
+            // Store, used in shutdown handler.
             app_fail('exception', $e);
 
-            // This will be caught in shutdown handler.
+            // This caught in shutdown handler.
             throw $e;
         });
     }
@@ -109,34 +106,41 @@ final class Handler
     public static function registerShutdownHandler(): void
     {
         register_shutdown_function(function () {
-            $app = app();
+            $error = $errorCode = null;
 
             // This will keep app running, even if a ParseError occurs.
-            if ($error = app_fail('exception')) {
+            if ($fail = app_fail('exception')) {
                 $error = [
-                    'type' => $error->getCode(), 'message' => $error->__toString(),
-                    'file' => $error->getFile(), 'line'    => $error->getLine()
+                    'type' => $fail->getCode(), 'message' => $fail->__toString(),
+                    'file' => $fail->getFile(), 'line'    => $fail->getLine()
                 ];
                 $errorCode = $error['type'];
-            } elseif ($error = error_get_last()) {
-                $error     = ($error['type'] == E_ERROR) ? $error : null;
-                $errorCode = ($error['type'] ?? -1);
+            } elseif (($fail = app_fail('error'))
+                && in_array($fail->getCode(), [E_ERROR, E_USER_ERROR], true)) {
+                $error = [
+                    'type' => $fail->getCode(), 'message' => $fail->__toString(),
+                    'file' => $fail->getFile(), 'line'    => $fail->getLine()
+                ];
+                $errorCode = $error['type'];
+            } elseif (($fail = error_get_last())
+                && in_array($fail['type'] ?? null, [E_ERROR, E_USER_ERROR], true)) {
+                $error     = $fail;
+                $errorCode = $fail['type'] ?? -1;
             }
 
-            if ($error != null) {
-                $error = sprintf("Shutdown in %s:%s\n%s",
+            if ($error) {
+                $error = sprintf("Shutdown at %s:%s\nError:\n%s",
                     $error['file'], $error['line'], $error['message']);
 
                 // Call app error process (log etc.).
-                $app->error($e = new AppError($error, null, $errorCode));
+                app()->log($e = new AppError($error, code: $errorCode));
 
-                // This may be used later to check error stuff.
+                // Store, this may be used later to check error stuff.
                 app_fail('shutdown', $e);
 
-                // Reset error display option (@see exception handler).
-                $opt = get_global('app.displayErrors');
-                if ($opt !== null) {
-                    ini_set('display_errors', strval($opt));
+                // Restore error display option.
+                if (self::$displayErrors !== null) {
+                    ini_set('display_errors', self::$displayErrors);
                 }
             }
         });
@@ -149,6 +153,8 @@ final class Handler
      */
     public static function unregisterErrorHandler(): void
     {
+        self::$displayErrors = null;
+
         restore_error_handler();
     }
 
@@ -159,6 +165,8 @@ final class Handler
      */
     public static function unregisterExceptionHandler(): void
     {
+        self::$displayErrors = null;
+
         restore_exception_handler();
     }
 }
