@@ -108,14 +108,15 @@ final class Autoloader
      */
     public function load(string $name): void
     {
-        $file = (
-            // Try to load from autoload map.
-            $this->getMappedFile($name) ?:
-            // Try to load app & froq files.
-            $this->getFile($name)
-        );
+        if ($file = $this->resolveFile($name)) {
+            load($file);
+            return;
+        }
 
-        if ($file && is_file($file)) {
+        // Allow capital-case names.
+        $nameLC = $this->lowerizeNamespace($name);
+
+        if ($file = $this->resolveFile($nameLC)) {
             load($file);
             return;
         }
@@ -145,8 +146,9 @@ final class Autoloader
                     }
                 };
 
-                $file = $find($name);
-                $file && load($file);
+                if ($file = $find($name) ?: $find($nameLC)) {
+                    load($file);
+                }
             }
         }
     }
@@ -321,7 +323,7 @@ final class Autoloader
     }
 
     /**
-     * Get a file by given name that mapped by explore() method.
+     * Get a file by given name that mapped by `explore()` method.
      *
      * @param  string $name
      * @return string|null
@@ -388,6 +390,26 @@ final class Autoloader
     }
 
     /**
+     * Resolve a file by given name with/without using map.
+     *
+     * @param  string $name
+     * @return string|null
+     * @causes Exception
+     * @since  6.1
+     */
+    public function resolveFile(string $name): string|null
+    {
+        $file = (
+            // Try to load from autoload map.
+            $this->getMappedFile($name) ?:
+            // Try to load app & froq files.
+            $this->getFile($name)
+        );
+
+        return ($file && is_file($file)) ? $file : null;
+    }
+
+    /**
      * Check whether APP_DIR is defined.
      *
      * @throws Exception
@@ -397,6 +419,20 @@ final class Autoloader
         defined('APP_DIR') || throw new \Exception(
             'APP_DIR is not defined, required for `app\...` namespaced files'
         );
+    }
+
+    /**
+     * Change namespace as lower-cased, keeping basename as original.
+     */
+    private function lowerizeNamespace(string $name): string
+    {
+        if (preg_match('~^(?:App|Froq)([/\\\])~', $name, $match)) {
+            $spos = strrpos($name, $match[1]);
+            $name = strtolower(substr($name, 0, $spos)) // Namespace.
+                . '/' . substr($name, $spos + 1);       // Basename.
+        }
+
+        return $name;
     }
 
     /**
