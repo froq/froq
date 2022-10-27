@@ -494,8 +494,9 @@ final class App
      * @param  Throwable $error
      * @return void
      * @since  6.0
+     * @internal
      */
-    public function fallback(Throwable $error): void
+    public function rerun(Throwable $error): void
     {
         $this->startOutputBuffer();
 
