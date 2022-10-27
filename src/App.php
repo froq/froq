@@ -302,7 +302,8 @@ final class App
     /**
      * Get config option(s).
      *
-     * Note: Set not allowed, so config readonly and set available with config.php only.
+     * Note: No set not allowed, so `$config` property is read-only and modifications are available
+     * with `app/config/config.php` file only.
      *
      * @param  string|array $key
      * @param  mixed|null   $default
