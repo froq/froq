@@ -460,21 +460,19 @@ class Controller
             );
         }
 
-        $class = new \XClass($controller);
-
-        if (!$class->exists()) {
+        if (!class_exists($controller)) {
             throw new ControllerException(
                 'No controller found such `%s`', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!$class->methodExists($action)) {
+        } elseif (!method_exists($controller, $action)) {
             throw new ControllerException(
                 'No controller action found such `%s::%s()`', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
 
-        return $class->init($this->app)->call($action, $actionParams);
+        return (new $controller($this->app))->call($action, $actionParams);
     }
 
     /**
