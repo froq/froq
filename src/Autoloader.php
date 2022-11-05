@@ -30,7 +30,10 @@ final class Autoloader
     ];
 
     /** @var array */
-    private static array $cache = [];
+    private static array $mapCache = [];
+
+    /** @var array */
+    private static array $nameCache = [];
 
     /** @var string */
     private string $directory;
@@ -108,6 +111,11 @@ final class Autoloader
      */
     public function load(string $name): void
     {
+        // Tick for name check.
+        if ($this->checkNameCache($name)) {
+            return;
+        }
+
         if ($file = $this->resolveFile($name)) {
             load($file);
             return;
@@ -124,7 +132,8 @@ final class Autoloader
         // This part is for only local development purporses.
         // So, normally Composer would do its job until here.
         if (defined('APP_DIR')) {
-            static $psr4; $psr4 ??= (function () {
+            static $psr4;
+            $psr4 ??= (function () {
                 if (is_file($json = APP_DIR . '/composer.json')) {
                     $data = json_decode(file_get_contents($json), true);
                     return $data['autoload']['psr-4'] ?? false;
@@ -133,7 +142,8 @@ final class Autoloader
             })();
 
             if ($psr4) {
-                static $find; $find ??= function ($name) use ($psr4) {
+                static $find;
+                $find ??= function ($name) use ($psr4) {
                     $name = strtr($name, '/', '\\');
                     foreach ($psr4 as $namespace => $directory) {
                         if (str_starts_with($name, $namespace)) {
@@ -289,8 +299,8 @@ final class Autoloader
     public function getMap(bool $cache = true): array|null
     {
         // To speed up load() method.
-        if ($cache && !empty(self::$cache)) {
-            return self::$cache;
+        if ($cache && !empty(self::$mapCache)) {
+            return self::$mapCache;
         }
 
         if (defined('APP_DIR') && is_file($mapFile = APP_DIR . $this->getMapFile())) {
@@ -301,7 +311,7 @@ final class Autoloader
 
             if (is_array($map = include $mapFile)) {
                 if ($cache && !empty($map)) {
-                    self::$cache = $map;
+                    self::$mapCache = $map;
                 }
 
                 return $map;
@@ -422,6 +432,23 @@ final class Autoloader
     }
 
     /**
+     * Check whether name was cached and tick it.
+     *
+     * @param  string $name
+     * @return bool
+     */
+    private function checkNameCache(string $name): bool
+    {
+        if (isset(self::$nameCache[$name])) {
+            return true;
+        }
+
+        // Tick.
+        self::$nameCache[$name] = 1;
+        return false;
+    }
+
+    /**
      * Change namespace as lower-cased, keeping basename as original.
      */
     private function lowerizeNamespace(string $name): string
@@ -429,7 +456,7 @@ final class Autoloader
         if (preg_match('~^(?:App|Froq)([/\\\])~', $name, $match)) {
             $spos = strrpos($name, $match[1]);
             $name = strtolower(substr($name, 0, $spos)) // Namespace.
-                . '/' . substr($name, $spos + 1);       // Basename.
+                . $match[1] . substr($name, $spos + 1); // Basename.
         }
 
         return $name;
