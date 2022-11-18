@@ -14,7 +14,7 @@ use froq\http\{Request, Response, HttpException, response\Status,
 use froq\cache\{Cache, CacheFactory};
 use froq\logger\{Logger, LogLevel};
 use froq\util\misc\System;
-use Assert, Throwable;
+use Assert, Stringable, Throwable;
 
 /**
  * Application class which is responsible with all logics;
@@ -506,15 +506,19 @@ final class App
     }
 
     /**
-     * Log for only errors.
+     * Log given message or error.
      *
-     * @param  Throwable $error
+     * @param  string|Stringable $message
      * @return void
      * @since  6.0
      */
-    public function log(Throwable $error): void
+    public function log(string|Stringable $message): void
     {
-        $this->errorLog($error);
+        if ($message instanceof Throwable) {
+            $this->errorLog($message);
+        } else {
+            $this->logger->log($message);
+        }
     }
 
     /**
