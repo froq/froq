@@ -168,7 +168,11 @@ final class App
             'No cache object initiated yet, be sure `cache` option is not empty in config'
         );
 
-        return (func_num_args() == 1) ? $this->cache->get($key) : $this->cache->set($key, $value, $ttl);
+        return (
+            func_num_args() === 1
+                ? $this->cache->get($key)
+                : $this->cache->set($key, $value, $ttl)
+        );
     }
 
     /**
@@ -296,7 +300,11 @@ final class App
      */
     public function service(string $name, object|callable|array $service = null): object|callable|null
     {
-        return (func_num_args() == 1) ? $this->servicer->getService($name) : $this->servicer->addService($name, $service);
+        return (
+            func_num_args() === 1
+                ? $this->servicer->getService($name)
+                : $this->servicer->addService($name, $service)
+        );
     }
 
     /**
@@ -728,7 +736,7 @@ final class App
         foreach ($configs as $name => $value) {
             putenv($name . '=' . $value);
 
-            // When was set as global.
+            // When it was set as true.
             $global && $_ENV[$name] = $value;
         }
     }
