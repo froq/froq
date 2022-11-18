@@ -42,10 +42,10 @@ final class App
     public readonly string $root;
 
     /** @var string */
-    public readonly string $dir;
+    public readonly string $env;
 
     /** @var string */
-    public readonly string $env;
+    public readonly string $dir;
 
     /** @var froq\logger\Logger */
     public readonly Logger $logger;
@@ -127,7 +127,7 @@ final class App
     }
 
     /**
-     * Check whether environment is local that defined .
+     * Check whether environment is local that defined.
      *
      * @return bool
      * @since  5.0
@@ -330,20 +330,19 @@ final class App
      * config), resolve route and check validity, call "before/after" events, start output buffer and end it
      * passing that called action return to ended buffer.
      *
-     * @param  array $options
+     * @param  string $root
+     * @param  string $env
+     * @param  array  $configs
      * @return void
      * @throws froq\AppException
      */
-    public function run(array $options): void
+    public function run(string $root, string $env, array $configs = []): void
     {
         static $done;
 
         // Check/tick for run-once state.
         $done ? throw new AppException('App was already run')
               : ($done = true);
-
-        // Apply run options (user options) (@see pub/index.php).
-        @ ['configs' => $configs, 'env' => $env, 'root' => $root] = $options;
 
         if ($configs) {
             // Set router options first (for proper error() process).
@@ -355,7 +354,7 @@ final class App
             if ($dotenv = array_get($configs, 'dotenv', drop: true)) {
                 $this->applyDotenvConfigs(
                     Config::parseDotenv($dotenv['file']),
-                    !!($dotenv['global'] ?? false), // @default
+                    !!($dotenv['global'] ?? false), // @default=false
                 );
             }
 
@@ -363,12 +362,12 @@ final class App
             $this->applyConfigs($configs);
         }
 
-        // Check/set env & root stuff.
-        if (!$env || !$root) {
-            throw new AppException('Options `env` or `root` cannot be empty');
+        if (!$root || !$env) {
+            throw new AppException('Options `root` or `env` cannot be empty');
         }
 
-        $this->env = $env; $this->root = $root;
+        $this->root = $root;
+        $this->env  = $env;
 
         // Add headers & cookies (if provided).
         [$headers, $cookies] = $this->config->get(['headers', 'cookies']);
