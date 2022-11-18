@@ -70,7 +70,7 @@ class QueryFactory
         $table && $this->table = $table;
 
         // Can also be defined as constant in subclass.
-        if (!isset($this->table) && constant_exists($this, 'TABLE')) {
+        if (!isset($this->table) && constant_exists($this, 'TABLE', false)) {
             $this->table = $this::TABLE;
         }
     }
