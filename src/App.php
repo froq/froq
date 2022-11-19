@@ -147,7 +147,7 @@ final class App
      */
     public function runtime(int $precision = 3, bool $format = false): float|string
     {
-        $runtime = round(microtime(true) - APP_START_TIME, $precision);
+        $runtime = round(microtime(true) - APP_START, $precision);
 
         return !$format ? $runtime : sprintf('%.*F', $precision, $runtime);
     }
