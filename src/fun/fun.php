@@ -1,18 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
+const _FROQ = '_FROQ';
 
 /*********************
  * Global functions. *
  *********************/
 
 /**
- * Init Froq! global.
+ * Init global field.
  */
-isset($GLOBALS['@froq']) || $GLOBALS['@froq'] = [];
+$GLOBALS[_FROQ] ??= [];
 
 /**
  * Set a global variable.
@@ -23,7 +23,7 @@ isset($GLOBALS['@froq']) || $GLOBALS['@froq'] = [];
  */
 function set_global(string $key, mixed $value): void
 {
-    $GLOBALS['@froq'][$key] = $value;
+    $GLOBALS[_FROQ][$key] = $value;
 }
 
 /**
@@ -36,14 +36,14 @@ function set_global(string $key, mixed $value): void
 function get_global(string $key, mixed $default = null): mixed
 {
     // All.
-    if ($key == '*') {
-        $value = $GLOBALS['@froq'];
+    if ($key === '*') {
+        $value = $GLOBALS[_FROQ];
     }
     // All subs (eg: "foo*" or "foo.*").
-    elseif ($key && $key[-1] == '*') {
+    elseif ($key && $key[-1] === '*') {
         $values = [];
         $search = substr($key, 0, -1);
-        foreach ($GLOBALS['@froq'] as $key => $value) {
+        foreach ($GLOBALS[_FROQ] as $key => $value) {
             if ($search && str_starts_with($key, $search)) {
                 $values[$key] = $value;
             }
@@ -52,7 +52,7 @@ function get_global(string $key, mixed $default = null): mixed
     }
     // Sub only (eg: "foo" or "foo.bar").
     else {
-        $value = $GLOBALS['@froq'][$key] ?? $default;
+        $value = $GLOBALS[_FROQ][$key] ?? $default;
     }
 
     return $value;
@@ -67,5 +67,5 @@ function get_global(string $key, mixed $default = null): mixed
  */
 function delete_global(string $key): void
 {
-    unset($GLOBALS['@froq'][$key]);
+    unset($GLOBALS[_FROQ][$key]);
 }
