@@ -111,7 +111,7 @@ final class Autoloader
      */
     public function load(string $name): void
     {
-        // Tick for name check.
+        // Check for name tick.
         if ($this->checkNameCache($name)) {
             return;
         }
@@ -443,8 +443,9 @@ final class Autoloader
             return true;
         }
 
-        // Tick.
+        // Add tick.
         self::$nameCache[$name] = 1;
+
         return false;
     }
 
