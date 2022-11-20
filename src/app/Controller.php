@@ -11,7 +11,7 @@ use froq\http\{Request, Response, HttpException, request\Segments, response\Stat
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
-use froq\{App, Router, session\Session, database\Database, util\Objects, util\misc\System};
+use froq\{App, Router, session\Session, database\Database, util\Objects};
 use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
@@ -410,7 +410,7 @@ class Controller
      */
     public final function env(string $option, mixed $default = null, bool $server = true): mixed
     {
-        return System::envGet($option, $default, $server);
+        return env($option, $default, $server);
     }
 
     /**
