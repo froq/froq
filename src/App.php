@@ -13,7 +13,6 @@ use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
 use froq\logger\{Logger, LogLevel};
-use froq\util\misc\System;
 use Assert, Stringable, Throwable;
 
 /**
@@ -550,7 +549,7 @@ final class App
         $this->response->setStatus($code ?? Status::INTERNAL_SERVER_ERROR);
 
         $return  = null;
-        $display = System::iniGet('display_errors', bool: true);
+        $display = ini('display_errors', bool: true);
 
         // Try, for call @default.error() method or make an error string as return.
         try {
