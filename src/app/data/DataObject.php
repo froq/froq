@@ -142,9 +142,9 @@ abstract class DataObject implements Arrayable
      * Check whether a property can be updated controlling that the property is defined
      * in subclass as public & non-static and not in given skip list.
      */
-    private function canUpdateProperty(string $name, array $namesToSkip = []): bool
+    private function canUpdateProperty(string $name, array $skip = []): bool
     {
-        if (in_array($name, $namesToSkip, true)
+        if (in_array($name, $skip, true)
             || !property_exists($this, $name)) {
             return false;
         }
