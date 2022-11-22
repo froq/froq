@@ -127,16 +127,16 @@ abstract class DataObject implements Arrayable
     /**
      * Prepare input/incoming data.
      *
-     * @return mixed
+     * @return array
      */
-    abstract public function toInput(): mixed;
+    abstract public function toInput(): array;
 
     /**
      * Prepare output/outgoing data.
      *
-     * @return mixed
+     * @return array
      */
-    abstract public function toOutput(): mixed;
+    abstract public function toOutput(): array;
 
     /**
      * Check whether a property can be updated controlling that the property is defined
