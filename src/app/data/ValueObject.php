@@ -86,7 +86,7 @@ abstract class ValueObject extends \PlainObject implements Arrayable
     {
         // Filter private/protected stuff.
         $data = array_filter_keys((array) $this,
-            fn(string $key): bool => !str_contains((string) $key, "\0"));
+            fn($key): bool => !str_contains((string) $key, "\0"));
 
         return $data;
     }
