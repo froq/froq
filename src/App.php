@@ -575,18 +575,14 @@ final class App
             $this->errorLog($e);
 
             // Make an error string as return.
-            if ($display) {
-                $return = $e . "\n";
-            }
+            $display && $return = $e . "\n";
         }
 
         if ($return === null || is_string($return)) {
             $return .= $this->getOutputBuffer();
 
             // Prepend error top of the output (if ini.display_errors is on).
-            if ($display) {
-                $return = $error . "\n\n" . $return;
-            }
+            $display && $return = $error . "\n\n" . $return;
         }
 
         return ($return !== '') ? $return : null;
