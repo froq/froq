@@ -46,7 +46,7 @@ final class Autoloader
      */
     private function __construct(string $directory = null)
     {
-        $directory ??= realpath(__dir__ . '/../../../../vendor/froq');
+        $directory ??= realpath(__DIR__ . '/../../../../vendor/froq');
 
         if (!$directory || !is_dir($directory)) {
             throw new \Exception('Froq folder not found');

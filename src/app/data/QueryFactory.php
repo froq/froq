@@ -57,7 +57,7 @@ class QueryFactory
     {
         if (!$db) try {
             // Real caller for a proper error message (for subclasses).
-            $caller = sprintf('%s::%s', static::class, __function__);
+            $caller = sprintf('%s::%s', static::class, __FUNCTION__);
 
             $db = DatabaseRegistry::getDefault($caller);
         } catch (DatabaseRegistryException $e) {
