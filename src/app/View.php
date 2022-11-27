@@ -100,12 +100,12 @@ final class View
     {
         $file = $this->prepareFile($file);
         if (!is_file($file)) {
-            throw new ViewException('View file `%s` not found', $file);
+            throw new ViewException('View file %q not found', $file);
         }
 
         $fileLayout = $this->getLayout();
         if (!is_file($fileLayout)) {
-            throw new ViewException('View layout file `%s` not found', $fileLayout);
+            throw new ViewException('View layout file %q not found', $fileLayout);
         }
 
         $fileData ??= [];

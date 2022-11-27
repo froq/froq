@@ -72,7 +72,7 @@ final class Servicer
                 );
             } elseif (!class_exists($class)) {
                 throw new ServicerException(
-                    'Service class `%s` not found', $class
+                    'Service class %q not found', $class
                 );
             }
 

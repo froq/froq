@@ -188,7 +188,7 @@ final class Router
         $patterns = [];
 
         foreach ($routes as $i => [$pattern]) {
-            $pattern || throw new RouterException('No pattern given for route `%s`', $i);
+            $pattern || throw new RouterException('No pattern given for route #%i', $i);
 
             // Format named parameters if given.
             if (str_contains($pattern, ':')) {
@@ -252,7 +252,7 @@ final class Router
 
             $mark = (int) $match['MARK'];
             if (empty($routes[$mark][1])) {
-                throw new RouterException('No call directives found for route `%s`', $mark);
+                throw new RouterException('No call directives found for route #%i', $mark);
             }
 
             $this->debug['mark'] = $mark;

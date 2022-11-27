@@ -427,7 +427,7 @@ class Controller
     {
         if (!isset($this->view)) {
             throw new ControllerException(
-                'No `$view` property set yet, be sure `$useView` is true in class `%s`',
+                'No $view property set yet, be sure $useView is true in class %q',
                 static::class
             );
         }
@@ -454,7 +454,7 @@ class Controller
 
         if (!$controller || !$action) {
             throw new ControllerException(
-                'Invalid call directive `%s`, use `Foo.bar` notation ' .
+                'Invalid call directive %q, use \'Foo.bar\' notation ' .
                 'without `Controller` and `Action` suffixes', $call,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
@@ -462,12 +462,12 @@ class Controller
 
         if (!class_exists($controller)) {
             throw new ControllerException(
-                'No controller found such `%s`', $controller,
+                'No controller found such %q', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!method_exists($controller, $action)) {
             throw new ControllerException(
-                'No controller action found such `%s::%s()`', [$controller, $action],
+                'No controller action found such \'%s::%s()\'', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
@@ -786,7 +786,7 @@ class Controller
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No action exists such `%s::%s()`', [static::class, $action],
+                'No action exists such \'%s::%s()\'', [static::class, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
@@ -827,7 +827,7 @@ class Controller
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No callable exists such `%s::%s()`', [static::class, $action],
+                'No callable exists such \'%s::%s()\'', [static::class, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
@@ -866,10 +866,10 @@ class Controller
         }
 
         class_exists($class) || throw new ControllerException(
-            'Controller class `%s` not exists', $class
+            'Controller class %q not exists', $class
         );
         class_extends($class, Controller::class) || throw new ControllerException(
-            'Controller class `%s` must extend class `%s`', [$class, Controller::class]
+            'Controller class %q must extend class %q', [$class, Controller::class]
         );
 
         return new $class($this->app);
@@ -896,10 +896,10 @@ class Controller
         }
 
         class_exists($class) || throw new ControllerException(
-            'Repository class `%s` not exists', $class
+            'Repository class %q not exists', $class
         );
         class_extends($class, Repository::class) || throw new ControllerException(
-            'Repository class `%s` must extend class `%s`', [$class, Repository::class]
+            'Repository class %q must extend class %q', [$class, Repository::class]
         );
 
         return new $class($controller ?? $this, $database ?? $this->app->database);
