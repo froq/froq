@@ -164,7 +164,7 @@ final class App
     public function cache(string|int|array $key, mixed $value = null, int $ttl = null): mixed
     {
         isset($this->cache) || throw new AppException(
-            'No cache object initiated yet, be sure `cache` option is not empty in config'
+            'No cache object initiated yet, be sure "cache" option is not empty in config'
         );
 
         return (
@@ -185,7 +185,7 @@ final class App
     public function uncache(string|int|array $key): bool
     {
         isset($this->cache) || throw new AppException(
-            'No cache object initiated yet, be sure `cache` option is not empty in config'
+            'No cache object initiated yet, be sure "cache" option is not empty in config'
         );
 
         return ($key === '*') ? $this->cache->clear() : $this->cache->delete($key);
@@ -398,7 +398,7 @@ final class App
 
         if ($session) {
             Assert::type($session, 'array|bool', new AppException(
-                'Config option `session` must be array|bool, %t given', $session
+                'Config option "session" must be array|bool, %t given', $session
             ));
             $this->session = Session::initOnce((array) $session);
         } else {
@@ -407,7 +407,7 @@ final class App
 
         if ($database) {
             Assert::type($database, 'array', new AppException(
-                'Config option `database` must be array, %t given', $database
+                'Config option "database" must be array, %t given', $database
             ));
             $this->database = Database::initOnce($database);
         } else {
@@ -417,7 +417,7 @@ final class App
         // Note: Cache is a static instance as default.
         if ($cache) {
             Assert::type($cache, 'array', new AppException(
-                'Config option `cache` must be array, %t given', $cache
+                'Config option "cache" must be array, %t given', $cache
             ));
             $this->cache = CacheFactory::init($cache['id'], $cache['options']);
         } else {

@@ -369,7 +369,7 @@ class Controller
     {
         if (!isset($this->session)) {
             $this->app->session ?? throw new ControllerException(
-                'App has no session object, be sure `session` option is not empty in config'
+                'App has no session object, be sure "session" option is not empty in config'
             );
 
             // @cancel: Must be started on-demand in actions or init() method.
@@ -390,10 +390,8 @@ class Controller
     public final function loadView(): void
     {
         if (!isset($this->view)) {
-            $layout = $this->app->config('view.layout');
-            $layout || throw new ControllerException(
-                'No `view.layout` option found in config'
-            );
+            $layout = $this->app->config('view.layout')
+                ?: throw new ControllerException('No "view.layout" option found in config');
 
             $this->view = new View($this);
             $this->view->setLayout($layout);
@@ -454,8 +452,8 @@ class Controller
 
         if (!$controller || !$action) {
             throw new ControllerException(
-                'Invalid call directive %q, use \'Foo.bar\' notation ' .
-                'without `Controller` and `Action` suffixes', $call,
+                "Invalid call directive %q, use 'Foo.bar' notation " .
+                "without 'Controller' and 'Action' suffixes", $call,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }

@@ -427,7 +427,7 @@ final class Autoloader
     private function checkAppDir(): void
     {
         defined('APP_DIR') || throw new \Exception(
-            'APP_DIR is not defined, required for `app\...` namespaced files'
+            "APP_DIR is not defined, required for 'app\...' namespaced files"
         );
     }
 
