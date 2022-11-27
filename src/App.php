@@ -359,8 +359,8 @@ final class App
 
             // Apply dotenv configs (dropping config entrty).
             if ($dotenv = array_get($configs, 'dotenv', drop: true)) {
-                $this->applyDotenvConfigs(
-                    Config::parseDotenv($dotenv['file']),
+                $this->applyDotEnvConfigs(
+                    Config::parseDotEnv($dotenv['file']),
                     !!($dotenv['global'] ?? false), // @default=false
                 );
             }
@@ -726,7 +726,7 @@ final class App
     /**
      * Apply dot-env configs.
      */
-    private function applyDotenvConfigs(array $configs, bool $global): void
+    private function applyDotEnvConfigs(array $configs, bool $global): void
     {
         foreach ($configs as $name => $value) {
             putenv($name . '=' . $value);
