@@ -430,7 +430,7 @@ final class App
         // Resolve route.
         $route = $this->router->resolve(
             $uri = $this->request->getPath(),
-            method: null // To check below it is allowed or not.
+            method: null // To check below, if allowed or not.
         );
 
         $method = $this->request->getMethod();
