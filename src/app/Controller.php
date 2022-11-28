@@ -957,7 +957,9 @@ class Controller
 
             if ($param->hasType()) {
                 $type = $param->getType();
-                if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
+                // Only built-ins / scalars will be casted.
+                if ($type instanceof ReflectionNamedType && $type->isBuiltin()
+                    && preg_test('~int|float|string|bool~', $type->getName())) {
                     settype($value, $type->getName());
                 }
             }
