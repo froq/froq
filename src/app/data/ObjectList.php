@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace froq\app\data;
 
-use froq\pager\{Pager, PagerTrait};
-
 /**
  * A list class, for collecting DTO/VO instances.
  *
@@ -18,60 +16,68 @@ use froq\pager\{Pager, PagerTrait};
  * @since   6.0
  * @internal
  */
-class ObjectList extends \ItemList
+abstract class ObjectList extends \ItemList
 {
-    use PagerTrait;
-
-    /** @var bool */
-    public bool $convertItems = true;
+    /**
+     * Convert option for subclasses.
+     *
+     * @var bool
+     */
+    protected bool $convertItems = true;
 
     /**
      * Constructor.
      *
-     * @param  array<array|object>   $items
-     * @param  froq\pager\Pager|null $pager
-     * @throws ValueError
+     * @param  array<array|object> $items
+     * @throws ArgumentError
      */
-    public function __construct(array $items = [], Pager $pager = null)
+    public function __construct(array $items = [])
     {
+        [$typeClass, $itemClass] = $this->sniffItemClass();
+
         if ($items) {
-            is_list($items) || throw new \ValueError(
-                'Given items must be list, map given'
+            is_list($items) || throw new \ArgumentError(
+                'Argument $items must be list, map given'
             );
 
             // Sniff item class for converting items to DTO/VO instances.
-            if ($this->convertItems && ($itemClass = $this->sniffItemClass())) {
+            if ($this->convertItems && $itemClass) {
                 $items = $this->convertItems($items, $itemClass);
             }
         }
 
-        parent::__construct($items);
-
-        $this->pager = $pager;
+        parent::__construct($items, type: $typeClass);
     }
 
     /**
      * Sniff item class extracting name from subclass name.
      */
-    private function sniffItemClass(): string|null
+    private function sniffItemClass(): array
     {
-        if (str_ends_with(static::class, 'List')) {
-            $class = substr(static::class, 0, -4);
+        $typeClass = match (true) {
+            $this instanceof DataObjectList  => DataObject::class,
+            $this instanceof ValueObjectList => ValueObject::class,
+            default                          => null
+        };
+        $itemClass = null;
+
+        if (str_ends_with($this::class, 'List')) {
+            $class = substr($this::class, 0, -4);
 
             if (class_exists($class)) {
                 $parent = match (true) {
-                    $this instanceof DataObjectList => DataObject::class,
+                    $this instanceof DataObjectList  => DataObject::class,
                     $this instanceof ValueObjectList => ValueObject::class,
-                    default => null
+                    default                          => null
                 };
 
                 if ($parent && class_extends($class, $parent)) {
-                    return $class;
+                    $itemClass = $class;
                 }
             }
         }
 
-        return null;
+        return [$itemClass ?? $typeClass, $itemClass];
     }
 
     /**
@@ -82,6 +88,10 @@ class ObjectList extends \ItemList
         $object = new $itemClass();
 
         foreach ($items as &$item) {
+            if ($item instanceof \stdClass) {
+                $item = (array) $item;
+            }
+
             if (!is_array($item)) {
                 continue;
             }
