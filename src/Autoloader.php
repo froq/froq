@@ -18,7 +18,7 @@ function load($file) { require $file; }
  * @author  Kerem Güneş
  * @since   1.0, 4.0
  */
-final class Autoloader
+class Autoloader
 {
     /** @var self */
     private static self $instance;

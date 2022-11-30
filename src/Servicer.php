@@ -15,7 +15,7 @@ namespace froq;
  * @author  Kerem Güneş
  * @since   4.0
  */
-final class Servicer
+class Servicer
 {
     /** @var array */
     private array $services = [];

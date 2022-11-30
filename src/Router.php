@@ -17,7 +17,7 @@ use froq\app\{Controller, Repository};
  * @author  Kerem Güneş
  * @since   4.0
  */
-final class Router
+class Router
 {
     /** @var array */
     private array $routes = [];

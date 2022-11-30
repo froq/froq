@@ -15,7 +15,7 @@ namespace froq;
  * @author  Kerem Güneş
  * @since   4.0
  */
-final class Env extends \froq\common\object\Enum
+class Env extends \froq\common\object\Enum
 {
     /**
      * Names.

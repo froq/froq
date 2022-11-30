@@ -15,7 +15,7 @@ namespace froq\app;
  * @author  Kerem Güneş
  * @since   4.0, 6.0
  */
-final class View
+class View
 {
     /** @var froq\app\Controller */
     public readonly Controller $controller;

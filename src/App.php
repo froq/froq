@@ -30,7 +30,7 @@ use Assert, Stringable, Throwable;
  * @author  Kerem Güneş
  * @since   1.0
  */
-final class App
+class App
 {
     use InstanceTrait;
 

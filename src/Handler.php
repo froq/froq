@@ -16,7 +16,7 @@ namespace froq;
  * @since   4.0
  * @static @internal
  */
-final class Handler extends \StaticClass
+class Handler extends \StaticClass
 {
     /** @var mixed */
     private static mixed $displayErrors = null;
