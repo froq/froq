@@ -1,15 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 /**
  * @package froq
- * @object  froq\RouterException
+ * @class   froq\RouterException
  * @author  Kerem Güneş
  * @since   4.0
  */

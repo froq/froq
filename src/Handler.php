@@ -1,24 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 /**
- * A internal class, registers/unregisters `error`, `exception` and `shutdown` handlers.
+ * A internal class, registers/unregisters error, exception and shutdown handlers.
  *
  * @package froq
- * @object  froq\Handler
+ * @class   froq\Handler
  * @author  Kerem Güneş
  * @since   4.0
- * @static @internal
+ * @internal
  */
 class Handler extends \StaticClass
 {
-    /** @var mixed */
+    /** INI option for displaying errors. */
     private static mixed $displayErrors = null;
 
     /**
@@ -87,7 +85,7 @@ class Handler extends \StaticClass
     public static function registerExceptionHandler(): void
     {
         set_exception_handler(function (\Throwable $e) {
-            // Store error display option (setting temporarily as no local = no display)
+            // Store error display option (setting temporarily as no local = no display).
             self::$displayErrors = ini_set('display_errors', __local__);
 
             // Store, used in shutdown handler.

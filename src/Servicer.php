@@ -1,23 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 /**
  * Service registry class.
  *
  * @package froq
- * @object  froq\Servicer
+ * @class   froq\Servicer
  * @author  Kerem Güneş
  * @since   4.0
  */
 class Servicer
 {
-    /** @var array */
+    /** Services. */
     private array $services = [];
 
     /**

@@ -1,34 +1,32 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 use froq\app\{Controller, Repository};
 
 /**
- * A route stack class, able to such ops add, pack and resolve using RegExp utilities.
+ * A route stack class, able to such ops add, pack and resolve using regular expression utilities.
  *
  * @package froq
- * @object  froq\Router
+ * @class   froq\Router
  * @author  Kerem Güneş
  * @since   4.0
  */
 class Router
 {
-    /** @var array */
+    /** Routes. */
     private array $routes = [];
 
-    /** @var array */
+    /** Debug data. */
     private array $debug = [];
 
-    /** @var array */
+    /** Options. */
     private static array $options = [];
 
-    /** @var array */
+    /** Default options. */
     private static array $optionsDefault = [
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,

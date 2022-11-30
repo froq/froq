@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 use froq\{event\EventManager, session\Session, database\Database};
@@ -26,7 +24,7 @@ use Assert, Stringable, Throwable;
  * - Creating controllers, dispatching and getting action returns, sending those returns response object.
  *
  * @package froq
- * @object  froq\App
+ * @class   froq\App
  * @author  Kerem Güneş
  * @since   1.0
  */
@@ -34,49 +32,46 @@ class App
 {
     use InstanceTrait;
 
-    /**
-     * For versioning (eg: "app.host/v1/book/1").
-     * @var string
-     */
+    /** For versioning (eg: app.host/v1/book). */
     public readonly string $root;
 
-    /** @var string */
+    /** App env (eg: development). */
     public readonly string $env;
 
-    /** @var string */
+    /** App base directory.  */
     public readonly string $dir;
 
-    /** @var froq\logger\Logger */
+    /** Logger instance. */
     public readonly Logger $logger;
 
-    /** @var froq\http\Request */
+    /** Request instance. */
     public readonly Request $request;
 
-    /** @var froq\http\Response */
+    /** Response instance. */
     public readonly Response $response;
 
-    /** @var froq\session\Session|null */
+    /** Session instance. */
     public readonly Session|null $session;
 
-    /** @var froq\database\Database|null */
+    /** Database instance. */
     public readonly Database|null $database;
 
-    /** @var froq\cache\Cache|null */
+    /** Cache instance. */
     public readonly Cache|null $cache;
 
-    /** @var froq\event\EventManager */
+    /** EventManager instance. */
     private EventManager $eventManager;
 
-    /** @var froq\Router */
+    /** Router instance. */
     private Router $router;
 
-    /** @var froq\Servicer */
+    /** Servicer instance. */
     private Servicer $servicer;
 
-    /** @var froq\common\object\Config */
+    /** Config instance. */
     private Config $config;
 
-    /** @var froq\common\object\Register */
+    /** Registry instance. */
     private static Registry $registry;
 
     /**

@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 // Prevent static return collision etc.
@@ -14,28 +12,25 @@ function load($file) { require $file; }
  * Autoloader.
  *
  * @package froq
- * @object  froq\Autoloader
+ * @class   froq\Autoloader
  * @author  Kerem Güneş
  * @since   1.0, 4.0
  */
 class Autoloader
 {
-    /** @var self */
+    /** Instance. */
     private static self $instance;
 
-    /** @var array */
+    /** Directives for "app" related files. */
     private static array $directives = [
         'controller' => '/app/system/%s/%s.php',
         'repository' => '/app/system/%s/%s.php|/app/system/%s/data/%s.php',
     ];
 
-    /** @var array */
     private static array $mapCache = [];
-
-    /** @var array */
     private static array $nameCache = [];
 
-    /** @var string */
+    /** Vendor (Froq!) directory. */
     private string $directory;
 
     /**
