@@ -1,28 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app\data;
 
 /**
  * A list class, for collecting DTO/VO instances.
  *
  * @package froq\app\data
- * @object  froq\app\data\ObjectList
+ * @class   froq\app\data\ObjectList
  * @author  Kerem Güneş
  * @since   6.0
  * @internal
  */
 abstract class ObjectList extends \ItemList
 {
-    /**
-     * Convert option for subclasses.
-     *
-     * @var bool
-     */
+    /** Option for subclasses. */
     protected bool $convertItems = true;
 
     /**
