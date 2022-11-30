@@ -1,29 +1,27 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app;
 
 /**
  * View class, for templating purposes.
  *
  * @package froq\app
- * @object  froq\app\View
+ * @class   froq\app\View
  * @author  Kerem Güneş
  * @since   4.0, 6.0
  */
 class View
 {
-    /** @var froq\app\Controller */
+    /** Controller instance. */
     public readonly Controller $controller;
 
-    /** @var string */
+    /** View file. */
     private string $layout;
 
-    /** @var array */
+    /** View data. */
     private array $data;
 
     /**

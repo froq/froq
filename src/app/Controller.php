@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app;
 
 use froq\http\{Request, Response, HttpException, request\Segments, response\Status,
@@ -18,66 +16,66 @@ use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionExcepti
  * Base class of `app\controller` classes.
  *
  * @package froq\app
- * @object  froq\app\Controller
+ * @class   froq\app\Controller
  * @author  Kerem Güneş
  * @since   4.0, 6.0
  */
 class Controller
 {
-    /** @const string */
+    /** Namespace of controllers. */
     public final const NAMESPACE      = 'app\controller';
 
-    /** @const string */
+    /** Default controller & action. */
     public final const DEFAULT        = 'app\controller\IndexController',
                        DEFAULT_SHORT  = 'IndexController',
                        ACTION_DEFAULT = 'index';
 
-    /** @const string */
+    /** Suffix names. */
     public final const SUFFIX         = 'Controller',
                        ACTION_SUFFIX  = 'Action';
 
-    /** @const string */
+    /** Action names. */
     public final const INDEX_ACTION   = 'index',
                        ERROR_ACTION   = 'error';
 
-    /** @const string */
+    /** Default names. */
     public final const NAME_DEFAULT   = '@default',
                        NAME_CLOSURE   = '@closure';
 
-    /** @var froq\App */
+    /** App instance. */
     public readonly App $app;
 
-    /** @var froq\http\Request */
+    /** Request instance. */
     public readonly Request $request;
 
-    /** @var froq\http\Response */
+    /** Response instance. */
     public readonly Response $response;
 
-    /** @var froq\app\Repository */
+    /** Repository instance. */
     public readonly Repository $repository;
 
-    /** @var froq\session\Session */
+    /** Session instance. */
     public readonly Session $session;
 
-    /** @var froq\app\View */
+    /** View instance. */
     public readonly View $view;
 
-    /** @var bool */
+    /** Use repository option. */
     public bool $useRepository = false;
 
-    /** @var bool */
+    /** Use session option. */
     public bool $useSession = false;
 
-    /** @var bool */
+    /** Use view option. */
     public bool $useView = false;
 
-    /** @var string */
+    /** Action of this controller. */
     private string $action;
 
-    /** @var array<mixed> */
+    /** Action params of this controller. */
     private array $actionParams;
 
-    /** @var bool, bool */
+    /** Before/after method existence states. */
     private bool $before = false, $after = false;
 
     /**

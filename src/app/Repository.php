@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app;
 
 use froq\database\{Database, DatabaseRegistry, DatabaseRegistryException, Query};
@@ -16,7 +14,7 @@ use froq\database\entity\EntityManager;
  * Base class of `app\repository` classes.
  *
  * @package froq\app
- * @object  froq\app\Repository
+ * @class   froq\app\Repository
  * @author  Kerem Güneş
  * @since   6.0
  */
@@ -24,13 +22,13 @@ class Repository
 {
     use DbTrait, EmTrait;
 
-    /** @const string */
+    /** Namespace of repositories. */
     public final const NAMESPACE = 'app\repository';
 
-    /** @const string */
+    /** Suffix of repositories. */
     public final const SUFFIX    = 'Repository';
 
-    /** @var froq\app\Controller */
+    /** Controller instance. */
     public readonly Controller $controller;
 
     /**
