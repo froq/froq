@@ -1,16 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
+use froq\App;
+use froq\common\object\Registry;
 
 /*************************
  * Global app functions. *
  *************************/
-
-use froq\App;
-use froq\common\object\Registry;
 
 /**
  * Shortcut for global app object.
@@ -90,9 +88,11 @@ function app_config(string|array $key, mixed $default = null): mixed
  */
 function app_fail(string $name, mixed $value = null): mixed
 {
-    return (func_num_args() == 1)
-         ? get_global('app.fail.'. $name)
-         : set_global('app.fail.'. $name, $value);
+    return (
+        func_num_args() === 1
+            ? get_global('app.fail.' . $name)
+            : set_global('app.fail.' . $name, $value)
+    );
 }
 
 /**
