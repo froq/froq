@@ -15,10 +15,7 @@ namespace froq;
  */
 class Env extends \froq\common\object\Enum
 {
-    /**
-     * Names.
-     * @const string
-     */
+    /** Names. */
     public const DEVELOPMENT = 'development',
                  TESTING     = 'testing',
                  STAGING     = 'staging',
