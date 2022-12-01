@@ -117,7 +117,7 @@ class App
      */
     public function isRoot(): bool
     {
-        return ($this->root == $this->request->getPath());
+        return ($this->root === $this->request->getPath());
     }
 
     /**
@@ -592,7 +592,7 @@ class App
         $logged = $this->logger->setLevel(LogLevel::ERROR)->logError($error);
 
         // Restore.
-        if ($level != LogLevel::ERROR) {
+        if ($level !== LogLevel::ERROR) {
             $this->logger->setLevel($level);
         }
 

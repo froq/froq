@@ -115,7 +115,7 @@ class Router
         $routes = $this->routes();
 
         // Chop "/" from end.
-        if ($route != '/') {
+        if ($route !== '/') {
             $route = rtrim($route, '/');
         }
 
@@ -403,7 +403,7 @@ class Router
         }
 
         if ($suffix) {
-            $name = ($suffix == Controller::SUFFIX || $suffix == Repository::SUFFIX)
+            $name = ($suffix === Controller::SUFFIX || $suffix === Repository::SUFFIX)
                   ? ucfirst($name) : lcfirst($name);
 
             // Add/drop suffix.
@@ -429,7 +429,7 @@ class Router
         $name = trim($name, '/\\');
         $base = null;
 
-        if ($name == Controller::NAME_DEFAULT) {
+        if ($name === Controller::NAME_DEFAULT) {
             $name = self::$options['defaultController'];
         }
 
@@ -467,14 +467,14 @@ class Router
      */
     public static function prepareActionName(string $name, bool $full = true): string
     {
-        if ($name == Controller::NAME_DEFAULT) {
+        if ($name === Controller::NAME_DEFAULT) {
             $name = self::$options['defaultAction'];
         }
 
         $name = self::prepareName($name, Controller::ACTION_SUFFIX);
 
         // Make action suffixed, skipping special actions (index & error).
-        if ($full && ($name != Controller::INDEX_ACTION && $name != Controller::ERROR_ACTION)) {
+        if ($full && ($name !== Controller::INDEX_ACTION && $name !== Controller::ERROR_ACTION)) {
             $name .= Controller::ACTION_SUFFIX;
         }
 

@@ -337,7 +337,7 @@ class Controller
             // Try to use parent's repository class if parent uses a repository.
             if (!class_exists($class)) {
                 $parent = get_parent_class($this);
-                while ($parent && $parent != self::class) {
+                while ($parent && $parent !== self::class) {
                     // Make repository's class name fully qualified.
                     $class = str_replace(Controller::NAMESPACE, Repository::NAMESPACE, Objects::getNamespace($parent))
                         . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Repository::SUFFIX);
@@ -771,7 +771,7 @@ class Controller
     public final function call(string $action, array $actionParams = [], bool $suffix = false): mixed
     {
         // For short calls (eg: call('foo') instead call('fooAction')).
-        if ($suffix && ($action != Controller::INDEX_ACTION && $action != Controller::ERROR_ACTION)) {
+        if ($suffix && ($action !== Controller::INDEX_ACTION && $action !== Controller::ERROR_ACTION)) {
             $action .= Controller::ACTION_SUFFIX;
         }
 
