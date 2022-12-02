@@ -128,7 +128,7 @@ class QueryFactory
      *
      * @return string|null
      */
-    public final function table(): string|null
+    public function table(): string|null
     {
         return $this->table ?? null;
     }
@@ -141,7 +141,7 @@ class QueryFactory
      *
      * @return froq\database\Query
      */
-    public final function query(): Query
+    public function query(): Query
     {
         return $this->query ??= $this->initQuery();
     }
@@ -152,7 +152,7 @@ class QueryFactory
      * @param  string|null $table
      * @return froq\database\Query
      */
-    public final function initQuery(string $table = null): Query
+    public function initQuery(string $table = null): Query
     {
         return new Query($this->db, $table ?? $this->table ?? null);
     }
@@ -162,7 +162,7 @@ class QueryFactory
      *
      * @return froq\database\query\QueryParam
      */
-    public final function initQueryParam(): QueryParam
+    public function initQueryParam(): QueryParam
     {
         return new QueryParam();
     }
@@ -172,7 +172,7 @@ class QueryFactory
      *
      * @return froq\database\query\QueryParams
      */
-    public final function initQueryParams(): QueryParams
+    public function initQueryParams(): QueryParams
     {
         return new QueryParams();
     }

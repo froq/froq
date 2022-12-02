@@ -11,7 +11,7 @@ use froq\http\exception\client\NotFoundException;
  * Base class of RESTful `app\controller` classes.
  *
  * @package froq\app\rest
- * @class   froq\app\rest\RestTrait
+ * @class   froq\app\rest\RestController
  * @author  Kerem Güneş
  * @since   4.9, 6.0
  */
