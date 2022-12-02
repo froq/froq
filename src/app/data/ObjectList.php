@@ -22,22 +22,14 @@ abstract class ObjectList extends \ItemList
     /**
      * Constructor.
      *
-     * @param  array<array|object> $items
-     * @throws ArgumentError
+     * @param array<array|object> $items
      */
     public function __construct(array $items = [])
     {
         [$typeClass, $itemClass] = $this->sniffItemClass();
 
-        if ($items) {
-            is_list($items) || throw new \ArgumentError(
-                'Argument $items must be list, map given'
-            );
-
-            // Sniff item class for converting items to DTO/VO instances.
-            if ($this->convertItems && $itemClass) {
-                $items = $this->convertItems($items, $itemClass);
-            }
+        if ($items && $itemClass && $this->convertItems) {
+            $items = $this->convertItems($items, $itemClass);
         }
 
         parent::__construct($items, type: $typeClass);
