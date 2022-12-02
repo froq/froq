@@ -214,13 +214,14 @@ class Autoloader
         }
 
         // Prepend APP_DIR to directory & check.
-        $directory = realpath(APP_DIR . $directory)
-            ?: throw new \Exception('No directory exists such ' . APP_DIR . $directory);
+        if (!$directoryReal = realpath(APP_DIR . $directory)) {
+            throw new \Exception('No directory exists such ' . APP_DIR . $directory);
+        }
 
         /** @var RegexIterator<SplFileInfo> */
         $infos = new \RegexIterator(
             new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($directory)
+                new \RecursiveDirectoryIterator($directoryReal)
             ),
             '~.+/[A-Z][A-Za-z0-9]+\.php$~', // Files starting with upper-case only.
             \RecursiveRegexIterator::MATCH, // For collecting file info stack only.
