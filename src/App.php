@@ -10,7 +10,7 @@ use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
 use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
-use froq\logger\{Logger, LogLevel};
+use froq\log\{Logger, LogLevel};
 use Assert, Stringable, Throwable;
 
 /**
