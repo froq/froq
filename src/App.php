@@ -704,7 +704,7 @@ class App
             }
         }
 
-        // Set/reset options.
+        // Set/reset options (@todo: Remove these after using?).
         $this->config->extract(['logger', 'routes', 'services'],
             $logger, $routes, $services);
 
