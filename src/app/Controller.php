@@ -538,7 +538,7 @@ class Controller
     }
 
     /**
-     * Yield a payload with given status & content, also content attributes if provided.
+     * Create a payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
      * @param  mixed      $content
@@ -551,7 +551,7 @@ class Controller
     }
 
     /**
-     * Yield a JSON payload with given status & content, also content attributes if provided.
+     * Create a JSON payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
      * @param  mixed      $content
@@ -564,66 +564,66 @@ class Controller
     }
 
     /**
-     * Yield a XML payload with given status & content, also content attributes if provided.
+     * Create a XML payload with given status & content, with/without content attributes.
      *
-     * @param  int        $code
-     * @param  mixed      $content
-     * @param  array|null $attributes
+     * @param  int          $code
+     * @param  array|string $content
+     * @param  array|null   $attributes
      * @return froq\http\response\payload\XmlPayload
      */
-    public final function xmlPayload(int $code, mixed $content, array $attributes = null): XmlPayload
+    public final function xmlPayload(int $code, array|string $content, array $attributes = null): XmlPayload
     {
         return new XmlPayload($code, $content, $attributes);
     }
 
     /**
-     * Yield a HTML payload with given status & content, also content attributes if provided.
+     * Create a HTML payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
-     * @param  mixed      $content
+     * @param  string     $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\HtmlPayload
      */
-    public final function htmlPayload(int $code, mixed $content, array $attributes = null): HtmlPayload
+    public final function htmlPayload(int $code, string $content, array $attributes = null): HtmlPayload
     {
         return new HtmlPayload($code, $content, $attributes);
     }
 
     /**
-     * Yield a file payload with given status & content, also content attributes if provided.
+     * Create a file payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
-     * @param  mixed      $content
+     * @param  string     $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\FilePayload
      */
-    public final function filePayload(int $code, mixed $content, array $attributes = null): FilePayload
+    public final function filePayload(int $code, string $content, array $attributes = null): FilePayload
     {
         return new FilePayload($code, $content, $attributes);
     }
 
     /**
-     * Yield an image payload with given status & content, also content attributes if provided.
+     * Create an image payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
-     * @param  mixed      $content
+     * @param  string     $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\ImagePayload
      */
-    public final function imagePayload(int $code, mixed $content, array $attributes = null): ImagePayload
+    public final function imagePayload(int $code, string $content, array $attributes = null): ImagePayload
     {
         return new ImagePayload($code, $content, $attributes);
     }
 
     /**
-     * Yield a plain payload with given status & content, also content attributes if provided.
+     * Create a plain payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
-     * @param  mixed      $content
+     * @param  string     $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\PlainPayload
      */
-    public final function plainPayload(int $code, mixed $content, array $attributes = null): PlainPayload
+    public final function plainPayload(int $code, string $content, array $attributes = null): PlainPayload
     {
         return new PlainPayload($code, $content, $attributes);
     }
