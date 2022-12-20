@@ -19,9 +19,8 @@ if (__local__) {
     ini_set('display_errors', false);
 }
 
-// Load global function files.
-require 'fun/fun.php';
-require 'fun/fun_app.php';
+// Load functions.
+require '_fun.php';
 
 // Init app and return it.
 return froq\App::init();
