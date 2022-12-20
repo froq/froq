@@ -6,7 +6,7 @@
 namespace froq\app;
 
 /**
- * View class, for templating purposes.
+ * View class, for templating works.
  *
  * @package froq\app
  * @class   froq\app\View

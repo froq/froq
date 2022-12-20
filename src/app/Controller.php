@@ -139,7 +139,6 @@ class Controller
      * Get session.
      *
      * @return froq\session\Session
-     * @since  6.0
      */
     public final function getSession(): Session|null
     {
@@ -215,7 +214,6 @@ class Controller
      *
      * @param  string $name
      * @return bool
-     * @since  5.0
      */
     public final function hasActionParam(string $name): bool
     {
@@ -228,7 +226,6 @@ class Controller
      * @param  string $name
      * @param  mixed  $value
      * @return void
-     * @since  5.0
      */
     public final function setActionParam(string $name, $value): void
     {
@@ -252,7 +249,6 @@ class Controller
      *
      * @param  array<string>|null $names
      * @return bool
-     * @since  5.0
      */
     public final function hasActionParams(array $names = null): bool
     {
@@ -270,7 +266,6 @@ class Controller
      *
      * @param  array<string, mixed> $params
      * @return void
-     * @since  5.0
      */
     public final function setActionParams(array $params): void
     {
@@ -500,7 +495,6 @@ class Controller
      *
      * @param  mixed|null $message
      * @return mixed|null (Session)
-     * @since  6.0
      */
     public final function flash(mixed $message = null): mixed
     {
@@ -511,7 +505,6 @@ class Controller
      * Get request object.
      *
      * @return froq\http\Request
-     * @since  4.1
      */
     public final function request(): Request
     {
@@ -634,7 +627,6 @@ class Controller
      * @param  int|string  $key
      * @param  string|null $default
      * @return string|null
-     * @since  4.2
      */
     public final function segment(int|string $key, string $default = null): string|null
     {
@@ -647,7 +639,6 @@ class Controller
      * @param  array<int|string>  $keys
      * @param  array<string>|null $defaults
      * @return array<string>|froq\http\request\Segments
-     * @since  4.2
      */
     public final function segments(array $keys = null, array $defaults = null): array|Segments
     {
@@ -660,7 +651,6 @@ class Controller
      * @param  string      $name
      * @param  string|null $default
      * @return string|null
-     * @since  5.0
      */
     public final function segmentParam(string $name, string $default = null): string|null
     {
@@ -673,7 +663,6 @@ class Controller
      * @param  array<string>|null $names
      * @param  array<string>|null $defaults
      * @return array<string>|null
-     * @since  5.0
      */
     public final function segmentParams(array $names = null, array $defaults = null): array|null
     {
@@ -850,7 +839,6 @@ class Controller
      * @param  string $class
      * @return froq\app\Controller
      * @throws froq\app\ControllerException
-     * @since  5.0
      */
     public final function initController(string $class): Controller
     {
@@ -880,7 +868,6 @@ class Controller
      * @param  froq\database\Database|null $database
      * @return froq\app\Repository
      * @throws froq\app\ControllerException
-     * @since  4.13
      */
     public final function initRepository(string $class, Controller $controller = null, Database $database = null): Repository
     {
@@ -912,7 +899,6 @@ class Controller
      * @param  string|null $message
      * @param  mixed|null  $messageParams
      * @return froq\http\HttpException
-     * @since  6.0
      */
     public final function createHttpException(int $code, string $message = null, mixed $messageParams = null): HttpException
     {
