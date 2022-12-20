@@ -32,16 +32,6 @@ function app_root(): string
 }
 
 /**
- * Get app dir.
- *
- * @return string
- */
-function app_dir(): string
-{
-    return app()->dir;
-}
-
-/**
  * Get app env.
  *
  * @return string
@@ -50,6 +40,16 @@ function app_dir(): string
 function app_env(): string
 {
     return app()->env;
+}
+
+/**
+ * Get app dir.
+ *
+ * @return string
+ */
+function app_dir(): string
+{
+    return app()->dir;
 }
 
 /**
@@ -117,7 +117,7 @@ function app_fails(): array|null
  *
  * @return froq\common\object\Registry
  */
-function registry(): Registry
+function app_registry(): Registry
 {
     return app()::registry();
 }
