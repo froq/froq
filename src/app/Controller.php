@@ -519,7 +519,7 @@ class Controller
     }
 
     /**
-     * Get response object, set response status & body content, also content attributes when provided.
+     * Get response object, setting status & body content & content attributes if provided.
      *
      * @param  int|null   $code
      * @param  mixed|null $content
