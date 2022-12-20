@@ -603,19 +603,6 @@ class Controller
     }
 
     /**
-     * Create a file payload with given status & content, with/without content attributes.
-     *
-     * @param  int        $code
-     * @param  string     $content
-     * @param  array|null $attributes
-     * @return froq\http\response\payload\FilePayload
-     */
-    public final function filePayload(int $code, string $content, array $attributes = null): FilePayload
-    {
-        return new FilePayload($code, $content, $attributes);
-    }
-
-    /**
      * Create an image payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
@@ -626,6 +613,19 @@ class Controller
     public final function imagePayload(int $code, string $content, array $attributes = null): ImagePayload
     {
         return new ImagePayload($code, $content, $attributes);
+    }
+
+    /**
+     * Create a file payload with given status & content, with/without content attributes.
+     *
+     * @param  int        $code
+     * @param  string     $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\FilePayload
+     */
+    public final function filePayload(int $code, string $content, array $attributes = null): FilePayload
+    {
+        return new FilePayload($code, $content, $attributes);
     }
 
     /**
