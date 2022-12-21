@@ -9,8 +9,9 @@
         "php": "^8.1",
         "froq/froq-common": "^6.0",
         "froq/froq-event": "^6.0",
-        "froq/froq-log": "^6.0",
-        "froq/froq-http": "^6.0"
+        "froq/froq-encoding": "^6.0",
+        "froq/froq-file": "^6.0",
+        "froq/froq-log": "^6.0"
     },
     "autoload": {
         "classmap": ["src/"]

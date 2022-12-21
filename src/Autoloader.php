@@ -384,7 +384,7 @@ class Autoloader
 
             $file = APP_DIR . '/' . $name . '.php';
         }
-        // Most classes loaded by Composer, but in case this part is just a fallback.
+        // Most classes loaded by Composer, but just fallback.
         elseif (str_starts_with($name, 'froq/')) {
             [$pkg, $src] = $this->resolve($name);
 
@@ -464,17 +464,17 @@ class Autoloader
     private function resolve(string $name): array
     {
         // Base stuff defined in "froq/froq".
-        static $bases = ['app'];
+        static $bases = ['app' => 1, 'http' => 1];
 
-        $dir = dirname($name);
+        $dir = substr($name, 0, strrpos($name, '/'));
         sscanf($dir, 'froq/%[^/]', $base);
 
-        if (in_array($base, $bases, true)) {
+        if (isset($bases[$base])) {
             $pkg = 'froq';
         } else {
             $dirlen = strlen($dir);
 
-            // Check the calls not for "froq/froq" (4 = strlen("froq")).
+            // Not "froq/froq" (4 = strlen("froq")).
             if ($dirlen > 4) {
                 $dirlen = strlen($base) + 4 + 1;
             }
