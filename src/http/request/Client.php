@@ -40,7 +40,7 @@ class Client
      */
     public function getUserAgent(): string|null
     {
-        return Util::getClientUserAgent();
+        return Util::getClientAgent();
     }
 
     /**
