@@ -765,7 +765,7 @@ class Controller
         }
 
         $this->action       = $action;
-        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
+        $this->actionParams = &$actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         try {
             $ref = new ReflectionMethod($this, $action);
@@ -803,7 +803,7 @@ class Controller
     public final function callCallable(callable $action, array $actionParams = []): mixed
     {
         $this->action       = Controller::NAME_CLOSURE;
-        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
+        $this->actionParams = &$actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         // Make "$this" available in called action.
         $action = $action->bindTo($this, $this);

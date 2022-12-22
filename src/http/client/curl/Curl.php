@@ -101,7 +101,7 @@ class Curl
 
         $client->setup();
 
-        $handle =& $this->init();
+        $handle = &$this->init();
 
         $result = curl_exec($handle);
         if ($result !== false) {

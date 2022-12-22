@@ -80,7 +80,7 @@ class CurlMulti
             $client->setup();
 
             $curl   = $client->getCurl();
-            $handle = $curl->init();
+            $handle = &$curl->init();
 
 
             $result = curl_multi_add_handle($multiHandle, $handle);
@@ -89,7 +89,7 @@ class CurlMulti
             }
 
             // Tick for check & drop.
-            $curl->handle =& $handle;
+            $curl->handle = $handle;
 
             $stack[(int) $handle] = [$client, $curl];
         }
