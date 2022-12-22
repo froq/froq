@@ -439,7 +439,7 @@ class App
             );
         }
 
-        @ [$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
+        @[$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
 
         // Not found?
         if (!$controller) {
