@@ -114,7 +114,7 @@ class CurlMulti
 
             while ($info = curl_multi_info_read($multiHandle)) {
                 $id = (int) $info['handle'];
-                @ [$client, $curl] = $stack[$id];
+                @[$client, $curl] = $stack[$id];
 
                 // Check tick.
                 if (!$client || $curl->handle !== $info['handle']) {

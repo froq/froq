@@ -377,7 +377,7 @@ class App
             $this->response->addHeader($name, $value);
         }
         if ($cookies) foreach ($cookies as $name => $cookie) {
-            @ [$value, $options] = $cookie;
+            @[$value, $options] = $cookie;
             $this->response->addCookie($name, $value, $options);
         }
 

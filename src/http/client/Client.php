@@ -411,10 +411,10 @@ class Client
             // Checker for redirections etc. (for finding final HTTP-Message).
             // $next = fn($body): bool => $body && str_starts_with($body, 'HTTP/');
 
-            // @ [$headers, $body] = explode("\r\n\r\n", $result, 2);
+            // @[$headers, $body] = explode("\r\n\r\n", $result, 2);
             // if ($next($body)) {
             //     do {
-            //         @ [$headers, $body] = explode("\r\n\r\n", $body, 2);
+            //         @[$headers, $body] = explode("\r\n\r\n", $body, 2);
             //     } while ($next($body));
             // }
 
