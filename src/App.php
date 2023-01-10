@@ -544,7 +544,7 @@ class App
         $this->response->setStatus($code ?? Status::INTERNAL_SERVER_ERROR);
 
         $return  = null;
-        $display = ini('display_errors', bool: true);
+        $display = fn() => ini('display_errors', bool: true);
 
         // Try, for call @default.error() method or make an error string as return.
         try {
@@ -570,14 +570,14 @@ class App
             $this->errorLog($e);
 
             // Make an error string as return.
-            $display && $return = $e . "\n";
+            $display() && $return = $e . "\n";
         }
 
         if ($return === null || is_string($return)) {
             $return .= $this->getOutputBuffer();
 
             // Prepend error top of the output (if ini.display_errors is on).
-            $display && $return = $error . "\n\n" . $return;
+            $display() && $return = $error . "\n\n" . $return;
         }
 
         return ($return !== '') ? $return : null;
