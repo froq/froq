@@ -263,6 +263,10 @@ class Router
 
             // Handle conditional replacements, eg: ["/user/:x{login|logut}", "User.{x}"].
             foreach ($calls as $i => $call) {
+                if (is_callable($call)) {
+                    continue;
+                }
+
                 $rep = grep('~{(\w+)}~', $call);
                 if ($rep) {
                     if (isset($match[$rep])) {

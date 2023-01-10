@@ -461,7 +461,7 @@ class App
                 'No controller class found such %q', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!method_exists($controller, $action) && !is_callable($action)) {
+        } elseif (!is_callable($action) && !method_exists($controller, $action)) {
             throw new AppException(
                 'No controller action found such \'%s::%s()\'', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
