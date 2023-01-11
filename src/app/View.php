@@ -113,7 +113,7 @@ class View
 
         // Render file first, then send its contents to layout file.
         $content = $this->renderFile($file, $fileData);
-        $content = $this->renderFile($fileLayout, ['CONTENT' => $content]);
+        $content = $this->renderFile($fileLayout, ['CONTENT' => $content] + $fileData);
 
         return $content;
     }
