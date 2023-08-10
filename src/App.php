@@ -337,6 +337,7 @@ class App
      * @param  array  $configs
      * @return void
      * @throws froq\AppException
+     * @internal
      */
     public function run(string $root, string $env, array $configs = []): void
     {
