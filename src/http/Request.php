@@ -222,6 +222,19 @@ class Request extends Message
     }
 
     /**
+     * Get query param.
+     *
+     * @param  string      $name
+     * @param  string|null $default
+     * @return string|null
+     * @since  7.0
+     */
+    public function getQueryParam(string $name, string $default = null): string|null
+    {
+        return $_GET[$name] ?? $default;
+    }
+
+    /**
      * Load request stuff (globals, headers, body etc.).
      *
      * @return void
