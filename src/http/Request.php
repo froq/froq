@@ -266,9 +266,7 @@ class Request extends Message
     }
 
     /**
-     * Prepare headers.
-     *
-     * @return array
+     * @internal
      */
     private function prepareHeaders(): array
     {
