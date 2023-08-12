@@ -316,12 +316,7 @@ class Request extends Message
     }
 
     /**
-     * Prepare globals.
-     *
-     * @param  string $name
-     * @param  string $source
-     * @param  bool   $json
-     * @return array
+     * @internal
      */
     private function prepareGlobals(string $name, string $source = '', bool $json = false): array
     {
