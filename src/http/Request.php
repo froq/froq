@@ -226,7 +226,7 @@ class Request extends Message
      *
      * @return void
      * @throws froq\http\RequestException
-     * @since  5.3
+     * @internal Used by froq\App::run() method.
      */
     public function load(): void
     {
