@@ -213,12 +213,12 @@ class Request extends Message
     /**
      * Get query.
      *
-     * @return string
+     * @return string|null
      * @since  6.0
      */
-    public function getQuery(): string
+    public function getQuery(): string|null
     {
-        return $_SERVER['QUERY_STRING'] ?? '';
+        return $_SERVER['QUERY_STRING'] ?? null;
     }
 
     /**
