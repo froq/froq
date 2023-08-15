@@ -104,16 +104,14 @@ class Response extends Message
      * @param  int        $code
      * @param  array|null $headers
      * @param  array|null $cookies
-     * @return self
+     * @return void
      */
-    public function redirect(string $to, int $code = Status::FOUND, array $headers = null, array $cookies = null): self
+    public function redirect(string $to, int $code = Status::FOUND, array $headers = null, array $cookies = null): void
     {
         $this->setHeader('Location', trim($to))->setStatus($code);
 
         $headers && $this->setHeaders($headers);
         $cookies && $this->setCookies($cookies);
-
-        return $this;
     }
 
     /**
