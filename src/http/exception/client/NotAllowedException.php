@@ -5,17 +5,12 @@
  */
 namespace froq\http\exception\client;
 
-use froq\http\exception\ClientException;
-use froq\http\response\Status;
-
 /**
  * @package froq\http\exception\client
  * @class   froq\http\exception\client\NotAllowedException
  * @author  Kerem Güneş
  * @since   5.0
+ * @alias
  */
-class NotAllowedException extends ClientException
-{
-    /** Code as status code. */
-    public final const CODE = Status::NOT_ALLOWED;
-}
+class NotAllowedException extends MethodNotAllowedException
+{}
