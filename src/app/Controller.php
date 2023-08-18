@@ -210,6 +210,18 @@ class Controller
     }
 
     /**
+     * Get current controller path built with action that called at the time.
+     *
+     * @param  bool $full
+     * @return string
+     */
+    public final function getPath(bool $full = false): string
+    {
+        return !$full ? $this->getShortName() . '.' . $this->getActionShortName()
+                      : strtr($this->getName(), '\\', '.') . '.' . $this->getActionName();
+    }
+
+    /**
      * Check an action param's existence.
      *
      * @param  string $name
@@ -294,18 +306,6 @@ class Controller
         $combine || $params = array_values($params);
 
         return $params;
-    }
-
-    /**
-     * Get current controller path built with action that called at the time.
-     *
-     * @param  bool $full
-     * @return string
-     */
-    public final function getPath(bool $full = false): string
-    {
-        return !$full ? $this->getShortName() . '.' . $this->getActionShortName()
-                      : strtr($this->getName(), '\\', '.') . '.' . $this->getActionName();
     }
 
     /**
