@@ -392,19 +392,6 @@ class Controller
     }
 
     /**
-     * Get an env/server var, or return default.
-     *
-     * @param  string     $option
-     * @param  mixed|null $default
-     * @param  bool       $server
-     * @return mixed|null
-     */
-    public final function env(string $option, mixed $default = null, bool $server = true): mixed
-    {
-        return env($option, $default, $server);
-    }
-
-    /**
      * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output
      * buffer.
      *
