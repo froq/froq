@@ -392,16 +392,16 @@ class Controller
     }
 
     /**
-     * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output
+     * View a view file with given `$data` arguments if provided, rendering the file in a wrapped output
      * buffer.
      *
      * @param  string     $file
-     * @param  array|null $fileData
+     * @param  array|null $data
      * @param  int|null   $status
      * @return string
      * @throws froq\app\ControllerException
      */
-    public final function view(string $file, array $fileData = null, int $status = null): string
+    public final function view(string $file, array $data = null, int $status = null): string
     {
         if (!isset($this->view)) {
             throw new ControllerException(
@@ -413,7 +413,7 @@ class Controller
         // Shortcut for response status.
         $status && $this->response->setStatus($status);
 
-        return $this->view->render($file, $fileData);
+        return $this->view->render($file, $data);
     }
 
     /**
