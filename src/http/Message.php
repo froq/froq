@@ -197,6 +197,9 @@ abstract class Message
             // Extract needed stuff from payload process.
             [$content, $attributes, [$status, $headers, $cookies]] = $payload->process($this);
 
+            // Not needed for body object.
+            unset($attributes['code'], $attributes['headers'], $attributes['cookies']);
+
             // Set body content & attributes.
             $this->body->setContent($content)
                        ->setAttributes($attributes);
