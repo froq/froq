@@ -927,11 +927,18 @@ class Controller
             );
 
             if ($param->hasType()) {
-                $type = $param->getType();
-                // Only built-ins / scalars will be casted.
-                if ($type instanceof ReflectionNamedType && $type->isBuiltin()
-                    && preg_test('~int|float|string|bool~', $type->getName())) {
-                    settype($value, $type->getName());
+                $paramType = $param->getType();
+                if ($paramType instanceof ReflectionNamedType) {
+                    $paramTypeName = $paramType->getName();
+
+                    // Cast param type if built-in / scalar.
+                    if ($paramType->isBuiltin() && preg_test('~int|float|string|bool~', $paramTypeName)) {
+                        settype($value, $paramTypeName);
+                    }
+                    // Inject Request & Response objects if provided.
+                    elseif ($paramTypeName === Request::class || $paramTypeName === Response::class) {
+                        $value = ($paramTypeName === Request::class) ? $this->request : $this->response;
+                    }
                 }
             }
 
