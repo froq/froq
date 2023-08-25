@@ -122,7 +122,8 @@ class Body
      */
     public function isText(): bool
     {
-        return str_has_prefix((string) $this->getContentType(), 'text/', true);
+        return str_has_prefix((string) $this->getContentType(), 'text/', true)
+            || str_has((string) $this->getContentType(), ['/json', '/xml'], true);
     }
 
     /**
