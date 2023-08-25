@@ -617,7 +617,8 @@ class App
     {
         // Handle output/return responses.
         if ($this->response->allowsBody()) {
-            $content = $this->response->body->getContent();
+            $content    = $this->response->body->getContent();
+            $attributes = $this->response->body->getAttributes();
 
             // Actions that use echo/print/view()/response.setBody() will return null.
             if ($content === null && ($return === null || is_string($return))) {
@@ -632,7 +633,8 @@ class App
                 $content = $this->eventManager->fire('output', $content);
             }
 
-            $this->response->setBody($content, $this->response->body->getAttributes());
+
+            $this->response->setBody($content, $attributes);
         }
         // Handle non-body responses.
         else {
