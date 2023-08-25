@@ -6,7 +6,7 @@
 namespace froq\http;
 
 use froq\http\common\ResponseTrait;
-use froq\http\response\{Status, StatusException};
+use froq\http\response\{Status, StatusException, payload\JsonPayload};
 use froq\http\message\{ContentType, ContentCharset};
 use froq\encoding\encoder\{GZipEncoder, ZLibEncoder};
 use froq\{App, util\Util};
@@ -95,6 +95,23 @@ class Response extends Message
     public function getStatus(): Status
     {
         return $this->status;
+    }
+
+    /**
+     * Set response body as JSON with given code & content.
+     *
+     * @param  int         $code
+     * @param  mixed       $content
+     * @param  array|null  $headers
+     * @param  array|null  $cookies
+     * @param  string|null $type Eg: text/json (default=application/json).
+     * @return void
+     */
+    public function json(int $code, mixed $content, array $headers = null, array $cookies = null, string $type = null): void
+    {
+        $attributes = ['type' => $type, 'headers' => $headers, 'cookies' => $cookies];
+
+        $this->setBody(new JsonPayload($code, $content, $attributes, response: $this));
     }
 
     /**
