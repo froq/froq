@@ -259,7 +259,7 @@ class Request extends Message
 
         $_GET = $this->prepareGlobals('GET');
 
-        // Post data always parsed, for GET requests as well (to utilize JSON payloads, thanks ElasticSearch..).
+        // POST data always parsed, for GETs as well (to utilize JSON payloads, thanks ElasticSearch).
         if ($content !== '' && !str_contains($contentType, 'multipart/form-data')) {
             $_POST = $this->prepareGlobals('POST', $content, json: str_contains($contentType, '/json'));
         }
@@ -269,7 +269,7 @@ class Request extends Message
         // Fill body.
         $this->setBody($content, ($contentType ? ['type' => $contentType] : null));
 
-        // Fill headers and cookies.
+        // Fill headers & cookies.
         foreach ($headers as $name => $value) {
             $this->headers->set($name, $value);
         }
