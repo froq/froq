@@ -68,7 +68,7 @@ class QueryFactory
         $table && $this->table = $table;
 
         // Can also be defined as constant in subclass.
-        if (!isset($this->table) && constant_exists($this, 'TABLE', false)) {
+        if (empty($this->table) && constant_exists($this, 'TABLE', false)) {
             $this->table = $this::TABLE;
         }
     }
@@ -80,7 +80,7 @@ class QueryFactory
      * `froq\database\Query` class.
      *
      * Note: All proxy (absent) methods must be prefixed as "with". So, for calling
-     * query's `between()` method, caller method must be like `withBetween()`.
+     * `Query.between()` method, caller method must be like `withBetween()`.
      *
      * For example for a `BookQuery` class, a query building can be done like:
      *
