@@ -79,7 +79,7 @@ class Response extends Message
             $this->status->setCode(Status::INTERNAL_SERVER_ERROR);
         }
 
-        // Not needed for HTTP/2 version.
+        // Not for HTTP/2 and above.
         if ($this->httpVersion < 2.0) {
             $this->status->setText($text ?? Status::getTextByCode($code));
         }
