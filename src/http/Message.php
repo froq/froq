@@ -5,7 +5,7 @@
  */
 namespace froq\http;
 
-use froq\http\message\{Body, Cookies, Headers, ContentType};
+use froq\http\message\{Headers, Cookies, Body, ContentType};
 use froq\http\response\payload\Payload;
 use froq\App;
 
