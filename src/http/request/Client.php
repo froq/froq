@@ -78,6 +78,7 @@ class Client
         if ($acceptLanguage) {
             return substr($acceptLanguage, 0, 2);
         }
+
         return null;
     }
 
