@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app\data;
 
 use froq\common\interface\Arrayable;
@@ -15,7 +13,7 @@ use froq\common\interface\Arrayable;
  * toInput/toOutput.
  *
  * @package froq\app\data
- * @object  froq\app\data\DataObject
+ * @class   froq\app\data\DataObject
  * @author  Kerem Güneş
  * @since   6.0
  */
@@ -127,24 +125,24 @@ abstract class DataObject implements Arrayable
     /**
      * Prepare input/incoming data.
      *
-     * @return mixed
+     * @return array
      */
-    abstract public function toInput(): mixed;
+    abstract public function toInput(): array;
 
     /**
      * Prepare output/outgoing data.
      *
-     * @return mixed
+     * @return array
      */
-    abstract public function toOutput(): mixed;
+    abstract public function toOutput(): array;
 
     /**
      * Check whether a property can be updated controlling that the property is defined
      * in subclass as public & non-static and not in given skip list.
      */
-    private function canUpdateProperty(string $name, array $namesToSkip = []): bool
+    private function canUpdateProperty(string $name, array $skip = []): bool
     {
-        if (in_array($name, $namesToSkip, true)
+        if (in_array($name, $skip, true)
             || !property_exists($this, $name)) {
             return false;
         }

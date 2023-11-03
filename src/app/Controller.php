@@ -1,83 +1,81 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app;
 
 use froq\http\{Request, Response, HttpException, request\Segments, response\Status,
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
-use froq\{App, Router, session\Session, database\Database, util\Objects, util\misc\System};
+use froq\{App, Router, session\Session, database\Database, util\Objects};
 use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 
 /**
  * Base class of `app\controller` classes.
  *
  * @package froq\app
- * @object  froq\app\Controller
+ * @class   froq\app\Controller
  * @author  Kerem Güneş
  * @since   4.0, 6.0
  */
 class Controller
 {
-    /** @const string */
+    /** Namespace of controllers. */
     public final const NAMESPACE      = 'app\controller';
 
-    /** @const string */
+    /** Default controller & action. */
     public final const DEFAULT        = 'app\controller\IndexController',
                        DEFAULT_SHORT  = 'IndexController',
                        ACTION_DEFAULT = 'index';
 
-    /** @const string */
+    /** Suffix names. */
     public final const SUFFIX         = 'Controller',
                        ACTION_SUFFIX  = 'Action';
 
-    /** @const string */
+    /** Action names. */
     public final const INDEX_ACTION   = 'index',
                        ERROR_ACTION   = 'error';
 
-    /** @const string */
+    /** Default names. */
     public final const NAME_DEFAULT   = '@default',
                        NAME_CLOSURE   = '@closure';
 
-    /** @var froq\App */
+    /** App instance. */
     public readonly App $app;
 
-    /** @var froq\http\Request */
+    /** Request instance. */
     public readonly Request $request;
 
-    /** @var froq\http\Response */
+    /** Response instance. */
     public readonly Response $response;
 
-    /** @var froq\app\Repository */
+    /** Repository instance. */
     public readonly Repository $repository;
 
-    /** @var froq\session\Session */
+    /** Session instance. */
     public readonly Session $session;
 
-    /** @var froq\app\View */
+    /** View instance. */
     public readonly View $view;
 
-    /** @var bool */
+    /** Use repository option. */
     public bool $useRepository = false;
 
-    /** @var bool */
+    /** Use session option. */
     public bool $useSession = false;
 
-    /** @var bool */
+    /** Use view option. */
     public bool $useView = false;
 
-    /** @var string */
+    /** Action of this controller. */
     private string $action;
 
-    /** @var array<mixed> */
+    /** Action params of this controller. */
     private array $actionParams;
 
-    /** @var bool, bool */
+    /** Before/after method existence states. */
     private bool $before = false, $after = false;
 
     /**
@@ -141,7 +139,6 @@ class Controller
      * Get session.
      *
      * @return froq\session\Session
-     * @since  6.0
      */
     public final function getSession(): Session|null
     {
@@ -213,11 +210,22 @@ class Controller
     }
 
     /**
+     * Get current controller path built with action that called at the time.
+     *
+     * @param  bool $full
+     * @return string
+     */
+    public final function getPath(bool $full = false): string
+    {
+        return !$full ? $this->getShortName() . '.' . $this->getActionShortName()
+                      : strtr($this->getName(), '\\', '.') . '.' . $this->getActionName();
+    }
+
+    /**
      * Check an action param's existence.
      *
      * @param  string $name
      * @return bool
-     * @since  5.0
      */
     public final function hasActionParam(string $name): bool
     {
@@ -230,7 +238,6 @@ class Controller
      * @param  string $name
      * @param  mixed  $value
      * @return void
-     * @since  5.0
      */
     public final function setActionParam(string $name, $value): void
     {
@@ -254,7 +261,6 @@ class Controller
      *
      * @param  array<string>|null $names
      * @return bool
-     * @since  5.0
      */
     public final function hasActionParams(array $names = null): bool
     {
@@ -272,7 +278,6 @@ class Controller
      *
      * @param  array<string, mixed> $params
      * @return void
-     * @since  5.0
      */
     public final function setActionParams(array $params): void
     {
@@ -304,18 +309,6 @@ class Controller
     }
 
     /**
-     * Get current controller path built with action that called at the time.
-     *
-     * @param  bool $full
-     * @return string
-     */
-    public final function getPath(bool $full = false): string
-    {
-        return !$full ? $this->getShortName() . '.' . $this->getActionShortName()
-                      : strtr($this->getName(), '\\', '.') . '.' . $this->getActionName();
-    }
-
-    /**
      * Load (initialize) the repository object for the owner controller if controller's `$useRepository`
      * property set to true and `$repository` property is not set yet.
      *
@@ -339,7 +332,7 @@ class Controller
             // Try to use parent's repository class if parent uses a repository.
             if (!class_exists($class)) {
                 $parent = get_parent_class($this);
-                while ($parent && $parent != self::class) {
+                while ($parent && $parent !== self::class) {
                     // Make repository's class name fully qualified.
                     $class = str_replace(Controller::NAMESPACE, Repository::NAMESPACE, Objects::getNamespace($parent))
                         . '\\' . (substr(Objects::getShortName($parent), 0, -strlen(Controller::SUFFIX)) . Repository::SUFFIX);
@@ -369,7 +362,7 @@ class Controller
     {
         if (!isset($this->session)) {
             $this->app->session ?? throw new ControllerException(
-                'App has no session object, be sure `session` option is not empty in config'
+                'App has no session object, be sure "session" option is not empty in config'
             );
 
             // @cancel: Must be started on-demand in actions or init() method.
@@ -390,10 +383,8 @@ class Controller
     public final function loadView(): void
     {
         if (!isset($this->view)) {
-            $layout = $this->app->config('view.layout');
-            $layout || throw new ControllerException(
-                'No `view.layout` option found in config'
-            );
+            $layout = $this->app->config('view.layout')
+                ?: throw new ControllerException('No "view.layout" option found in config');
 
             $this->view = new View($this);
             $this->view->setLayout($layout);
@@ -401,33 +392,20 @@ class Controller
     }
 
     /**
-     * Get an env/server var, or return default.
-     *
-     * @param  string     $option
-     * @param  mixed|null $default
-     * @param  bool       $server
-     * @return mixed|null
-     */
-    public final function env(string $option, mixed $default = null, bool $server = true): mixed
-    {
-        return System::envGet($option, $default, $server);
-    }
-
-    /**
-     * View a view file with given `$fileData` arguments if provided, rendering the file in a wrapped output
+     * View a view file with given `$data` arguments if provided, rendering the file in a wrapped output
      * buffer.
      *
      * @param  string     $file
-     * @param  array|null $fileData
+     * @param  array|null $data
      * @param  int|null   $status
      * @return string
      * @throws froq\app\ControllerException
      */
-    public final function view(string $file, array $fileData = null, int $status = null): string
+    public final function view(string $file, array $data = null, int $status = null): string
     {
         if (!isset($this->view)) {
             throw new ControllerException(
-                'No `$view` property set yet, be sure `$useView` is true in class `%s`',
+                'No $view property set yet, be sure $useView is true in class %q',
                 static::class
             );
         }
@@ -435,7 +413,7 @@ class Controller
         // Shortcut for response status.
         $status && $this->response->setStatus($status);
 
-        return $this->view->render($file, $fileData);
+        return $this->view->render($file, $data);
     }
 
     /**
@@ -454,20 +432,20 @@ class Controller
 
         if (!$controller || !$action) {
             throw new ControllerException(
-                'Invalid call directive `%s`, use `Foo.bar` notation ' .
-                'without `Controller` and `Action` suffixes', $call,
+                "Invalid call directive %q, use 'Foo.bar' notation " .
+                "without 'Controller' and 'Action' suffixes", $call,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
 
         if (!class_exists($controller)) {
             throw new ControllerException(
-                'No controller found such `%s`', $controller,
+                'No controller found such %q', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!method_exists($controller, $action)) {
             throw new ControllerException(
-                'No controller action found such `%s::%s()`', [$controller, $action],
+                'No controller action found such \'%s::%s()\'', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
@@ -504,7 +482,6 @@ class Controller
      *
      * @param  mixed|null $message
      * @return mixed|null (Session)
-     * @since  6.0
      */
     public final function flash(mixed $message = null): mixed
     {
@@ -515,7 +492,6 @@ class Controller
      * Get request object.
      *
      * @return froq\http\Request
-     * @since  4.1
      */
     public final function request(): Request
     {
@@ -523,7 +499,7 @@ class Controller
     }
 
     /**
-     * Get response object, set response status & body content, also content attributes when provided.
+     * Get response object, setting status & body content & content attributes if provided.
      *
      * @param  int|null   $code
      * @param  mixed|null $content
@@ -542,7 +518,7 @@ class Controller
     }
 
     /**
-     * Yield a payload with given status & content, also content attributes if provided.
+     * Create a payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
      * @param  mixed      $content
@@ -555,7 +531,33 @@ class Controller
     }
 
     /**
-     * Yield a JSON payload with given status & content, also content attributes if provided.
+     * Create a HTML payload with given status & content, with/without content attributes.
+     *
+     * @param  int        $code
+     * @param  string     $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\HtmlPayload
+     */
+    public final function htmlPayload(int $code, string $content, array $attributes = null): HtmlPayload
+    {
+        return new HtmlPayload($code, $content, $attributes);
+    }
+
+    /**
+     * Create a plain payload with given status & content, with/without content attributes.
+     *
+     * @param  int        $code
+     * @param  string     $content
+     * @param  array|null $attributes
+     * @return froq\http\response\payload\PlainPayload
+     */
+    public final function plainPayload(int $code, string $content, array $attributes = null): PlainPayload
+    {
+        return new PlainPayload($code, $content, $attributes);
+    }
+
+    /**
+     * Create a JSON payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
      * @param  mixed      $content
@@ -568,68 +570,42 @@ class Controller
     }
 
     /**
-     * Yield a XML payload with given status & content, also content attributes if provided.
+     * Create a XML payload with given status & content, with/without content attributes.
      *
-     * @param  int        $code
-     * @param  mixed      $content
-     * @param  array|null $attributes
+     * @param  int          $code
+     * @param  array|string $content
+     * @param  array|null   $attributes
      * @return froq\http\response\payload\XmlPayload
      */
-    public final function xmlPayload(int $code, mixed $content, array $attributes = null): XmlPayload
+    public final function xmlPayload(int $code, array|string $content, array $attributes = null): XmlPayload
     {
         return new XmlPayload($code, $content, $attributes);
     }
 
     /**
-     * Yield a HTML payload with given status & content, also content attributes if provided.
+     * Create an image payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
-     * @param  mixed      $content
-     * @param  array|null $attributes
-     * @return froq\http\response\payload\HtmlPayload
-     */
-    public final function htmlPayload(int $code, mixed $content, array $attributes = null): HtmlPayload
-    {
-        return new HtmlPayload($code, $content, $attributes);
-    }
-
-    /**
-     * Yield a file payload with given status & content, also content attributes if provided.
-     *
-     * @param  int        $code
-     * @param  mixed      $content
-     * @param  array|null $attributes
-     * @return froq\http\response\payload\FilePayload
-     */
-    public final function filePayload(int $code, mixed $content, array $attributes = null): FilePayload
-    {
-        return new FilePayload($code, $content, $attributes);
-    }
-
-    /**
-     * Yield an image payload with given status & content, also content attributes if provided.
-     *
-     * @param  int        $code
-     * @param  mixed      $content
+     * @param  string     $content
      * @param  array|null $attributes
      * @return froq\http\response\payload\ImagePayload
      */
-    public final function imagePayload(int $code, mixed $content, array $attributes = null): ImagePayload
+    public final function imagePayload(int $code, string $content, array $attributes = null): ImagePayload
     {
         return new ImagePayload($code, $content, $attributes);
     }
 
     /**
-     * Yield a plain payload with given status & content, also content attributes if provided.
+     * Create a file payload with given status & content, with/without content attributes.
      *
      * @param  int        $code
-     * @param  mixed      $content
+     * @param  string     $content
      * @param  array|null $attributes
-     * @return froq\http\response\payload\PlainPayload
+     * @return froq\http\response\payload\FilePayload
      */
-    public final function plainPayload(int $code, mixed $content, array $attributes = null): PlainPayload
+    public final function filePayload(int $code, string $content, array $attributes = null): FilePayload
     {
-        return new PlainPayload($code, $content, $attributes);
+        return new FilePayload($code, $content, $attributes);
     }
 
     /**
@@ -638,7 +614,6 @@ class Controller
      * @param  int|string  $key
      * @param  string|null $default
      * @return string|null
-     * @since  4.2
      */
     public final function segment(int|string $key, string $default = null): string|null
     {
@@ -651,7 +626,6 @@ class Controller
      * @param  array<int|string>  $keys
      * @param  array<string>|null $defaults
      * @return array<string>|froq\http\request\Segments
-     * @since  4.2
      */
     public final function segments(array $keys = null, array $defaults = null): array|Segments
     {
@@ -664,7 +638,6 @@ class Controller
      * @param  string      $name
      * @param  string|null $default
      * @return string|null
-     * @since  5.0
      */
     public final function segmentParam(string $name, string $default = null): string|null
     {
@@ -677,7 +650,6 @@ class Controller
      * @param  array<string>|null $names
      * @param  array<string>|null $defaults
      * @return array<string>|null
-     * @since  5.0
      */
     public final function segmentParams(array $names = null, array $defaults = null): array|null
     {
@@ -775,18 +747,18 @@ class Controller
     public final function call(string $action, array $actionParams = [], bool $suffix = false): mixed
     {
         // For short calls (eg: call('foo') instead call('fooAction')).
-        if ($suffix && ($action != Controller::INDEX_ACTION && $action != Controller::ERROR_ACTION)) {
+        if ($suffix && ($action !== Controller::INDEX_ACTION && $action !== Controller::ERROR_ACTION)) {
             $action .= Controller::ACTION_SUFFIX;
         }
 
         $this->action       = $action;
-        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
+        $this->actionParams = &$actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         try {
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No action exists such `%s::%s()`', [static::class, $action],
+                'No action exists such \'%s::%s()\'', [static::class, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
@@ -818,7 +790,7 @@ class Controller
     public final function callCallable(callable $action, array $actionParams = []): mixed
     {
         $this->action       = Controller::NAME_CLOSURE;
-        $this->actionParams =& $actionParams; // Keep originals, allow mutations (&) if before() exists.
+        $this->actionParams = &$actionParams; // Keep originals, allow mutations (&) if before() exists.
 
         // Make "$this" available in called action.
         $action = $action->bindTo($this, $this);
@@ -827,7 +799,7 @@ class Controller
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No callable exists such `%s::%s()`', [static::class, $action],
+                'No callable exists such \'%s::%s()\'', [static::class, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
@@ -854,7 +826,6 @@ class Controller
      * @param  string $class
      * @return froq\app\Controller
      * @throws froq\app\ControllerException
-     * @since  5.0
      */
     public final function initController(string $class): Controller
     {
@@ -866,10 +837,10 @@ class Controller
         }
 
         class_exists($class) || throw new ControllerException(
-            'Controller class `%s` not exists', $class
+            'Controller class %q not exists', $class
         );
         class_extends($class, Controller::class) || throw new ControllerException(
-            'Controller class `%s` must extend class `%s`', [$class, Controller::class]
+            'Controller class %q must extend class %q', [$class, Controller::class]
         );
 
         return new $class($this->app);
@@ -884,7 +855,6 @@ class Controller
      * @param  froq\database\Database|null $database
      * @return froq\app\Repository
      * @throws froq\app\ControllerException
-     * @since  4.13
      */
     public final function initRepository(string $class, Controller $controller = null, Database $database = null): Repository
     {
@@ -896,10 +866,10 @@ class Controller
         }
 
         class_exists($class) || throw new ControllerException(
-            'Repository class `%s` not exists', $class
+            'Repository class %q not exists', $class
         );
         class_extends($class, Repository::class) || throw new ControllerException(
-            'Repository class `%s` must extend class `%s`', [$class, Repository::class]
+            'Repository class %q must extend class %q', [$class, Repository::class]
         );
 
         return new $class($controller ?? $this, $database ?? $this->app->database);
@@ -916,7 +886,6 @@ class Controller
      * @param  string|null $message
      * @param  mixed|null  $messageParams
      * @return froq\http\HttpException
-     * @since  6.0
      */
     public final function createHttpException(int $code, string $message = null, mixed $messageParams = null): HttpException
     {
@@ -958,9 +927,18 @@ class Controller
             );
 
             if ($param->hasType()) {
-                $type = $param->getType();
-                if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
-                    settype($value, $type->getName());
+                $paramType = $param->getType();
+                if ($paramType instanceof ReflectionNamedType) {
+                    $paramTypeName = $paramType->getName();
+
+                    // Cast param type if built-in / scalar.
+                    if ($paramType->isBuiltin() && preg_test('~int|float|string|bool~', $paramTypeName)) {
+                        settype($value, $paramTypeName);
+                    }
+                    // Inject Request & Response objects if provided.
+                    elseif ($paramTypeName === Request::class || $paramTypeName === Response::class) {
+                        $value = ($paramTypeName === Request::class) ? $this->request : $this->response;
+                    }
                 }
             }
 

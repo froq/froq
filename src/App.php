@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 use froq\{event\EventManager, session\Session, database\Database};
@@ -12,9 +10,8 @@ use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
 use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
-use froq\logger\{Logger, LogLevel};
-use froq\util\misc\System;
-use Assert, Throwable;
+use froq\log\{Logger, LogLevel};
+use Assert, Stringable, Throwable;
 
 /**
  * Application class which is responsible with all logics;
@@ -27,57 +24,54 @@ use Assert, Throwable;
  * - Creating controllers, dispatching and getting action returns, sending those returns response object.
  *
  * @package froq
- * @object  froq\App
+ * @class   froq\App
  * @author  Kerem Güneş
  * @since   1.0
  */
-final class App
+class App
 {
     use InstanceTrait;
 
-    /**
-     * For versioning (eg: "app.host/v1/book/1").
-     * @var string
-     */
+    /** For versioning (eg: app.host/v1/book). */
     public readonly string $root;
 
-    /** @var string */
-    public readonly string $dir;
-
-    /** @var string */
+    /** App env (eg: development). */
     public readonly string $env;
 
-    /** @var froq\logger\Logger */
+    /** App base directory.  */
+    public readonly string $dir;
+
+    /** Logger instance. */
     public readonly Logger $logger;
 
-    /** @var froq\http\Request */
+    /** Request instance. */
     public readonly Request $request;
 
-    /** @var froq\http\Response */
+    /** Response instance. */
     public readonly Response $response;
 
-    /** @var froq\session\Session|null */
+    /** Session instance. */
     public readonly Session|null $session;
 
-    /** @var froq\database\Database|null */
+    /** Database instance. */
     public readonly Database|null $database;
 
-    /** @var froq\cache\Cache|null */
+    /** Cache instance. */
     public readonly Cache|null $cache;
 
-    /** @var froq\event\EventManager */
+    /** EventManager instance. */
     private EventManager $eventManager;
 
-    /** @var froq\Router */
+    /** Router instance. */
     private Router $router;
 
-    /** @var froq\Servicer */
+    /** Servicer instance. */
     private Servicer $servicer;
 
-    /** @var froq\common\object\Config */
+    /** Config instance. */
     private Config $config;
 
-    /** @var froq\common\object\Register */
+    /** Registry instance. */
     private static Registry $registry;
 
     /**
@@ -123,11 +117,11 @@ final class App
      */
     public function isRoot(): bool
     {
-        return ($this->root == $this->request->getPath());
+        return ($this->root === $this->request->getPath());
     }
 
     /**
-     * Check whether environment is local that defined .
+     * Check whether environment is local that defined.
      *
      * @return bool
      * @since  5.0
@@ -147,7 +141,7 @@ final class App
      */
     public function runtime(int $precision = 3, bool $format = false): float|string
     {
-        $runtime = round(microtime(true) - APP_START_TIME, $precision);
+        $runtime = round(microtime(true) - APP_START, $precision);
 
         return !$format ? $runtime : sprintf('%.*F', $precision, $runtime);
     }
@@ -165,10 +159,14 @@ final class App
     public function cache(string|int|array $key, mixed $value = null, int $ttl = null): mixed
     {
         isset($this->cache) || throw new AppException(
-            'No cache object initiated yet, be sure `cache` option is not empty in config'
+            'No cache object initiated yet, be sure "cache" option is not empty in config'
         );
 
-        return (func_num_args() == 1) ? $this->cache->get($key) : $this->cache->set($key, $value, $ttl);
+        return (
+            func_num_args() === 1
+                ? $this->cache->get($key)
+                : $this->cache->set($key, $value, $ttl)
+        );
     }
 
     /**
@@ -182,7 +180,7 @@ final class App
     public function uncache(string|int|array $key): bool
     {
         isset($this->cache) || throw new AppException(
-            'No cache object initiated yet, be sure `cache` option is not empty in config'
+            'No cache object initiated yet, be sure "cache" option is not empty in config'
         );
 
         return ($key === '*') ? $this->cache->clear() : $this->cache->delete($key);
@@ -296,7 +294,11 @@ final class App
      */
     public function service(string $name, object|callable|array $service = null): object|callable|null
     {
-        return (func_num_args() == 1) ? $this->servicer->getService($name) : $this->servicer->addService($name, $service);
+        return (
+            func_num_args() === 1
+                ? $this->servicer->getService($name)
+                : $this->servicer->addService($name, $service)
+        );
     }
 
     /**
@@ -330,20 +332,20 @@ final class App
      * config), resolve route and check validity, call "before/after" events, start output buffer and end it
      * passing that called action return to ended buffer.
      *
-     * @param  array $options
+     * @param  string $root
+     * @param  string $env
+     * @param  array  $configs
      * @return void
      * @throws froq\AppException
+     * @internal
      */
-    public function run(array $options): void
+    public function run(string $root, string $env, array $configs = []): void
     {
         static $done;
 
         // Check/tick for run-once state.
         $done ? throw new AppException('App was already run')
               : ($done = true);
-
-        // Apply run options (user options) (@see pub/index.php).
-        @ ['configs' => $configs, 'env' => $env, 'root' => $root] = $options;
 
         if ($configs) {
             // Set router options first (for proper error() process).
@@ -353,9 +355,9 @@ final class App
 
             // Apply dotenv configs (dropping config entrty).
             if ($dotenv = array_get($configs, 'dotenv', drop: true)) {
-                $this->applyDotenvConfigs(
-                    Config::parseDotenv($dotenv['file']),
-                    !!($dotenv['global'] ?? false), // @default
+                $this->applyDotEnvConfigs(
+                    Config::parseDotEnv($dotenv['file']),
+                    !!($dotenv['global'] ?? false), // @default=false
                 );
             }
 
@@ -363,12 +365,12 @@ final class App
             $this->applyConfigs($configs);
         }
 
-        // Check/set env & root stuff.
-        if (!$env || !$root) {
-            throw new AppException('Options `env` or `root` cannot be empty');
+        if (!$root || !$env) {
+            throw new AppException('Options "root" or "env" cannot be empty');
         }
 
-        $this->env = $env; $this->root = $root;
+        $this->root = $root;
+        $this->env  = $env;
 
         // Add headers & cookies (if provided).
         [$headers, $cookies] = $this->config->get(['headers', 'cookies']);
@@ -376,7 +378,7 @@ final class App
             $this->response->addHeader($name, $value);
         }
         if ($cookies) foreach ($cookies as $name => $cookie) {
-            @ [$value, $options] = $cookie;
+            @[$value, $options] = $cookie;
             $this->response->addCookie($name, $value, $options);
         }
 
@@ -392,7 +394,7 @@ final class App
 
         if ($session) {
             Assert::type($session, 'array|bool', new AppException(
-                'Config option `session` must be array|bool, %t given', $session
+                'Config option "session" must be array|bool, %t given', $session
             ));
             $this->session = Session::initOnce((array) $session);
         } else {
@@ -401,7 +403,7 @@ final class App
 
         if ($database) {
             Assert::type($database, 'array', new AppException(
-                'Config option `database` must be array, %t given', $database
+                'Config option "database" must be array, %t given', $database
             ));
             $this->database = Database::initOnce($database);
         } else {
@@ -411,7 +413,7 @@ final class App
         // Note: Cache is a static instance as default.
         if ($cache) {
             Assert::type($cache, 'array', new AppException(
-                'Config option `cache` must be array, %t given', $cache
+                'Config option "cache" must be array, %t given', $cache
             ));
             $this->cache = CacheFactory::init($cache['id'], $cache['options']);
         } else {
@@ -424,7 +426,7 @@ final class App
         // Resolve route.
         $route = $this->router->resolve(
             $uri = $this->request->getPath(),
-            method: null // To check below it is allowed or not.
+            method: null // To check below, if allowed or not.
         );
 
         $method = $this->request->getMethod();
@@ -432,24 +434,24 @@ final class App
         // Found but no method allowed?
         if ($route && !isset($route[$method]) && !isset($route['*'])) {
             throw new AppException(
-                'No method %s allowed for `%s`',
+                'No method %s allowed for %q',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_ALLOWED, cause: new NotAllowedException()
             );
         }
 
-        @ [$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
+        @[$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
 
         // Not found?
         if (!$controller) {
             throw new AppException(
-                'No controller route found for `%s %s`',
+                'No controller route found for \'%s %s\'',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException(),
             );
         } elseif (!$action) {
             throw new AppException(
-                'No action route found for `%s %s`',
+                'No action route found for \'%s %s\'',
                 [$method, htmlspecialchars(rawurldecode($uri))],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
@@ -457,12 +459,12 @@ final class App
 
         if (!class_exists($controller)) {
             throw new AppException(
-                'No controller class found such `%s`', $controller,
+                'No controller class found such %q', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
-        } elseif (!method_exists($controller, $action) && !is_callable($action)) {
+        } elseif (!is_callable($action) && !method_exists($controller, $action)) {
             throw new AppException(
-                'No controller action found such `%s::%s()`', [$controller, $action],
+                'No controller action found such \'%s::%s()\'', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
@@ -506,15 +508,19 @@ final class App
     }
 
     /**
-     * Log for only errors.
+     * Log given message or error.
      *
-     * @param  Throwable $error
+     * @param  string|Stringable $message
      * @return void
      * @since  6.0
      */
-    public function log(Throwable $error): void
+    public function log(string|Stringable $message): void
     {
-        $this->errorLog($error);
+        if ($message instanceof Throwable) {
+            $this->errorLog($message);
+        } else {
+            $this->logger->log($message);
+        }
     }
 
     /**
@@ -539,7 +545,7 @@ final class App
         $this->response->setStatus($code ?? Status::INTERNAL_SERVER_ERROR);
 
         $return  = null;
-        $display = System::iniGet('display_errors', bool: true);
+        $display = fn() => ini('display_errors', bool: true);
 
         // Try, for call @default.error() method or make an error string as return.
         try {
@@ -547,11 +553,11 @@ final class App
 
             // Check default controller & controller (error) method.
             if (!class_exists($controller)) {
-                throw new AppError('No default controller exists such `%s`',
+                throw new AppError('No default controller exists such %q',
                     $controller);
             }
             if (!method_exists($controller, 'error')) {
-                throw new AppError('No default controller method exists such `%s::%s()`',
+                throw new AppError('No default controller method exists such \'%s::%s()\'',
                     [$controller, 'error']);
             }
 
@@ -565,18 +571,14 @@ final class App
             $this->errorLog($e);
 
             // Make an error string as return.
-            if ($display) {
-                $return = $e . "\n";
-            }
+            $display() && $return = $e . "\n";
         }
 
         if ($return === null || is_string($return)) {
             $return .= $this->getOutputBuffer();
 
             // Prepend error top of the output (if ini.display_errors is on).
-            if ($display) {
-                $return = $error . "\n\n" . $return;
-            }
+            $display() && $return = $error . "\n\n" . $return;
         }
 
         return ($return !== '') ? $return : null;
@@ -591,7 +593,7 @@ final class App
         $logged = $this->logger->setLevel(LogLevel::ERROR)->logError($error);
 
         // Restore.
-        if ($level != LogLevel::ERROR) {
+        if ($level !== LogLevel::ERROR) {
             $this->logger->setLevel($level);
         }
 
@@ -615,7 +617,8 @@ final class App
     {
         // Handle output/return responses.
         if ($this->response->allowsBody()) {
-            $content = $this->response->body->getContent();
+            $content    = $this->response->getContent();
+            $attributes = $this->response->getContentAttributes();
 
             // Actions that use echo/print/view()/response.setBody() will return null.
             if ($content === null && ($return === null || is_string($return))) {
@@ -630,7 +633,7 @@ final class App
                 $content = $this->eventManager->fire('output', $content);
             }
 
-            $this->response->setBody($content, $this->response->body->getAttributes());
+            $this->response->setBody($content, $attributes);
         }
         // Handle non-body responses.
         else {
@@ -703,7 +706,7 @@ final class App
             }
         }
 
-        // Set/reset options.
+        // Set/reset options (@todo: Remove these after using?).
         $this->config->extract(['logger', 'routes', 'services'],
             $logger, $routes, $services);
 
@@ -720,12 +723,12 @@ final class App
     /**
      * Apply dot-env configs.
      */
-    private function applyDotenvConfigs(array $configs, bool $global): void
+    private function applyDotEnvConfigs(array $configs, bool $global): void
     {
         foreach ($configs as $name => $value) {
             putenv($name . '=' . $value);
 
-            // When was set as global.
+            // When it was set as true.
             $global && $_ENV[$name] = $value;
         }
     }

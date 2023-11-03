@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app\data;
 
 use froq\validation\Validation;
@@ -14,7 +12,7 @@ use froq\validation\Validation;
  * on validate process if validation fails.
  *
  * @package froq\app\data
- * @object  froq\app\data\InputValidator
+ * @class   froq\app\data\InputValidator
  * @author  Kerem Güneş
  * @since   6.0
  * @internal

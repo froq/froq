@@ -1,29 +1,27 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app;
 
 /**
- * View class, for templating purposes.
+ * View class, for templating works.
  *
  * @package froq\app
- * @object  froq\app\View
+ * @class   froq\app\View
  * @author  Kerem Güneş
  * @since   4.0, 6.0
  */
-final class View
+class View
 {
-    /** @var froq\app\Controller */
+    /** Controller instance. */
     public readonly Controller $controller;
 
-    /** @var string */
+    /** View file. */
     private string $layout;
 
-    /** @var array */
+    /** View data. */
     private array $data;
 
     /**
@@ -100,12 +98,12 @@ final class View
     {
         $file = $this->prepareFile($file);
         if (!is_file($file)) {
-            throw new ViewException('View file `%s` not found', $file);
+            throw new ViewException('View file %q not found', $file);
         }
 
         $fileLayout = $this->getLayout();
         if (!is_file($fileLayout)) {
-            throw new ViewException('View layout file `%s` not found', $fileLayout);
+            throw new ViewException('View layout file %q not found', $fileLayout);
         }
 
         $fileData ??= [];
@@ -115,7 +113,7 @@ final class View
 
         // Render file first, then send its contents to layout file.
         $content = $this->renderFile($file, $fileData);
-        $content = $this->renderFile($fileLayout, ['CONTENT' => $content]);
+        $content = $this->renderFile($fileLayout, ['CONTENT' => $content] + $fileData);
 
         return $content;
     }

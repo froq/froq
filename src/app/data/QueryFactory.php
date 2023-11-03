@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app\data;
 
 use froq\database\trait\DbTrait;
@@ -32,7 +30,7 @@ use froq\database\query\{QueryParam, QueryParams};
  * ```
  *
  * @package froq\app\data
- * @object  froq\app\data\QueryFactory
+ * @class   froq\app\data\QueryFactory
  * @author  Kerem Güneş
  * @since   6.0
  */
@@ -40,10 +38,10 @@ class QueryFactory
 {
     use DbTrait;
 
-    /** @var string */
+    /** Table name. */
     protected string $table;
 
-    /** @var froq\database\Query */
+    /** Query instance. */
     private readonly Query $query;
 
     /**
@@ -57,7 +55,7 @@ class QueryFactory
     {
         if (!$db) try {
             // Real caller for a proper error message (for subclasses).
-            $caller = sprintf('%s::%s', static::class, __function__);
+            $caller = sprintf('%s::%s', static::class, __FUNCTION__);
 
             $db = DatabaseRegistry::getDefault($caller);
         } catch (DatabaseRegistryException $e) {
@@ -70,7 +68,7 @@ class QueryFactory
         $table && $this->table = $table;
 
         // Can also be defined as constant in subclass.
-        if (!isset($this->table) && constant_exists($this, 'TABLE')) {
+        if (empty($this->table) && constant_exists($this, 'TABLE', false)) {
             $this->table = $this::TABLE;
         }
     }
@@ -82,7 +80,7 @@ class QueryFactory
      * `froq\database\Query` class.
      *
      * Note: All proxy (absent) methods must be prefixed as "with". So, for calling
-     * query's `between()` method, caller method must be like `withBetween()`.
+     * `Query.between()` method, caller method must be like `withBetween()`.
      *
      * For example for a `BookQuery` class, a query building can be done like:
      *
@@ -130,7 +128,7 @@ class QueryFactory
      *
      * @return string|null
      */
-    public final function table(): string|null
+    public function table(): string|null
     {
         return $this->table ?? null;
     }
@@ -143,7 +141,7 @@ class QueryFactory
      *
      * @return froq\database\Query
      */
-    public final function query(): Query
+    public function query(): Query
     {
         return $this->query ??= $this->initQuery();
     }
@@ -154,7 +152,7 @@ class QueryFactory
      * @param  string|null $table
      * @return froq\database\Query
      */
-    public final function initQuery(string $table = null): Query
+    public function initQuery(string $table = null): Query
     {
         return new Query($this->db, $table ?? $this->table ?? null);
     }
@@ -164,7 +162,7 @@ class QueryFactory
      *
      * @return froq\database\query\QueryParam
      */
-    public final function initQueryParam(): QueryParam
+    public function initQueryParam(): QueryParam
     {
         return new QueryParam();
     }
@@ -174,7 +172,7 @@ class QueryFactory
      *
      * @return froq\database\query\QueryParams
      */
-    public final function initQueryParams(): QueryParams
+    public function initQueryParams(): QueryParams
     {
         return new QueryParams();
     }

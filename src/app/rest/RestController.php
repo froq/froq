@@ -1,19 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq\app\rest;
 
 use froq\http\exception\client\NotFoundException;
 
 /**
- * Base class of `app\controller` classes (RESTful classes).
+ * Base class of RESTful `app\controller` classes.
  *
  * @package froq\app\rest
- * @object  froq\app\rest\RestTrait
+ * @class   froq\app\rest\RestController
  * @author  Kerem Güneş
  * @since   4.9, 6.0
  */

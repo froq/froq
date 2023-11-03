@@ -1,34 +1,32 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 use froq\app\{Controller, Repository};
 
 /**
- * A route stack class, able to such ops add, pack and resolve using RegExp utilities.
+ * A route stack class, able to such ops add, pack and resolve using regular expression utilities.
  *
  * @package froq
- * @object  froq\Router
+ * @class   froq\Router
  * @author  Kerem Güneş
  * @since   4.0
  */
-final class Router
+class Router
 {
-    /** @var array */
+    /** Routes. */
     private array $routes = [];
 
-    /** @var array */
+    /** Debug data. */
     private array $debug = [];
 
-    /** @var array */
+    /** Options. */
     private static array $options = [];
 
-    /** @var array */
+    /** Default options. */
     private static array $optionsDefault = [
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,
@@ -117,7 +115,7 @@ final class Router
         $routes = $this->routes();
 
         // Chop "/" from end.
-        if ($route != '/') {
+        if ($route !== '/') {
             $route = rtrim($route, '/');
         }
 
@@ -188,7 +186,7 @@ final class Router
         $patterns = [];
 
         foreach ($routes as $i => [$pattern]) {
-            $pattern || throw new RouterException('No pattern given for route `%s`', $i);
+            $pattern || throw new RouterException('No pattern given for route #%i', $i);
 
             // Format named parameters if given.
             if (str_contains($pattern, ':')) {
@@ -252,7 +250,7 @@ final class Router
 
             $mark = (int) $match['MARK'];
             if (empty($routes[$mark][1])) {
-                throw new RouterException('No call directives found for route `%s`', $mark);
+                throw new RouterException('No call directives found for route #%i', $mark);
             }
 
             $this->debug['mark'] = $mark;
@@ -265,6 +263,10 @@ final class Router
 
             // Handle conditional replacements, eg: ["/user/:x{login|logut}", "User.{x}"].
             foreach ($calls as $i => $call) {
+                if (is_callable($call)) {
+                    continue;
+                }
+
                 $rep = grep('~{(\w+)}~', $call);
                 if ($rep) {
                     if (isset($match[$rep])) {
@@ -405,7 +407,7 @@ final class Router
         }
 
         if ($suffix) {
-            $name = ($suffix == Controller::SUFFIX || $suffix == Repository::SUFFIX)
+            $name = ($suffix === Controller::SUFFIX || $suffix === Repository::SUFFIX)
                   ? ucfirst($name) : lcfirst($name);
 
             // Add/drop suffix.
@@ -431,7 +433,7 @@ final class Router
         $name = trim($name, '/\\');
         $base = null;
 
-        if ($name == Controller::NAME_DEFAULT) {
+        if ($name === Controller::NAME_DEFAULT) {
             $name = self::$options['defaultController'];
         }
 
@@ -469,14 +471,14 @@ final class Router
      */
     public static function prepareActionName(string $name, bool $full = true): string
     {
-        if ($name == Controller::NAME_DEFAULT) {
+        if ($name === Controller::NAME_DEFAULT) {
             $name = self::$options['defaultAction'];
         }
 
         $name = self::prepareName($name, Controller::ACTION_SUFFIX);
 
         // Make action suffixed, skipping special actions (index & error).
-        if ($full && ($name != Controller::INDEX_ACTION && $name != Controller::ERROR_ACTION)) {
+        if ($full && ($name !== Controller::INDEX_ACTION && $name !== Controller::ERROR_ACTION)) {
             $name .= Controller::ACTION_SUFFIX;
         }
 

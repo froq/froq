@@ -1,26 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-declare(strict_types=1);
-
 namespace froq;
 
 /**
  * An enum class, carries App environment names.
  *
  * @package froq
- * @object  froq\Env
+ * @class   froq\Env
  * @author  Kerem Güneş
  * @since   4.0
  */
-final class Env extends \froq\common\object\Enum
+class Env extends \froq\common\object\Enum
 {
-    /**
-     * Names.
-     * @const string
-     */
+    /** Names. */
     public const DEVELOPMENT = 'development',
                  TESTING     = 'testing',
                  STAGING     = 'staging',
