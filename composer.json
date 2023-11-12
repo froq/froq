@@ -8,8 +8,10 @@
     "require": {
         "php": "^8.2",
         "froq/froq-common": "^7.0",
-        "froq/froq-encrypting": "^7.0",
+        "froq/froq-database": "^7.0",
+        "froq/froq-datetime": "^7.0",
         "froq/froq-encoding": "^7.0",
+        "froq/froq-encrypting": "^7.0",
         "froq/froq-event": "^7.0",
         "froq/froq-file": "^7.0",
         "froq/froq-log": "^7.0"
