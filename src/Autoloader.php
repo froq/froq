@@ -361,7 +361,8 @@ class Autoloader
                 $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
             }
         }
-        // Repository (eg: app\repository\FooRepository => app/system/Foo/FooRepository.php or app/system/Foo/data/FooRepository.php).
+        // Repository (eg: app\repository\FooRepository => app/system/Foo/FooRepository.php
+        //                                              or app/system/Foo/data/FooRepository.php).
         elseif (str_starts_with($name, 'app/repository/')) {
             $this->checkAppDir();
 
