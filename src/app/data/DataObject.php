@@ -142,10 +142,14 @@ abstract class DataObject implements Arrayable
      */
     private function canUpdateProperty(string $name, array $skip = []): bool
     {
-        if (in_array($name, $skip, true)
-            || !property_exists($this, $name)) {
+        // No - dynamic properties.
+        if (!property_exists($this, $name)
+            // Skip those names when given.
+            || ($skip && in_array($name, $skip, true))) {
             return false;
         }
+
+        // @tome: Some cache for props?
 
         $ref = new \ReflectionProperty($this, $name);
         return $ref->isPublic() && !$ref->isStatic();

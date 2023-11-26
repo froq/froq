@@ -95,10 +95,12 @@ abstract class ValueObject extends \PlainObject implements Arrayable
      */
     private function canUpdateProperty(string $name): bool
     {
-        // Dynamic properties.
+        // Yes - dynamic properties.
         if (!property_exists($this, $name)) {
             return true;
         }
+
+        // @tome: Some cache for props?
 
         $ref = new \ReflectionProperty($this, $name);
         return $ref->isPublic() && !$ref->isStatic();
