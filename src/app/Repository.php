@@ -6,6 +6,7 @@
 namespace froq\app;
 
 use froq\database\{Database, Repository as DatabaseRepository};
+use Throwable;
 
 /**
  * Base class of `app\repository` classes.
@@ -35,7 +36,11 @@ class Repository extends DatabaseRepository
      */
     public final function __construct(Controller $controller = null, Database $db = null)
     {
-        parent::__construct($db);
+        try {
+            parent::__construct($db);
+        } catch (Throwable $e) {
+            throw new RepositoryException($e);
+        }
 
         $this->controller = $controller;
 
