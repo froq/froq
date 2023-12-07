@@ -16,7 +16,7 @@ use froq\common\interface\Arrayable;
  * @author  Kerem Güneş
  * @since   6.0
  */
-abstract class ValueObject extends \PlainObject implements Arrayable
+abstract class ValueObject extends \stdClass implements Arrayable
 {
     /**
      * Constructor.
