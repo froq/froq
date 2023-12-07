@@ -78,15 +78,13 @@ abstract class ValueObject extends \stdClass implements Arrayable
      * Note: If subclass method logic is different from this method, then this method
      * must be overridden.
      *
-     * @return array
+     * @inheritDoc froq\common\interface\Arrayable
      */
     public function toArray(): array
     {
         // Filter private/protected stuff.
-        $data = array_filter_keys((array) $this,
+        return array_filter_keys((array) $this,
             fn($key): bool => !str_contains((string) $key, "\0"));
-
-        return $data;
     }
 
     /**

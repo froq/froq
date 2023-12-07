@@ -115,7 +115,7 @@ abstract class DataObject implements Arrayable
      * Note: If subclass method logic is different from this method, then this method
      * must be overridden.
      *
-     * @return array
+     * @inheritDoc froq\common\interface\Arrayable
      */
     public function toArray(): array
     {
