@@ -75,7 +75,7 @@ class FilePayload extends Payload implements PayloadInterface
         $modifiedAt    = $modifiedAt    ?: $file->stat()['mtime'];
 
         if ($fileName) {
-            $baseName = $fileName;
+            $baseName = (string) $fileName;
             $fileName = file_name($baseName);
             if (str_contains($baseName, '.')) {
                 $fileExtension = file_extension($baseName);
