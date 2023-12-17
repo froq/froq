@@ -64,13 +64,8 @@ class QueryFactory
 
         $this->db = $db;
 
-        // Can be defined in subclass.
+        // Can be set in subclass.
         $table && $this->table = $table;
-
-        // Can also be defined as constant in subclass.
-        if (empty($this->table) && constant_exists($this, 'TABLE', false)) {
-            $this->table = $this::TABLE;
-        }
     }
 
     /**
