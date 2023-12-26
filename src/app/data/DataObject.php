@@ -40,7 +40,7 @@ abstract class DataObject implements Arrayable
      */
     public function set(string $name, mixed $value): self
     {
-        if ($this->canUpdateProperty($name)) {
+        if ($this->canAccessProperty($name)) {
             $this->$name = $value;
         }
 
@@ -56,7 +56,11 @@ abstract class DataObject implements Arrayable
      */
     public function get(string $name, mixed $default = null): mixed
     {
-        return $this->$name ?? $default;
+        if ($this->canAccessProperty($name)) {
+            return $this->$name ?? $default;
+        }
+
+        return $default;
     }
 
     /**
@@ -69,7 +73,7 @@ abstract class DataObject implements Arrayable
     public function update(array $data, array $skip = []): self
     {
         foreach ($data as $name => $value) {
-            if ($this->canUpdateProperty($name, $skip)) {
+            if ($this->canAccessProperty($name, $skip)) {
                 $this->$name = $value;
             }
         }
@@ -140,7 +144,7 @@ abstract class DataObject implements Arrayable
      * Check whether a property can be updated controlling that the property is defined
      * in subclass as public & non-static and not in given skip list.
      */
-    private function canUpdateProperty(string $name, array $skip = []): bool
+    private function canAccessProperty(string $name, array $skip = []): bool
     {
         // No - dynamic properties.
         if (!property_exists($this, $name)
