@@ -80,8 +80,8 @@ abstract class DataObject implements Arrayable
     /**
      * Validate subclass's property data, return errors if validation fails.
      *
-     * @param  array|null   $options
-     * @param  mixed     ...$arguments
+     * @param  array|null    $options
+     * @param  mixed      ...$arguments
      * @return array|null
      */
     public function validate(array $options = null, mixed ...$arguments): array|null
