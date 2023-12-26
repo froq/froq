@@ -38,10 +38,20 @@ class InputValidator
      * @param  array|null  $options   Validation options, eg. "throwErrors" etc.
      * @param  array       $arguments Call-time arguments for DTO's validations() method, in case.
      * @return bool
-     * @causes Error
+     * @throws UndefinedMethodError
      */
     public function validate(array &$data, array &$errors = null, array $options = null, array $arguments = []): bool
     {
+        if (!method_exists($this->do, 'validations')) {
+            $error = new \UndefinedMethodError($this->do, 'validations');
+            $error->setMessage(
+                'Class %k must define %k method to be validated',
+                get_class_name($this->do, escape: true), 'validations()'
+            );
+
+            throw $error;
+        }
+
         $rules = $this->do->validations(...$arguments);
 
         return (new Validation($rules, $options))->validate($data, $errors);
