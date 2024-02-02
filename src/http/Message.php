@@ -8,6 +8,7 @@ namespace froq\http;
 use froq\http\message\{Headers, Cookies, Body, ContentType};
 use froq\http\response\payload\Payload;
 use froq\App;
+use State;
 
 /**
  * An abstract class, mimics HTTP Message, used by `Request` and `Response` classes
@@ -38,6 +39,9 @@ abstract class Message
     /** Body instance. */
     public readonly Body $body;
 
+    /** Dynamic state reference. */
+    public readonly State $state;
+
     /**
      * Constructor.
      *
@@ -52,6 +56,7 @@ abstract class Message
         $this->headers      = new Headers();
         $this->cookies      = new Cookies();
         $this->body         = new Body();
+        $this->state        = new State();
     }
 
     /**
