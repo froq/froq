@@ -473,59 +473,62 @@ class App
 
         $this->fireEvent('before');
 
-        $ref = new \ReflectionMethod($controller, '__construct');
+        // For clean-up.
+        $ref = new \Reference(
+            nil: Nil(), // Null alternative.
+            method: new \XReflectionMethod($controller, '__construct'),
+            arguments: []
+        );
 
-        // Default definition.
-        if ($ref->class === 'froq\app\Controller') {
+        // Promoted constructor parameters.
+        if ($ref->method->class === 'froq\app\Controller') {
             $controller = new $controller($this);
         } else {
-            // Promoted definition.
-            $parameter = new \stdClass();
-            $arguments = [];
+            foreach ($ref->method->getParameters() as $param) {
+                $ref->param = unref($param);
 
-            foreach ($ref->getParameters() as $p) {
-                $parameter->type = $p->getType();
-                $parameter->name = $p->getName();
-                unset($p);
-
-                if (!$parameter->type) {
-                    throw new AppException('Promoted constructor parameter %s::$%s must have a type',
-                        [$controller, $parameter->name]);
-                }
-                if (!$parameter->type instanceof \ReflectionNamedType) {
-                    throw new AppException('Promoted constructor parameter %s::$%s must have only one type',
-                        [$controller, $parameter->name]);
+                if (!$ref->param->isPromoted()) {
+                    continue;
                 }
 
-                $parameter->class = $parameter->type->getName();
+                $ref->paramType = $ref->param->getType();
+                $ref->paramName = $ref->param->getName();
 
-                if (!class_exists($parameter->class)) {
-                    throw new AppException('Promoted constructor parameter %s::$%s type class %s not exists',
-                        [$controller, $parameter->name, $parameter->class]);
+                if (!$ref->paramType || !$ref->paramType->isClass()) {
+                    continue;
                 }
 
-                $arguments[$parameter->name] = new $parameter->class;
+                $ref->paramDefault = $ref->param->getDefaultValue($ref->nil);
+
+                if ($ref->paramDefault !== $ref->nil) {
+                    $ref->arguments[$ref->paramName] = $ref->paramDefault;
+                } else {
+                    $ref->paramClass = $ref->paramType->getName();
+
+                    if (!class_exists($ref->paramClass)) {
+                        throw new AppException(
+                            'Promoted constructor parameter %s::$%s type class %s not exists',
+                            [$controller, $ref->paramName, $ref->paramClass]
+                        );
+                    }
+
+                    $ref->arguments[$ref->paramName] = new $ref->paramClass;
+                }
             }
 
-            $controller = new $controller(...$arguments);
+            $controller = new $controller(...$ref->arguments);
 
             // Detect if parent::__construct() called.
             if (!isset($controller->app)) {
-                $parent = $ref->getDeclaringClass()->getParentClass();
-
-                while ($parent) {
-                    if ($parent->name === 'froq\app\Controller') {
-                        break;
-                    }
-                    $parent = $ref->getParentClass();
+                $ref->parent = $ref->method->getDeclaringClass()->getParentClass(top: true);
+                if ($ref->parent->name === 'froq\app\Controller') {
+                    // $ref->parent->getConstructor()->invoke($controller, app: $this);
+                    $ref->parent->getMethod('__construct')->invoke($controller, app: $this);
                 }
-
-                // Call app\Controller constructor.
-                $parent->getMethod('__construct')->invoke($controller, app: $this);
             }
-
-            unset($parameter, $arguments, $parent);
         }
+
+        unset($ref);
 
         try {
             if (is_string($action)) {
