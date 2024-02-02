@@ -473,7 +473,59 @@ class App
 
         $this->fireEvent('before');
 
-        $controller = new $controller($this);
+        $ref = new \ReflectionMethod($controller, '__construct');
+
+        // Default definition.
+        if ($ref->class === 'froq\app\Controller') {
+            $controller = new $controller($this);
+        } else {
+            // Promoted definition.
+            $parameter = new \stdClass();
+            $arguments = [];
+
+            foreach ($ref->getParameters() as $p) {
+                $parameter->type = $p->getType();
+                $parameter->name = $p->getName();
+                unset($p);
+
+                if (!$parameter->type) {
+                    throw new AppException('Promoted constructor parameter %s::$%s must have a type',
+                        [$controller, $parameter->name]);
+                }
+                if (!$parameter->type instanceof \ReflectionNamedType) {
+                    throw new AppException('Promoted constructor parameter %s::$%s must have only one type',
+                        [$controller, $parameter->name]);
+                }
+
+                $parameter->class = $parameter->type->getName();
+
+                if (!class_exists($parameter->class)) {
+                    throw new AppException('Promoted constructor parameter %s::$%s type class %s not exists',
+                        [$controller, $parameter->name, $parameter->class]);
+                }
+
+                $arguments[$parameter->name] = new $parameter->class;
+            }
+
+            $controller = new $controller(...$arguments);
+
+            // Detect if parent::__construct() called.
+            if (!isset($controller->app)) {
+                $parent = $ref->getDeclaringClass()->getParentClass();
+
+                while ($parent) {
+                    if ($parent->name === 'froq\app\Controller') {
+                        break;
+                    }
+                    $parent = $ref->getParentClass();
+                }
+
+                // Call app\Controller constructor.
+                $parent->getMethod('__construct')->invoke($controller, app: $this);
+            }
+
+            unset($parameter, $arguments, $parent);
+        }
 
         try {
             if (is_string($action)) {

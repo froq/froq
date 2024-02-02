@@ -6,7 +6,7 @@
 namespace froq\app;
 
 use froq\database\{Database, Repository as DatabaseRepository};
-use Throwable;
+use State;
 
 /**
  * Base class of `app\repository` classes.
@@ -27,6 +27,9 @@ class Repository extends DatabaseRepository
     /** Controller instance. */
     public readonly Controller|null $controller;
 
+    /** Dynamic state reference. */
+    public readonly State $state;
+
     /**
      * Constructor.
      *
@@ -34,15 +37,16 @@ class Repository extends DatabaseRepository
      * @param  froq\database\Database|null $db
      * @throws froq\app\RepositoryException
      */
-    public final function __construct(Controller $controller = null, Database $db = null)
+    public function __construct(Controller $controller = null, Database $db = null)
     {
         try {
             parent::__construct($db);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             throw new RepositoryException($e);
         }
 
         $this->controller = $controller;
+        $this->state = new State();
 
         // Store this repository (as last repository).
         $this->controller?->app::registry()::set('@repository', $this, false);

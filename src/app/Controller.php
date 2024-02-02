@@ -11,6 +11,7 @@ use froq\http\{Request, Response, HttpException, request\Segments, response\Stat
     response\payload\PlainPayload, exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, util\Objects};
 use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
+use State;
 
 /**
  * Base class of `app\controller` classes.
@@ -60,6 +61,9 @@ class Controller
     /** View instance. */
     public readonly View $view;
 
+    /** Dynamic state reference. */
+    public readonly State $state;
+
     /** Use repository option. */
     public bool $useRepository = false;
 
@@ -84,7 +88,7 @@ class Controller
      * @param  froq\App|null $app
      * @throws froq\app\ControllerException
      */
-    public final function __construct(App $app = null)
+    public function __construct(App $app = null)
     {
         // Try active app object if none given.
         $this->app = $app ?? (
@@ -95,6 +99,8 @@ class Controller
         // Copy as a shortcut for subclasses.
         $this->request  = $this->app->request;
         $this->response = $this->app->response;
+
+        $this->state = new State();
 
         // Load usings.
         $this->useRepository && $this->loadRepository();
@@ -117,7 +123,7 @@ class Controller
     /**
      * Destructor.
      */
-    public final function __destruct()
+    public function __destruct()
     {
         // Call dinit() method if defined in subclass.
         if (method_exists($this, 'dinit')) {

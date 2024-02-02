@@ -5,6 +5,8 @@
  */
 namespace froq\app;
 
+use State;
+
 /**
  * View class, for templating works.
  *
@@ -17,6 +19,9 @@ class View
 {
     /** Controller instance. */
     public readonly Controller $controller;
+
+    /** Dynamic state reference. */
+    public readonly State $state;
 
     /** View file. */
     private string $layout;
@@ -32,6 +37,7 @@ class View
     public function __construct(Controller $controller)
     {
         $this->controller = $controller;
+        $this->state = new State();
 
         // Store this view (as last view).
         $this->controller->app::registry()::set('@view', $this, false);
