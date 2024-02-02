@@ -520,7 +520,7 @@ class App
 
             // Detect if parent::__construct() called.
             if (!isset($controller->app)) {
-                $ref->parent = $ref->method->getDeclaringClass()->getParentClass(top: true);
+                $ref->parent = $ref->method->getDeclaringClass()->getParent(top: true);
                 if ($ref->parent->name === 'froq\app\Controller') {
                     // $ref->parent->getConstructor()->invoke($controller, app: $this);
                     $ref->parent->getMethod('__construct')->invoke($controller, app: $this);
