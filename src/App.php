@@ -484,6 +484,7 @@ class App
         if ($ref->method->class === 'froq\app\Controller') {
             $controller = new $controller($this);
         } else {
+            /** @var \XReflectionParameter[] */
             foreach ($ref->method->getParameters() as $param) {
                 $ref->param = unref($param);
 
@@ -491,13 +492,14 @@ class App
                     continue;
                 }
 
+                /** @var \XReflectionType */
                 $ref->paramType = $ref->param->getType();
-                $ref->paramName = $ref->param->getName();
 
                 if (!$ref->paramType || !$ref->paramType->isClass()) {
                     continue;
                 }
 
+                $ref->paramName    = $ref->param->getName();
                 $ref->paramDefault = $ref->param->getDefaultValue($ref->nil);
 
                 if ($ref->paramDefault !== $ref->nil) {
@@ -512,6 +514,7 @@ class App
                         );
                     }
 
+                    // An argument with parameter class instance.
                     $ref->arguments[$ref->paramName] = new $ref->paramClass;
                 }
             }
@@ -521,9 +524,10 @@ class App
             // Detect if parent::__construct() called.
             if (!isset($controller->app)) {
                 $ref->parent = $ref->method->getDeclaringClass()->getParent(top: true);
-                if ($ref->parent->name === 'froq\app\Controller') {
-                    // $ref->parent->getConstructor()->invoke($controller, app: $this);
-                    $ref->parent->getMethod('__construct')->invoke($controller, app: $this);
+
+                // Initialization "very" needed there (@see Controller).
+                if ($ref->parent->getName() === 'froq\app\Controller') {
+                    $ref->parent->getConstructor()->invoke($controller, app: $this);
                 }
             }
         }
@@ -581,6 +585,8 @@ class App
     /**
      * Process an error routine creating default controller and calling its default error method
      * if exists and also log all errors.
+     *
+     * @throws froq\AppError
      */
     private function error(Throwable $error): mixed
     {
@@ -618,7 +624,17 @@ class App
 
             // Try, for controller related errors.
             try {
-                $return = (new $controller($this))->error($error);
+                $ref = new \XReflectionClass($controller);
+
+                // Without constructor.
+                $controller = $ref->init();
+
+                $parent = $ref->getParent(top: true);
+                if ($parent->getName() === 'froq\app\Controller') {
+                    $parent->getConstructor()->invoke($controller, app: $this);
+                }
+
+                $return = $controller->error($error);
             } catch (Throwable $e) {
                 $this->errorLog($e);
             }
