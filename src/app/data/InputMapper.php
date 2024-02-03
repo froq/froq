@@ -19,8 +19,10 @@ use froq\validation\Validation;
  * // Or.
  * function saveAction() {
  *   $mapper = new InputMapper(BugDto::class)
+ *
  *   $bug = $mapper->mapPost(errors: $errors)
- *   if ($errors) throw BadRequestException()
+ *   $errors && throw BadRequestException()
+ *
  *   $this->repository->save((array) $bug)
  * }
  *
@@ -30,7 +32,8 @@ use froq\validation\Validation;
  *
  * function saveAction() {
  *   $bug = $this->mapper->mapPost(errors: $errors)
- *   if ($errors) throw BadRequestException()
+ *   $errors && throw BadRequestException()
+ *
  *   $this->repository->save((array) $bug)
  * }
  * ```
@@ -117,11 +120,10 @@ class InputMapper
 
         $ref = $meta->getReflection();
 
-        // Promoted constructor parameters.
-        if (is_string($do) && $ref->isReadOnly()) {
-            $do = $ref->newInstanceWithoutConstructor();
-        } elseif (is_string($do)) {
-            $do = $ref->newInstance();
+        if (is_string($do)) {
+            $do = $ref->getNumberOfRequiredParameters()
+                ? $ref->newInstanceWithoutConstructor()
+                : $ref->newInstance();
         }
 
         $props = $meta->getPropertyMetas() ?: $ref->getProperties();
@@ -140,6 +142,7 @@ class InputMapper
         };
         $okay = true;
 
+        // Validation.
         if ($meta->getOption('validate')) {
             $pmetas = $meta->getPropertyMetas();
             $rules = [];
