@@ -98,11 +98,12 @@ class InputMapper
     /**
      * Map from POST/GET to self DTO.
      *
-     * @param  string||object       $do
+     * @param  string|object        $do
      * @param  string|null          $source
      * @param  string|callable|null $apply
      * @param  array|null           &$errors
      * @return object|null
+     * @throws UndefinedClassError|UnimplementedError|Error
      */
     public static function mapTo(string|object $do, string $source = 'post', string|callable $apply = null,
         array &$errors = null): object|null
@@ -112,21 +113,25 @@ class InputMapper
         } catch (\Throwable $e) {
             if ($e instanceof MetaException &&
                 $e->getCause() instanceof \ReflectionException) {
-                $e = new \UndefinedClassError(get_class_name($do, escape: true));
+                throw new \UndefinedClassError(get_class_name($do, escape: true));
             }
-
             throw $e;
         }
 
         $ref = $meta->getReflection();
 
         if (is_string($do)) {
-            $do = $ref->getNumberOfRequiredParameters()
+            $do = $ref->getConstructor()?->getNumberOfRequiredParameters()
                 ? $ref->newInstanceWithoutConstructor()
                 : $ref->newInstance();
         }
 
-        $props = $meta->getPropertyMetas() ?: $ref->getProperties();
+        // Try using class meta properties.
+        foreach ($meta->getPropertyMetas() as $pmeta) {
+            $props[] = $pmeta->getReflection();
+        }
+
+        $props ??= $ref->getProperties();
 
         if (!$props) {
             throw new \UnimplementedError(
@@ -140,14 +145,39 @@ class InputMapper
             'post' => app()->request->post(map: $apply),
             'get' => app()->request->get(map: $apply),
         };
+
+        $keys = []; $vars = [];
+        foreach ($props as $prop) {
+            $keys[] = $prop->name;
+
+            if ($prop->isInitialized($do)) {
+                $vars[$prop->name] = $prop->getValue($do);
+            }
+
+            // Re-set with default if value is null.
+            $vars[$prop->name] ??= $prop->getDefaultValue();
+        }
+
+        // Overwrite data with object vars,
+        // so object vars will be kept if given.
+        foreach ($keys as $key) {
+            $temp[$key] = null;
+            if (!empty($vars[$key])) {
+                $temp[$key] = $vars[$key];
+            } elseif (!empty($data[$key])) {
+                $temp[$key] = $data[$key];
+            }
+        }
+
+        [$data, $temp, $vars] = [$temp, null, null];
+
         $okay = true;
 
         // Validation.
         if ($meta->getOption('validate')) {
-            $pmetas = $meta->getPropertyMetas();
             $rules = [];
 
-            foreach ($pmetas as $pmeta) {
+            foreach ($meta->getPropertyMetas() as $pmeta) {
                 $field = $pmeta->getShortName();
                 $rules[$field] = $pmeta->getData();
             }
@@ -156,19 +186,10 @@ class InputMapper
             $okay = (new Validation($rules))->validate($data, $errors);
         }
 
-        // Value getter macro.
-        $getValue = fn($o, $p, $k) => $data[$k] ?? (
-            $p->getValue($o) ?? $p->getDefaultValue()
-        );
-
-        if ($pmetas ??= $meta->getPropertyMetas()) {
-            foreach ($pmetas as $pmeta) {
-                $prop = $pmeta->getReflection();
-                $prop->setValue($do, $getValue($do, $prop, $pmeta->getShortName()));
-            }
-        } elseif ($props ??= $ref->getProperties()) {
-            foreach ($props as $prop) {
-                $prop->setValue($do, $getValue($do, $prop, $prop->name));
+        // Set misssing props.
+        foreach ($props as $prop) {
+            if (empty($do->{$prop->name})) {
+                $prop->setValue($do, $data[$prop->name]);
             }
         }
 
