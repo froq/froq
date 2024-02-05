@@ -195,7 +195,7 @@ class Request extends Message
      */
     public function getUrl(bool $escape = false): string
     {
-        return $this->uri->getOrigin() . $this->getUri($escape);
+        return $this->uri->getOrigin() . $this->getUri($escape, true);
     }
 
     /**
@@ -231,7 +231,21 @@ class Request extends Message
      */
     public function getQueryParam(string $name, string $default = null): string|null
     {
-        return $_GET[$name] ?? $default;
+        return array_select($_GET, $name, $default);
+    }
+
+    /**
+     * Get query params.
+     *
+     * @param  array<string>      $names
+     * @param  array<string>|null $defaults
+     * @param  bool               $combine
+     * @return array<string>|null
+     * @since  7.0
+     */
+    public function getQueryParams(array $names = null, array $defaults = null, bool $combine = false): array|null
+    {
+        return ($names !== null) ? array_select($_GET, $names, $defaults, $combine) : $_GET;
     }
 
     /**
@@ -322,6 +336,8 @@ class Request extends Message
                     base64_encode($_SERVER['PHP_AUTH_USER'] .':'. ($_SERVER['PHP_AUTH_PW'] ?? ''));
             }
         }
+
+        ksort($headers);
 
         return $headers;
     }

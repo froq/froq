@@ -124,6 +124,16 @@ abstract class Message
     }
 
     /**
+     * Get headers.
+     *
+     * @return froq\http\message\Headers
+     */
+    public function getHeaders(): Headers
+    {
+        return $this->headers;
+    }
+
+    /**
      * Set cookies.
      *
      * @param  array<string, mixed> $cookies
@@ -136,16 +146,6 @@ abstract class Message
         }
 
         return $this;
-    }
-
-    /**
-     * Get headers.
-     *
-     * @return froq\http\message\Headers
-     */
-    public function getHeaders(): Headers
-    {
-        return $this->headers;
     }
 
     /**
