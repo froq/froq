@@ -40,25 +40,23 @@ abstract class ObjectList extends \ItemList
      */
     private function sniffItemClass(): array
     {
-        $typeClass = match (true) {
+        $class = match (true) {
             $this instanceof DataObjectList  => DataObject::class,
             $this instanceof ValueObjectList => ValueObject::class,
             default                          => null
         };
+
+        $typeClass = $class;
         $itemClass = null;
 
         if (str_ends_with($this::class, 'List')) {
-            $class = substr($this::class, 0, -4);
+            $subclass = substr($this::class, 0, -4);
 
-            if (class_exists($class)) {
-                $parent = match (true) {
-                    $this instanceof DataObjectList  => DataObject::class,
-                    $this instanceof ValueObjectList => ValueObject::class,
-                    default                          => null
-                };
+            if (class_exists($subclass)) {
+                $supclass = $typeClass;
 
-                if ($parent && class_extends($class, $parent)) {
-                    $itemClass = $class;
+                if ($supclass && class_extends($subclass, $supclass)) {
+                    $itemClass = $subclass;
                 }
             }
         }
