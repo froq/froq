@@ -156,14 +156,19 @@ class InputMapper
             $okay = (new Validation($rules))->validate($data, $errors);
         }
 
+        // Value getter macro.
+        $getValue = fn($o, $p, $k) => $data[$k] ?? (
+            $p->getValue($o) ?? $p->getDefaultValue()
+        );
+
         if ($pmetas ??= $meta->getPropertyMetas()) {
             foreach ($pmetas as $pmeta) {
-                $field = $pmeta->getShortName();
-                $pmeta->getReflection()->setValue($do, $data[$field]);
+                $prop = $pmeta->getReflection();
+                $prop->setValue($do, $getValue($do, $prop, $pmeta->getShortName()));
             }
         } elseif ($props ??= $ref->getProperties()) {
             foreach ($props as $prop) {
-                $prop->setValue($do, $data[$prop->name]);
+                $prop->setValue($do, $getValue($do, $prop, $prop->name));
             }
         }
 
