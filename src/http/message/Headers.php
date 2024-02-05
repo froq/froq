@@ -48,7 +48,7 @@ class Headers extends MapCollector
         // Try camel-case.
         if ($value === null) {
             $key = preg_replace_callback(
-                '~([A-Z])~', fn($m) => '-' . strtolower($m[0]), $key
+                '~[A-Z]~', fn($m) => '-' . strtolower($m[0]), $key
             );
 
             $value = $this->get($key);

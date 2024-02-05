@@ -280,7 +280,7 @@ class Request extends Message
 
         $_COOKIE = $this->prepareGlobals('COOKIE');
 
-        // Fill body.
+        // Fill body (why?).
         $this->setBody($content, ($contentType ? ['type' => $contentType] : null));
 
         // Fill headers & cookies.
@@ -376,7 +376,7 @@ class Request extends Message
                 }
 
                 if ($source !== '') {
-                    $source = (string) implode('&', array_map('trim', explode(';', $source)));
+                    $source = implode('&', array_map('trim', explode(';', $source)));
                 }
                 break;
         }
