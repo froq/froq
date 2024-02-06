@@ -158,14 +158,14 @@ class InputMapper
             $vars[$prop->name] ??= $prop->getDefaultValue();
         }
 
-        // Overwrite data with object vars,
-        // so object vars will be kept if given.
+        // Overwrite object vars with request data,
+        // so use object vars as defaults if given.
         foreach ($keys as $key) {
             $temp[$key] = null;
-            if (!empty($vars[$key])) {
-                $temp[$key] = $vars[$key];
-            } elseif (!empty($data[$key])) {
+            if (isset($data[$key])) {
                 $temp[$key] = $data[$key];
+            } elseif (isset($vars[$key])) {
+                $temp[$key] = $vars[$key];
             }
         }
 
@@ -186,11 +186,9 @@ class InputMapper
             $okay = (new Validation($rules))->validate($data, $errors);
         }
 
-        // Set misssing props.
-        foreach ($props as $prop) {
-            if (empty($do->{$prop->name})) {
-                $prop->setValue($do, $data[$prop->name]);
-            }
+        // Set/re-set properties.
+        if ($okay) foreach ($props as $prop) {
+            $prop->setValue($do, $data[$prop->name]);
         }
 
         return $okay ? $do : null;
