@@ -446,11 +446,11 @@ class Autoloader
     }
 
     /**
-     * Change namespace as lower-cased, keeping basename as original.
+     * Change namespace as lower-cased, keeping basename original.
      */
     private function lowerizeNamespace(string $name): string
     {
-        if (preg_match('~^(?:App|Froq)([/\\\])~', $name, $match)) {
+        if (preg_match('~^(?:App|Froq)([/\\\])~i', $name, $match)) {
             $spos = strrpos($name, $match[1]);
             $name = strtolower(substr($name, 0, $spos)) // Namespace.
                 . $match[1] . substr($name, $spos + 1); // Basename.
