@@ -20,22 +20,16 @@ class Response extends Message
     /** Status. */
     private int $status;
 
-    /** Parsed body (for JSON stuff). */
-    private ?array $parsedBody = null;
-
     /**
      * Constructor.
      *
      * @param int         $status
      * @param string|null $body
-     * @param array|null  $parsedBody
      * @param array|null  $headers
      */
-    public function __construct(int $status = 0, string $body = null, array $parsedBody = null,
-        array $headers = null)
+    public function __construct(int $status, string $body = null, array $headers = null)
     {
-        $this->setStatus($status)
-             ->setParsedBody($parsedBody);
+        $this->setStatus($status);
 
         parent::__construct(null, $headers, $body);
     }
@@ -64,26 +58,69 @@ class Response extends Message
     }
 
     /**
-     * Set parsed body.
+     * Get body, decode if GZip'ed as default.
      *
-     * @param  array|null $parsedBody
-     * @return self
+     * @param  bool $decode
+     * @return string|null
+     * @throws Error
+     * @override
      */
-    public function setParsedBody(array|null $parsedBody): self
+    public function getBody(bool $decode = true): string|null
     {
-        $this->parsedBody = $parsedBody;
+        if ($this->body && $decode) {
+            $contentEncoding = $this->getHeader('content-encoding', '');
 
-        return $this;
+            if (str_contains($contentEncoding, 'gzip')) {
+                $decodedBody = @gzdecode($this->body);
+
+                if ($decodedBody === false) {
+                    $error = error_message($code);
+                    throw new \Error($error, $code);
+                }
+
+                return $decodedBody;
+            }
+        }
+
+        return $this->body;
     }
 
     /**
-     * Get parsed body.
+     * Get decoded body (decode if GZip'ed).
      *
-     * @return array|null
+     * @return string|null
      */
-    public function getParsedBody(): array|null
+    public function getDecodedBody(): string|null
     {
-        return $this->parsedBody;
+        return $this->getBody(decode: true);
+    }
+
+    /**
+     * Get parsed body (parse if JSON'ed).
+     *
+     * @param  bool $array
+     * @return mixed|null
+     * @throws JsonError
+     */
+    public function getParsedBody(bool $array = true): mixed
+    {
+        $decodedBody = (string) $this->getDecodedBody();
+
+        if ($decodedBody !== '') {
+            $contentType = $this->getHeader('content-type', '');
+
+            if (str_contains($contentType, 'json')) {
+                $parsedBody = json_decode($decodedBody, $array, flags: JSON_BIGINT_AS_STRING);
+
+                if ($error = json_error_message($code)) {
+                    throw new \JsonError($error, code: $code);
+                }
+
+                return $parsedBody;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -91,16 +128,17 @@ class Response extends Message
      *
      * @param  object $object
      * @param  array  $options
-     * @param  bool   $skipNullBody
+     * @param  bool   $validate
      * @return object|null
      */
-    public function getMappedBody(object $object, array $options = [], bool $skipNullBody = true): object|null
+    public function getMappedBody(object $object, array $options = [], bool $validate = true): object|null
     {
-        if ($skipNullBody && $this->parsedBody === null) {
+        $parsedBody = (array) $this->getParsedBody();
+
+        if ($validate && $parsedBody === []) {
             return null;
         }
 
-        $mapper = new Mapper($object, $options);
-        return $mapper->map((array) $this->parsedBody);
+        return (new Mapper($object, $options))->map($parsedBody);
     }
 }

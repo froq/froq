@@ -163,9 +163,10 @@ class Curl
         }
 
         // If body provided, Content-Type & Content-Length added automatically by cURL.
-        // Else we add them manually, if method is suitable for this.
+        // Else we add them manually when method is suitable for this.
         if ($body !== null) {
             $options[CURLOPT_POSTFIELDS] = $body;
+            $options[CURLOPT_POSTREDIR]  = 3; // @tome: Doesn't work redirects without this.
         } elseif (equals($method, 'POST', 'PUT', 'PATCH')) {
             $options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/x-www-form-urlencoded';
             $options[CURLOPT_HTTPHEADER][] = 'Content-Length: '. strlen((string) $body);

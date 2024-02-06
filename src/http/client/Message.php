@@ -15,6 +15,8 @@ namespace froq\http\client;
  */
 abstract class Message
 {
+    protected Client $client;
+
     /** HTTP protocol. */
     protected string $httpProtocol;
 
@@ -49,7 +51,30 @@ abstract class Message
      */
     public function __toString(): string
     {
-        return $this->toString();
+        return $this->getBody();
+    }
+
+    /**
+     * Set client.
+     *
+     * @param  Client $client
+     * @return self
+     */
+    public function setClient(Client $client): self
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
+    /**
+     * Get client.
+     *
+     * @return froq\http\client\Client
+     */
+    public function getClient(): Client
+    {
+        return $this->client;
     }
 
     /**
@@ -181,10 +206,10 @@ abstract class Message
     /**
      * Set body.
      *
-     * @param  string $body
+     * @param  string|null $body
      * @return self
      */
-    public function setBody(string $body): self
+    public function setBody(string|null $body): self
     {
         $this->body = $body;
 
@@ -202,12 +227,11 @@ abstract class Message
     }
 
     /**
-     * Get string representations of message object.
+     * Get string dump of this message object.
      *
      * @return string
-     * @since  6.0
      */
-    public function toString(): string
+    public function dump(): string
     {
         if ($this instanceof Request) {
             $ret = sprintf("%s %s %s\r\n", $this->getMethod(), $this->getUri(), $this->getHttpProtocol());

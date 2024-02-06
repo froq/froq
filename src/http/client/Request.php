@@ -124,14 +124,24 @@ class Request extends Message
     }
 
     /**
+     * Get origin.
+     *
+     * @return string
+     */
+    public function getOrigin(): string
+    {
+        // Extract the only scheme, host and port part of URL.
+        return preg_replace('~^(\w+)://([^/]+).*~', '\1://\2', $this->url);
+    }
+
+    /**
      * Get URI.
      *
      * @return string
-     * @internal
      */
-    protected function getUri(): string
+    public function getUri(): string
     {
         // Extract the only path and query part of URL.
-        return preg_replace('~^\w+://[^/]+(/.*)~', '\1', $this->getUrl());
+        return preg_replace('~^\w+://[^/]+(/.*)~', '\1', $this->url);
     }
 }

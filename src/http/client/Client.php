@@ -274,6 +274,34 @@ class Client
     }
 
     /**
+     * Send a direct request.
+     *
+     * @param  froq\http\client\Request $request
+     * @param  callable|null            $callback
+     * @return froq\http\client\Response
+     */
+    public function sendRequest(Request $request, callable $callback = null): Response
+    {
+        [$method, $url, $urlParams, $body, $headers] = [
+            $request->getMethod(), $request->getUrl(), $request->getUrlParams(),
+            $request->getBody(), $request->getHeaders()
+        ];
+
+        // These options will always be used when once given to sender client object.
+        $urlParams = array_replace_recursive($this->getOption('urlParams', []), $urlParams ?: []);
+        $headers   = array_replace_recursive($this->getOption('headers', []), $headers ?: []);
+
+        // Mutating, so re-assign.
+        $this->response = $this->send($method, $url, $urlParams, $body, $headers);
+        $this->request  = $request->setMethod($method)->setUrl($url)->setUrlParams($urlParams)
+                                  ->setBody($body)->setHeaders($headers)->setClient($this);
+
+        $callback && $callback($this->request, $this->response, $this->error);
+
+        return $this->response;
+    }
+
+    /**
      * Setup is an internal method and called by `Curl` and `CurlMulti` before cURL operations starts
      * in `run()` method, for both single and multi clients. Throws a `ClientException` if no method,
      * no URL or an invalid URL given.
@@ -356,6 +384,8 @@ class Client
         // Create message objects.
         $this->request  = new Request($method, $url, $urlParams, $body, $headers);
         $this->response = new Response(0, null, null, null);
+
+        $this->request->setClient($this); $this->response->setClient($this);
     }
 
     /**
@@ -372,7 +402,7 @@ class Client
     public function end(string|null $result, array|null $resultInfo, CurlError $error = null): void
     {
         if ($result || $resultInfo) {
-            $headers = http_parse_headers($resultInfo['request_header']);
+            $headers = http_parse_headers($resultInfo['request_header'] ?? '');
             if (!$headers) {
                 return;
             }
@@ -381,16 +411,28 @@ class Client
                 $this->result = $result;
             }
             if ($this->options['keepResultInfo']) {
-                $resultInfo += ['finalUrl'    => null, 'refererUrl'     => null,
+                $resultInfo += ['finalUrl'=> null, 'refererUrl' => null, 'refererUrls' => null,
                                 'contentType' => null, 'contentCharset' => null];
 
                 $resultInfo['finalUrl']   = $resultInfo['url'];
-                $resultInfo['refererUrl'] = $headers['Referer'] ?? $headers['referers'] ?? null;
+                $resultInfo['refererUrl'] = $headers['Referer'] ?? $headers['referer'] ?? null;
 
-                if (isset($resultInfo['content_type'])) {
+                if (!empty($resultInfo['response_header']) && $resultInfo['redirect_count'] > 0) {
+                    preg_match_all('~Location: +([^\r\n]+)~i', $resultInfo['response_header'], $match);
+
+                    $origin = $this->request->getOrigin();
+                    foreach (array_slice($match[1], 0, -1) as $referer) {
+                        $resultInfo['refererUrls'][] = preg_match('~^https?://~in', $referer) ? $referer
+                            : $origin . '/' . ltrim($referer, '/');
+                    }
+
+                    array_unshift($resultInfo['refererUrls'], $this->request->getUrl());
+                }
+
+                if (!empty($resultInfo['content_type'])) {
                     sscanf($resultInfo['content_type'], '%[^;];%[^=]=%[^$]', $contentType, $_, $contentCharset);
 
-                    $resultInfo['contentType']    = $contentType;
+                    $resultInfo['contentType']    = $contentType ? strtolower($contentType) : null;
                     $resultInfo['contentCharset'] = $contentCharset ? strtolower($contentCharset) : null;
                 }
 
@@ -418,7 +460,7 @@ class Client
             //     } while ($next($body));
             // }
 
-            $headers = $resultInfo['response_header'];
+            $headers = $resultInfo['response_header'] ?? '';
 
             // Get last slice of multi headers (eg: redirections).
             if ($headers && str_contains($headers, "\r\n\r\n")) {
@@ -441,35 +483,9 @@ class Client
                            ->setStatus($responseLine['status'])
                            ->setHeaders($headers);
 
-            // Set response raw & parsed body.
-            if ((string) $result !== '') {
-                $body = $result;
-                $parsedBody = null;
-                unset($result);
-
-                $contentEncoding = $this->response->getHeader('content-encoding');
-                $contentType = $this->response->getHeader('content-type');
-
-                // Decode GZip (if GZip'ed).
-                if ($contentEncoding && str_contains($contentEncoding, 'gzip')) {
-                    $decodedBody = gzdecode($body);
-                    if (is_string($decodedBody)) {
-                        $body = $decodedBody;
-                    }
-                    unset($decodedBody);
-                }
-
-                // Decode JSON (if JSON'ed).
-                if ($contentType && str_contains($contentType, 'json')) {
-                    $decodedBody = json_decode($body, flags: JSON_OBJECT_AS_ARRAY | JSON_BIGINT_AS_STRING);
-                    if (is_array($decodedBody)) {
-                        $parsedBody = $decodedBody;
-                    }
-                    unset($decodedBody);
-                }
-
-                $this->response->setBody($body);
-                $this->response->setParsedBody($parsedBody);
+            // Set response raw body.
+            if ($result !== '') {
+                $this->response->setBody($result);
             }
         }
 
@@ -481,9 +497,9 @@ class Client
                 throw $this->error;
             }
         } elseif (!$error && $resultInfo['http_code'] >= 400) {
-            $this->error = new CurlResponseError($resultInfo['http_code']);
-            $this->error->setRequest(clone $this->request);
-            $this->error->setResponse(clone $this->response);
+            $this->error = new CurlResponseError(
+                $resultInfo['http_code'], $this->request, $this->response
+            );
 
             if ($this->options['throwHttpErrors']) {
                 throw $this->error;
