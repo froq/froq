@@ -7,13 +7,14 @@ namespace froq\app\data;
 
 use froq\database\entity\meta\{MetaParser, MetaException};
 use froq\validation\Validation;
+use Closure;
 
 /**
  * Mapper class, maps properties from POST/GET data to DTO classes/instances.
  *
  * Examples:
  * ```
- * // Static use case.
+ * // Static use.
  * $bug = InputMapper::mapTo(BugDto::class, errors: $errors)
  *
  * // Or.
@@ -48,14 +49,14 @@ class InputMapper
     /**
      * Constructor.
      *
-     * @param string|object|null $do
-     * @param string             $source
-     * @param string|null        $apply
+     * @param string|object|null  $do
+     * @param string              $source
+     * @param string|Closure|null $apply
      */
     public function __construct(
         public readonly string|object $do,
         public readonly string $source = 'post',
-        public readonly string|null $apply = null
+        public readonly string|Closure|null $apply = null
     ) {}
 
     /**
@@ -111,9 +112,8 @@ class InputMapper
         try {
             $meta = MetaParser::parseClassMeta($do);
         } catch (\Throwable $e) {
-            if ($e instanceof MetaException &&
-                $e->getCause() instanceof \ReflectionException) {
-                throw new \UndefinedClassError(get_class_name($do, escape: true));
+            if ($e instanceof MetaException && $e->getCause() instanceof \ReflectionException) {
+                $e = new \UndefinedClassError(get_class_name($do, escape: true));
             }
             throw $e;
         }
@@ -135,7 +135,7 @@ class InputMapper
 
         if (!$props) {
             throw new \UnimplementedError(
-                'Class %k must define properties to be populated',
+                'Class %k must define properties to be mapped',
                 get_class_name($do, escape: true),
             );
         }
