@@ -21,7 +21,7 @@ class HttpException extends \froq\common\Exception
      * @return array
      * @since  5.0, 6.0
      */
-    protected static function prepare(int|null $code, string|null $message): array
+    /* protected */ static function prepare(int|null $code, string|null $message): array
     {
         // Overwrite on code with child class code.
         if (defined(static::class . '::CODE')) {

@@ -893,25 +893,25 @@ class Controller
      * @param  mixed|null  $messageParams
      * @return froq\http\HttpException
      */
-    public final function createHttpException(int $code, string $message = null, mixed $messageParams = null): HttpException
+    public static final function createHttpException(int $code, string $message = null, mixed $messageParams = null): HttpException
     {
         if ($code >= 400 && $code <= 599) {
             $name = Status::getTextByCode($code);
+
             if ($name) {
-                $class = sprintf(
-                    'froq\http\exception\%s\%sException',
-                    $code < 500 ? 'client' : 'server', // Class type.
-                    preg_replace('~[\W]~', '', $name), // Class name.
+                $class = array_find_key(
+                    Status::getClassMap(), fn($_code) => $_code === $code,
+                    reverse: ($code === 500)
                 );
 
-                if (class_exists($class)) {
+                if ($class && class_exists($class)) {
                     // These classes don't use codes, they have already.
-                    return new $class($message, $messageParams);
+                    return new $class($message, $messageParams, reduce: true);
                 }
             }
         }
 
-        return new HttpException($message, $messageParams, code: $code);
+        return new HttpException($message, $messageParams, code: $code, reduce: true);
     }
 
     /**

@@ -16,15 +16,13 @@ class ServerException extends \froq\http\HttpException
     /**
      * Constructor.
      *
-     * @param  string|null    $message
-     * @param  mixed|null     $messageParams
-     * @param  int|null       $code
-     * @param  Throwable|null $previous
-     * @param  Throwable|null $cause
+     * @param  int|null    $code
+     * @param  string|null $message
+     * @param  mixed|null  $messageParams
+     * @param  mixed    ...$arguments
      * @throws froq\http\HttpException
      */
-    public function __construct(string $message = null, mixed $messageParams = null, int $code = null,
-        \Throwable $previous = null, \Throwable $cause = null)
+    public function __construct(int $code = null, string $message = null, mixed $messageParams = null, mixed ...$arguments)
     {
         if ($code !== null) {
             // Forbid code assigns for internal classes.
@@ -46,6 +44,8 @@ class ServerException extends \froq\http\HttpException
 
         [$code, $message] = parent::prepare($code, $message);
 
-        parent::__construct($message, $messageParams, code: $code, previous: $previous, cause: $cause);
+        $arguments = [$message, $messageParams, $code, ...$arguments];
+
+        parent::__construct(...$arguments);
     }
 }

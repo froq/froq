@@ -67,7 +67,7 @@ class Statuses
         UNSUPPORTED_MEDIA_TYPE          = 415,
         RANGE_NOT_SATISFIABLE           = 416,
         EXPECTATION_FAILED              = 417,
-        IMA_TEAPOT                      = 418,
+        IM_A_TEAPOT                     = 418,
         ENHANCE_YOUR_CALM               = 420,
         MISDIRECTED_REQUEST             = 421,
         UNPROCESSABLE_ENTITY            = 422,

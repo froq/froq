@@ -10,12 +10,12 @@ use froq\http\response\Status;
 
 /**
  * @package froq\http\exception\client
- * @class   froq\http\exception\client\ImaTeapotException
+ * @class   froq\http\exception\client\ImATeapotException
  * @author  Kerem Güneş
  * @since   5.0
  */
-class ImaTeapotException extends ClientException
+class ImATeapotException extends ClientException
 {
     /** Code as status code. */
-    public final const CODE = Status::IMA_TEAPOT;
+    public final const CODE = Status::IM_A_TEAPOT;
 }

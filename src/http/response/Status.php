@@ -212,4 +212,40 @@ class Status extends Statuses
     {
         return array_find(parent::all(), fn($_, $_code): bool => $_code === $code);
     }
+
+    /**
+     * Get class map.
+     *
+     * @param  string|null $kind
+     * @return array<string, int>
+     */
+    public static function getClassMap(string $kind = null): array
+    {
+        static $ret;
+
+        $ret ??= (new \froq\file\Finder(__DIR__ . '/../../http/exception'))
+            ->xglob('/{client,server}/*', flags: GLOB_BRACE, map: false)
+            ->reduce([], function (array $ret, string $entry): array {
+                $class = preg_replace(
+                    ['~.+/src/(.+)\.php~', '~/+~'],
+                    ['froq/$1', '\\'],
+                    $entry
+                );
+
+                $ret[$class] = $class::CODE;
+
+                return $ret;
+            })
+        ;
+
+        asort($ret);
+
+        if ($kind) {
+            $ret = array_filter_keys($ret, function (string $class) use ($kind): bool {
+                return str_contains($class, '\\' . $kind);
+            });
+        }
+
+        return $ret;
+    }
 }
