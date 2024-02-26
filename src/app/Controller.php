@@ -942,13 +942,33 @@ class Controller
                     if ($paramType->isBuiltin() && preg_test('~int|float|string|bool~', $paramTypeName)) {
                         settype($value, $paramTypeName);
                     }
-                    // Inject Request & Response objects if provided (express style).
-                    elseif ($paramTypeName === Request::class || $paramTypeName === Response::class) {
-                        $value = ($paramTypeName === Request::class) ? $this->request : $this->response;
-                    }
-                    // Inject request payload objects if provided.
-                    elseif(is_subclass_of($paramTypeName, \froq\http\request\payload\Payload::class)) {
-                        $value = new $paramTypeName($this->request);
+                    // Injections.
+                    elseif ($value === null) {
+                        // Inject Request & Response objects if provided (express style).
+                        if ($paramTypeName === Request::class || $paramTypeName === Response::class) {
+                            $value = ($paramTypeName === Request::class) ? $this->request : $this->response;
+                        }
+                        // Inject request payload objects if provided.
+                        elseif (is_subclass_of($paramTypeName, \froq\http\request\payload\Payload::class)) {
+                            $value = new $paramTypeName($this->request);
+                        }
+                        // Inject request DTO/VO, Entity objects if provided.
+                        elseif (
+                            is_subclass_of($paramTypeName, \froq\app\data\DataObject::class) ||
+                            is_subclass_of($paramTypeName, \froq\app\data\ValueObject::class) ||
+                            ($entity = is_subclass_of($paramTypeName, \froq\database\entity\Entity::class))
+                        ) {
+                            $value = new $paramTypeName();
+                            $props = array_filter_keys($_POST, 'is_string');
+
+                            foreach ($props as $name => $_) {
+                                empty($entity)
+                                    ? $value->set($name, $props[$name])
+                                    : $value->offsetSet($name, $props[$name]);
+                            }
+
+                            $entity = false; // Reset.
+                        }
                     }
                 }
             }
