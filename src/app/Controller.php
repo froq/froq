@@ -617,23 +617,23 @@ class Controller
     /**
      * Get a URI segment.
      *
-     * @param  int|string  $key
-     * @param  string|null $default
-     * @return string|null
+     * @param  int|string $key
+     * @param  mixed|null $default
+     * @return mixed
      */
-    public final function segment(int|string $key, string $default = null): string|null
+    public final function segment(int|string $key, mixed $default = null): mixed
     {
         return $this->request->segment($key, $default);
     }
 
     /**
-     * Get all/many URI segments or Segments object.
+     * Get many URI segments.
      *
-     * @param  array<int|string>  $keys
-     * @param  array<string>|null $defaults
-     * @return array<string>|froq\http\request\Segments
+     * @param  array<int|string> $keys
+     * @param  array|null        $defaults
+     * @return array
      */
-    public final function segments(array $keys = null, array $defaults = null): array|Segments
+    public final function segments(array $keys = null, array $defaults = null): array
     {
         return $this->request->segments($keys, $defaults);
     }
@@ -641,11 +641,11 @@ class Controller
     /**
      * Get a segment param.
      *
-     * @param  string      $name
-     * @param  string|null $default
-     * @return string|null
+     * @param  string     $name
+     * @param  mixed|null $default
+     * @return mixed
      */
-    public final function segmentParam(string $name, string $default = null): string|null
+    public final function segmentParam(string $name, mixed $default = null): mixed
     {
         return $this->request->segmentParam($name, $default);
     }
@@ -654,10 +654,10 @@ class Controller
      * Get many segment params.
      *
      * @param  array<string>|null $names
-     * @param  array<string>|null $defaults
-     * @return array<string>|null
+     * @param  array|null         $defaults
+     * @return array
      */
-    public final function segmentParams(array $names = null, array $defaults = null): array|null
+    public final function segmentParams(array $names = null, array $defaults = null): array
     {
         return $this->request->segmentParams($names, $defaults);
     }
@@ -915,7 +915,7 @@ class Controller
     }
 
     /**
-     * Prepare an action's parameters to fulfill its required/non-required parameters needed on
+     * Prepare an action's parameters to fulfill its required/non-required and also injected parameters needed on
      * calltime/runtime.
      */
     private function prepareActionParams(ReflectionMethod|ReflectionFunction $ref, array $actionParams): array
@@ -934,16 +934,21 @@ class Controller
 
             if ($param->hasType()) {
                 $paramType = $param->getType();
+
                 if ($paramType instanceof ReflectionNamedType) {
                     $paramTypeName = $paramType->getName();
 
-                    // Cast param type if built-in / scalar.
+                    // Cast param type if built-ins (scalars) only.
                     if ($paramType->isBuiltin() && preg_test('~int|float|string|bool~', $paramTypeName)) {
                         settype($value, $paramTypeName);
                     }
-                    // Inject Request & Response objects if provided.
+                    // Inject Request & Response objects if provided (express style).
                     elseif ($paramTypeName === Request::class || $paramTypeName === Response::class) {
                         $value = ($paramTypeName === Request::class) ? $this->request : $this->response;
+                    }
+                    // Inject request payload objects if provided.
+                    elseif(is_subclass_of($paramTypeName, \froq\http\request\payload\Payload::class)) {
+                        $value = new $paramTypeName($this->request);
                     }
                 }
             }

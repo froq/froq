@@ -36,12 +36,12 @@ class Uri extends \Url
     /**
      * Get a segment param.
      *
-     * @param  int|string  $key
-     * @param  string|null $default
-     * @return string|null
+     * @param  int|string $key
+     * @param  mixed|null $default
+     * @return mixed
      * @throws froq\http\request\UriException
      */
-    public function segment(int|string $key, string $default = null): string|null
+    public function segment(int|string $key, mixed $default = null): mixed
     {
         isset($this->segments) || throw new UriException(
             'Property $segments not set yet [method generateSegments() not called]'
@@ -51,24 +51,26 @@ class Uri extends \Url
     }
 
     /**
-     * Get a segment param or Segments object.
+     * Get many segment params.
      *
      * @param  array<int|string>|null $keys
-     * @param  array<string>|null     $defaults
-     * @return array<string>froq\http\request\Segments
+     * @param  array|null             $defaults
+     * @return array
      * @throws froq\http\request\UriException
      */
-    public function segments(array $keys = null, array $defaults = null): array|Segments
+    public function segments(array $keys = null, array $defaults = null): array
     {
         isset($this->segments) || throw new UriException(
             'Property $segments not set yet [method generateSegments() not called]'
         );
 
+        // All param map.
         if ($keys === null) {
-            return $this->segments;
+            return $this->segments->params();
         }
 
         $values = [];
+
         foreach ($keys as $i => $key) {
             $values[] = $this->segments->get($key, $defaults[$i] ?? null);
         }

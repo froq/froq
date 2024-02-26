@@ -237,12 +237,11 @@ trait ParamTrait
     /**
      * Get a segment param.
      *
-     * @param  string      $name
-     * @param  string|null $default
-     * @return string|null
-     * @since  6.0
+     * @param  string     $name
+     * @param  mixed|null $default
+     * @return mixed
      */
-    public function segmentParam(string $name, string $default = null): string|null
+    public function segmentParam(string $name, mixed $default = null): mixed
     {
         return $this->uri->segment($name, $default);
     }
@@ -251,11 +250,10 @@ trait ParamTrait
      * Get many segment params.
      *
      * @param  array<string>|null $names
-     * @param  array<string>|null $defaults
-     * @return array<string>|null
-     * @since  6.0
+     * @param  array|null         $defaults
+     * @return array
      */
-    public function segmentParams(array $names = null, array $defaults = null): array|null
+    public function segmentParams(array $names = null, array $defaults = null): array
     {
         return $this->uri->segments($names, $defaults);
     }

@@ -6,7 +6,8 @@
 namespace froq\http;
 
 use froq\http\common\ResponseTrait;
-use froq\http\response\{Status, StatusException, payload\JsonPayload};
+use froq\http\response\{Status, StatusException};
+use froq\http\response\payload\JsonPayload;
 use froq\http\message\{ContentType, ContentCharset};
 use froq\encoding\encoder\{GZipEncoder, ZLibEncoder};
 use froq\{App, util\Util};
@@ -75,8 +76,10 @@ class Response extends Message
         // For invalid codes.
         try {
             $this->status->setCode($code);
-        } catch (StatusException) {
+        } catch (StatusException $e) {
             $this->status->setCode(Status::INTERNAL_SERVER_ERROR);
+
+            $this->app->log($e);
         }
 
         // Not for HTTP/2 and above.

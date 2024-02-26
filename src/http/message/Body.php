@@ -60,7 +60,6 @@ class Body
      *
      * @param  string $type
      * @return self
-     * @since  6.0
      */
     public function setContentType(string $type): self
     {
@@ -73,7 +72,6 @@ class Body
      * Get content type.
      *
      * @return string|null
-     * @since  6.0
      */
     public function getContentType(): string|null
     {
@@ -85,7 +83,6 @@ class Body
      *
      * @param  string $charset
      * @return self
-     * @since  6.0
      */
     public function setContentCharset(string $charset): self
     {
@@ -98,7 +95,6 @@ class Body
      * Get content charset.
      *
      * @return string|null
-     * @since  6.0
      */
     public function getContentCharset(): string|null
     {
@@ -134,6 +130,26 @@ class Body
     public function isImage(): bool
     {
         return str_has_prefix((string) $this->getContentType(), 'image/', true);
+    }
+
+    /**
+     * Is JSON.
+     *
+     * @return bool
+     */
+    public function isJson(): bool
+    {
+        return str_has((string) $this->getContentType(), '/json', true);
+    }
+
+    /**
+     * Is XML.
+     *
+     * @return bool
+     */
+    public function isXml(): bool
+    {
+        return str_has((string) $this->getContentType(), '/xml', true);
     }
 
     /**

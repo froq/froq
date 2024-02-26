@@ -7,6 +7,8 @@ namespace froq\http;
 
 use froq\http\common\RequestTrait;
 use froq\http\request\{Method, Scheme, Uri, Client, Params, Files, Segments};
+use froq\http\request\payload\{FormPayload, JsonPayload, FilePayload, FilesPayload,
+    UploadedFile, UploadedFiles};
 use froq\{App, util\Util};
 use UrlQuery;
 
@@ -112,31 +114,29 @@ class Request extends Message
      */
     public function json(): mixed
     {
-        return json_decode($this->input(), flags: JSON_OBJECT_AS_ARRAY | JSON_BIGINT_AS_STRING);
+        return json_unserialize($this->input(), true);
     }
 
     /**
      * Get a URI segment.
      *
-     * @param  int|string  $key
-     * @param  string|null $default
-     * @return string|null
-     * @since  5.0, 6.0
+     * @param  int|string $key
+     * @param  mixed|null $default
+     * @return mixed
      */
-    public function segment(int|string $key, string $default = null): string|null
+    public function segment(int|string $key, mixed $default = null): mixed
     {
         return $this->uri->segment($key, $default);
     }
 
     /**
-     * Get all/many URI segments or Segments object.
+     * Get many URI segments.
      *
      * @param  array<int|string>|null $keys
-     * @param  array<string>|null     $defaults
-     * @return array<string>|froq\http\request\Segments
-     * @since  5.0, 6.0
+     * @param  array|null             $defaults
+     * @return array
      */
-    public function segments(array $keys = null, array $defaults = null): array|Segments
+    public function segments(array $keys = null, array $defaults = null): array
     {
         return $this->uri->segments($keys, $defaults);
     }
@@ -249,6 +249,80 @@ class Request extends Message
     }
 
     /**
+     * Get form payload.
+     *
+     * @return froq\http\request\payload\FormPayload
+     */
+    public function getFormPayload(): FormPayload
+    {
+        return new FormPayload($this);
+    }
+
+    /**
+     * Get json payload.
+     *
+     * @return froq\http\request\payload\JsonPayload
+     */
+    public function getJsonPayload(): JsonPayload
+    {
+        return new JsonPayload($this);
+    }
+
+    /**
+     * Get file payload.
+     *
+     * @return froq\http\request\payload\FilePayload
+     */
+    public function getFilePayload(): FilePayload
+    {
+        return new FilePayload($this);
+    }
+
+    /**
+     * Get files payload.
+     *
+     * @return froq\http\request\payload\FilesPayload
+     */
+    public function getFilesPayload(): FilesPayload
+    {
+        return new FilesPayload($this);
+    }
+
+    /**
+     * Get uploaded file.
+     *
+     * @return froq\http\request\payload\UploadedFile|null
+     */
+    public function getUploadedFile(): UploadedFile|null
+    {
+        if ($file = $this->getFilePayload()->file) {
+            return $file->id ? $file : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get uploaded files.
+     *
+     * @return froq\http\request\payload\UploadedFiles|null
+     */
+    public function getUploadedFiles(): UploadedFiles|null
+    {
+        if ($files = $this->getFilesPayload()->files) {
+            return new UploadedFiles(
+                reduce($files, [],
+                    function (array $ret, FilePayload $payload): array {
+                        return concat($ret, $payload->file);
+                    }
+                )
+            );
+        }
+
+        return null;
+    }
+
+    /**
      * Load request stuff (globals, headers, body etc.).
      *
      * @return void
@@ -265,23 +339,25 @@ class Request extends Message
 
         $headers = $this->prepareHeaders();
 
-        // Set/parse body for overriding methods (put, delete etc. or even for get).
-        // Note that, 'php://input' is not available with enctype="multipart/form-data".
+        [$contentType, $contentCharset]
+            = $this->parseContentType($headers['content-type'] ?? '');
+
+        // Set/parse body for overriding methods (PUT, DELETE or even for get).
+        // Note: 'php://input' is not available with enctype="multipart/form-data".
         // @see https://www.php.net/manual/en/wrappers.php.php#wrappers.php.input.
-        $content     = $this->input();
-        $contentType = strtolower($headers['content-type'] ?? '');
+        $content = str_contains($contentType, 'multipart/form-data') ? null : $this->input();
 
         $_GET = $this->prepareGlobals('GET');
 
-        // POST data always parsed, for GETs as well (to utilize JSON payloads, thanks ElasticSearch).
-        if ($content !== '' && !str_contains($contentType, 'multipart/form-data')) {
-            $_POST = $this->prepareGlobals('POST', $content, json: str_contains($contentType, '/json'));
+        if ($content !== null) {
+            // POST data always parsed, for GETs too (to utilize JSON payloads, thanks Elasticsearch).
+            $_POST = $this->prepareGlobals('POST', $content, str_contains($contentType, '/json'));
         }
 
         $_COOKIE = $this->prepareGlobals('COOKIE');
 
-        // Fill body (why?).
-        $this->setBody($content, ($contentType ? ['type' => $contentType] : null));
+        // Fill body (why keep content?).
+        $this->setBody(null, ($contentType ? ['type' => $contentType, 'charset' => $contentCharset] : null));
 
         // Fill headers & cookies.
         foreach ($headers as $name => $value) {
@@ -360,8 +436,7 @@ class Request extends Message
                 break;
             case 'POST':
                 if ($json) {
-                    return (array) json_decode($source,
-                        flags: JSON_OBJECT_AS_ARRAY | JSON_BIGINT_AS_STRING);
+                    return (array) json_unserialize($source, true);
                 }
 
                 if (!$plussed($source)) {
@@ -381,6 +456,22 @@ class Request extends Message
                 break;
         }
 
-        return http_parse_query($source);
+        // 'Cos http_build_query() uses PHP_QUERY_RFC1738, use same
+        // here. Otherwise plus (+) signs won't be decoded properly.
+        return http_parse_query($source, '&', PHP_QUERY_RFC1738);
+    }
+
+    /**
+     * Parse content type.
+     */
+    private function parseContentType(string|null $contentType): array
+    {
+        $contentType = strtolower(trim($contentType ?? ''));
+
+        if (preg_match('~(.+); +charset=(.+)~i', $contentType, $match)) {
+            return [$match[1], $match[2]];
+        }
+
+        return [$contentType, null];
     }
 }

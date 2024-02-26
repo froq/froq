@@ -185,4 +185,45 @@ trait RequestTrait
     {
         return $this->method->isAjax();
     }
+
+
+    /**
+     * Get content.
+     *
+     * @return mixed
+     */
+    public function getContent(): mixed
+    {
+        return $this->body->getContent();
+    }
+
+    /**
+     * Get content type.
+     *
+     * @return string|null
+     */
+    public function getContentType(): string|null
+    {
+        return $this->body->getContentType();
+    }
+
+    /**
+     * Get content charset.
+     *
+     * @return string|null
+     */
+    public function getContentCharset(): string|null
+    {
+        return $this->body->getContentCharset();
+    }
+
+    /**
+     * Get content attributes.
+     *
+     * @return array|null
+     */
+    public function getContentAttributes(): array|null
+    {
+        return $this->body->getAttributes() ?: null;
+    }
 }

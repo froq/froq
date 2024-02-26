@@ -5,6 +5,8 @@
  */
 namespace froq\http\request;
 
+use froq\common\interface\{Arrayable, Listable};
+
 /**
  * Segments class, for parsing / getting URI path segments.
  *
@@ -13,7 +15,7 @@ namespace froq\http\request;
  * @author  Kerem Güneş
  * @since   4.1
  */
-class Segments implements \Countable, \ArrayAccess
+class Segments implements Arrayable, Listable, \Countable, \ArrayAccess
 {
     /** Default root. */
     public const ROOT = '/';
@@ -131,6 +133,7 @@ class Segments implements \Countable, \ArrayAccess
         }
 
         $values = [];
+
         foreach ($names as $i => $name) {
             $values[] = $this->data['params'][$name] ?? $defaults[$i] ?? null;
         }
@@ -163,14 +166,19 @@ class Segments implements \Countable, \ArrayAccess
     }
 
     /**
-     * List.
-     *
-     * @param  int $index
-     * @return array
+     * @inheritDoc froq\common\interface\Arrayable
      */
-    public function list(int $index = 0): array
+    public function toArray(): array
     {
-        return slice($this->paramsList(), $index);
+        return $this->params();
+    }
+
+    /**
+     * @inheritDoc froq\common\interface\Listable
+     */
+    public function toList(int $start = 0, int $end = null): array
+    {
+        return slice($this->paramsList(), $start, $end);
     }
 
     /**

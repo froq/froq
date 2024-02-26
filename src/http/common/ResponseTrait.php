@@ -48,7 +48,6 @@ trait ResponseTrait
      * @param  string|null $type
      * @param  string|null $charset
      * @return self
-     * @since  6.0
      */
     public function setContent(mixed $content, string $type = null, string $charset = null): self
     {
@@ -64,7 +63,6 @@ trait ResponseTrait
      * Get content.
      *
      * @return mixed
-     * @since  6.0
      */
     public function getContent(): mixed
     {
@@ -122,7 +120,6 @@ trait ResponseTrait
      *
      * @param  string $attributes
      * @return self
-     * @since  6.0
      */
     public function setContentAttributes(array $attributes): self
     {
@@ -135,7 +132,6 @@ trait ResponseTrait
      * Get content attributes.
      *
      * @return array|null
-     * @since  6.0
      */
     public function getContentAttributes(): array|null
     {
@@ -146,7 +142,6 @@ trait ResponseTrait
      * Response allows a body?
      *
      * @return bool
-     * @since  6.0
      */
     public function allowsBody(): bool
     {
