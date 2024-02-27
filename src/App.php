@@ -11,6 +11,7 @@ use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
 use froq\log\{Logger, LogLevel};
+use froq\util\Debugger;
 use Assert, Stringable, Throwable;
 
 /**
@@ -642,14 +643,14 @@ class App
             $this->errorLog($e);
 
             // Make an error string as return.
-            $display() && $return = $e . "\n";
+            $display() && $return = Debugger::debugString($e) . "\n";
         }
 
         if ($return === null || is_string($return)) {
             $return .= $this->getOutputBuffer();
 
             // Prepend error top of the output (if ini.display_errors is on).
-            $display() && $return = $error . "\n\n" . $return;
+            $display() && $return = Debugger::debugString($error) . "\n\n" . $return;
         }
 
         return ($return !== '') ? $return : null;

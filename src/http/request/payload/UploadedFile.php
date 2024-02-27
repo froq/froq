@@ -19,7 +19,7 @@ use froq\file\upload\{FileSource, ImageSource, SourceException};
  */
 class UploadedFile implements Arrayable, \ArrayAccess
 {
-    /** Field names. */
+    /** Fields. */
     public const FIELDS = [
         'id', 'name', 'type', 'mime',
         'size', 'path', 'temp', 'error'
@@ -36,7 +36,7 @@ class UploadedFile implements Arrayable, \ArrayAccess
         public readonly int|null    $size,
         public readonly string|null $path,
         public readonly string|null $temp,
-        public readonly \Error|null $error,
+        public readonly UploadedFileError|null $error,
     )
     {}
 
@@ -47,7 +47,7 @@ class UploadedFile implements Arrayable, \ArrayAccess
      */
     public function exists(): bool
     {
-        return file_exists($this->temp);
+        return $this->temp && is_file($this->temp);
     }
 
     /**
@@ -93,13 +93,17 @@ class UploadedFile implements Arrayable, \ArrayAccess
     }
 
     /**
-     * Open as a file.
+     * Open as file.
      *
-     * @return froq\file\File
+     * @return froq\file\File|null
      * @throws froq\http\request\payload\UploadedFileException
      */
-    public function open(): File
+    public function open(): File|null
     {
+        if (!$this->exists()) {
+            return null;
+        }
+
         try {
             $file = new File($this->temp);
             $file->setMime($this->mime);
@@ -113,11 +117,15 @@ class UploadedFile implements Arrayable, \ArrayAccess
     /**
      * Open as image file.
      *
-     * @return froq\file\Image
+     * @return froq\file\Image|null
      * @throws froq\http\request\payload\UploadedFileException
      */
-    public function openImage(): Image
+    public function openImage(): Image|null
     {
+        if (!$this->exists()) {
+            return null;
+        }
+
         try {
             $file = new Image($this->temp);
             $file->setMime($this->mime);
@@ -129,13 +137,17 @@ class UploadedFile implements Arrayable, \ArrayAccess
     }
 
     /**
-     * Open as a file source for manipulation.
+     * Open as file source for manipulation.
      *
-     * @return froq\file\upload\FileSource
+     * @return froq\file\upload\FileSource|null
      * @causes froq\http\request\payload\UploadedFileException
      */
-    public function openSource(array $options = null): FileSource
+    public function openSource(array $options = null): FileSource|null
     {
+        if (!$this->exists()) {
+            return null;
+        }
+
         try {
             return $this->open()->toFileSource($options);
         } catch (SourceException $e) {
@@ -144,13 +156,17 @@ class UploadedFile implements Arrayable, \ArrayAccess
     }
 
     /**
-     * Open as a image source for manipulation.
+     * Open as image source for manipulation.
      *
-     * @return froq\file\upload\ImageSource
+     * @return froq\file\upload\ImageSource|null
      * @causes froq\http\request\payload\UploadedFileException
      */
-    public function openImageSource(array $options = null): ImageSource
+    public function openImageSource(array $options = null): ImageSource|null
     {
+        if (!$this->exists()) {
+            return null;
+        }
+
         try {
             return $this->open()->toImageSource($options);
         } catch (SourceException $e) {
@@ -226,7 +242,11 @@ class UploadedFile implements Arrayable, \ArrayAccess
      */
     public function generateHash(string $algo = 'md5'): string|null
     {
-        return $this->temp ? hash_file($algo, $this->temp) : null;
+        if (!$this->exists()) {
+            return null;
+        }
+
+        return hash_file($algo, $this->temp) ?: null;
     }
 
     /**
@@ -275,7 +295,7 @@ class UploadedFile implements Arrayable, \ArrayAccess
      */
     public function offsetGet(mixed $field): mixed
     {
-        return property_exists($this, $field) ? $this->$field : null;
+        return property_exists($this, $field) ? $this->$field : false;
     }
 
     /**

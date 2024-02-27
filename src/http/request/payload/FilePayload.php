@@ -6,7 +6,7 @@
 namespace froq\http\request\payload;
 
 use froq\file\{File, Image};
-use froq\file\upload\{FileSource, ImageSource, SourceError};
+use froq\file\upload\{FileSource, ImageSource};
 
 /**
  * Payload class for working with an uploaded file.
@@ -42,7 +42,7 @@ class FilePayload extends Payload implements PayloadInterface
     }
 
     /**
-     * @see UploadedFile.__get()
+     * @see UploadedFile.offsetGet()
      */
     public function __get(string $field): mixed
     {
@@ -50,7 +50,7 @@ class FilePayload extends Payload implements PayloadInterface
     }
 
     /**
-     * @see UploadedFile.__set()
+     * @see UploadedFile.offsetSet()
      */
     public function __set(string $field, mixed $_): never
     {
@@ -124,7 +124,7 @@ class FilePayload extends Payload implements PayloadInterface
     /**
      * @see UploadedFile.open()
      */
-    public function open(): File
+    public function open(): File|null
     {
         return $this->file->open();
     }
@@ -132,7 +132,7 @@ class FilePayload extends Payload implements PayloadInterface
     /**
      * @see UploadedFile.openImage()
      */
-    public function openImage(): Image
+    public function openImage(): Image|null
     {
         return $this->file->openImage();
     }
@@ -140,7 +140,7 @@ class FilePayload extends Payload implements PayloadInterface
     /**
      * @see UploadedFile.openSource()
      */
-    public function openSource(array $options = null): Source
+    public function openSource(array $options = null): FileSource|null
     {
         return $this->file->openSource($options);
     }
@@ -148,7 +148,7 @@ class FilePayload extends Payload implements PayloadInterface
     /**
      * @see UploadedFile.openImageSource()
      */
-    public function openImageSource(array $options = null): ImageSource
+    public function openImageSource(array $options = null): ImageSource|null
     {
         return $this->file->openImageSource($options);
     }
@@ -162,7 +162,7 @@ class FilePayload extends Payload implements PayloadInterface
 
         if ($this->validateFields($file)) {
             if ($error = $file['error']) {
-                $props['error'] = new \Error(SourceError::toMessage($error), $error);
+                $props['error'] = new UploadedFileError($error);
             } else {
                 $props['mime'] = file_mime($file['tmp_name']);
 
