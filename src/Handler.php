@@ -41,11 +41,11 @@ class Handler extends \StaticClass
                 case E_CORE_WARNING:
                 case E_COMPILE_ERROR:
                 case E_COMPILE_WARNING:
-                    $error = sprintf('Fatal error at %s:%s [code: %s, message: %s]',
+                    $error = sprintf('Fatal error @ %s:%s [code: %s, message: %s]',
                         $efile, $eline,  $ecode, $emesg);
                     break;
                 case E_RECOVERABLE_ERROR:
-                    $error = sprintf('Recoverable error at %s:%s [code: %s, message: %s]',
+                    $error = sprintf('Recoverable error @ %s:%s [code: %s, message: %s]',
                         $efile, $eline, $ecode, $emesg);
                     break;
                 case E_NOTICE:
@@ -59,11 +59,11 @@ class Handler extends \StaticClass
                     $title = xstring(get_constant_name($ecode, 'E_'))
                         ->sub(2)->lower()->upper(0)->replace('_', ' ');
 
-                    $error = sprintf('%s at %s:%s [code: %s, message: %s]',
+                    $error = sprintf('%s @ %s:%s [code: %s, message: %s]',
                         $title, $efile, $eline, $ecode, $emesg);
                     break;
                 default:
-                    $error = sprintf('Unknown error at %s:%s [code: %s, message: %s]',
+                    $error = sprintf('Unknown error @ %s:%s [code: %s, message: %s]',
                         $efile, $eline, $ecode, $emesg);
             }
 
@@ -127,7 +127,7 @@ class Handler extends \StaticClass
             }
 
             if ($error) {
-                $error = sprintf("Shutdown at %s:%s\nError:\n%s",
+                $error = sprintf("Shutdown @ %s:%s\nError:\n%s",
                     $error['file'], $error['line'], $error['message']);
 
                 // Call app error process (log etc.).
