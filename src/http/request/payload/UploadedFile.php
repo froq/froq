@@ -260,7 +260,7 @@ class UploadedFile implements Arrayable, \ArrayAccess
 
         if ($info['error']) {
             $info['error'] = [
-                'code' => $info['error']->getCode(),
+                'code'    => $info['error']->getCode(),
                 'message' => $info['error']->getMessage()
             ];
         }
@@ -276,8 +276,8 @@ class UploadedFile implements Arrayable, \ArrayAccess
     public function toSourceArray(): array
     {
         return [
-            'name' => $this->name, 'type' => $this->type,
-            'size' => $this->size, 'tmp_name' => $this->temp,
+            'name'  => $this->name, 'mime'     => $this->mime,
+            'size'  => $this->size, 'tmp_name' => $this->temp,
             'error' => $this->error?->getCode(),
         ];
     }
