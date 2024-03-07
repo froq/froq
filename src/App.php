@@ -12,7 +12,7 @@ use froq\http\{Request, Response, HttpException, response\Status,
 use froq\cache\{Cache, CacheFactory};
 use froq\log\{Logger, LogLevel};
 use froq\util\Debugger;
-use Assert, Stringable, Throwable;
+use State, Assert, Stringable, Throwable;
 
 /**
  * Application class which is responsible with all logics;
@@ -60,6 +60,9 @@ class App
     /** Cache instance. */
     public readonly Cache|null $cache;
 
+    /** Dynamic state reference. */
+    public readonly State $state;
+
     /** EventManager instance. */
     private EventManager $eventManager;
 
@@ -88,6 +91,7 @@ class App
         $this->logger   = new Logger(['level' => LogLevel::ALL]);
         $this->request  = new Request($this);
         $this->response = new Response($this);
+        $this->state    = new State();
 
         [$this->dir, $this->eventManager, $this->router, $this->servicer, $this->config, self::$registry] = [
             APP_DIR, new EventManager($this), new Router(), new Servicer(), new Config(), new Registry()
@@ -474,68 +478,68 @@ class App
 
         $this->fireEvent('before');
 
-        // For clean-up.
-        $ref = new \Reference(
-            nil: Nil(), // Null alternative.
-            method: new \XReflectionMethod($controller, '__construct'),
-            arguments: []
-        );
+        try {
+            // For clean-up.
+            $ref = new \Reference(
+                nil: Nil(), // Null alternative.
+                method: new \XReflectionMethod($controller, '__construct'),
+                arguments: []
+            );
 
-        // Promoted constructor parameters.
-        if ($ref->method->class === 'froq\app\Controller') {
-            $controller = new $controller($this);
-        } else {
-            /** @var \XReflectionParameter[] */
-            foreach ($ref->method->getParameters() as $param) {
-                $ref->param = unref($param);
+            // Promoted constructor parameters.
+            if ($ref->method->class === 'froq\app\Controller') {
+                $controller = new $controller($this);
+            } else {
+                /** @var \XReflectionParameter[] */
+                foreach ($ref->method->getParameters() as $param) {
+                    $ref->param = unref($param);
 
-                if (!$ref->param->isPromoted()) {
-                    continue;
-                }
-
-                /** @var \XReflectionType */
-                $ref->paramType = $ref->param->getType();
-
-                if (!$ref->paramType || !$ref->paramType->isClass()) {
-                    continue;
-                }
-
-                $ref->paramName    = $ref->param->getName();
-                $ref->paramDefault = $ref->param->getDefaultValue($ref->nil);
-
-                if ($ref->paramDefault !== $ref->nil) {
-                    $ref->arguments[$ref->paramName] = $ref->paramDefault;
-                } else {
-                    $ref->paramClass = $ref->paramType->getName();
-
-                    if (!class_exists($ref->paramClass)) {
-                        throw new AppException(
-                            'Promoted constructor parameter %s::$%s type class %s not exists',
-                            [$controller, $ref->paramName, $ref->paramClass]
-                        );
+                    if (!$ref->param->isPromoted()) {
+                        continue;
                     }
 
-                    // An argument with parameter class instance.
-                    $ref->arguments[$ref->paramName] = new $ref->paramClass;
+                    /** @var \XReflectionType */
+                    $ref->paramType = $ref->param->getType();
+
+                    if (!$ref->paramType || !$ref->paramType->isClass()) {
+                        continue;
+                    }
+
+                    $ref->paramName    = $ref->param->getName();
+                    $ref->paramDefault = $ref->param->getDefaultValue($ref->nil);
+
+                    if ($ref->paramDefault !== $ref->nil) {
+                        $ref->arguments[$ref->paramName] = $ref->paramDefault;
+                    } else {
+                        $ref->paramClass = $ref->paramType->getName();
+
+                        if (!class_exists($ref->paramClass)) {
+                            throw new AppException(
+                                'Promoted constructor parameter %s::$%s type class %s not exists',
+                                [$controller, $ref->paramName, $ref->paramClass]
+                            );
+                        }
+
+                        // An argument with parameter class instance.
+                        $ref->arguments[$ref->paramName] = new $ref->paramClass;
+                    }
+                }
+
+                $controller = new $controller(...$ref->arguments);
+
+                // Detect if parent::__construct() called.
+                if (!isset($controller->app)) {
+                    $ref->parent = $ref->method->getDeclaringClass()->getParent(top: true);
+
+                    // Initialization "very" needed there (@see Controller).
+                    if ($ref->parent->getName() === 'froq\app\Controller') {
+                        $ref->parent->getConstructor()->invoke($controller, app: $this);
+                    }
                 }
             }
 
-            $controller = new $controller(...$ref->arguments);
+            unset($ref);
 
-            // Detect if parent::__construct() called.
-            if (!isset($controller->app)) {
-                $ref->parent = $ref->method->getDeclaringClass()->getParent(top: true);
-
-                // Initialization "very" needed there (@see Controller).
-                if ($ref->parent->getName() === 'froq\app\Controller') {
-                    $ref->parent->getConstructor()->invoke($controller, app: $this);
-                }
-            }
-        }
-
-        unset($ref);
-
-        try {
             if (is_string($action)) {
                 $return = $controller->call($action, $actionParams);
             } elseif (is_callable($action)) {
