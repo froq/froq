@@ -37,7 +37,7 @@ class View
     public function __construct(Controller $controller)
     {
         $this->controller = $controller;
-        $this->state = new State();
+        $this->state      = new State();
 
         // Store this view (as last view).
         $this->controller->app::registry()::set('@view', $this, false);

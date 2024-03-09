@@ -46,7 +46,7 @@ class Repository extends DatabaseRepository
         }
 
         $this->controller = $controller;
-        $this->state = new State();
+        $this->state      = new State();
 
         // Store this repository (as last repository).
         $this->controller?->app::registry()::set('@repository', $this, false);

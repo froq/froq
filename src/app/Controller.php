@@ -97,16 +97,12 @@ class Controller
     public function __construct(App $app = null, mixed ...$options)
     {
         // Try active app object if none given.
-        $this->app = $app ?? (
-            function_exists('app') ? app()
-                : throw new ControllerException('No app object to deal')
-        );
+        $this->app = $app ?? app();
 
         // Copy as a shortcut for subclasses.
         $this->request  = $this->app->request;
         $this->response = $this->app->response;
-
-        $this->state = new State();
+        $this->state    = new State();
 
         if ($options) {
             $options = array_default($options, self::OPTIONS);
