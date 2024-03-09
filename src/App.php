@@ -51,11 +51,11 @@ class App
     /** Response instance. */
     public readonly Response $response;
 
-    /** Session instance. */
-    public readonly Session|null $session;
-
     /** Database instance. */
     public readonly Database|null $database;
+
+    /** Session instance. */
+    public readonly Session|null $session;
 
     /** Cache instance. */
     public readonly Cache|null $cache;
@@ -394,17 +394,8 @@ class App
         $this->request->uri->generateSegments($this->root);
 
         // Note: These options can be emptied by developer to disable all with "null" if app won't
-        // be using session/database/cache. Also, "drop" removes sensitive config data after using.
-        [$session, $database, $cache] = $this->config->get(['session', 'database', 'cache'], drop: true);
-
-        if ($session) {
-            Assert::type($session, 'array|bool', new AppException(
-                'Config option "session" must be array|bool, %t given', $session
-            ));
-            $this->session = Session::initOnce((array) $session);
-        } else {
-            $this->session = null;
-        }
+        // be using database/session/cache. Also, "drop" removes sensitive config data after using.
+        [$database, $session, $cache] = $this->config->get(['database', 'session', 'cache'], drop: true);
 
         if ($database) {
             Assert::type($database, 'array', new AppException(
@@ -413,6 +404,15 @@ class App
             $this->database = Database::initOnce($database);
         } else {
             $this->database = null;
+        }
+
+        if ($session) {
+            Assert::type($session, 'array|bool', new AppException(
+                'Config option "session" must be array|bool, %t given', $session
+            ));
+            $this->session = Session::initOnce((array) $session);
+        } else {
+            $this->session = null;
         }
 
         // Note: Cache is a static instance as default.
