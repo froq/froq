@@ -483,16 +483,20 @@ class App
             $ref = new \Reference(
                 nil: Nil(), // Null alternative.
                 method: new \XReflectionMethod($controller, '__construct'),
-                arguments: []
+                arguments: [], options: []
             );
 
             // Promoted constructor parameters.
-            if ($ref->method->class === 'froq\app\Controller') {
+            if ($ref->method->class === app\Controller::class) {
                 $controller = new $controller($this);
             } else {
                 /** @var \XReflectionParameter[] */
                 foreach ($ref->method->getParameters() as $param) {
                     $ref->param = unref($param);
+
+                    if (in_array($ref->param->name, app\Controller::OPTIONS)) {
+                        $ref->options[$ref->param->name] = $ref->param->getValue();
+                    }
 
                     if (!$ref->param->isPromoted()) {
                         continue;
@@ -525,15 +529,15 @@ class App
                     }
                 }
 
-                $controller = new $controller(...$ref->arguments);
+                $controller = new $controller(...[...$ref->arguments, ...$ref->options]);
 
                 // Detect if parent::__construct() called.
                 if (!isset($controller->app)) {
                     $ref->parent = $ref->method->getDeclaringClass()->getParent(top: true);
 
                     // Initialization "very" needed there (@see Controller).
-                    if ($ref->parent->getName() === 'froq\app\Controller') {
-                        $ref->parent->getConstructor()->invoke($controller, app: $this);
+                    if ($ref->parent->getName() === app\Controller::class) {
+                        $ref->parent->getConstructor()->invoke($controller, ...['app' => $this, ...$ref->options]);
                     }
                 }
             }
@@ -635,7 +639,7 @@ class App
                 $controller = $ref->init();
 
                 $parent = $ref->getParent(top: true);
-                if ($parent->getName() === 'froq\app\Controller') {
+                if ($parent->getName() === app\Controller::class) {
                     $parent->getConstructor()->invoke($controller, app: $this);
                 }
 

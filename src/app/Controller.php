@@ -43,6 +43,11 @@ class Controller
     public final const NAME_DEFAULT   = '@default',
                        NAME_CLOSURE   = '@closure';
 
+    /** Options (use* only). */
+    public final const OPTIONS = [
+        'useRepository', 'useSession', 'useView'
+    ];
+
     /** App instance. */
     public readonly App $app;
 
@@ -86,9 +91,10 @@ class Controller
      * Constructor.
      *
      * @param  froq\App|null $app
+     * @param  mixed         ...$options
      * @throws froq\app\ControllerException
      */
-    public function __construct(App $app = null)
+    public function __construct(App $app = null, mixed ...$options)
     {
         // Try active app object if none given.
         $this->app = $app ?? (
@@ -101,6 +107,25 @@ class Controller
         $this->response = $this->app->response;
 
         $this->state = new State();
+
+        if ($options) {
+            $options = array_default($options, self::OPTIONS);
+
+            if ($options['useRepository']) {
+                $this->useRepository = true;
+
+                // Keep repository class (@see loadRepository()).
+                if (is_string($options['useRepository'])) {
+                    $this->state->repositoryClass = $options['useRepository'];
+                }
+            }
+            if ($options['useSession']) {
+                $this->useSession = !!$options['useSession'];
+            }
+            if ($options['useView']) {
+                $this->useView = !!$options['useView'];
+            }
+        }
 
         // Load usings.
         $this->useRepository && $this->loadRepository();
@@ -316,15 +341,22 @@ class Controller
 
     /**
      * Load (initialize) the repository object for the owner controller if controller's `$useRepository`
-     * property set to true and `$repository` property is not set yet.
+     * property set to true or repository class and `$repository` property is not set yet.
      *
      * @return void
      */
     public final function loadRepository(): void
     {
         if (!isset($this->repository)) {
-            $name = $this->getShortName();
+            // When repository class given.
+            if (isset($this->state->repositoryClass)) {
+                $this->repository = $this->initRepository($this->state->repositoryClass);
+                unset($this->state->repositoryClass);
+                return;
+            }
+
             $base = null;
+            $name = $this->getShortName();
 
             // Check whether controller is a subcontroller.
             if (substr_count($controller = static::class, '\\') > 2) {
