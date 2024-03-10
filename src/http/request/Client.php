@@ -36,11 +36,12 @@ class Client
     /**
      * Get user agent.
      *
+     * @param  bool $safe
      * @return string|null
      */
-    public function getUserAgent(): string|null
+    public function getUserAgent(bool $safe = true): string|null
     {
-        return Util::getClientAgent();
+        return Util::getClientUa($safe);
     }
 
     /**
