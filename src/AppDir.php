@@ -5,8 +5,12 @@
  */
 namespace froq;
 
+use froq\file\FileSystem;
+
 /**
  * A static class, provides app related dirs.
+ *
+ * Note: This class depends on APP_DIR constant defined in `pub/index.php` file.
  *
  * @package froq
  * @class   froq\AppDir
@@ -116,5 +120,33 @@ class AppDir
         }
 
         return [];
+    }
+
+    /**
+     * Make a path string based on APP_DIR, with formatter form or path parts.
+     *
+     * Examples:
+     * ```
+     * // For "APP_DIR/app/system/Index/view/home.php" file.
+     * $ctrlName = $controller->getShortName();
+     * $fileName = 'home';
+     *
+     * $path = AppDir::toPath('app/system/%s/view/%s.php', $ctrlName, $fileName);
+     * $path = AppDir::toPath('app/system/', $ctrlName, '/view/', $fileName . '.php');
+     * ```
+     *
+     * @param  string    $base
+     * @param  string ...$parts
+     * @return string
+     */
+    public static function toPath(string $base, string ...$parts): string
+    {
+        if (str_contains($base, '%')) {
+            $path = sprintf($base, ...$parts);
+        } else {
+            $path = FileSystem::joinPath($base, ...$parts);
+        }
+
+        return APP_DIR . FileSystem::normalizePath($path);
     }
 }
