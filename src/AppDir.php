@@ -6,6 +6,7 @@
 namespace froq;
 
 use froq\file\FileSystem;
+use const APP_DIR;
 
 /**
  * A static class, provides app related dirs.
