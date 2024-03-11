@@ -54,8 +54,8 @@ class Client
         $acceptLanguage = $this->getAcceptLanguage();
 
         if ($acceptLanguage) {
-            preg_match('~^([a-z]+)(?:[_-]([a-z]+)|[,;])?~',
-                $acceptLanguage, $match, PREG_UNMATCHED_AS_NULL);
+            preg_match('~^([a-z]+)(?:[_-]([a-z]+)|[,;]*)?~',
+                strtolower($acceptLanguage), $match, PREG_UNMATCHED_AS_NULL);
 
             return $match[1] . '_' . strtoupper($match[2] ?: $match[1]);
         }
@@ -74,7 +74,7 @@ class Client
 
         if ($acceptLanguage) {
             return preg_replace('~^([a-z]+)(?:[_-]|[,;])?.*~', '\1',
-                $acceptLanguage);
+                strtolower($acceptLanguage));
         }
 
         return null;
@@ -84,7 +84,6 @@ class Client
      * Get accept-language.
      *
      * @return string|null
-     * @since  6.0
      */
     public function getAcceptLanguage(): string|null
     {
@@ -103,7 +102,6 @@ class Client
      * Get referer.
      *
      * @return string|null
-     * @since  6.0
      */
     public function getReferer(): string|null
     {
