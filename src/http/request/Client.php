@@ -54,14 +54,10 @@ class Client
         $acceptLanguage = $this->getAcceptLanguage();
 
         if ($acceptLanguage) {
-            $language = substr($acceptLanguage, 0, 2);
+            preg_match('~^([a-z]+)(?:[_-]([a-z]+)|[,;])?~',
+                $acceptLanguage, $match, PREG_UNMATCHED_AS_NULL);
 
-            if (str_contains($acceptLanguage, '-')) {
-                $temp = split('-', substr($acceptLanguage, 0, 5), 2);
-                return sprintf('%s_%s', $temp[0], strtoupper($temp[1] ?: $temp[0]));
-            } else {
-                return sprintf('%s_%s', $language, strtoupper($language));
-            }
+            return $match[1] . '_' . strtoupper($match[2] ?: $match[1]);
         }
 
         return null;
@@ -77,7 +73,8 @@ class Client
         $acceptLanguage = $this->getAcceptLanguage();
 
         if ($acceptLanguage) {
-            return substr($acceptLanguage, 0, 2);
+            return preg_replace('~^([a-z]+)(?:[_-]|[,;])?.*~', '\1',
+                $acceptLanguage);
         }
 
         return null;
@@ -91,7 +88,15 @@ class Client
      */
     public function getAcceptLanguage(): string|null
     {
-        return $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $ret = trim((string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+
+            if (strlen($ret) >= 2) {
+                return $ret;
+            }
+        }
+
+        return null;
     }
 
     /**
