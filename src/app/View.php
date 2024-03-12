@@ -160,6 +160,7 @@ class View
             return sprintf('%s/%s.php', $viewBase, $file);
         }
 
-        return sprintf('%s/app/system/%s/view/%s.php', APP_DIR, $this->controller->getShortName(), $file);
+        return sprintf('%s/app/system/%s/view/%s.php',
+            APP_DIR, $this->controller->getShortName(), $file);
     }
 }

@@ -70,6 +70,11 @@ class AppDir
         return APP_DIR . '/bin';
     }
 
+    /**
+     * Get pub dir.
+     *
+     * @return string
+     */
     public static function getPubDir(): string
     {
         return APP_DIR . '/pub';
