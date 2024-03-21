@@ -103,12 +103,13 @@ class AppDir
     /**
      * Get autoload dir.
      *
+     * @param  bool $assoc
      * @return array<string>
      */
     public static function getAutoloadDirs(bool $assoc = false): array
     {
-        if (file_exists($json = APP_DIR . '/composer.json')) {
-            $data = json_decode(file_get_contents($json), true);
+        if (file_exists($file = APP_DIR . '/composer.json')) {
+            $data = json_decode(file_get_contents($file), true);
             $dirs = (array) ($data['autoload']['psr-4'] ?? []);
 
             if ($dirs) {
@@ -121,11 +122,9 @@ class AppDir
                     $dirs = array_values($dirs);
                 }
             }
-
-            return $dirs;
         }
 
-        return [];
+        return $dirs ?? [];
     }
 
     /**
@@ -134,11 +133,11 @@ class AppDir
      * Examples:
      * ```
      * // For "APP_DIR/app/system/Index/view/home.php" file.
-     * $ctrlName = $controller->getShortName();
-     * $fileName = 'home';
+     * $contName = $controller->getShortName();
+     * $viewName = 'home';
      *
-     * $path = AppDir::toPath('app/system/%s/view/%s.php', $ctrlName, $fileName);
-     * $path = AppDir::toPath('app/system/', $ctrlName, '/view/', $fileName . '.php');
+     * $path = AppDir::toPath('app/system/%s/view/%s.php', $contName, $viewName);
+     * $path = AppDir::toPath('app/system/', $contName, '/view/', $viewName . '.php');
      * ```
      *
      * @param  string    $base
