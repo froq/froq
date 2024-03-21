@@ -20,7 +20,7 @@ if (__local__) {
 }
 
 // Load functions.
-require '_fun.php';
+require __DIR__ . '/_fun.php';
 
 // Init app and return it.
 return froq\App::init();
