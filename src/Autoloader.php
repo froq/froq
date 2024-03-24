@@ -23,7 +23,7 @@ class Autoloader
 
     /** Directives for "app" related files. */
     private static array $directives = [
-        'controller' => '/app/system/%s/%s.php',
+        'controller' => '/app/system/%s/%s.php|/app/system/%s.php',
         'repository' => '/app/system/%s/%s.php|/app/system/%s/data/%s.php',
     ];
 
@@ -355,10 +355,13 @@ class Autoloader
         if (str_starts_with($name, 'app/controller/')) {
             $this->checkAppDir();
 
-            $dir = self::$directives['controller'];
+            [$dir, $supdir] = explode('|', self::$directives['controller']);
 
             if (preg_match('~([A-Z][A-Za-z0-9]+)Controller$~', $name, $match)) {
                 $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
+
+                // Try with "system" supdir (eg: app/system/FooController.php).
+                is_file($file) || $file = APP_DIR . sprintf($supdir, $match[0]);
             }
         }
         // Repository (eg: app\repository\FooRepository => app/system/Foo/FooRepository.php
