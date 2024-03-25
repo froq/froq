@@ -9,7 +9,7 @@ use froq\http\{Request, Response, HttpException, request\Segments, response\Stat
     response\payload\Payload, response\payload\JsonPayload, response\payload\XmlPayload,
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
-use froq\{App, Router, session\Session, database\Database, util\Objects};
+use froq\{App, Router, session\Session, database\Database, util\Objects, file\Path};
 use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 use State;
 
@@ -237,12 +237,22 @@ class Controller
     }
 
     /**
-     * Get current controller path built with action that called at the time.
+     * Get path.
+     *
+     * @return froq\file\Path
+     */
+    public final function getPath(): Path
+    {
+        return new Path(get_class_file($this));
+    }
+
+    /**
+     * Get call.
      *
      * @param  bool $full
      * @return string
      */
-    public final function getPath(bool $full = false): string
+    public final function getCall(bool $full = false): string
     {
         return !$full ? $this->getShortName() . '.' . $this->getActionShortName()
                       : strtr($this->getName(), '\\', '.') . '.' . $this->getActionName();
