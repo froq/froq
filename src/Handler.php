@@ -113,15 +113,17 @@ class Handler extends \StaticClass
                     'file' => $fail->getFile(), 'line'    => $fail->getLine()
                 ];
                 $errorCode = $error['type'];
-            } elseif (($fail = app_fail('error'))
-                && in_array($fail->getCode(), [E_ERROR, E_USER_ERROR], true)) {
+            } elseif (
+                ($fail = app_fail('error')) &&
+                in_array($fail->getCode(), [E_ERROR, E_USER_ERROR], true)) {
                 $error = [
                     'type' => $fail->getCode(), 'message' => $fail->__toString(),
                     'file' => $fail->getFile(), 'line'    => $fail->getLine()
                 ];
                 $errorCode = $error['type'];
-            } elseif (($fail = error_get_last())
-                && in_array($fail['type'] ?? null, [E_ERROR, E_USER_ERROR], true)) {
+            } elseif (
+                ($fail = error_get_last()) &&
+                in_array($fail['type'] ?? null, [E_ERROR, E_USER_ERROR], true)) {
                 $error     = $fail;
                 $errorCode = $fail['type'] ?? -1;
             }

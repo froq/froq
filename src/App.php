@@ -592,6 +592,17 @@ class App
     }
 
     /**
+     * Get last (set) fail.
+     *
+     * @param  string $name
+     * @return mixed
+     */
+    public function fail(string $name): mixed
+    {
+        return app_fail($name);
+    }
+
+    /**
      * Process an error routine creating default controller and calling its default error method
      * if exists and also log all errors.
      *
