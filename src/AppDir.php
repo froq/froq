@@ -154,4 +154,36 @@ class AppDir
 
         return APP_DIR . FileSystem::normalizePath($path);
     }
+
+    /**
+     * Include a file.
+     *
+     * @param  string $file
+     * @param  bool   $once
+     * @return void
+     * @throws froq\AppError
+     */
+    public static function include(string $file, bool $once = false): void
+    {
+        $path = FileSystem::resolvePath(APP_DIR . '/' . $file)
+            ?: throw new AppError('No file exists: %q', $file);
+
+        $once ? include_once $path : include $path;
+    }
+
+    /**
+     * Require a file.
+     *
+     * @param  string $file
+     * @param  bool   $once
+     * @return void
+     * @throws froq\AppError
+     */
+    public static function require(string $file, bool $once = false): void
+    {
+        $path = FileSystem::resolvePath(APP_DIR . '/' . $file)
+            ?: throw new AppError('No file exists: %q', $file);
+
+        $once ? require_once $path : require $path;
+    }
 }
