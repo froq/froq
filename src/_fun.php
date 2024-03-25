@@ -146,7 +146,7 @@ function app_config(string|array $key, mixed $default = null): mixed
 /**
  * Get/set an app failure.
  *
- * @param  string   $name
+ * @param  string     $name
  * @param  mixed|null $value
  * @return mixed
  * @since  4.0
