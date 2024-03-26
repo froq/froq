@@ -484,12 +484,12 @@ class Controller
 
         if (!class_exists($controller)) {
             throw new ControllerException(
-                'No controller found such %q', $controller,
+                'No controller found such %s', $controller,
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         } elseif (!method_exists($controller, $action)) {
             throw new ControllerException(
-                'No controller action found such \'%s::%s()\'', [$controller, $action],
+                'No controller action found such %s::%s()', [$controller, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException()
             );
         }
@@ -802,7 +802,7 @@ class Controller
             $ref = new ReflectionMethod($this, $action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No action exists such \'%s::%s()\'', [static::class, $action],
+                'No action exists such %s::%s()', [static::class, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
@@ -843,7 +843,7 @@ class Controller
             $ref = new ReflectionFunction($action);
         } catch (ReflectionException $e) {
             throw new ControllerException(
-                'No callable exists such \'%s::%s()\'', [static::class, $action],
+                'No callable exists such %s::%s()', [static::class, $action],
                 code: Status::NOT_FOUND, cause: new NotFoundException(cause: $e)
             );
         }
