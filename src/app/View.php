@@ -83,12 +83,16 @@ class View
     /**
      * Get a data entry with given key, return `$default` value if found no entry.
      *
-     * @param  string     $key
-     * @param  mixed|null $default
+     * @param  string|null $key
+     * @param  mixed|null  $default
      * @return mixed
      */
-    public function getData(string $key, mixed $default = null): mixed
+    public function getData(string $key = null, mixed $default = null): mixed
     {
+        if ($key === null) {
+            return $this->data ?? $default;
+        }
+
         return $this->data[$key] ?? $default;
     }
 
