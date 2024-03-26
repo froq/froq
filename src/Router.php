@@ -235,9 +235,9 @@ class Router
         // Normalize URI (removes repeating & ending slashes).
         $uri = '/' . preg_replace('~/+~', '/', trim($uri, '/'));
 
-        $this->debug = ['uri' => $uri, 'pattern' => $pattern, 'mark' => null];
+        $this->debug = ['uri' => $uri, 'pattern' => $pattern, 'mark' => null, 'match' => null];
 
-        $res = preg_match($pattern, $uri, $match, PREG_UNMATCHED_AS_NULL);
+        $res = @preg_match($pattern, $uri, $match, PREG_UNMATCHED_AS_NULL);
 
         // Check invalid-pattern causing errors.
         if (!$res && $options['throwErrors']) {
@@ -247,6 +247,7 @@ class Router
 
         if ($res) {
             $this->debug['match'] = $match;
+            $this->debug['match']['PATTERN'] = preg_remove('~\(\*MARK:\d+\) +~', trim($patterns[$match['MARK']]));
 
             $mark = (int) $match['MARK'];
             if (empty($routes[$mark][1])) {

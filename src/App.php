@@ -63,8 +63,8 @@ class App
     /** Dynamic state reference. */
     public readonly State $state;
 
-    /** EventManager instance. */
-    private EventManager $eventManager;
+    /** Resolved route reference. */
+    public readonly State $route;
 
     /** Router instance. */
     private Router $router;
@@ -74,6 +74,9 @@ class App
 
     /** Config instance. */
     private Config $config;
+
+    /** EventManager instance. */
+    private EventManager $eventManager;
 
     /** Registry instance. */
     private static Registry $registry;
@@ -92,10 +95,12 @@ class App
         $this->request  = new Request($this);
         $this->response = new Response($this);
         $this->state    = new State();
+        $this->route    = new State();
 
-        [$this->dir, $this->eventManager, $this->router, $this->servicer, $this->config, self::$registry] = [
-            APP_DIR, new EventManager($this), new Router(), new Servicer(), new Config(), new Registry()
+        [$this->dir, $this->router, $this->servicer, $this->config, $this->eventManager, self::$registry] = [
+            APP_DIR, new Router(), new Servicer(), new Config(), new EventManager($this), new Registry()
         ];
+
 
         // Register app.
         self::$registry::set('@app', $this, false);
@@ -434,7 +439,12 @@ class App
             method: null // To check below, if allowed or not.
         );
 
+        $debug = $this->router->debug();
         $method = $this->request->getMethod();
+        $matched = ['uri' => $debug['uri'], 'pattern' => $debug['match']['PATTERN']];
+
+        // Update(1) resolved route info.
+        $this->route->update(method: $method, matched: $matched, resolved: $route);
 
         // Found but no method allowed?
         if ($route && !isset($route[$method]) && !isset($route['*'])) {
@@ -446,6 +456,9 @@ class App
         }
 
         @[$controller, $action, $actionParams] = $route[$method] ?? $route['*'] ?? null;
+
+        // Update(2) resolved route info.
+        $this->route->update(controller: $controller, action: $action, actionParams: $actionParams);
 
         // Not found?
         if (!$controller) {
