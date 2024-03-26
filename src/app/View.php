@@ -128,7 +128,7 @@ class View
      * Wrap the render operation in an output buffer that run by `render()` method extracting
      * `$fileData` argument if not empty and return the rendered file's contents.
      */
-    private function renderFile(string $file, array $fileData): string
+    public function renderFile(string $file, array $fileData): string
     {
         // As specials.
         $FILE      = $file;
@@ -140,15 +140,13 @@ class View
         // Extract file data, make items accessible in included file.
         $FILE_DATA && extract($FILE_DATA);
 
-        ob_start();
-        include $FILE;
-        return ob_get_clean();
+        ob_start(); require $FILE; return ob_get_clean();
     }
 
     /**
      * Prepare the given file for inclusion with a fully qualified path.
      */
-    private function prepareFile(string $file): string
+    public function prepareFile(string $file): string
     {
         if (str_ends_with($file, '.php')) {
             $file = substr($file, 0, -4);
