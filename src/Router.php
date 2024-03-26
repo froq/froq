@@ -31,7 +31,8 @@ class Router
         'defaultController' => Controller::DEFAULT,
         'defaultAction'     => Controller::ACTION_DEFAULT,
         'endingSlashes'     => true,  'throwErrors' => true,
-        'decodeUri'         => false, 'unicode'     => false,
+        'unicode'           => false, 'icase' => false,
+        'decodeUri'         => false,
     ];
 
     /**
@@ -229,6 +230,7 @@ class Router
         $pattern = "~^(?:\n" . join(" |\n", $patterns) . "\n)$~xAJ";
 
         // Apply options.
+        $options['icase'] && $pattern .= 'i';
         $options['unicode'] && $pattern .= 'u';
         $options['decodeUri'] && $uri = rawurldecode($uri);
 
@@ -247,7 +249,9 @@ class Router
 
         if ($res) {
             $this->debug['match'] = $match;
-            $this->debug['match']['PATTERN'] = preg_remove('~\(\*MARK:\d+\) +~', trim($patterns[$match['MARK']]));
+            $this->debug['match']['PATTERN'] = '~'
+                . preg_remove('~\(\*MARK:\d+\) +~', trim($patterns[$match['MARK']]))
+                . '~' . ($options['icase'] ? 'i' : '') . ($options['unicode'] ? 'u' : '');
 
             $mark = (int) $match['MARK'];
             if (empty($routes[$mark][1])) {
