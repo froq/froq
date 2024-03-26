@@ -128,7 +128,7 @@ class View
      * Wrap the render operation in an output buffer that run by `render()` method extracting
      * `$fileData` argument if not empty and return the rendered file's contents.
      */
-    public function renderFile(string $file, array $fileData): string
+    public function renderFile(string $file, array $fileData = null): string
     {
         // As specials.
         $FILE      = $file;
