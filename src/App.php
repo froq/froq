@@ -441,7 +441,7 @@ class App
 
         $debug = $this->router->debug();
         $method = $this->request->getMethod();
-        $matched = ['uri' => $debug['uri'], 'pattern' => $debug['match']['PATTERN']];
+        $matched = ['uri' => $debug['uri'], 'pattern' => $debug['match']['PATTERN'] ?? null];
 
         // Update(1) resolved route info.
         $this->route->update(method: $method, matched: $matched, resolved: $route);
