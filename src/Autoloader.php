@@ -351,7 +351,8 @@ class Autoloader
         $file = null;
         $name = strtr($name, '\\', '/');
 
-        // Controller (eg: app\controller\FooController => app/system/Foo/FooController.php).
+        // Controller (eg: app\controller\FooController => app/system/Foo/FooController.php
+        //                                              or app/system/FooController.php).
         if (str_starts_with($name, 'app/controller/')) {
             $this->checkAppDir();
 
@@ -383,7 +384,8 @@ class Autoloader
             }
         }
         // Library (eg: app\library\Foo => app/library/Foo.php).
-        elseif (str_starts_with($name, 'app/library/')) {
+        // Service (eg: app\service\Foo => app/service/Foo.php).
+        elseif (str_starts_with($name, 'app/library/') || str_starts_with($name, 'app/service/')) {
             $this->checkAppDir();
 
             $file = APP_DIR . '/' . $name . '.php';
