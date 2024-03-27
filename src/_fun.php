@@ -3,8 +3,7 @@
  * Copyright (c) 2015 · Kerem Güneş
  * Apache License 2.0 · http://github.com/froq/froq
  */
-use froq\App;
-use froq\common\object\Registry;
+use froq\{App, AppRegistry};
 
 const FROQ = 'FROQ';
 
@@ -82,7 +81,7 @@ function delete_global(string $key): void
  */
 function app(): App
 {
-    return Registry::get('@app');
+    return AppRegistry::getApp();
 }
 
 /**
@@ -175,14 +174,4 @@ function app_fails(): array|null
     }
 
     return $ret ?? null;
-}
-
-/**
- * Get app registry.
- *
- * @return froq\common\object\Registry
- */
-function app_registry(): Registry
-{
-    return app()::registry();
 }

@@ -49,7 +49,7 @@ class Repository extends DatabaseRepository
         $this->state      = new State();
 
         // Store this repository (as last repository).
-        $this->controller?->app::registry()::set('@repository', $this, false);
+        $this->controller?->app::registry()::setRepository($this, false);
 
         // Call init() method if defined in subclass.
         if (method_exists($this, 'init')) {

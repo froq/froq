@@ -5,8 +5,8 @@
  */
 namespace froq;
 
+use froq\common\{trait\InstanceTrait, object\Config};
 use froq\{event\EventManager, session\Session, database\Database};
-use froq\common\{trait\InstanceTrait, object\Config, object\Registry};
 use froq\http\{Request, Response, HttpException, response\Status,
     exception\client\NotFoundException, exception\client\NotAllowedException};
 use froq\cache\{Cache, CacheFactory};
@@ -79,7 +79,7 @@ class App
     private EventManager $eventManager;
 
     /** Registry instance. */
-    private static Registry $registry;
+    private static AppRegistry $registry;
 
     /**
      * Constructor.
@@ -98,12 +98,12 @@ class App
         $this->route    = new State();
 
         [$this->dir, $this->router, $this->servicer, $this->config, $this->eventManager, self::$registry] = [
-            APP_DIR, new Router(), new Servicer(), new Config(), new EventManager($this), new Registry()
+            APP_DIR, new Router(), new Servicer(), new Config(), new EventManager($this), new AppRegistry()
         ];
 
 
         // Register app.
-        self::$registry::set('@app', $this, false);
+        self::$registry::setApp($this, false);
 
         // Register handlers.
         Handler::registerErrorHandler();
@@ -329,10 +329,10 @@ class App
     /**
      * Get registry.
      *
-     * @return froq\common\object\Registry
+     * @return froq\AppRegistry
      * @since  5.0
      */
-    public static function registry(): Registry
+    public static function registry(): AppRegistry
     {
         return self::$registry;
     }
@@ -430,8 +430,8 @@ class App
             $this->cache = null;
         }
 
-        // @override
-        self::$registry::set('@app', $this, true);
+        // Override & lock.
+        self::$registry::setApp($this, true);
 
         // Resolve route.
         $route = $this->router->resolve(

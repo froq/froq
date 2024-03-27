@@ -40,7 +40,7 @@ class View
         $this->state      = new State();
 
         // Store this view (as last view).
-        $this->controller->app::registry()::set('@view', $this, false);
+        $this->controller->app::registry()::setView($this, false);
     }
 
     /**

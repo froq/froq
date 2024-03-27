@@ -129,7 +129,7 @@ class Controller
         $this->useView       && $this->loadView();
 
         // Store this controller (as last controller).
-        $this->app::registry()::set('@controller', $this, false);
+        $this->app::registry()::setController($this, false);
 
         // Set before/after ticks these called in call()/callCallable() methods.
         $this->before = method_exists($this, 'before');
