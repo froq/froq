@@ -5,11 +5,11 @@
  */
 namespace froq;
 
-use froq\file\FileSystem;
+use froq\file\{PathInfo, FileSystem};
 use const APP_DIR;
 
 /**
- * A static class, provides app related dirs.
+ * A static / readonly class, provides app related dirs.
  *
  * Note: This class depends on APP_DIR constant defined in `pub/index.php` file.
  *
@@ -20,6 +20,51 @@ use const APP_DIR;
  */
 class AppDir
 {
+    /** App dir (directory). */
+    public readonly string $path;
+
+    /**
+     * @constructor
+     */
+    public function __construct()
+    {
+        $this->path = APP_DIR;
+    }
+
+    /**
+     * @magic
+     */
+    public function __toString()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get path, optionally with given sub-path.
+     *
+     * @param  string|null $subPath
+     * @return string
+     */
+    public function getPath(string $subPath = null): string
+    {
+        $path = $this->path . $subPath;
+
+        return $path;
+    }
+
+    /**
+     * Get path info, optionally with given sub-path.
+     *
+     * @param  string $subPath
+     * @return froq\file\PathInfo
+     */
+    public function getPathInfo(string $subPath = null): PathInfo
+    {
+        $path = $this->path . $subPath;
+
+        return new PathInfo($path);
+    }
+
     /**
      * Get dir.
      *
@@ -160,15 +205,15 @@ class AppDir
      *
      * @param  string $file
      * @param  bool   $once
-     * @return void
+     * @return mixed
      * @throws froq\AppError
      */
-    public static function include(string $file, bool $once = false): void
+    public static function include(string $file, bool $once = false): mixed
     {
         $path = FileSystem::resolvePath(APP_DIR . '/' . $file)
             ?: throw new AppError('No file exists: %q', $file);
 
-        $once ? include_once $path : include $path;
+        return $once ? include_once $path : include $path;
     }
 
     /**
@@ -176,14 +221,14 @@ class AppDir
      *
      * @param  string $file
      * @param  bool   $once
-     * @return void
+     * @return mixed
      * @throws froq\AppError
      */
-    public static function require(string $file, bool $once = false): void
+    public static function require(string $file, bool $once = false): mixed
     {
         $path = FileSystem::resolvePath(APP_DIR . '/' . $file)
             ?: throw new AppError('No file exists: %q', $file);
 
-        $once ? require_once $path : require $path;
+        return $once ? require_once $path : require $path;
     }
 }

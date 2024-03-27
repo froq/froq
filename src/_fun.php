@@ -85,38 +85,6 @@ function app(): App
 }
 
 /**
- * Get app root.
- *
- * @return string
- * @since  4.0
- */
-function app_root(): string
-{
-    return app()->root;
-}
-
-/**
- * Get app env.
- *
- * @return string
- * @since  4.0
- */
-function app_env(): string
-{
-    return app()->env;
-}
-
-/**
- * Get app dir.
- *
- * @return string
- */
-function app_dir(): string
-{
-    return app()->dir;
-}
-
-/**
  * Get app runtime result.
  *
  * @param  int  $precision

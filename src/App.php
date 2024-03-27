@@ -36,11 +36,11 @@ class App
     /** For versioning (eg: app.host/v1/book). */
     public readonly string $root;
 
-    /** App env (eg: development). */
-    public readonly string $env;
-
     /** App base directory.  */
-    public readonly string $dir;
+    public readonly AppDir $dir;
+
+    /** App environment. */
+    public readonly AppEnv $env;
 
     /** Logger instance. */
     public readonly Logger $logger;
@@ -88,9 +88,6 @@ class App
      */
     private function __construct()
     {
-        // App dir is required (@see pub/index.php).
-        defined('APP_DIR') || throw new AppException('APP_DIR not defined');
-
         $this->logger   = new Logger(['level' => LogLevel::ALL]);
         $this->request  = new Request($this);
         $this->response = new Response($this);
@@ -98,7 +95,7 @@ class App
         $this->route    = new State();
 
         [$this->dir, $this->router, $this->servicer, $this->config, $this->eventManager, self::$registry] = [
-            APP_DIR, new Router(), new Servicer(), new Config(), new EventManager($this), new AppRegistry()
+            new AppDir(), new Router(), new Servicer(), new Config(), new EventManager($this), new AppRegistry()
         ];
 
 
@@ -380,7 +377,7 @@ class App
         }
 
         $this->root = $root;
-        $this->env  = $env;
+        $this->env  = new AppEnv($env);
 
         // Add headers & cookies (if provided).
         [$headers, $cookies] = $this->config->get(['headers', 'cookies']);
