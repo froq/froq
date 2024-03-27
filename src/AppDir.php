@@ -5,7 +5,7 @@
  */
 namespace froq;
 
-use froq\file\{PathInfo, FileSystem};
+use froq\file\{Path, PathInfo, FileSystem};
 use const APP_DIR;
 
 /**
@@ -20,15 +20,15 @@ use const APP_DIR;
  */
 class AppDir
 {
-    /** App dir (directory). */
-    public readonly string $path;
+    /** App directory name. */
+    public readonly string $name;
 
     /**
      * @constructor
      */
     public function __construct()
     {
-        $this->path = APP_DIR;
+        $this->name = APP_DIR;
     }
 
     /**
@@ -36,33 +36,37 @@ class AppDir
      */
     public function __toString()
     {
-        return $this->path;
+        return $this->name;
     }
 
     /**
-     * Get path, optionally with given sub-path.
+     * Get name.
      *
-     * @param  string|null $subPath
      * @return string
      */
-    public function getPath(string $subPath = null): string
+    public function getName(): string
     {
-        $path = $this->path . $subPath;
-
-        return $path;
+        return $this->name;
     }
 
     /**
-     * Get path info, optionally with given sub-path.
+     * Get path.
      *
-     * @param  string $subPath
+     * @return froq\file\Path
+     */
+    public function getPath(): Path
+    {
+        return new Path($this->name);
+    }
+
+    /**
+     * Get path info.
+     *
      * @return froq\file\PathInfo
      */
-    public function getPathInfo(string $subPath = null): PathInfo
+    public function getPathInfo(): PathInfo
     {
-        $path = $this->path . $subPath;
-
-        return new PathInfo($path);
+        return new PathInfo($this->name);
     }
 
     /**
