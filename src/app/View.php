@@ -18,7 +18,7 @@ use State;
 class View
 {
     /** Controller instance. */
-    public readonly Controller $controller;
+    public readonly Controller|null $controller;
 
     /** Dynamic state reference. */
     public readonly State $state;
@@ -32,15 +32,15 @@ class View
     /**
      * Constructor.
      *
-     * @param froq\app\Controller $controller
+     * @param froq\app\Controller|null $controller
      */
-    public function __construct(Controller $controller)
+    public function __construct(Controller $controller = null)
     {
         $this->controller = $controller;
         $this->state      = new State();
 
         // Store this view (as last view).
-        $this->controller->app::registry()::setView($this, false);
+        $this->controller?->app::registry()::setView($this, false);
     }
 
     /**
@@ -131,6 +131,10 @@ class View
     /**
      * Wrap the render operation in an output buffer that run by `render()` method extracting
      * `$fileData` argument if not empty and return the rendered file's contents.
+     *
+     * @param  string     $file
+     * @param  array|null $fileData
+     * @return string
      */
     public function renderFile(string $file, array $fileData = null): string
     {
@@ -149,11 +153,19 @@ class View
 
     /**
      * Prepare the given file for inclusion with a fully qualified path.
+     *
+     * @param  string $file
+     * @param  bool   $php
+     * @return string
      */
-    public function prepareFile(string $file): string
+    public function prepareFile(string $file, bool $php = true): string
     {
-        if (str_ends_with($file, '.php')) {
-            $file = substr($file, 0, -4);
+        if ($php && strsfx($file, '.php')) {
+            $file = strsub($file, 0, -4);
+        }
+
+        if (!$this->controller) {
+            return get_real_path($file);
         }
 
         // Must be defined as full path.
