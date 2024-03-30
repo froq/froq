@@ -5,54 +5,73 @@
  */
 namespace froq\http\message;
 
-use froq\collection\collector\MapCollector;
-
 /**
  * @package froq\http\message
  * @class   froq\http\message\Headers
  * @author  Kerem Güneş
  * @since   4.0
  */
-class Headers extends MapCollector
+class Headers extends Pack
 {
     /**
-     * For dumping purpose only.
+     * @override
      */
-    public function __debugInfo(): array
+    public function __construct(array $data = [])
     {
-        return $this->data;
+        parent::__construct($data, true);
     }
 
     /**
-     * Drop ref (&) and allow camel-case keys.
+     * Drop ref (&) and allow camel-case names.
      *
      * @override
      */
-    public function &__get(int|string $key): mixed
+    public function &__get(int|string $name): mixed
     {
         // No ref anymore.
-        $value = $this->_value($key);
+        $value = $this->_get($name);
 
         return $value;
     }
 
     /**
-     * Get a value of given key (header name) with camel-case key support.
+     * Drop ref (&) and allow lower-case names.
      *
+     * @override
+     */
+    public function &offsetGet(mixed $name): mixed
+    {
+        // No ref anymore.
+        $value = $this->_getOffset($name);
+
+        return $value;
+    }
+
+    /**
      * @internal
      */
-    private function _value(string $key): string|null
+    private function _get(string $name): mixed
     {
-        $value = $this->get($key);
+        $value = $this->get($name);
 
         // Try camel-case.
         if ($value === null) {
-            $key = preg_replace_callback(
-                '~[A-Z]~', fn($m) => '-' . strtolower($m[0]), $key
+            $name = preg_replace_callback(
+                '~[A-Z]~', fn($m) => '-' . strtolower($m[0]), $name
             );
 
-            $value = $this->get($key);
+            $value = $this->get($name);
         }
+
+        return $value;
+    }
+
+    /**
+     * @internal
+     */
+    private function _getOffset(string $name): mixed
+    {
+        $value = $this->get($name);
 
         return $value;
     }

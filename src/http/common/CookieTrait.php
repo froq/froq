@@ -79,9 +79,9 @@ trait CookieTrait
      *
      * @param  string      $name
      * @param  string|null $default
-     * @return string|null
+     * @return string|array|null
      */
-    public function getCookie(string $name, string $default = null): string|null
+    public function getCookie(string $name, string $default = null): string|array|null
     {
         return $this->cookies->get($name, $default);
     }
@@ -101,7 +101,10 @@ trait CookieTrait
         }
 
         if (!$options && $this->hasCookie($name)) {
-            $options = $this->getCookie($name)['options'];
+            $current = $this->getCookie($name);
+            if (isset($current['options'])) {
+                $options = $current['options'];
+            }
         }
 
         // Mark as removed.

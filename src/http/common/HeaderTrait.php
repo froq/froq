@@ -42,8 +42,7 @@ trait HeaderTrait
      */
     public function hasHeader(string $name): bool
     {
-        return $this->headers->has($name)
-            || $this->headers->has(strtolower($name));
+        return $this->headers->has($name);
     }
 
     /**
@@ -101,9 +100,7 @@ trait HeaderTrait
      */
     public function getHeader(string $name, string|array $default = null): string|array|null
     {
-        return $this->headers->get($name)
-            ?? $this->headers->get(strtolower($name))
-            ?? $default;
+        return $this->headers->get($name, $default);
     }
 
     /**
@@ -119,13 +116,7 @@ trait HeaderTrait
             throw new \Error('Cannot modify request headers');
         }
 
-        if ($this->hasHeader($name)) {
-               $this->headers->remove($name)
-            || $this->headers->remove(strtolower($name));
-        }
-
-        // Mark as removed.
-        $this->setHeader($name, null);
+       $this->headers->remove($name);
 
         return $this;
     }
