@@ -18,14 +18,14 @@ function load($file) { require $file; }
  */
 class Autoloader
 {
+    /** Directives for "app" related files. */
+    public const DIRECTIVES = [
+        'controller' => '/app/system/%s/%s.php|/app/system/%s.php',
+        'repository' => '/app/system/%s/%s.php|/app/system/%s/data/%s.php|/app/system/%s.php',
+    ];
+
     /** Instance. */
     private static self $instance;
-
-    /** Directives for "app" related files. */
-    private static array $directives = [
-        'controller' => '/app/system/%s/%s.php|/app/system/%s.php',
-        'repository' => '/app/system/%s/%s.php|/app/system/%s/data/%s.php',
-    ];
 
     private static array $mapCache = [];
     private static array $nameCache = [];
@@ -356,9 +356,9 @@ class Autoloader
         if (str_starts_with($name, 'app/controller/')) {
             $this->checkAppDir();
 
-            [$dir, $supdir] = explode('|', self::$directives['controller']);
-
             if (preg_match('~([A-Z][A-Za-z0-9]+)Controller$~', $name, $match)) {
+                [$dir, $supdir] = explode('|', self::DIRECTIVES['controller']);
+
                 $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
 
                 // Try with "system" supdir (eg: app/system/FooController.php).
@@ -366,21 +366,25 @@ class Autoloader
             }
         }
         // Repository (eg: app\repository\FooRepository => app/system/Foo/FooRepository.php
-        //                                              or app/system/Foo/data/FooRepository.php).
+        //                                              or app/system/Foo/data/FooRepository.php
+        //                                              or app/system/FooRepository.php).
         elseif (str_starts_with($name, 'app/repository/')) {
             $this->checkAppDir();
-
-            [$dir, $subdir] = explode('|', self::$directives['repository']);
 
             // Data folder checked for only such these classes: FooRepository, FooEntity, FooEntityList, FooQuery.
             // So, any other classes must be loaded in other ways. Besides, "Repository" for only "Controller"
             // that returned from Router.pack() and called in App.run() to execute callable actions similar
             // to eg: $app->get("/foo/:id", function ($id) { ... }).
             if (preg_match('~([A-Z][A-Za-z0-9]+)(?:Repository|Entity|EntityList|Query)$~', $name, $match)) {
+                [$dir, $subdir, $supdir] = explode('|', self::DIRECTIVES['repository']);
+
                 $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
 
                 // Try with "data" subdir (eg: app/system/Foo/data/FooRepository.php).
                 is_file($file) || $file = APP_DIR . sprintf($subdir, $match[1], $match[0]);
+
+                // Try with "system" supdir (eg: app/system/FooRepository.php).
+                is_file($file) || $file = APP_DIR . sprintf($supdir, $match[0]);
             }
         }
         // Library (eg: app\library\Foo => app/library/Foo.php).
