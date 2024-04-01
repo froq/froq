@@ -137,13 +137,13 @@ class Response extends Message
     /**
      * Send a header.
      *
-     * @param  string            $name
-     * @param  string|array|null $value
-     * @param  bool              $replace
+     * @param  string                $name
+     * @param  string|int|array|null $value
+     * @param  bool                  $replace
      * @return void
      * @throws froq\http\ResponseException
      */
-    public function sendHeader(string $name, string|array|null $value, bool $replace = true): void
+    public function sendHeader(string $name, string|int|array|null $value, bool $replace = true): void
     {
         if (headers_sent($file, $line)) {
             throw new ResponseException('Cannot use %s(), headers already sent at %s:%s',
@@ -179,13 +179,13 @@ class Response extends Message
     /**
      * Send a cookie.
      *
-     * @param  string            $name
-     * @param  string|array|null $value
-     * @param  array|null        $options
+     * @param  string                $name
+     * @param  string|int|array|null $value
+     * @param  array|null            $options
      * @return void
      * @throws froq\http\ResponseException
      */
-    public function sendCookie(string $name, string|array|null $value, array $options = null): void
+    public function sendCookie(string $name, string|int|array|null $value, array $options = null): void
     {
         if (headers_sent($file, $line)) {
             throw new ResponseException('Cannot use %s(), headers already sent at %s:%s',

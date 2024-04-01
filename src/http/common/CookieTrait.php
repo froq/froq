@@ -19,12 +19,12 @@ trait CookieTrait
     /**
      * Set/get a cookie.
      *
-     * @param  string      $name
-     * @param  string|null $value
-     * @param  array|null  $options
-     * @return mixed<self|string|null>
+     * @param  string          $name
+     * @param  string|int|null $value
+     * @param  array|null      $options
+     * @return mixed
      */
-    public function cookie(string $name, string $value = null, array $options = null): mixed
+    public function cookie(string $name, string|int $value = null, array $options = null): mixed
     {
         if (func_num_args() === 1) {
             return $this->getCookie($name);
@@ -57,13 +57,13 @@ trait CookieTrait
     /**
      * Set a cookie.
      *
-     * @param  string      $name
-     * @param  string|null $value
-     * @param  array|null  $options
+     * @param  string          $name
+     * @param  string|int|null $value
+     * @param  array|null      $options
      * @return self
      * @throws Error
      */
-    public function setCookie(string $name, string|null $value, array $options = null): self
+    public function setCookie(string $name, string|int|null $value, array $options = null): self
     {
         if ($this->isRequest()) {
             throw new \Error('Cannot modify request cookies');
@@ -77,11 +77,11 @@ trait CookieTrait
     /**
      * Get a cookie.
      *
-     * @param  string      $name
-     * @param  string|null $default
-     * @return string|array|null
+     * @param  string                $name
+     * @param  string|int|array|null $default
+     * @return string|int|array|null
      */
-    public function getCookie(string $name, string $default = null): string|array|null
+    public function getCookie(string $name, string $default = null): string|int|array|null
     {
         return $this->cookies->get($name, $default);
     }

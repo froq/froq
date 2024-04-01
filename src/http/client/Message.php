@@ -171,11 +171,11 @@ abstract class Message
     /**
      * Set header.
      *
-     * @param   string            $name
-     * @param   string|array|null $value
+     * @param   string                $name
+     * @param   string|int|array|null $value
      * @return  self
      */
-    public function setHeader(string $name, string|array|null $value): self
+    public function setHeader(string $name, string|int|array|null $value): self
     {
         $name = strtolower($name);
 
@@ -194,9 +194,9 @@ abstract class Message
      *
      * @param  string      $name
      * @param  string|null $default
-     * @return string|array|null
+     * @return string|int|array|null
      */
-    public function getHeader(string $name, string $default = null): string|array|null
+    public function getHeader(string $name, string|int|array $default = null): string|int|array|null
     {
         $name = strtolower($name);
 

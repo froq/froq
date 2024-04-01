@@ -19,12 +19,12 @@ trait HeaderTrait
     /**
      * Set/get/add a header.
      *
-     * @param  string      $name
-     * @param  string|null $value
-     * @param  bool        $replace
-     * @return mixed<self|string|int|array|null>
+     * @param  string          $name
+     * @param  string|int|null $value
+     * @param  bool            $replace
+     * @return mixed
      */
-    public function header(string $name, string $value = null, bool $replace = true): mixed
+    public function header(string $name, string|int $value = null, bool $replace = true): mixed
     {
         if (func_num_args() === 1) {
             return $this->getHeader($name);
@@ -48,12 +48,12 @@ trait HeaderTrait
     /**
      * Add a header.
      *
-     * @param  string                    $name
-     * @param  string|array<string>|null $value
+     * @param  string                $name
+     * @param  string|int|array|null $value
      * @return self
      * @throws Error
      */
-    public function addHeader(string $name, string|array|null $value): self
+    public function addHeader(string $name, string|int|array|null $value): self
     {
         if ($this->isRequest()) {
             throw new \Error('Cannot modify request headers');
@@ -75,12 +75,12 @@ trait HeaderTrait
     /**
      * Set a header.
      *
-     * @param  string                    $name
-     * @param  string|array<string>|null $value
+     * @param  string                $name
+     * @param  string|int|array|null $value
      * @return self
      * @throws Error
      */
-    public function setHeader(string $name, string|array|null $value): self
+    public function setHeader(string $name, string|int|array|null $value): self
     {
         if ($this->isRequest()) {
             throw new \Error('Cannot modify request headers');
@@ -94,11 +94,11 @@ trait HeaderTrait
     /**
      * Get a header.
      *
-     * @param  string                    $name
-     * @param  string|array<string>|null $default
-     * @return string|array<string>|null
+     * @param  string                $name
+     * @param  string|int|array|null $default
+     * @return string|int|array|null
      */
-    public function getHeader(string $name, string|array $default = null): string|array|null
+    public function getHeader(string $name, string|int|array $default = null): string|int|array|null
     {
         return $this->headers->get($name, $default);
     }
