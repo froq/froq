@@ -237,6 +237,20 @@ class Response extends Message
 
         // Check non-body stuff.
         if (!$this->allowsBody()) {
+            $contentType    = $this->body->getContentType();
+            $contentCharset = $this->body->getContentCharset();
+            $contentLength  = 0; // Empty (as in Nginx).
+
+            if ($contentCharset && $contentCharset !== ContentCharset::NA) {
+                $contentType = sprintf('%s; charset=%s', $contentType, $contentCharset);
+            }
+
+            $headers = ['Content-Type' => $contentType, 'Content-Length' => $contentLength]
+                     + $this->body->getAttribute('headers', []) // If any given.
+                     + $this->headers->toArray(); // If any set.
+
+            $this->echo($headers);
+
             return;
         }
 
