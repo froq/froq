@@ -71,6 +71,7 @@ class ImagePayload extends Payload implements PayloadInterface
         // Update attributes.
         $this->setAttributes([
             'size' => $imageSize, 'modifiedAt' => $modifiedAt,
+            // 'temp' => !!$this->getAttribute('temp')
         ]);
 
         return $image;

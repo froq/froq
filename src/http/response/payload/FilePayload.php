@@ -87,8 +87,9 @@ class FilePayload extends Payload implements PayloadInterface
 
         // Update attributes.
         $this->setAttributes([
-            'name'   => $fileName, 'mime'       => $fileMime,
-            'size'   => $fileSize, 'modifiedAt' => $modifiedAt,
+            'name' => $fileName, 'mime'       => $fileMime,
+            'size' => $fileSize, 'modifiedAt' => $modifiedAt,
+            // 'temp' => !!$this->getAttribute('temp')
         ]);
 
         return $file;
