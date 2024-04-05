@@ -82,6 +82,6 @@ class ImagePayload extends Payload implements PayloadInterface
      */
     private function isValidImageType(mixed $imageType): bool
     {
-        return is_string($imageType) && preg_test('~^image/([a-z]+)$~', $imageType);
+        return is_string($imageType) && preg_test('~^image/([a-z\-\.]+)$~', $imageType);
     }
 }

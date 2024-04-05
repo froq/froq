@@ -192,23 +192,20 @@ class Payload
     private function sniffContentType(string $contentType): string|null
     {
         $contentType = strtolower($contentType);
+
         if ($contentType === ContentType::NA) {
             return $contentType;
         }
 
         // Eg: text/html, image/jpeg, application/json, foo/download.
-        if (preg_match('~^(\w+)/(?:.*?(\w+)$)?~', $contentType, $match)) {
+        if (preg_match('~^(\w+)/.*?(\w+)$~', $contentType, $match)) {
             $match = match ($match[2]) {
-                // JSON & XML types.
                 'json' => 'json', 'xml' => 'xml',
-                // Known text types.
-                'html', 'plain', 'css', 'javascript' => 'text',
-                // Known image types.
-                'jpeg', 'webp', 'png', 'gif' => 'image',
-                // File downloads.
                 'octet-stream', 'download' => 'file',
-                // Other text types.
-                default => $match[1] === 'text' ? 'text' : null,
+                default => match ($match[1]) {
+                    'text' => 'text', 'image' => 'image',
+                    default => null
+                }
             };
 
             // Any matches above.
