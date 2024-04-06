@@ -498,26 +498,16 @@ class Controller
     }
 
     /**
-     * Redirect client to given location applying `$toArgs` if provided, with given headers & cookies.
+     * Redirect client to given location, with/without given headers & cookies.
      *
      * @param  string     $to
-     * @param  array|null $toArgs
      * @param  int        $code
-     * @param  mixed      $body
      * @param  array|null $headers
      * @param  array|null $cookies
      * @return void
      */
-    public final function redirect(string $to, array $toArgs = null, int $code = Status::FOUND,
-        mixed $body = null, array $headers = null, array $cookies = null): void
+    public final function redirect(string $to, int $code = Status::FOUND, array $headers = null, array $cookies = null): void
     {
-        $toArgs && $to = vsprintf($to, $toArgs);
-
-        // In case, not most.
-        if ($body !== null) {
-            $this->response->setBody($body);
-        }
-
         $this->response->redirect($to, $code, $headers, $cookies);
     }
 

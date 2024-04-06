@@ -128,7 +128,7 @@ class Response extends Message
      */
     public function redirect(string $to, int $code = Status::FOUND, array $headers = null, array $cookies = null): void
     {
-        $this->setHeader('Location', trim($to))->setStatus($code);
+        $this->setHeader('Location', $to)->setStatus($code);
 
         $headers && $this->setHeaders($headers);
         $cookies && $this->setCookies($cookies);
