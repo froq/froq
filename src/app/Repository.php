@@ -56,4 +56,18 @@ class Repository extends DatabaseRepository
             $this->init();
         }
     }
+
+    /**
+     * Init a Repository instance.
+     *
+     * @param  string                   $name
+     * @param  froq\app\Controller|null $controller
+     * @return froq\app\Repository
+     */
+    public function initRepository(string $name, Controller $controller = null): Repository
+    {
+        $controller ??= $this->controller ?? new Controller();
+
+        return $controller->initRepository($name, $controller, $controller->app->database);
+    }
 }
