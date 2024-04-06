@@ -65,7 +65,7 @@ class Request extends Message
         $this->utime  = $_SERVER['REQUEST_TIME_FLOAT'];
 
         // Add path as a quick URI path info (alt: $_SERVER['PATH_INFO']).
-        $_SERVER['REQUEST_PATH'] = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $_SERVER['REQUEST_PATH'] = current(explode('?', $_SERVER['REQUEST_URI'], 2));
     }
 
     /**
