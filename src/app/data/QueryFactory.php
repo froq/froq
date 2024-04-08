@@ -42,7 +42,7 @@ class QueryFactory
     protected string $table;
 
     /** Query instance. */
-    private readonly Query $query;
+    protected readonly Query $query;
 
     /**
      * Constructor.
