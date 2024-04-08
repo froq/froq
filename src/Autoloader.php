@@ -265,14 +265,18 @@ class Autoloader
             }
         }
 
-        // Sort map items.
-        if ($options['sort']) {
-            ksort($map);
-        }
-
         // Merge old map (if exists) with generated map.
         if ($oldMap = $this->getMap(false)) {
             $map = [...$oldMap, ...$map];
+        }
+
+        // Sort map items (moving library items down).
+        if ($options['sort']) {
+            uksort($map, function ($a, $b) {
+                $x = +str_starts_with($a, 'app\library');
+                $y = +str_starts_with($b, 'app\library');
+                return ($x - $y) ?: strcmp($a, $b);
+            });
         }
 
         $map = var_export($map, true);
