@@ -375,11 +375,11 @@ class Autoloader
         elseif (str_starts_with($name, 'app/repository/')) {
             $this->checkAppDir();
 
-            // Data folder checked for only such these classes: FooRepository, FooEntity, FooEntityList, FooQuery.
+            // Data folder checked for only such these classes: FooRepository, FooEntity, FooEntityList, FooQuery, FooSearch.
             // So, any other classes must be loaded in other ways. Besides, "Repository" for only "Controller"
             // that returned from Router.pack() and called in App.run() to execute callable actions similar
             // to eg: $app->get("/foo/:id", function ($id) { ... }).
-            if (preg_match('~([A-Z][A-Za-z0-9]+)(?:Repository|Entity|EntityList|Query)$~', $name, $match)) {
+            if (preg_match('~([A-Z][A-Za-z0-9]+)(?:Repository|Entity|EntityList|Query|Search)$~', $name, $match)) {
                 [$dir, $subdir, $supdir] = explode('|', self::DIRECTIVES['repository']);
 
                 $file = APP_DIR . sprintf($dir, $match[1], $match[0]);
