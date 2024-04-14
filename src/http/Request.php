@@ -99,21 +99,32 @@ class Request extends Message
     }
 
     /**
-     * Get PHP input.
+     * Get PHP input, optionally parse it.
      *
-     * @return string
-     * @since  4.5
+     * @param  bool $parse
+     * @return mixed
      */
-    public function input(): string
+    public function input(bool $parse = false): mixed
     {
-        return (string) file_get_contents('php://input');
+        $input = (string) file_get_contents('php://input');
+
+        if ($parse) {
+            $contentType = $this->getHeader('content-type', '');
+
+            if (str_contains($contentType, '/json')) {
+                return json_unserialize($input, true);
+            }
+
+            return http_parse_query($input);
+        }
+
+        return $input;
     }
 
     /**
      * Get PHP input as JSON-decoded.
      *
      * @return mixed
-     * @since  4.5
      */
     public function json(): mixed
     {
