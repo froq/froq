@@ -102,17 +102,19 @@ class Request extends Message
      * Get PHP input, optionally parse it.
      *
      * @param  bool $parse
+     * @param  bool $json
+     * @param  bool $assoc
      * @return mixed
      */
-    public function input(bool $parse = false): mixed
+    public function input(bool $parse = false, bool $json = false, bool $assoc = true): mixed
     {
         $input = (string) file_get_contents('php://input');
 
         if ($parse) {
             $contentType = $this->getHeader('content-type', '');
 
-            if (str_contains($contentType, '/json')) {
-                return json_unserialize($input, true);
+            if ($json || str_contains($contentType, '/json')) {
+                return json_unserialize($input, $assoc);
             }
 
             return http_parse_query($input);
@@ -124,11 +126,12 @@ class Request extends Message
     /**
      * Get PHP input as JSON-decoded.
      *
+     * @param  bool $assoc
      * @return mixed
      */
-    public function json(): mixed
+    public function json(bool $assoc = true): mixed
     {
-        return json_unserialize($this->input(), true);
+        return $this->input(true, true, $assoc);
     }
 
     /**
