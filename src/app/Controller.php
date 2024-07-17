@@ -997,6 +997,12 @@ class Controller
 
                             $entity = false; // Reset.
                         }
+                        // Inject all others.
+                        elseif (class_exists($paramTypeName, true)) {
+                            $value = is_subclass_of($paramTypeName, Repository::class)
+                                ? new $paramTypeName($this, $this->app->database)
+                                : new $paramTypeName();
+                        }
                     }
                 }
             }
