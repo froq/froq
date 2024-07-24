@@ -81,11 +81,30 @@ class Request extends Message
     /**
      * Get all uploaded files.
      *
-     * @return array
+     * @param  bool $payload
+     * @return array|froq\http\request\payload\UploadedFiles
      */
-    public function files(): array
+    public function files(bool $payload = true): array|UploadedFiles
     {
-        return Files::all();
+        return $payload ? new UploadedFiles(Files::all()) : Files::all();
+    }
+
+    /**
+     * Get an uploaded file.
+     *
+     * @param  string $id
+     * @param  bool   $payload
+     * @return array|froq\http\request\payload\UploadedFile|null
+     */
+    public function file(string $id, bool $payload = true): array|UploadedFile|null
+    {
+        foreach (Files::all() as $file) {
+            if ($file['_id'] === $id) {
+                return $payload ? UploadedFile::from($file) : $file;
+            }
+        }
+
+        return null;
     }
 
     /**

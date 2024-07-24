@@ -21,6 +21,20 @@ class UploadedFiles extends \ItemList
     /**
      * @override
      */
+    public function __construct(array $files)
+    {
+        foreach ($files as &$file) {
+            if (!$file instanceof UploadedFile) {
+                $file = UploadedFile::from($file);
+            }
+        }
+
+        parent::__construct($files);
+    }
+
+    /**
+     * @override
+     */
     public function toArray(bool $deep = false): array
     {
         $files = parent::toArray();

@@ -35,7 +35,7 @@ class FilePayload extends Payload implements PayloadInterface
 
         if ($this->okay) {
             // Take first one, single file only.
-            $file = first($this->request->files());
+            $file = first($this->request->files(false));
         }
 
         $this->file = $this->createUploadedFile($file ?? []);

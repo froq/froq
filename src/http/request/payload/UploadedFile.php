@@ -315,4 +315,18 @@ class UploadedFile implements Arrayable, \ArrayAccess
     {
         throw new \ReadonlyError($this);
     }
+
+    /**
+     * @internal
+     */
+    public static function from(array $file): UploadedFile
+    {
+        $ref = reflect(FilePayload::class);
+
+        // Without constructor.
+        $filePayload = $ref->init();
+
+        return $ref->getMethod('createUploadedFile')
+            ->invoke($filePayload, $file);
+    }
 }

@@ -34,7 +34,7 @@ class FilesPayload extends Payload implements PayloadInterface, \Countable
 
         if ($this->okay) {
             // Take all uploaded file.
-            $files = $this->request->files();
+            $files = $this->request->files(false);
         }
 
         $this->files = $this->createFilePayloadList($files ?? []);
