@@ -7,7 +7,7 @@ namespace froq\app\data;
 
 use froq\database\entity\meta\{MetaParser, MetaException};
 use froq\validation\Validation;
-use Closure;
+use Closure, ReflectionNamedType;
 
 /**
  * Mapper class, maps properties from POST/GET data to DTO classes/instances.
@@ -189,6 +189,20 @@ class InputMapper
 
             // No rules will cause ValidationException.
             $okay = (new Validation($rules))->validate($data, $errors);
+        }
+        // Type castings.
+        else {
+            foreach ($props as $prop) {
+                if (isset($data[$prop->name]) && $prop->hasType()) {
+                    $type = $prop->getType();
+                    if ($type instanceof ReflectionNamedType
+                        && preg_test('~^(int|float|string|bool)$~', $type->getName())) {
+                        settype($data[$prop->name], $type->getName());
+
+                    }
+                }
+            }
+            unset($type);
         }
 
         // Set/re-set properties.
