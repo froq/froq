@@ -997,6 +997,23 @@ class Controller
 
                             $entity = false; // Reset.
                         }
+                        // Input interface (simple DTOs).
+                        elseif (is_subclass_of($paramTypeName, \froq\app\data\InputInterface::class)) {
+                            $mapper = new data\InputMapper($paramTypeName);
+                            $method = $this->request->getMethod();
+                            $params = $this->app->route['resolved'][$method][2]
+                                   ?? $this->app->route['resolved']['*'][2]
+                                   ?? [];
+
+                            $value = match ($method) {
+                                'POST', 'PUT', 'PATCH' =>
+                                    // Add post data after path params.
+                                    $value = $mapper->map($params + $_POST),
+                                default =>
+                                    // Add get data after path params.
+                                    $value = $mapper->map($params + $_GET),
+                            };
+                        }
                         // Inject all others.
                         elseif (class_exists($paramTypeName, true)) {
                             $value = is_subclass_of($paramTypeName, Repository::class)
