@@ -58,6 +58,17 @@ class Repository extends DatabaseRepository
     }
 
     /**
+     * Destructor.
+     */
+    public function __destruct()
+    {
+        // Call dinit() method if defined in subclass.
+        if (method_exists($this, 'dinit')) {
+            $this->dinit();
+        }
+    }
+
+    /**
      * Init a Repository instance.
      *
      * @param  string                   $name
