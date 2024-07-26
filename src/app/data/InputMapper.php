@@ -50,24 +50,24 @@ class InputMapper
      * Constructor.
      *
      * @param string|object|null  $do
-     * @param string              $source
+     * @param string|array        $source
      * @param string|Closure|null $apply
      */
     public function __construct(
         public readonly string|object $do,
-        public readonly string $source = 'post',
+        public readonly string|array $source = 'POST',
         public readonly string|Closure|null $apply = null
     ) {}
 
     /**
      * Map from POST/GET to self DTO.
      *
-     * @param  string|null          $source
+     * @param  string|array|null    $source
      * @param  string|callable|null $apply
      * @param  array|null           &$errors
      * @return object|null
      */
-    public function map(string $source = null, string|callable $apply = null, array &$errors = null): object|null
+    public function map(string|array $source = null, string|callable $apply = null, array &$errors = null): object|null
     {
         return self::mapTo($this->do, $source ?? $this->source, $apply ?? $this->apply, $errors);
     }
@@ -81,7 +81,7 @@ class InputMapper
      */
     public function mapPost(string|callable $apply = null, array &$errors = null): object|null
     {
-        return self::mapTo($this->do, 'post', $apply ?? $this->apply, $errors);
+        return self::mapTo($this->do, 'POST', $apply ?? $this->apply, $errors);
     }
 
     /**
@@ -93,20 +93,20 @@ class InputMapper
      */
     public function mapGet(string|callable $apply = null, array &$errors = null): object|null
     {
-        return self::mapTo($this->do, 'get', $apply ?? $this->apply, $errors);
+        return self::mapTo($this->do, 'GET', $apply ?? $this->apply, $errors);
     }
 
     /**
      * Map from POST/GET to self DTO.
      *
      * @param  string|object        $do
-     * @param  string|null          $source
+     * @param  string|array|null    $source
      * @param  string|callable|null $apply
      * @param  array|null           &$errors
      * @return object|null
      * @throws UndefinedClassError|UnimplementedError|Error
      */
-    public static function mapTo(string|object $do, string $source = 'post', string|callable $apply = null,
+    public static function mapTo(string|object $do, string|array $source = 'POST', string|callable $apply = null,
         array &$errors = null): object|null
     {
         try {
@@ -140,11 +140,16 @@ class InputMapper
             );
         }
 
-        $data = match (strtolower($source)) {
-            default => throw new \Error('Invalid source, valids: post, get'),
-            'post' => app()->request->post(map: $apply),
-            'get' => app()->request->get(map: $apply),
-        };
+        if (is_string($source)) {
+            $data = match (strtoupper($source)) {
+                default => throw new \Error('Invalid source, valids: POST, GET'),
+                'POST' => app()->request->post(map: $apply),
+                'GET' => app()->request->get(map: $apply),
+            };
+        } else {
+            $data = $apply ? map($source, $apply, recursive: true) : $source;
+            unset($source);
+        }
 
         $keys = []; $vars = [];
         foreach ($props as $prop) {
