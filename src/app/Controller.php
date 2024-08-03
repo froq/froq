@@ -11,6 +11,7 @@ use froq\http\{Request, Response, HttpException, request\Segments, response\Stat
     response\payload\PlainPayload, exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, util\Objects, file\Path};
 use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
+use froq\common\{interface\Reflectable, trait\ReflectTrait};
 use State;
 
 /**
@@ -21,8 +22,10 @@ use State;
  * @author  Kerem Güneş
  * @since   4.0, 6.0
  */
-class Controller
+class Controller implements Reflectable
 {
+    use ReflectTrait;
+
     /** Namespace of controllers. */
     public final const NAMESPACE      = 'app\controller';
 

@@ -6,6 +6,7 @@
 namespace froq\app;
 
 use froq\database\{Database, Repository as DatabaseRepository};
+use froq\common\{interface\Reflectable, trait\ReflectTrait};
 use froq\Autoloader;
 use State;
 
@@ -17,8 +18,10 @@ use State;
  * @author  Kerem Güneş
  * @since   6.0
  */
-class Repository extends DatabaseRepository
+class Repository extends DatabaseRepository implements Reflectable
 {
+    use ReflectTrait;
+
     /** Namespace of repositories. */
     public final const NAMESPACE = 'app\repository';
 
@@ -105,7 +108,7 @@ class Repository extends DatabaseRepository
             $done[$key] = true;
 
             // Subclass reflection.
-            $that = reflect($this);
+            $that = $this->reflect(true);
 
             // Path of data directory of that repository.
             $path = xpath($that->getDirectoryName() . '/data');
