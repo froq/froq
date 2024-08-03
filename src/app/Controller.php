@@ -10,7 +10,7 @@ use froq\http\{Request, Response, HttpException, request\Segments, response\Stat
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, util\Objects, file\Path};
-use ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
+use ReflectionObject, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 use froq\common\{interface\Reflectable, trait\ReflectTrait};
 use State;
 
@@ -809,6 +809,9 @@ class Controller implements Reflectable
         // Call action, merging with originals as rest (eg: fooAction($id, ...$rest)).
         $return = $this->$action(...[...$params, ...$paramsRest]);
 
+        // Prepare if return is a Resource.
+        $return = $this->prepareActionReturn($return);
+
         // Call after action if exists.
         $this->after && $this->after();
 
@@ -849,6 +852,9 @@ class Controller implements Reflectable
 
         // Call action, merging with originals as rest (eg: fooAction($id, ...$rest)).
         $return = $action(...[...$params, ...$paramsRest]);
+
+        // Prepare if return is a Resource.
+        $return = $this->prepareActionReturn($return);
 
         // Call after action if exists.
         $this->after && $this->after();
@@ -943,6 +949,28 @@ class Controller implements Reflectable
         }
 
         return new HttpException($message, $messageParams, code: $code, reduce: true);
+    }
+
+    /**
+     * Prepare a given return value that returned from an action call, if it was a `Resource` then create
+     * a `JsonPayload` using resource's data, else return the same given value.
+     */
+    private function prepareActionReturn(mixed $return): mixed
+    {
+        if ($return instanceof data\Resource) {
+            $ref = new ReflectionObject($return);
+            $status = $ref->getProperty('status')->getValue($return);
+            $options = $ref->getProperty('options')->getValue($return);
+
+            $attributes = [];
+            if ($options['indent'] !== false) {
+                $attributes['indent'] = (int) $options['indent'];
+            }
+
+            $return = new JsonPayload($status, $return->toArray(), $attributes);
+        }
+
+        return $return;
     }
 
     /**
