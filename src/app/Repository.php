@@ -6,6 +6,7 @@
 namespace froq\app;
 
 use froq\database\{Database, Repository as DatabaseRepository};
+use froq\Autoloader;
 use State;
 
 /**
@@ -55,6 +56,9 @@ class Repository extends DatabaseRepository
         if (method_exists($this, 'init')) {
             $this->init();
         }
+
+        // Load data files if any.
+        $this->loadDataFiles();
     }
 
     /**
@@ -80,5 +84,42 @@ class Repository extends DatabaseRepository
         $controller ??= $this->controller ?? new Controller();
 
         return $controller->initRepository($name, $controller, $controller->app->database);
+    }
+
+    /**
+     * Load data files in "/data" directory (eg: /Book/data/{BookDto.php, ...}).
+     *
+     * @return void
+     */
+    public function loadDataFiles(): void
+    {
+        // Once for every subclass.
+        static $done;
+
+        // Should subclass call be used.
+        if (($key = static::class) === self::class) {
+            return;
+        }
+
+        if (empty($done[$key])) {
+            $done[$key] = true;
+
+            // Subclass reflection.
+            $that = reflect($this);
+
+            // Path of data directory of that repository.
+            $path = xpath($that->getDirectoryName() . '/data');
+
+            if ($path->isDirectory()) {
+                $autoloader = Autoloader::init();
+                $classMap = $autoloader->getClassMap($path->name);
+
+                spl_autoload_register(function ($class) use ($classMap) {
+                    if (isset($classMap[$class])) {
+                        require $classMap[$class];
+                    }
+                });
+            }
+        }
     }
 }
