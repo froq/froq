@@ -43,6 +43,7 @@ class JsonPayload extends Payload implements PayloadInterface
         if (!JsonEncoder::isEncoded($content)) {
             // When given in config as "response.json" field.
             $options = (array) $this->response?->app->config('response.json');
+            $options['indent'] ??= $this->getAttribute('indent');
 
             $encoder = new JsonEncoder($options);
             $encoder->setInput($content);
