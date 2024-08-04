@@ -85,32 +85,6 @@ function app(): App
 }
 
 /**
- * Get app runtime result.
- *
- * @param  int  $precision
- * @param  bool $format
- * @return float|string
- * @since  4.0
- */
-function app_runtime(int $precision = 3, bool $format = false): float|string
-{
-    return app()->runtime($precision, $format);
-}
-
-/**
- * Get app config or default.
- *
- * @param  string|array $key
- * @param  mixed|null   $default
- * @return mixed
- * @since  4.0
- */
-function app_config(string|array $key, mixed $default = null): mixed
-{
-    return app()->config($key, $default);
-}
-
-/**
  * Get/set an app failure.
  *
  * @param  string     $name
