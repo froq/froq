@@ -1058,7 +1058,11 @@ class Controller implements Reflectable
                         }
                         // Inject all others.
                         elseif (class_exists($paramTypeName, true)) {
-                            if (is_subclass_of($paramTypeName, Repository::class)) {
+                            if (is_class_of($paramTypeName, Session::class)) {
+                                // Use current session of this controller if available.
+                                $value = isset($this->session) && ($this->session::class === $paramTypeName)
+                                    ? $this->session : new $paramTypeName((array) $this->app->config('session'));
+                            } elseif (is_subclass_of($paramTypeName, Repository::class)) {
                                 // Use current repository of this controller if available.
                                 $value = isset($this->repository) && ($this->repository::class === $paramTypeName)
                                     ? $this->repository : new $paramTypeName($this, $this->app->database);
