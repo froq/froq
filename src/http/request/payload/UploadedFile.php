@@ -212,7 +212,7 @@ class UploadedFile implements Arrayable, \ArrayAccess
 
                 return uuid(...$options);
             case 'suid':
-                $default = reflect('suid')->getParameterDefaults();
+                $default = reflect('suid', 'function')->getParameterDefaults();
                 $options = array_select($options, $default, combine: true);
 
                 return suid(...$options);
