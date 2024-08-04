@@ -1011,6 +1011,17 @@ class Controller implements Reflectable
                         elseif (is_subclass_of($paramTypeName, \froq\http\request\payload\Payload::class)) {
                             $value = new $paramTypeName($this->request);
                         }
+                        // Inject regular params payloads (Get (query), Post (body), Segments).
+                        elseif (is_subclass_of($paramTypeName, \froq\http\request\params\Params::class)) {
+                            $value = match (true) {
+                                is_class_of($paramTypeName, \froq\http\request\params\GetParams::class)
+                                    => new \froq\http\request\params\GetParams($_GET),
+                                is_class_of($paramTypeName, \froq\http\request\params\PostParams::class)
+                                    => new \froq\http\request\params\PostParams($_POST),
+                                is_class_of($paramTypeName, \froq\http\request\params\SegmentParams::class)
+                                    => new \froq\http\request\params\SegmentParams($this->segments()),
+                            };
+                        }
                         // Inject request DTO/VO, Entity objects if provided.
                         elseif (
                             ($entity = is_subclass_of($paramTypeName, \froq\database\entity\Entity::class))
