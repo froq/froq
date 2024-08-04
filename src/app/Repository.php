@@ -114,14 +114,14 @@ class Repository extends DatabaseRepository implements Reflectable
             $path = xpath($that->getDirectoryName() . '/data');
 
             if ($path->isDirectory()) {
+                $section = '@data';
                 $autoloader = Autoloader::init();
-                $classMap = $autoloader->getClassMap($path->name);
-
-                spl_autoload_register(function ($class) use ($classMap) {
-                    if (isset($classMap[$class])) {
-                        require $classMap[$class];
-                    }
-                });
+                if (!$autoloader->getClassMap($section)) {
+                    $autoloader->addClassMap(
+                        $autoloader->generateClassMap($path->getName()),
+                        $section
+                    );
+                }
             }
         }
     }

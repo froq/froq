@@ -80,6 +80,9 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     }
 
     /**
+     * Used by serializer methods and also array transformations of `$data` field.
+     * Applies filters and transforms if any given in subclass.
+     *
      * @note This method must be overridden if subclass business differs.
      * @inheritDoc Arrayable
      */

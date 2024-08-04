@@ -30,6 +30,9 @@ class Autoloader
     private static array $mapCache = [];
     private static array $nameCache = [];
 
+    /** Generated class map. */
+    private static array $classMap = [];
+
     /** Vendor (Froq!) directory. */
     private string $directory;
 
@@ -217,7 +220,7 @@ class Autoloader
             throw new \Exception('No directory exists such ' . APP_DIR . $directory);
         }
 
-        $map = $this->getClassMap($directoryReal);
+        $map = $this->generateClassMap($directoryReal);
 
         // Merge old map (if exists) with generated map.
         if ($oldMap = $this->getMap(false)) {
@@ -248,7 +251,7 @@ class Autoloader
      * @param  string $directory
      * @return array
      */
-    public function getClassMap(string $directory): array
+    public function generateClassMap(string $directory): array
     {
         /** @var RegexIterator<SplFileInfo> */
         $infos = new \RegexIterator(
@@ -303,6 +306,37 @@ class Autoloader
     }
 
     /**
+     * Add class map, optionally with a section.
+     *
+     * @param  array       $classMap
+     * @param  string|null $section
+     * @return void
+     */
+    public static function addClassMap(array $classMap, string $section = null): void
+    {
+        if ($section === null) {
+            self::$classMap += $classMap;
+        } else {
+            self::$classMap[$section] ??= [];
+            self::$classMap[$section] += $classMap;
+        }
+    }
+
+    /**
+     * Get class map, optionally with a section.
+     *
+     * @param  string|null $section
+     * @return array
+     */
+    public static function getClassMap(string $section = null): array
+    {
+        if ($section === null) {
+            return self::$classMap;
+        }
+        return self::$classMap[$section] ?? [];
+    }
+
+    /**
      * Get map, optionally using cache.
      *
      * @param  bool $cache
@@ -354,7 +388,27 @@ class Autoloader
      */
     public function getMappedFile(string $name): string|null
     {
-        return $this->getMap()[$name] ?? null;
+        if ($file = $this->getMap()[$name] ?? '') {
+            return $file;
+        }
+
+        foreach (self::$classMap as $class => $file) {
+            // Regular entries.
+            if ($class === $name) {
+                return $file;
+            }
+
+            // Section entries.
+            if (is_array($file)) {
+                foreach ($file as $class => $file) {
+                    if ($class === $name) {
+                        return $file;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
