@@ -1013,15 +1013,15 @@ class Controller implements Reflectable
                         }
                         // Inject request DTO/VO, Entity objects if provided.
                         elseif (
-                            is_subclass_of($paramTypeName, \froq\app\data\DataObject::class) ||
-                            is_subclass_of($paramTypeName, \froq\app\data\ValueObject::class) ||
                             ($entity = is_subclass_of($paramTypeName, \froq\database\entity\Entity::class))
+                            || is_subclass_of($paramTypeName, data\DataObject::class)
+                            || is_subclass_of($paramTypeName, data\ValueObject::class)
                         ) {
                             $value = new $paramTypeName();
                             $props = array_filter_keys($_POST, 'is_string');
 
                             foreach ($props as $name => $_) {
-                                empty($entity)
+                                empty($entity) // In if(..) above.
                                     ? $value->set($name, $props[$name])
                                     : $value->offsetSet($name, $props[$name]);
                             }
@@ -1029,7 +1029,7 @@ class Controller implements Reflectable
                             $entity = false; // Reset.
                         }
                         // Input interface (simple DTOs).
-                        elseif (is_subclass_of($paramTypeName, \froq\app\data\InputInterface::class)) {
+                        elseif (is_subclass_of($paramTypeName, data\InputInterface::class)) {
                             $mapper = new data\InputMapper($paramTypeName);
                             $method = $this->request->getMethod();
                             $params = $this->app->route['resolved'][$method][2]
