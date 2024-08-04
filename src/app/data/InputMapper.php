@@ -198,11 +198,9 @@ class InputMapper
                     if ($type instanceof ReflectionNamedType
                         && preg_test('~^(int|float|string|bool)$~', $type->getName())) {
                         settype($data[$prop->name], $type->getName());
-
                     }
                 }
             }
-            unset($type);
         }
 
         // Set/re-set properties.

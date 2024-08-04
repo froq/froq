@@ -1047,9 +1047,13 @@ class Controller implements Reflectable
                         }
                         // Inject all others.
                         elseif (class_exists($paramTypeName, true)) {
-                            $value = is_subclass_of($paramTypeName, Repository::class)
-                                ? new $paramTypeName($this, $this->app->database)
-                                : new $paramTypeName();
+                            if (is_subclass_of($paramTypeName, Repository::class)) {
+                                // Use current repository of this controller if available.
+                                $value = isset($this->repository) && ($this->repository::class === $paramTypeName)
+                                    ? $this->repository : new $paramTypeName($this, $this->app->database);
+                            } else {
+                                $value = new $paramTypeName();
+                            }
                         }
                     }
                 }
