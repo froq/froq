@@ -1015,11 +1015,11 @@ class Controller implements Reflectable
                         elseif (is_subclass_of($paramTypeName, \froq\http\request\params\Params::class)) {
                             $value = match (true) {
                                 is_class_of($paramTypeName, \froq\http\request\params\GetParams::class)
-                                    => new \froq\http\request\params\GetParams($_GET),
+                                    => new $paramTypeName($_GET),
                                 is_class_of($paramTypeName, \froq\http\request\params\PostParams::class)
-                                    => new \froq\http\request\params\PostParams($_POST),
+                                    => new $paramTypeName($_POST),
                                 is_class_of($paramTypeName, \froq\http\request\params\SegmentParams::class)
-                                    => new \froq\http\request\params\SegmentParams($this->segments()),
+                                    => new $paramTypeName($this->segments()),
                             };
                         }
                         // Inject request DTO/VO, Entity objects if provided.
