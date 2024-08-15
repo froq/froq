@@ -640,7 +640,9 @@ class App
 
         // Try, for call @default.error() method or make an error string as return.
         try {
-            $controller = $this->router->getOption('defaultController');
+            // Try to use resolved controller.
+            $controller = isset($this->route->resolved) ? first($this->route->resolved)[0]
+                : $this->router->getOption('defaultController');
 
             // Check default controller & controller (error) method.
             if (!class_exists($controller)) {
