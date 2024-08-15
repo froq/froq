@@ -12,7 +12,7 @@ use froq\http\{Request, Response, HttpException, request\Segments, response\Stat
 use froq\{App, Router, session\Session, database\Database, util\Objects, file\Path};
 use ReflectionObject, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 use froq\common\{interface\Reflectable, trait\ReflectTrait};
-use State;
+use State, Throwable;
 
 /**
  * Base class of `app\controller` classes.
@@ -919,7 +919,38 @@ class Controller implements Reflectable
     }
 
     /**
-     * Create a `HttpException` instance by given code.
+     * Check if given exception is an `HttpException` instance.
+     *
+     * @param  Throwable|null $e
+     * @param  bool           $checkCause
+     * @return bool
+     */
+    public static final function isHttpException(Throwable|null $e, bool $checkCause = true): bool
+    {
+        if ($checkCause) {
+            $cause = $e?->cause ?? null;
+            return ($cause instanceof HttpException);
+        }
+
+        return ($e instanceof HttpException);
+    }
+
+    /**
+     * Throw an `HttpException` instance by given code.
+     *
+     * @param  int         $code
+     * @param  string|null $message
+     * @param  mixed|null  $messageParams
+     * @return void
+     * @throws froq\http\HttpException
+     */
+    public static final function throwHttpException(int $code, string $message = null, mixed $messageParams = null): void
+    {
+        throw self::createHttpException($code, $message, $messageParams);
+    }
+
+    /**
+     * Create an `HttpException` instance by given code.
      *
      * If a `froq\http\exception\client` or `froq\http\exception\server` is exists by given (status) code, then
      * that exception's instance will be returned (eg: froq\http\exception\client\NotFoundException for 404 code),
