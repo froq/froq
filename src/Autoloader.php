@@ -189,7 +189,7 @@ class Autoloader
     public function loadSugars(): void
     {
         is_file($file = $this->directory . '/froq-util/src/sugars.php')
-            ? load($file, true) : throw new \Exception('Froq sugars file "' . $file . '" not found!');
+            ? load($file, true) : throw new \Exception("Froq sugars file '{$file}' not found");
     }
 
     /**
