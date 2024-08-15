@@ -6,7 +6,9 @@
 namespace froq;
 
 // Prevent static return collision etc.
-function load($file) { require $file; }
+function load($file, $once = false) {
+    $once ? require_once $file : require $file;
+}
 
 /**
  * Autoloader.
@@ -44,7 +46,7 @@ class Autoloader
      */
     private function __construct(string $directory = null)
     {
-        $directory ??= realpath(__DIR__ . '/../../../../vendor/froq');
+        $directory = realpath($directory ?? __DIR__ . '/../../../../vendor/froq');
 
         if (!$directory || !is_dir($directory)) {
             throw new \Exception('Froq folder not found');
@@ -174,6 +176,20 @@ class Autoloader
             && !trait_exists($name, false) && !enum_exists($name, false)) {
             $this->load($name);
         }
+    }
+
+    /**
+     * Load sugars (global helper functions) from util module.
+     *
+     * Note: For tests only (see sample/test/boot.php).
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function loadSugars(): void
+    {
+        is_file($file = $this->directory . '/froq-util/src/sugars.php')
+            ? load($file, true) : throw new \Exception('Froq sugars file "' . $file . '" not found!');
     }
 
     /**
