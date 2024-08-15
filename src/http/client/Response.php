@@ -6,6 +6,7 @@
 namespace froq\http\client;
 
 use froq\util\mapper\Mapper;
+use JsonError;
 
 /**
  * A server response class.
@@ -98,29 +99,15 @@ class Response extends Message
     /**
      * Get parsed body (parse if JSON'ed).
      *
-     * @param  bool $array
+     * @param  bool           $array
+     * @param  JsonError|null &$error
      * @return mixed|null
-     * @throws JsonError
      */
-    public function getParsedBody(bool $array = true): mixed
+    public function getParsedBody(bool $array = true, JsonError &$error = null): mixed
     {
         $decodedBody = (string) $this->getDecodedBody();
 
-        if ($decodedBody !== '') {
-            $contentType = $this->getHeader('content-type', '');
-
-            if (str_contains($contentType, 'json')) {
-                $parsedBody = json_decode($decodedBody, $array, flags: JSON_BIGINT_AS_STRING);
-
-                if ($error = json_error_message($code)) {
-                    throw new \JsonError($error, code: $code);
-                }
-
-                return $parsedBody;
-            }
-        }
-
-        return null;
+        return json_unserialize($decodedBody, $array, $error);
     }
 
     /**
