@@ -21,8 +21,11 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     /** HTTP status. */
     protected int $status = 200;
 
-    /** Main fields. */
-    protected array|null $data, $meta, $error;
+    /** Data & meta fields. */
+    protected array|null $data, $meta;
+
+    /** Error field. */
+    protected array|string|null $error;
 
     /** Options. */
     protected array $options = ['indent' => false];
@@ -36,15 +39,15 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     /**
      * Constructor.
      *
-     * @param array|null $data
-     * @param array|null $meta
-     * @param array|null $error
-     * @param int        $status
-     * @param array      $options
+     * @param array|null        $data
+     * @param array|null        $meta
+     * @param array|string|null $error
+     * @param int               $status
+     * @param array             $options
      */
     public function __construct(
-        ?array $data = [], ?array $meta = null,
-        ?array $error = null, int $status = 200,
+        array|null $data = [], array|null $meta = null,
+        array|string|null $error = null, int $status = 200,
         array $options = []
     )
     {
@@ -89,6 +92,7 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     public function toArray(): array
     {
         $data = $this->data;
+
         if ($data && $this->filters) {
             $data = $this->filterFields($data);
         }
@@ -110,7 +114,7 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
      * @param  array|null $data
      * @return self
      */
-    public function withData(?array $data): self
+    public function withData(array|null $data): self
     {
         $this->data = $data;
 
@@ -123,7 +127,7 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
      * @param  array|null $meta
      * @return self
      */
-    public function withMeta(?array $meta): self
+    public function withMeta(array|null $meta): self
     {
         $this->meta = $meta;
 
@@ -133,10 +137,10 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     /**
      * Assign error field.
      *
-     * @param  array|null $error
+     * @param  array|string|null $error
      * @return self
      */
-    public function withError(?array $error): self
+    public function withError(array|string|null $error): self
     {
         $this->error = $error;
 
