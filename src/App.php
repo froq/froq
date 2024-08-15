@@ -736,6 +736,11 @@ class App
                 $content = $this->eventManager->fire('output', $content);
             }
 
+            // For data resource contents.
+            if ($content instanceof app\data\Resource) {
+                $content = $content->toJsonPayload();
+            }
+
             $this->response->setBody($content, $attributes);
         }
         // Handle non-body responses.

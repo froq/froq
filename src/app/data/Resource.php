@@ -5,7 +5,8 @@
  */
 namespace froq\app\data;
 
-use froq\common\interface\Arrayable;
+use froq\common\interface\{Arrayable, Jsonable};
+use froq\http\response\payload\JsonPayload;
 
 /**
  * Resource class for JSON responses, provides some utilities like filtering and transforming
@@ -16,7 +17,7 @@ use froq\common\interface\Arrayable;
  * @author  Kerem Güneş
  * @since   7.0
  */
-class Resource implements Arrayable, \Stringable, \JsonSerializable
+class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
 {
     /** HTTP status. */
     protected int $status = 200;
@@ -61,21 +62,18 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
      * or callCallable() method).
      *
      * @note This method must be overridden if subclass business differs.
-     * @inheritDoc Stringable
+     * @inheritDoc
      */
     public function __toString(): string
     {
-        return json_serialize(
-            $this->toArray(),
-            indent: (int) $this->options['indent']
-        );
+        return $this->toJson();
     }
 
     /**
      * Used by JsonPayload for JSON serialization.
      *
      * @note This method must be overridden if subclass business differs.
-     * @inheritDoc JsonSerializable
+     * @inheritDoc
      */
     public function jsonSerialize(): mixed
     {
@@ -106,6 +104,35 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
             'meta'   => $this->meta,
             'error'  => $this->error
         ];
+    }
+
+    /**
+     * Convert this resource to JSON string.
+     *
+     * @note This method must be overridden if subclass business differs.
+     * @inheritDoc
+     */
+    public function toJson(int $flags = 0): string
+    {
+        return json_serialize(
+            $this->toArray(),
+            indent: (int) $this->options['indent']
+        );
+    }
+
+    /**
+     * Convert this resource to JsonPayload instance.
+     *
+     * @return froq\http\response\payload\JsonPayload
+     */
+    public function toJsonPayload(): JsonPayload
+    {
+        $attributes = [];
+        if ($this->options['indent'] !== false) {
+            $attributes['indent'] = (int) $this->options['indent'];
+        }
+
+        return new JsonPayload($this->status, $this->toArray(), $attributes);
     }
 
     /**

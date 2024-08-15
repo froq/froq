@@ -983,22 +983,13 @@ class Controller implements Reflectable
     }
 
     /**
-     * Prepare a given return value that returned from an action call, if it was a `Resource` then create
+     * Prepare a given return value that returned from an action call, if it's a `Resource` then create
      * a `JsonPayload` using resource's data, else return the same given value.
      */
     private function prepareActionReturn(mixed $return): mixed
     {
         if ($return instanceof data\Resource) {
-            $ref = new ReflectionObject($return);
-            $status = $ref->getProperty('status')->getValue($return);
-            $options = $ref->getProperty('options')->getValue($return);
-
-            $attributes = [];
-            if ($options['indent'] !== false) {
-                $attributes['indent'] = (int) $options['indent'];
-            }
-
-            $return = new JsonPayload($status, $return->toArray(), $attributes);
+            return $return->toJsonPayload();
         }
 
         return $return;
