@@ -27,6 +27,7 @@ class Statuses
 
         // Successes (2xx).
         OK                              = 200,
+        OKAY                            = 200, // @alias
         CREATED                         = 201,
         ACCEPTED                        = 202,
         NON_AUTHORITATIVE_INFORMATION   = 203,
