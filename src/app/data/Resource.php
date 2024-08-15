@@ -25,7 +25,7 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     protected array|null $data, $meta;
 
     /** Error field. */
-    protected array|string|null $error;
+    protected mixed $error;
 
     /** Options. */
     protected array $options = ['indent' => false];
@@ -39,15 +39,15 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     /**
      * Constructor.
      *
-     * @param array|null        $data
-     * @param array|null        $meta
-     * @param array|string|null $error
-     * @param int               $status
-     * @param array             $options
+     * @param array|null  $data
+     * @param array|null  $meta
+     * @param mixed       $error
+     * @param int         $status
+     * @param array       $options
      */
     public function __construct(
-        array|null $data = [], array|null $meta = null,
-        array|string|null $error = null, int $status = 200,
+        array|null $data = null, array|null $meta = null,
+        mixed $error = null, int $status = 200,
         array $options = []
     )
     {
@@ -137,10 +137,10 @@ class Resource implements Arrayable, \Stringable, \JsonSerializable
     /**
      * Assign error field.
      *
-     * @param  array|string|null $error
+     * @param  mixed $error
      * @return self
      */
-    public function withError(array|string|null $error): self
+    public function withError(mixed $error): self
     {
         $this->error = $error;
 
