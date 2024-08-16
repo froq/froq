@@ -491,7 +491,6 @@ class App
         try {
             // For clean-up.
             $ref = new \Reference(
-                nil: Nil(), // Null alternative.
                 method: new \XReflectionMethod($controller, '__construct'),
                 arguments: [], options: []
             );
@@ -515,21 +514,21 @@ class App
                     /** @var \XReflectionType */
                     $ref->paramType = $ref->param->getType();
 
-                    if (!$ref->paramType || !$ref->paramType->isClass()) {
+                    if (!$ref->paramType?->isClass()) {
                         continue;
                     }
 
                     $ref->paramName    = $ref->param->getName();
-                    $ref->paramDefault = $ref->param->getDefaultValue($ref->nil);
+                    $ref->paramDefault = $ref->param->getDefaultValue(nil);
 
-                    if ($ref->paramDefault !== $ref->nil) {
+                    if ($ref->paramDefault !== nil) {
                         $ref->arguments[$ref->paramName] = $ref->paramDefault;
                     } else {
                         $ref->paramClass = $ref->paramType->getName();
 
                         if (!class_exists($ref->paramClass)) {
                             throw new AppException(
-                                'Promoted constructor parameter %s::$%s type class %s not exists',
+                                'Promoted constructor parameter %s::$%s class %s not exists',
                                 [$controller, $ref->paramName, $ref->paramClass]
                             );
                         }
@@ -547,7 +546,9 @@ class App
 
                     // Initialization "very" needed there (@see Controller).
                     if ($ref->parent->getName() === app\Controller::class) {
-                        $ref->parent->getConstructor()->invoke($controller, ...['app' => $this, ...$ref->options]);
+                        $ref->parent->getConstructor()->invoke(
+                            $controller, ...['app' => $this, ...$ref->options]
+                        );
                     }
                 }
             }
