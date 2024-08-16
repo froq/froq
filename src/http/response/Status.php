@@ -5,6 +5,9 @@
  */
 namespace froq\http\response;
 
+use froq\file\Finder;
+use XArray;
+
 /**
  * An HTTP Status Code class with some utility methods, and used by response class.
  *
@@ -214,38 +217,32 @@ class Status extends Statuses
     }
 
     /**
-     * Get class map.
+     * Get HTTP exceptions.
      *
-     * @param  string|null $kind Valids: client, server.
+     * @param  string|null $group Valids: client, server.
      * @return array<string, int>
+     * @internal
      */
-    public static function getClassMap(string $kind = null): array
+    public static function getHttpExceptions(string $group = null): array
     {
         static $ret;
 
-        $ret ??= (new \froq\file\Finder(__DIR__ . '/../../http/exception'))
+        $ret ??= (new Finder(__DIR__ . '/../../http/exception'))
             ->xglob('/{client,server}/*', flags: GLOB_BRACE, map: false)
-            ->reduce([], function (array $ret, string $entry): array {
-                $class = preg_replace(
-                    ['~.+/src/(.+)\.php~', '~/+~'],
-                    ['froq/$1', '\\'],
-                    $entry
-                );
+            ->forEach(function (string $file, int $key, XArray $ret): void {
+                // Use file names as class names, transform dirsep to nssep.
+                $class = preg_replace(['~.+/src/(.+)\.php~', '~/+~'], ['froq/$1', '\\'], $file);
 
-                $ret[$class] = $class::CODE;
+                // Drop old values, set keys/values.
+                $ret->repose($key, [$class, $class::CODE]);
+            });
 
-                return $ret;
-            })
-        ;
-
-        asort($ret);
-
-        if ($kind) {
-            $ret = array_filter_keys($ret, function (string $class) use ($kind): bool {
-                return str_contains($class, '\\' . $kind);
+        if ($group) {
+            $ret->filterKeys(function (string $class) use ($group): bool {
+                return str_contains($class, '\\' . $group);
             });
         }
 
-        return $ret;
+        return $ret->sort()->toArray();
     }
 }

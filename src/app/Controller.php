@@ -968,7 +968,8 @@ class Controller implements Reflectable
 
             if ($name) {
                 $class = array_find_key(
-                    Status::getClassMap(), fn($cod) => $cod === $code,
+                    Status::getHttpExceptions(),
+                    fn($cod) => $cod === $code,
                     reverse: ($code === 500)
                 );
 
