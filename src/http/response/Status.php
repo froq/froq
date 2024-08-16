@@ -216,7 +216,7 @@ class Status extends Statuses
     /**
      * Get class map.
      *
-     * @param  string|null $kind
+     * @param  string|null $kind Valids: client, server.
      * @return array<string, int>
      */
     public static function getClassMap(string $kind = null): array
