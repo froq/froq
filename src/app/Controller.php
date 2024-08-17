@@ -1014,119 +1014,115 @@ class Controller implements Reflectable
                 $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null
             );
 
-            if ($param->hasType()) {
-                $paramType = $param->getType();
+            if (($paramType = $param->getType()) && ($paramType instanceof ReflectionNamedType)) {
+                $paramTypeName = $paramType->getName();
 
-                if ($paramType instanceof ReflectionNamedType) {
-                    $paramTypeName = $paramType->getName();
-
-                    // Cast param type if built-ins (scalars) only.
-                    if ($paramType->isBuiltin() && preg_test('~int|float|string|bool~', $paramTypeName)) {
-                        settype($value, $paramTypeName);
+                // Cast param type if built-ins (scalars) only.
+                if ($paramType->isBuiltin() && preg_test('~int|float|string|bool~', $paramTypeName)) {
+                    settype($value, $paramTypeName);
+                }
+                // Injections.
+                elseif ($value === null) {
+                    // Inject Request & Response objects if provided (express style).
+                    if ($paramTypeName === Request::class || $paramTypeName === Response::class) {
+                        $value = ($paramTypeName === Request::class) ? $this->request : $this->response;
                     }
-                    // Injections.
-                    elseif ($value === null) {
-                        // Inject Request & Response objects if provided (express style).
-                        if ($paramTypeName === Request::class || $paramTypeName === Response::class) {
-                            $value = ($paramTypeName === Request::class) ? $this->request : $this->response;
+                    // Inject request payload objects if provided.
+                    elseif (is_subclass_of($paramTypeName, \froq\http\request\payload\Payload::class)) {
+                        $value = new $paramTypeName($this->request);
+                    }
+                    // Inject regular params payloads (Get (query), Post (body), Segments).
+                    elseif (is_subclass_of($paramTypeName, \froq\http\request\params\Params::class)) {
+                        $value = match (true) {
+                            is_class_of($paramTypeName, \froq\http\request\params\GetParams::class)
+                                => new $paramTypeName($_GET),
+                            is_class_of($paramTypeName, \froq\http\request\params\PostParams::class)
+                                => new $paramTypeName($_POST),
+                            is_class_of($paramTypeName, \froq\http\request\params\SegmentParams::class)
+                                => new $paramTypeName($this->segments()),
+                        };
+                    }
+                    // Inject request DTO/VO, Entity objects if provided.
+                    elseif (
+                        ($entity = is_subclass_of($paramTypeName, \froq\database\entity\Entity::class))
+                        || is_subclass_of($paramTypeName, data\DataObject::class)
+                        || is_subclass_of($paramTypeName, data\ValueObject::class)
+                    ) {
+                        $value = new $paramTypeName();
+                        $props = array_filter_keys($_POST, 'is_string');
+
+                        foreach ($props as $name => $_) {
+                            empty($entity) // In if(..) above.
+                                ? $value->set($name, $props[$name])
+                                : $value->offsetSet($name, $props[$name]);
                         }
-                        // Inject request payload objects if provided.
-                        elseif (is_subclass_of($paramTypeName, \froq\http\request\payload\Payload::class)) {
-                            $value = new $paramTypeName($this->request);
+
+                        $entity = false; // Reset.
+                    }
+                    // Input interface (simple DTOs).
+                    elseif (is_subclass_of($paramTypeName, data\InputInterface::class)) {
+                        $mapper = new data\InputMapper($paramTypeName);
+                        $method = $this->request->getMethod();
+                        $params = $this->app->route['resolved'][$method][2]
+                               ?? $this->app->route['resolved']['*'][2]
+                               ?? [];
+
+                        $value = match ($method) {
+                            'POST', 'PUT', 'PATCH' =>
+                                // Add post data after path params.
+                                $value = $mapper->map($params + $_POST),
+                            default =>
+                                // Add get data after path params.
+                                $value = $mapper->map($params + $_GET),
+                        };
+                    }
+                    // Inject others if no default given (including NULLs).
+                    elseif (!$param->isDefaultValueAvailable()) {
+                        if (!class_exists($paramTypeName) && !interface_exists($paramTypeName)) {
+                            throw new ControllerException(
+                                'Injected parameter class or interface %s not found for %s::%s()',
+                                [$paramTypeName, static::class, $ref->name, $param->name]
+                            );
                         }
-                        // Inject regular params payloads (Get (query), Post (body), Segments).
-                        elseif (is_subclass_of($paramTypeName, \froq\http\request\params\Params::class)) {
-                            $value = match (true) {
-                                is_class_of($paramTypeName, \froq\http\request\params\GetParams::class)
-                                    => new $paramTypeName($_GET),
-                                is_class_of($paramTypeName, \froq\http\request\params\PostParams::class)
-                                    => new $paramTypeName($_POST),
-                                is_class_of($paramTypeName, \froq\http\request\params\SegmentParams::class)
-                                    => new $paramTypeName($this->segments()),
-                            };
-                        }
-                        // Inject request DTO/VO, Entity objects if provided.
-                        elseif (
-                            ($entity = is_subclass_of($paramTypeName, \froq\database\entity\Entity::class))
-                            || is_subclass_of($paramTypeName, data\DataObject::class)
-                            || is_subclass_of($paramTypeName, data\ValueObject::class)
-                        ) {
-                            $value = new $paramTypeName();
-                            $props = array_filter_keys($_POST, 'is_string');
 
-                            foreach ($props as $name => $_) {
-                                empty($entity) // In if(..) above.
-                                    ? $value->set($name, $props[$name])
-                                    : $value->offsetSet($name, $props[$name]);
-                            }
+                        if (is_class_of($paramTypeName, Session::class)) {
+                            // Use current session of this controller if available.
+                            $value = isset($this->session) && ($this->session::class === $paramTypeName)
+                                ? $this->session : new $paramTypeName((array) $this->app->config('session'));
+                        } elseif (is_subclass_of($paramTypeName, Repository::class)) {
+                            // Use current repository of this controller if available.
+                            $value = isset($this->repository) && ($this->repository::class === $paramTypeName)
+                                ? $this->repository : new $paramTypeName($this, $this->app->database);
+                        } else {
+                            // Use registered service if present or create a new one.
+                            $service = $this->app->service($paramTypeName);
+                            $register = false;
 
-                            $entity = false; // Reset.
-                        }
-                        // Input interface (simple DTOs).
-                        elseif (is_subclass_of($paramTypeName, data\InputInterface::class)) {
-                            $mapper = new data\InputMapper($paramTypeName);
-                            $method = $this->request->getMethod();
-                            $params = $this->app->route['resolved'][$method][2]
-                                   ?? $this->app->route['resolved']['*'][2]
-                                   ?? [];
+                            if ($service === null) {
+                                $pref = new ReflectionClass($paramTypeName);
+                                $conf = $this->app->config('services');
 
-                            $value = match ($method) {
-                                'POST', 'PUT', 'PATCH' =>
-                                    // Add post data after path params.
-                                    $value = $mapper->map($params + $_POST),
-                                default =>
-                                    // Add get data after path params.
-                                    $value = $mapper->map($params + $_GET),
-                            };
-                        }
-                        // Inject others if no default given (including NULLs).
-                        elseif (!$param->isDefaultValueAvailable()) {
-                            if (!class_exists($paramTypeName) && !interface_exists($paramTypeName)) {
-                                throw new ControllerException(
-                                    'Injected parameter class or interface %s not found for %s::%s()',
-                                    [$paramTypeName, static::class, $ref->name, $param->name]
-                                );
-                            }
-
-                            if (is_class_of($paramTypeName, Session::class)) {
-                                // Use current session of this controller if available.
-                                $value = isset($this->session) && ($this->session::class === $paramTypeName)
-                                    ? $this->session : new $paramTypeName((array) $this->app->config('session'));
-                            } elseif (is_subclass_of($paramTypeName, Repository::class)) {
-                                // Use current repository of this controller if available.
-                                $value = isset($this->repository) && ($this->repository::class === $paramTypeName)
-                                    ? $this->repository : new $paramTypeName($this, $this->app->database);
-                            } else {
-                                // Use registered service if present or create a new one.
-                                $service = $this->app->service($paramTypeName);
-                                $register = false;
-
-                                if ($service === null) {
-                                    $pref = new ReflectionClass($paramTypeName);
-                                    $conf = $this->app->config('services');
-
-                                    // Check for interface injections.
-                                    if ($pref->isInterface() && empty($conf[$paramTypeName])) {
-                                        throw new ControllerException(
-                                            'Injected parameter interface %s not found in config for %s::%s()',
-                                            [$paramTypeName, static::class, $ref->name, $param->name]
-                                        );
-                                    } else {
-                                        // Regular class injections.
-                                        $service = new $paramTypeName();
-                                        $register = true;
-                                    }
-                                } elseif (is_callable($service)) {
-                                    $service = $service();
+                                // Check for interface injections.
+                                if ($pref->isInterface() && empty($conf[$paramTypeName])) {
+                                    throw new ControllerException(
+                                        'Injected parameter interface %s not found in config for %s::%s()',
+                                        [$paramTypeName, static::class, $ref->name, $param->name]
+                                    );
+                                } else {
+                                    // Regular class injections.
+                                    $service = new $paramTypeName();
                                     $register = true;
                                 }
+                            } elseif (is_callable($service)) {
+                                $service = $service();
+                                $register = true;
+                            }
 
-                                if (is_object($service)) {
-                                    // Register service to use later, in case.
-                                    $register && $this->app->service($paramTypeName, $service);
+                            if (is_object($service)) {
+                                // Register service to use later, in case.
+                                $register && $this->app->service($paramTypeName, $service);
 
-                                    $value = $service;
-                                }
+                                $value = $service;
                             }
                         }
                     }
