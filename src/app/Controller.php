@@ -10,7 +10,7 @@ use froq\http\{Request, Response, HttpException, request\Segments, response\Stat
     response\payload\HtmlPayload, response\payload\FilePayload, response\payload\ImagePayload,
     response\payload\PlainPayload, exception\client\NotFoundException};
 use froq\{App, Router, session\Session, database\Database, util\Objects, file\Path};
-use ReflectionObject, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
+use ReflectionClass, ReflectionMethod, ReflectionFunction, ReflectionNamedType, ReflectionException;
 use froq\common\{interface\Reflectable, trait\ReflectTrait};
 use State, Throwable;
 
@@ -1079,8 +1079,15 @@ class Controller implements Reflectable
                                     $value = $mapper->map($params + $_GET),
                             };
                         }
-                        // Inject all others.
-                        elseif (class_exists($paramTypeName, true)) {
+                        // Inject others if no default given (including NULLs).
+                        elseif (!$param->isDefaultValueAvailable()) {
+                            if (!class_exists($paramTypeName) && !interface_exists($paramTypeName)) {
+                                throw new ControllerException(
+                                    'Injected parameter class or interface %s not found for %s::%s()',
+                                    [$paramTypeName, static::class, $ref->name, $param->name]
+                                );
+                            }
+
                             if (is_class_of($paramTypeName, Session::class)) {
                                 // Use current session of this controller if available.
                                 $value = isset($this->session) && ($this->session::class === $paramTypeName)
@@ -1090,7 +1097,36 @@ class Controller implements Reflectable
                                 $value = isset($this->repository) && ($this->repository::class === $paramTypeName)
                                     ? $this->repository : new $paramTypeName($this, $this->app->database);
                             } else {
-                                $value = new $paramTypeName();
+                                // Use registered service if present or create a new one.
+                                $service = $this->app->service($paramTypeName);
+                                $register = false;
+
+                                if ($service === null) {
+                                    $pref = new ReflectionClass($paramTypeName);
+                                    $conf = $this->app->config('services');
+
+                                    // Check for interface injections.
+                                    if ($pref->isInterface() && empty($conf[$paramTypeName])) {
+                                        throw new ControllerException(
+                                            'Injected parameter interface %s not found in config for %s::%s()',
+                                            [$paramTypeName, static::class, $ref->name, $param->name]
+                                        );
+                                    } else {
+                                        // Regular class injections.
+                                        $service = new $paramTypeName();
+                                        $register = true;
+                                    }
+                                } elseif (is_callable($service)) {
+                                    $service = $service();
+                                    $register = true;
+                                }
+
+                                if (is_object($service)) {
+                                    // Register service to use later, in case.
+                                    $register && $this->app->service($paramTypeName, $service);
+
+                                    $value = $service;
+                                }
                             }
                         }
                     }

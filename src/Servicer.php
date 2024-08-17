@@ -61,20 +61,32 @@ class Servicer
     public function addService(string $name, array|object|callable $service): self
     {
         if (is_array($service)) {
-            [$class, $classArgs] = array_select($service, [0, 1]);
+            [$class, $classArgs, $options] = array_pad($service, 3, null);
 
-            if (!$class) {
+            if (!is_string($class)) {
                 throw new ServicerException(
-                    'Service class must be provided and fully named '.
-                    'for array-ed service registrations'
+                    'Service class must be provided as string and fully '.
+                    'named for array-ed service registrations'
                 );
             } elseif (!class_exists($class)) {
                 throw new ServicerException(
-                    'Service class %q not found', $class
+                    'Service class %q not found',
+                    $class
                 );
             }
 
-            $this->services[$name] = new $class(...(array) $classArgs);
+            if (is_bool($options)) {
+                $options = ['once' => $options];
+            }
+
+            // Init once as default.
+            $options['once'] ??= true;
+
+            if (!empty($options['once']) && !empty($this->services[$name])) {
+                // Pass, already inited and present.
+            } else {
+                $this->services[$name] = new $class(...(array) $classArgs);
+            }
         } else {
             $this->services[$name] = $service;
         }

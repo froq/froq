@@ -292,20 +292,36 @@ class App
     }
 
     /**
-     * Add/get a service.
+     * Add/get/remove a service.
      *
-     * @param  string                $name
-     * @param  object|callable|array $service
-     * @return object|callable|null
+     * @param  string                     $name
+     * @param  object|callable|array|null $service
+     * @return object|callable|self|null
      * @since  4.0
      */
     public function service(string $name, object|callable|array $service = null): object|callable|null
     {
-        return (
-            func_num_args() === 1
-                ? $this->servicer->getService($name)
-                : $this->servicer->addService($name, $service)
-        );
+        if (func_num_args() === 1) {
+            return $this->servicer->getService($name);
+        }
+
+        if ($service === null) {
+            $this->servicer->removeService($name);
+        } else {
+            $this->servicer->addService($name, $service);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get all services.
+     *
+     * @return array
+     */
+    public function services(): array
+    {
+        return $this->servicer->services();
     }
 
     /**
@@ -321,6 +337,16 @@ class App
     public function config(string|array $key, mixed $default = null): mixed
     {
         return $this->config->get($key, $default);
+    }
+
+    /**
+     * Get all configs.
+     *
+     * @return array
+     */
+    public function configs(): array
+    {
+        return $this->config->toArray();
     }
 
     /**
@@ -361,7 +387,7 @@ class App
             }
 
             // Apply dotenv configs (dropping config entrty).
-            if ($dotenv = array_get($configs, 'dotenv', drop: true)) {
+            if ($dotenv = array_get($configs, 'dotenv')) {
                 $this->applyDotEnvConfigs(
                     Config::parseDotEnv($dotenv['file']),
                     !!($dotenv['global'] ?? false), // @default=false
@@ -396,8 +422,8 @@ class App
         $this->request->uri->generateSegments($this->root);
 
         // Note: These options can be emptied by developer to disable all with "null" if app won't
-        // be using database/session/cache. Also, "drop" removes sensitive config data after using.
-        [$database, $session, $cache] = $this->config->get(['database', 'session', 'cache'], drop: true);
+        // be using database/session/cache.
+        [$database, $session, $cache] = $this->config->get(['database', 'session', 'cache']);
 
         if ($database) {
             Assert::type($database, 'array', new AppException(
@@ -495,7 +521,7 @@ class App
                 arguments: [], options: []
             );
 
-            // Promoted constructor parameters.
+            // Constructor parameters.
             if ($ref->method->class === app\Controller::class) {
                 $controller = new $controller($this);
             } else {
@@ -507,9 +533,10 @@ class App
                         $ref->options[$ref->param->name] = $ref->param->getValue();
                     }
 
-                    if (!$ref->param->isPromoted()) {
-                        continue;
-                    }
+                    // @cancel
+                    // if (!$ref->param->isPromoted()) {
+                    //     continue;
+                    // }
 
                     /** @var \XReflectionType */
                     $ref->paramType = $ref->param->getType();
@@ -526,15 +553,52 @@ class App
                     } else {
                         $ref->paramClass = $ref->paramType->getName();
 
-                        if (!class_exists($ref->paramClass)) {
+                        if (!class_exists($ref->paramClass) && !interface_exists($ref->paramClass)) {
                             throw new AppException(
-                                'Promoted constructor parameter %s::$%s class %s not exists',
+                                'Constructor parameter %s::$%s class or interface %s not found',
                                 [$controller, $ref->paramName, $ref->paramClass]
                             );
                         }
 
+                        if (is_class_of($ref->paramClass, Session::class)) {
+                            // Use current session of this app if available.
+                            $ref->paramValue = $this->session && ($this->session::class === $ref->paramClass)
+                                ? $this->session : new $ref->paramClass((array) $this->config('session'));
+                        } else {
+                            // Use registered service if present or create a new one.
+                            $service = $this->service($ref->paramClass);
+                            $register = false;
+
+                            if ($service === null) {
+                                $pref = new \ReflectionClass($ref->paramClass);
+                                $conf = $this->config('services');
+
+                                // Check for interface injections.
+                                if ($pref->isInterface() && empty($conf[$ref->paramClass])) {
+                                    throw new AppException(
+                                        'Constructor parameter %s::$%s interface %s not found in config',
+                                        [$controller, $ref->paramName, $ref->paramClass]
+                                    );
+                                } else {
+                                    // Regular class injections.
+                                    $service = new $ref->paramClass();
+                                    $register = true;
+                                }
+                            } elseif (is_callable($service)) {
+                                $service = $service();
+                                $register = true;
+                            }
+
+                            if (is_object($service)) {
+                                // Register service to use later, in case.
+                                $register && $this->service($ref->paramClass, $service);
+
+                                $ref->paramValue = $service;
+                            }
+                        }
+
                         // An argument with parameter class instance.
-                        $ref->arguments[$ref->paramName] = new $ref->paramClass;
+                        $ref->arguments[$ref->paramName] = $ref->paramValue;
                     }
                 }
 
