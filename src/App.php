@@ -382,15 +382,18 @@ class App
 
         if ($configs) {
             // Set router options first (for proper error() process).
-            if ($router = array_get($configs, 'router')) {
+            if ($router = value($configs, 'router')) {
                 $this->router->setOptions($router);
             }
 
-            // Apply dotenv configs (dropping config entrty).
-            if ($dotenv = array_get($configs, 'dotenv')) {
+            // Apply dotenv configs.
+            if ($dotenv = value($configs, 'dotenv')) {
+                $dotenvCache = !!($dotenv['cache'] ?? 1); // @default=true
+                $dotenvGlobal = !!($dotenv['global'] ?? 0); // @default=false
+
                 $this->applyDotEnvConfigs(
-                    Config::parseDotEnv($dotenv['file']),
-                    !!($dotenv['global'] ?? false), // @default=false
+                    Config::parseDotEnv($dotenv['file'], $dotenvCache),
+                    $dotenvGlobal
                 );
             }
 
