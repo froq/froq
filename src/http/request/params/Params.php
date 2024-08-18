@@ -31,19 +31,14 @@ class Params extends Pack
                     function_exists('app') ? app()->request->segments() : []
                 ),
                 $this instanceof CookieParams => (
-                    function_exists('app') ? app()->request->cookies->toArray() : []
+                    function_exists('app') ? app()->request->cookies->items() : []
                 ),
                 $this instanceof HeaderParams => (
-                    function_exists('app') ? app()->request->headers->toArray() : []
+                    function_exists('app') ? app()->request->headers->items() : []
                 ),
                 // Take all for Params.
                 default => $_REQUEST,
             };
-
-            // Regularize keys as "-" => "_" for headers.
-            if ($data && $this instanceof HeaderParams) {
-                $data = array_convert_keys($data, CASE_SNAKE, '-');
-            }
         }
 
         parent::__construct($data);

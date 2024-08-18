@@ -18,16 +18,11 @@ use froq\util\package\Package;
  */
 class Pack extends Package
 {
-    /** For Headers only. */
-    private ?bool $icase;
-
     /**
      * @override
      */
-    public function __construct(array $data = [], bool $icase = null)
+    public function __construct(array $data = [])
     {
-        $this->icase = $icase;
-
         parent::__construct(...$data);
     }
 
@@ -50,16 +45,7 @@ class Pack extends Package
     public function search(string $name): array|null
     {
         if ($this->offsetExists($name)) {
-            return [$name, parent::offsetGet($name)];
-        }
-
-        if ($this->icase) {
-            $name = strtolower($name);
-            foreach ($this->toArray() as $key => $value) {
-                if ($name === strtolower($key)) {
-                    return [$key, $value];
-                }
-            }
+            return [$name, $this->offsetGet($name)];
         }
 
         return null;

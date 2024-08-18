@@ -130,7 +130,7 @@ class Request extends Message
         $input = (string) file_get_contents('php://input');
 
         if ($parse) {
-            $contentType = $this->getHeader('content-type', '');
+            $contentType = $this->getHeader('Content-Type', '');
 
             if ($json || str_contains($contentType, '/json')) {
                 return json_unserialize($input, $assoc);
@@ -376,7 +376,7 @@ class Request extends Message
         $headers = $this->prepareHeaders();
 
         [$contentType, $contentCharset]
-            = $this->parseContentType($headers['content-type'] ?? '');
+            = $this->parseContentType($headers['Content-Type'] ?? '');
 
         // Set/parse body for overriding methods (PUT, DELETE or even for get).
         // Note: 'php://input' is not available with enctype="multipart/form-data".
@@ -405,6 +405,7 @@ class Request extends Message
     }
 
     /**
+     * Normalize headers setting all keys title-cased (eg: "content-type" => "Content-Type").
      * @internal
      */
     private function prepareHeaders(): array
@@ -420,32 +421,35 @@ class Request extends Message
             }
         }
 
-        // Lower all names.
-        $headers = array_lower_keys($headers);
+        // Title-case all names & reduce dashes.
+        $headers = array_map_keys(fn($key): string => convert_case(
+            (string) $key, CASE_TITLE, '-', reduce: '-'
+        ), $headers);
 
         // Content issues.
-        if (!isset($headers['content-type'])
+        if (!isset($headers['Content-Type'])
             && isset($_SERVER['CONTENT_TYPE'])) {
-            $headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+            $headers['Content-Type'] = $_SERVER['CONTENT_TYPE'];
         }
-        if (!isset($headers['content-length'])
+        if (!isset($headers['Content-Length'])
             && isset($_SERVER['CONTENT_LENGTH'])) {
-            $headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
+            $headers['Content-Length'] = $_SERVER['CONTENT_LENGTH'];
         }
-        if (!isset($headers['content-md5'])
+        if (!isset($headers['Content-Md5'])
             && isset($_SERVER['CONTENT_MD5'])) {
-            $headers['content-md5'] = $_SERVER['CONTENT_MD5'];
+            $headers['Content-Md5'] = $_SERVER['CONTENT_MD5'];
         }
 
         // Authorization issues.
-        if (!isset($headers['authorization'])) {
+        if (!isset($headers['Authorization'])) {
             if (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-                $headers['authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+                $headers['Authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
             } elseif (isset($_SERVER['PHP_AUTH_DIGEST'])) {
-                $headers['authorization'] = $_SERVER['PHP_AUTH_DIGEST'];
+                $headers['Authorization'] = $_SERVER['PHP_AUTH_DIGEST'];
             } elseif (isset($_SERVER['PHP_AUTH_USER'])) {
-                $headers['authorization'] = 'Basic '.
-                    base64_encode($_SERVER['PHP_AUTH_USER'] .':'. ($_SERVER['PHP_AUTH_PW'] ?? ''));
+                $headers['Authorization'] = 'Basic ' . base64_encode(
+                    $_SERVER['PHP_AUTH_USER'] .':'. ($_SERVER['PHP_AUTH_PW'] ?? '')
+                );
             }
         }
 
