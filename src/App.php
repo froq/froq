@@ -33,7 +33,10 @@ class App
 {
     use InstanceTrait;
 
-    /** For versioning (eg: app.host/v1/book). */
+    /**
+     * URI root for versioning etc.
+     * Eg: /v1 => app.host/v1/book
+     */
     public readonly string $root;
 
     /** App base directory.  */
@@ -386,17 +389,6 @@ class App
                 $this->router->setOptions($router);
             }
 
-            // Apply dotenv configs.
-            if ($dotenv = value($configs, 'dotenv')) {
-                $dotenvCache = !!($dotenv['cache'] ?? 1); // @default=true
-                $dotenvGlobal = !!($dotenv['global'] ?? 0); // @default=false
-
-                $this->applyDotEnvConfigs(
-                    Config::parseDotEnv($dotenv['file'], $dotenvCache),
-                    $dotenvGlobal
-                );
-            }
-
             // Apply app configs.
             $this->applyConfigs($configs);
         }
@@ -406,7 +398,7 @@ class App
         }
 
         $this->root = $root;
-        $this->env  = new AppEnv($env);
+        $this->env = new AppEnv($env);
 
         // Add headers & cookies (if provided).
         [$headers, $cookies] = $this->config->get(['headers', 'cookies']);
@@ -414,7 +406,7 @@ class App
             $this->response->addHeader($name, $value);
         }
         if ($cookies) foreach ($cookies as $name => $cookie) {
-            @[$value, $options] = $cookie;
+            [$value, $options] = array_pad($cookie, 2, null);
             $this->response->addCookie($name, $value, $options);
         }
 
@@ -892,20 +884,7 @@ class App
             }
         }
 
-        $routes   && $this->router->addRoutes($routes);
+        $routes && $this->router->addRoutes($routes);
         $services && $this->servicer->addServices($services);
-    }
-
-    /**
-     * Apply dot-env configs.
-     */
-    private function applyDotEnvConfigs(array $configs, bool $global): void
-    {
-        foreach ($configs as $name => $value) {
-            putenv($name . '=' . $value);
-
-            // When it was set as true.
-            $global && $_ENV[$name] = $value;
-        }
     }
 }
