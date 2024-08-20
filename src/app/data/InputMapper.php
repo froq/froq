@@ -49,7 +49,7 @@ class InputMapper
     /**
      * Constructor.
      *
-     * @param string|object|null  $do
+     * @param string|object|null  $do Target data class / object.
      * @param string|array        $source
      * @param string|Closure|null $apply
      */

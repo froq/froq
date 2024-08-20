@@ -22,11 +22,21 @@ class InputValidator
     /**
      * Constructor.
      *
-     * @param froq\app\data\DataObject $do
+     * @param object $do Source data object.
      */
     public function __construct(
-        public readonly DataObject $do
+        public readonly object $do
     ) {}
+
+    /**
+     * Proxy method for InputCollector.collect() method.
+     *
+     * @return array
+     */
+    public function collect(): array
+    {
+        return (new InputCollector($this->do))->collect();
+    }
 
     /**
      * Validate DTO data.

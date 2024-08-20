@@ -5,6 +5,8 @@
  */
 namespace froq\app\data;
 
+use froq\common\interface\Arrayable;
+
 /**
  * Collector class, collects property data of given DTO instance.
  *
@@ -19,24 +21,30 @@ class InputCollector
     /**
      * Constructor.
      *
-     * @param froq\app\data\DataObject $do
+     * @param object $do Source data object.
      */
     public function __construct(
-        public readonly DataObject $do
+        public readonly object $do
     ) {}
 
     /**
-     * Bridge method for DTO's `toInput()` method.
+     * Collect property data of DTO instance.
      *
      * @return array
      */
     public function collect(): array
     {
-        return $this->do->toInput();
+        if ($this->do instanceof DataObject) {
+            return $this->do->toInput();
+        }
+        if ($this->do instanceof Arrayable) {
+            return $this->do->toArray();
+        }
+        return $this->collectVars();
     }
 
     /**
-     * Collect "public" property data of given DTO instance.
+     * Collect "public" property data of DTO instance.
      *
      * @return array
      */
