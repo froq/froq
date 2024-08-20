@@ -100,6 +100,16 @@ class AppDir
     }
 
     /**
+     * Get service dir.
+     *
+     * @return string
+     */
+    public static function getServiceDir(): string
+    {
+        return APP_DIR . '/app/service';
+    }
+
+    /**
      * Get system dir.
      *
      * @return string
@@ -159,12 +169,12 @@ class AppDir
     {
         if (file_exists($file = APP_DIR . '/composer.json')) {
             $data = json_decode(file_get_contents($file), true);
-            $dirs = (array) ($data['autoload']['psr-4'] ?? []);
+            $dirs = $data['autoload']['psr-4'] ?? [];
 
             if ($dirs) {
                 $dirs = array_map_keys(
                     fn($ns) => rtrim((string) $ns, '\\'),
-                    $dirs
+                    (array) $dirs
                 );
 
                 if (!$assoc) {
