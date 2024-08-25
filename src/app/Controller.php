@@ -464,6 +464,17 @@ class Controller implements Reflectable
     }
 
     /**
+     * Flash for session.
+     *
+     * @param  mixed|null $message
+     * @return mixed|null (Session)
+     */
+    public final function flash(mixed $message = null): mixed
+    {
+        return func_num_args() ? $this->session->flash($message) : $this->session->flash();
+    }
+
+    /**
      * Forward an internal call to other call (controller method) with given call arguments. The `$call`
      * parameter must be fully qualified for explicit methods without `Controller` and `Action` suffixes
      * eg: `Book.show`, otherwise `index` method does not require that explicity.
@@ -515,14 +526,21 @@ class Controller implements Reflectable
     }
 
     /**
-     * Flash for session.
+     * Abort procedure throwing an HttpException by given code, as alternative of `throwHttpException()` method.
      *
-     * @param  mixed|null $message
-     * @return mixed|null (Session)
+     * @param  int         $code
+     * @param  string|null $message
+     * @param  array|null  $headers
+     * @param  array|null  $cookies
+     * @return void
+     * @throws froq\http\HttpException
      */
-    public final function flash(mixed $message = null): mixed
+    public final function abort(int $code, string $message = null, array $headers = null, array $cookies = null): void
     {
-        return func_num_args() ? $this->session->flash($message) : $this->session->flash();
+        $headers && $this->response->setHeaders($headers);
+        $cookies && $this->response->setCookies($cookies);
+
+        self::throwHttpException($code, $message);
     }
 
     /**
@@ -771,6 +789,8 @@ class Controller implements Reflectable
         return $this->request->cookieParams($names, $defaults, ...$options);
     }
 
+    /** Internals. */
+
     /**
      * Call an action that defined in subclass or by `App.route()` method or other shortcut route
      * methods like `get()`, `post()`, eg: `$app->get("/book/:id", "Book.show")`.
@@ -918,8 +938,10 @@ class Controller implements Reflectable
         return new $class($controller ?? $this, $database ?? $this->app->database);
     }
 
+    /** Statics. */
+
     /**
-     * Check if given exception is an `HttpException` instance.
+     * Check if given Throwable is an `HttpException` instance.
      *
      * @param  Throwable|null $e
      * @param  bool           $checkCause
