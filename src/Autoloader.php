@@ -267,15 +267,17 @@ class Autoloader
      * @param  string $directory
      * @return array
      */
-    public function generateClassMap(string $directory): array
+    public function generateClassMap(string $directory, string $pattern = null): array
     {
+        $pattern ??= '~.+/[A-Z][A-Za-z0-9]+\.php$~'; // Files starting with upper-case only.
+        $flags = \RecursiveRegexIterator::MATCH; // For collecting file info stack only.
+
         /** @var RegexIterator<SplFileInfo> */
         $infos = new \RegexIterator(
             new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($directory)
             ),
-            '~.+/[A-Z][A-Za-z0-9]+\.php$~', // Files starting with upper-case only.
-            \RecursiveRegexIterator::MATCH, // For collecting file info stack only.
+            $pattern, $flags
         );
 
         $map = [];
