@@ -160,7 +160,7 @@ class AppDir
     }
 
     /**
-     * Get autoload dir.
+     * Get autoload dirs (from composer.json file if "psr-4" field exists).
      *
      * @param  bool $assoc
      * @return array<string>
@@ -205,7 +205,7 @@ class AppDir
      */
     public static function toPath(string $base, string ...$parts): string
     {
-        if (str_contains($base, '%')) {
+        if (str_contains($base, '%s')) {
             $path = sprintf($base, ...$parts);
         } else {
             $path = FileSystem::joinPath($base, ...$parts);
