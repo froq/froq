@@ -216,7 +216,7 @@ class Request extends Message
         }
 
         if ($withQuery && ($query = $this->uri->getQuery())) {
-            $ret .= '?' . (!$escape ? $query : htmlspecialchars((string) $query));
+            $ret .= '?' . (!$escape ? $query : htmlspecialchars($query->toString()));
         }
 
         return $ret;
