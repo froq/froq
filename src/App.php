@@ -391,6 +391,9 @@ class App
 
             // Apply app configs.
             $this->applyConfigs($configs);
+
+            // Apply slash configs.
+            $this->applySlashConfigs();
         }
 
         if (!$root || !$env) {
@@ -886,5 +889,55 @@ class App
 
         $routes && $this->router->addRoutes($routes);
         $services && $this->servicer->addServices($services);
+    }
+
+    /**
+     * Apply slash configs, redirect to normalized location if needed.
+     */
+    private function applySlashConfigs(): void
+    {
+        [$reduceSlashes, $addEndingSlashes, $dropEndingSlashes] = $this->config->get(
+            ['request.reduceSlashes', 'request.addEndingSlashes', 'request.dropEndingSlashes']
+        );
+
+        if ($reduceSlashes || $addEndingSlashes || $dropEndingSlashes) {
+            [$path, $query] = split('?', $this->request->getUri(), 2);
+
+            if ($path === '/') {
+                return;
+            }
+
+            $reduced = $modified = null;
+
+            if ($reduceSlashes && str_contains($path, '//')) {
+                $path = preg_replace('~/+~', '/', $path, -1, $reduced);
+            }
+
+            if ($addEndingSlashes) {
+                $path = str_suffix($path, '/', $modified);
+            } elseif ($dropEndingSlashes) {
+                $path = str_unsuffix($path, '/', $modified);
+            }
+
+            // Redirect if modified.
+            if ($reduced || $modified) {
+                $location = $path . ($query ? '?' . $query : '');
+                $redirectedBy = 'app (line:' . reflect(__METHOD__)->getStartLine() . ')';
+                $poweredBy = $this->config('headers.X-Powered-By');
+
+                header('Location: ' . $location, true, Status::MOVED_PERMANENTLY);
+                header('Cache-Control: no-cache'); header('Pragma: no-cache');
+                header('Content-Type: n/a'); header('Content-Length: 0');
+                header('X-Redirected-By: ' . $redirectedBy);
+
+                if ($poweredBy !== null) {
+                    header('X-Powered-By: ' . $poweredBy);
+                } else {
+                    header_remove('X-Powered-By');
+                }
+
+                exit; // Terminate.
+            }
+        }
     }
 }
