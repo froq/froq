@@ -6,6 +6,7 @@
 namespace froq;
 
 use froq\app\{Controller, Repository};
+use froq\util\Objects;
 
 /**
  * A route stack class, able to such ops add, pack and resolve using regular expression utilities.
@@ -501,12 +502,112 @@ class Router
     /**
      * Prepare methods for a route.
      */
-    private static function prepareMethods(string $methods): array
+    private static function prepareMethods(string|null $methods): array
     {
         // Non-array calls without method that accept all (eg: ["/book/:id", "Book.show"]).
-        $methods = (string) ($methods ?: '*');
+        $methods = $methods ?: '*';
 
         // Multiple methods can be given (eg: ["/book/:id", ["GET,POST" => "Book.index"]]).
         return array_map('strtoupper', split(',', $methods));
+    }
+
+    /**
+     * Parse routes using controller methods' annotations or attributes.
+     *
+     * @param  string $directory Controllers directory.
+     * @param  string $source    Valids: annotation(s) or attribute(s).
+     * @param  bool   $cache
+     * @return array
+     */
+    public static function parseRoutes(string $directory, string $source, bool $cache = true): array
+    {
+        if ($cache) {
+            $cacheFile = AppDir::toPath('/var/routes-%s.map', str_unsuffix($source, 's'));
+            if (file_exists($cacheFile) && is_array($cacheData = include $cacheFile)) {
+                return $cacheData;
+            }
+        }
+
+        $autoloader = \froq\Autoloader::init();
+        $controllers = $autoloader->generateClassMap(
+            $directory, '~.+/[A-Z][A-Za-z0-9]+Controller\.php$~'
+        );
+
+        $routes = [];
+
+        if (!$controllers = array_keys($controllers)) {
+            return $routes;
+        }
+
+        $actions = array_reduce($controllers, function (array $ret, string $controller): array {
+            return array_merge($ret, array_filter(
+                (new \ReflectionClass($controller))->getMethods(\ReflectionMethod::IS_PUBLIC),
+                function (\ReflectionMethod $ref): bool {
+                    return str_ends_with($ref->name, app\Controller::ACTION_SUFFIX)
+                        || ($ref->name === app\Controller::INDEX_ACTION)
+                        || ($ref->name === app\Controller::ERROR_ACTION);
+                }
+            ));
+        }, []);
+
+        if (!$actions) {
+            return $routes;
+        }
+
+        switch ($source) {
+            case 'annotation':
+            case 'annotations':
+                foreach ($actions as $action) {
+                    if (!$doc = $action->getDocComment()) {
+                        continue;
+                    }
+                    // Eg: @call * /book or GET /book or GET,POST /book
+                    if (!preg_match('~@call +([^\s]+) +([^\s]+)~', $doc, $match)) {
+                        continue;
+                    }
+
+                    [$methods, $route] = slice($match, 1);
+                    foreach (split(',', $methods) as $method) {
+                        $routes[$route][$method] = join('.', [
+                            self::prepareControllerName($action->class, false),
+                            self::prepareActionName($action->name, false)
+                        ]);
+                    }
+                }
+                break;
+            case 'attribute':
+            case 'attributes':
+                foreach ($actions as $action) {
+                    if (!$attributes = $action->getAttributes()) {
+                        continue;
+                    }
+
+                    foreach ($attributes as $attribute) {
+                        $name = Objects::getShortName($attribute->getName());
+                        // Only "meta" is available for now.
+                        if (strtolower($name) === 'meta') {
+                            $arguments = $attribute->getArguments();
+                            $methods = $arguments['method'] ?? $arguments['methods'] ?? '*';
+                            $route = $arguments[0] ?? $arguments['call'] ?? '';
+                            foreach (split(',', $methods) as $method) {
+                                $routes[$route][$method] = join('.', [
+                                    self::prepareControllerName($action->class, false),
+                                    self::prepareActionName($action->name, false)
+                                ]);
+                            }
+                        }
+                    }
+                }
+                break;
+            default:
+                throw new RouterException('Invalid source directive');
+        }
+
+        if ($cache && $routes) {
+            $cacheData = "<?php\nreturn " . var_export($routes, true) . ";";
+            file_put_contents($cacheFile, preg_replace('~=> +[\n\r]\s*~', '=> ', $cacheData));
+        }
+
+        return $routes;
     }
 }
