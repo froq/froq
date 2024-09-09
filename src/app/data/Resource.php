@@ -62,7 +62,7 @@ class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
      * or callCallable() method).
      *
      * @note This method must be overridden if subclass business differs.
-     * @inheritDoc
+     * @inheritDoc Stringable
      */
     public function __toString(): string
     {
@@ -73,7 +73,7 @@ class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
      * Used by JsonPayload for JSON serialization.
      *
      * @note This method must be overridden if subclass business differs.
-     * @inheritDoc
+     * @inheritDoc JsonSerializable
      */
     public function jsonSerialize(): mixed
     {
@@ -85,17 +85,17 @@ class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
      * Applies filters and transforms if any given in subclass.
      *
      * @note This method must be overridden if subclass business differs.
-     * @inheritDoc Arrayable
+     * @inheritDoc froq\common\interface\Arrayable
      */
     public function toArray(): array
     {
-        $data = $this->data;
-
-        if ($data && $this->filters) {
-            $data = $this->filterFields($data);
-        }
-        if ($data && $this->transforms) {
-            $data = $this->transformFields($data);
+        if ($data = $this->data) {
+            if ($this->filters) {
+                $data = $this->filterFields($data);
+            }
+            if ($this->transforms) {
+                $data = $this->transformFields($data);
+            }
         }
 
         return [
@@ -110,14 +110,11 @@ class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
      * Convert this resource to JSON string.
      *
      * @note This method must be overridden if subclass business differs.
-     * @inheritDoc
+     * @inheritDoc froq\common\interface\Jsonable
      */
     public function toJson(int $flags = 0): string
     {
-        return json_serialize(
-            $this->toArray(),
-            indent: (int) $this->options['indent']
-        );
+        return json_serialize($this->toArray(), (int) $this->options['indent']);
     }
 
     /**
@@ -128,7 +125,7 @@ class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
     public function toJsonPayload(): JsonPayload
     {
         $attributes = [];
-        if ($this->options['indent'] !== false) {
+        if ($this->options['indent']) {
             $attributes['indent'] = (int) $this->options['indent'];
         }
 
