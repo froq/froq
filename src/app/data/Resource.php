@@ -6,7 +6,7 @@
 namespace froq\app\data;
 
 use froq\common\interface\{Arrayable, Jsonable};
-use froq\http\response\payload\JsonPayload;
+use froq\http\response\{Status, payload\JsonPayload};
 
 /**
  * Resource class for JSON responses, provides some utilities like filtering and transforming
@@ -20,7 +20,7 @@ use froq\http\response\payload\JsonPayload;
 class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
 {
     /** HTTP status. */
-    protected int $status = 200;
+    protected int $status;
 
     /** Data & meta fields. */
     protected array|null $data, $meta;
@@ -40,15 +40,15 @@ class Resource implements Arrayable, Jsonable, \Stringable, \JsonSerializable
     /**
      * Constructor.
      *
-     * @param array|null  $data
-     * @param array|null  $meta
-     * @param mixed       $error
-     * @param int         $status
-     * @param array       $options
+     * @param array|null $data
+     * @param array|null $meta
+     * @param mixed      $error
+     * @param int        $status
+     * @param array      $options
      */
     public function __construct(
         array|null $data = null, array|null $meta = null,
-        mixed $error = null, int $status = 200,
+        mixed $error = null, int $status = Status::OKAY,
         array $options = []
     )
     {
