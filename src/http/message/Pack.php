@@ -48,6 +48,13 @@ class Pack extends Package
             return [$name, $this->offsetGet($name)];
         }
 
+        // Try with lower-cased name.
+        foreach ($this->data as $key => $value) {
+            if (strtolower($key) === strtolower($name)) {
+                return [$name, $value];
+            }
+        }
+
         return null;
     }
 
