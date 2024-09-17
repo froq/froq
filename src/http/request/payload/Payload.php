@@ -67,13 +67,9 @@ abstract class Payload implements Arrayable, \ArrayAccess, \IteratorAggregate
      */
     protected function isTypeOkay(string ...$searches): bool
     {
-        $contentType = $this->request->getContentType() ?? '';
-
-        foreach ($searches as $search) {
-            if (stristr($contentType, $search) !== false) {
-                return true;
-            }
-        }
-        return false;
+        return mime_check_type(
+            (string) $this->request->getContentType(),
+            $searches
+        );
     }
 }

@@ -361,14 +361,14 @@ class Client
             $contentType = $headers['content-type'] = strtolower($headers['content-type']);
         }
 
-        // Add JSON header if options json is true.
-        if ($this->options['json'] && (!$contentType || !str_contains($contentType, 'json'))) {
+        // Add JSON header if options json is true & no content-type header given.
+        if ($this->options['json'] && (!$contentType || !str_test($contentType, '[/+]json'))) {
             $contentType = $headers['content-type'] = 'application/json';
         }
 
         // Encode body & add related headers if needed.
         if ($body && is_array($body)) {
-            if ($contentType && str_contains($contentType, 'json')) {
+            if ($contentType && str_test($contentType, '[/+]json')) {
                 $body = json_encode($body, flags: (
                     JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR
                 ));

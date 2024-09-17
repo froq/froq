@@ -132,7 +132,7 @@ class Request extends Message
         if ($parse) {
             $contentType = $this->getHeader('Content-Type', '');
 
-            if ($json || str_contains($contentType, '/json')) {
+            if ($json || str_test($contentType, '[/+]json')) {
                 return json_unserialize($input, $assoc);
             }
 
@@ -387,7 +387,7 @@ class Request extends Message
 
         if ($content !== null) {
             // POST data always parsed, for GETs too (to utilize JSON payloads, thanks Elasticsearch).
-            $_POST = $this->prepareGlobals('POST', $content, str_contains($contentType, '/json'));
+            $_POST = $this->prepareGlobals('POST', $content, str_test($contentType, '[/+]json'));
         }
 
         $_COOKIE = $this->prepareGlobals('COOKIE');

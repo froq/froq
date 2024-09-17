@@ -108,7 +108,7 @@ class Body
      */
     public function isNa(): bool
     {
-        return strtolower((string) $this->getContentType()) === ContentType::NA;
+        return $this->getContentType() === ContentType::NA;
     }
 
     /**
@@ -118,8 +118,10 @@ class Body
      */
     public function isText(): bool
     {
-        return str_has_prefix((string) $this->getContentType(), 'text/', true)
-            || str_has((string) $this->getContentType(), ['/json', '/xml'], true);
+        return mime_check_type(
+            (string) $this->getContentType(),
+            '~^text/|[/+](json|xml)$~'
+        );
     }
 
     /**
@@ -129,7 +131,10 @@ class Body
      */
     public function isImage(): bool
     {
-        return str_has_prefix((string) $this->getContentType(), 'image/', true);
+        return mime_check_type(
+            (string) $this->getContentType(),
+            '~^image/~'
+        );
     }
 
     /**
@@ -139,7 +144,10 @@ class Body
      */
     public function isJson(): bool
     {
-        return str_has((string) $this->getContentType(), '/json', true);
+        return mime_check_type(
+            (string) $this->getContentType(),
+            '~[/+]json$~'
+        );
     }
 
     /**
@@ -149,7 +157,10 @@ class Body
      */
     public function isXml(): bool
     {
-        return str_has((string) $this->getContentType(), '/xml', true);
+        return mime_check_type(
+            (string) $this->getContentType(),
+            '~[/+]xml$~'
+        );
     }
 
     /**
@@ -159,6 +170,9 @@ class Body
      */
     public function isFile(): bool
     {
-        return str_has_suffix((string) $this->getContentType(), ['octet-stream', 'download'], true);
+        return mime_check_type(
+            (string) $this->getContentType(),
+            '~/(octet-stream|download)$~'
+        );
     }
 }

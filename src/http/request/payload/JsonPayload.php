@@ -25,7 +25,7 @@ class JsonPayload extends Payload implements PayloadInterface, \Countable
     {
         parent::__construct($request);
 
-        $this->okay = $this->isTypeOkay('/json');
+        $this->okay = $this->isTypeOkay('~[/+]json~');
     }
 
     /**

@@ -191,8 +191,6 @@ class Payload
      */
     private function sniffContentType(string $contentType): string|null
     {
-        $contentType = strtolower($contentType);
-
         if ($contentType === ContentType::NA) {
             return $contentType;
         }
